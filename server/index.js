@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { getDb } from './db.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
+import { seed } from './seed-data.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -47,6 +48,13 @@ try {
     db.prepare(`INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, IdRol, TerminosAceptados) VALUES (?, ?, ?, ?, 1, 1)`).run('admin@certinanas.com', 'admin123', 'Admin', 'CertiNanas');
     console.log('Usuario admin de seed creado (admin@certinanas.com / admin123).');
   }
+  // Seed datos demo si no hay familias ni cuidadoras
+  const usuariosNoAdmin = db.prepare('SELECT COUNT(*) AS c FROM Usuarios WHERE IdRol IN (2, 3)').get().c;
+  if (usuariosNoAdmin === 0) {
+    console.log('Poblando base de datos con datos demo...');
+    seed(db);
+  }
+
   // Crear tablas de CasosExito y CasosNoAcuerdo si no existen
   db.exec(`
     CREATE TABLE IF NOT EXISTS CasosExito (Id INTEGER PRIMARY KEY AUTOINCREMENT, Titulo TEXT NOT NULL, Descripcion TEXT NOT NULL, IdFamilia INTEGER, IdCuidadora INTEGER, FechaCreacion TEXT NOT NULL DEFAULT (datetime('now')));
