@@ -47,6 +47,40 @@ try {
     db.prepare(`INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, IdRol, TerminosAceptados) VALUES (?, ?, ?, ?, 1, 1)`).run('admin@certinanas.com', 'admin123', 'Admin', 'CertiNanas');
     console.log('Usuario admin de seed creado (admin@certinanas.com / admin123).');
   }
+  // Crear tablas de CasosExito y CasosNoAcuerdo si no existen
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS CasosExito (Id INTEGER PRIMARY KEY AUTOINCREMENT, Titulo TEXT NOT NULL, Descripcion TEXT NOT NULL, IdFamilia INTEGER, IdCuidadora INTEGER, FechaCreacion TEXT NOT NULL DEFAULT (datetime('now')));
+    CREATE TABLE IF NOT EXISTS CasosNoAcuerdo (Id INTEGER PRIMARY KEY AUTOINCREMENT, Titulo TEXT NOT NULL, Descripcion TEXT NOT NULL, IdFamilia INTEGER, IdCuidadora INTEGER, FechaCreacion TEXT NOT NULL DEFAULT (datetime('now')));
+  `);
+
+  // Seed casos de éxito si están vacíos
+  if (db.prepare('SELECT COUNT(*) AS c FROM CasosExito').get().c === 0) {
+    const exitos = [
+      ['María encontró a la cuidadora perfecta para su hijo con TEA', 'Después de meses de búsqueda, María contactó con una especialista en TEA a través de CERTINANAS. Hoy su hijo asiste a terapias 3 veces por semana y ha mostrado avances notables en comunicación.', 1, 1],
+      ['Familia García: "Volvimos a tener tiempo para nosotros"', 'Con el acompañamiento escolar de CERTINANAS, los padres de Mateo pudieron retomar sus actividades laborales con la tranquilidad de que su hijo estaba en buenas manos.', 1, 1],
+      ['Terapia de estimulación temprana con resultados visibles', 'A los 6 meses de terapias constantes, la pequeña Sofía logró hitos de desarrollo que los médicos no esperaban.', 1, 1],
+      ['Apoyo escolar que transformó la experiencia educativa', 'Diego, diagnosticado con TDAH, pasó de tener problemas de conducta a ser un estudiante destacado gracias al acompañamiento personalizado.', 1, 1],
+      ['Atención domiciliaria que cambió la dinámica familiar', 'Los abuelos de Valentina pudieron descansar sabiendo que ella estaba siendo cuidada por una profesional certificada.', 1, 1],
+      ['Carmen: de cuidadora a parte de la familia', 'Lo que empezó como un servicio temporal de 2 semanas se convirtió en una relación de confianza que ya lleva 8 meses.', 1, 1],
+    ];
+    for (const e of exitos) db.prepare('INSERT INTO CasosExito (Titulo, Descripcion, IdFamilia, IdCuidadora) VALUES (?, ?, ?, ?)').run(...e);
+    console.log('Casos de éxito de seed insertados.');
+  }
+
+  // Seed casos sin acuerdo si están vacíos
+  if (db.prepare('SELECT COUNT(*) AS c FROM CasosNoAcuerdo').get().c === 0) {
+    const noAcuerdo = [
+      ['Disponibilidad horaria incompatible', 'La familia necesitaba cobertura los fines de semana y la cuidadora solo estaba disponible entre semana.', 1, 1],
+      ['Distancia geográfica', 'La cuidadora vivía muy lejos del domicilio familiar y el tiempo de desplazamiento hacía inviable el servicio diario.', 1, 1],
+      ['Metodología de trabajo diferente', 'La familia prefería un enfoque más estructurado, mientras que la cuidadora promovía un método más libre basado en el juego.', 1, 1],
+      ['Presupuesto no disponible', 'Aunque ambas partes mostraron interés, el costo del servicio superaba el presupuesto mensual de la familia.', 1, 1],
+      ['Cambio de ciudad de la cuidadora', 'Justo cuando estaban por cerrar el acuerdo, la cuidadora recibió una oferta laboral en otra ciudad.', 1, 1],
+      ['Requisitos adicionales no previstos', 'La familia solicitaba disponibilidad para cuidar a dos niños con necesidades distintas, y la cuidadora solo tenía experiencia con un perfil específico.', 1, 1],
+    ];
+    for (const n of noAcuerdo) db.prepare('INSERT INTO CasosNoAcuerdo (Titulo, Descripcion, IdFamilia, IdCuidadora) VALUES (?, ?, ?, ?)').run(...n);
+    console.log('Casos sin acuerdo de seed insertados.');
+  }
+
   console.log('Esquema de BD verificado.');
 } catch (err) {
   console.error('Error en auto-setup:', err.message);
