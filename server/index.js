@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { getDb } from './db.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
+import { setupDatabase } from './setup.js';
 import { seed } from './seed-data.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -31,18 +32,10 @@ app.get('/api/health', (req, res) => {
 const distPath = path.resolve(__dirname, '..', 'dist');
 app.use(express.static(distPath));
 
-// Auto-setup: crear tablas si no existen
+// Auto-setup: crear todas las tablas y seed inicial
 try {
   const db = getDb();
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS Roles (Id INTEGER PRIMARY KEY AUTOINCREMENT, Nombre TEXT NOT NULL UNIQUE, Descripcion TEXT, FechaCreacion TEXT NOT NULL DEFAULT (datetime('now')));
-    CREATE TABLE IF NOT EXISTS Usuarios (Id INTEGER PRIMARY KEY AUTOINCREMENT, Email TEXT NOT NULL UNIQUE, PasswordHash TEXT NOT NULL, Nombres TEXT NOT NULL, Apellidos TEXT NOT NULL, NumeroDocumento TEXT, TipoDocumento TEXT DEFAULT 'DNI', Telefono TEXT, IdRol INTEGER NOT NULL REFERENCES Roles(Id), EmailConfirmado INTEGER NOT NULL DEFAULT 0, TerminosAceptados INTEGER NOT NULL DEFAULT 0, Activo INTEGER NOT NULL DEFAULT 1, FechaCreacion TEXT NOT NULL DEFAULT (datetime('now')));
-  `);
-  const roleCount = db.prepare('SELECT COUNT(*) AS c FROM Roles').get();
-  if (roleCount.c === 0) {
-    db.exec(`INSERT INTO Roles (Nombre, Descripcion) VALUES ('Admin', 'Administrador'), ('Familia', 'Usuario familiar'), ('Cuidadora', 'Profesional cuidadora');`);
-    console.log('Roles de seed insertados.');
-  }
+  setupDatabase(db);
   const adminCount = db.prepare("SELECT COUNT(*) AS c FROM Usuarios WHERE IdRol = 1").get();
   if (adminCount.c === 0) {
     db.prepare(`INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, IdRol, TerminosAceptados) VALUES (?, ?, ?, ?, 1, 1)`).run('admin@certinanas.com', 'admin123', 'Admin', 'CertiNanas');

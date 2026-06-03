@@ -1,7 +1,6 @@
 import { getDb, closeDb } from './db.js';
 
-const db = getDb();
-
+export function setupDatabase(db) {
 db.exec(`
   CREATE TABLE IF NOT EXISTS Roles (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -214,4 +213,11 @@ db.exec(`
 `);
 
 console.log('Tablas creadas y datos de semilla insertados.');
-closeDb();
+}
+
+// Ejecutar directamente si es llamado como script
+if (process.argv[1] && (process.argv[1].endsWith('setup.js') || process.argv[1].endsWith('setup'))) {
+  const db = getDb();
+  setupDatabase(db);
+  closeDb();
+}
