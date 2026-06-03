@@ -169,6 +169,24 @@ db.exec(`
     FechaPago TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS CasosExito (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Titulo TEXT NOT NULL,
+    Descripcion TEXT NOT NULL,
+    IdFamilia INTEGER,
+    IdCuidadora INTEGER,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS CasosNoAcuerdo (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Titulo TEXT NOT NULL,
+    Descripcion TEXT NOT NULL,
+    IdFamilia INTEGER,
+    IdCuidadora INTEGER,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS Notificaciones (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     IdUsuarioDestino INTEGER NOT NULL REFERENCES Usuarios(Id),

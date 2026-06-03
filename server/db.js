@@ -1,9 +1,13 @@
 import Database from 'better-sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = process.env.DB_PATH || join(__dirname, 'data', 'certinanas.db');
+const DATA_DIR = join(__dirname, 'data');
+const DB_PATH = process.env.DB_PATH || join(DATA_DIR, 'certinanas.db');
+
+if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 
 let db = null;
 

@@ -10,8 +10,6 @@
   "dependencies": {
     "better-sqlite3": "^12.10.0",
     "cors": "^2.8.5",
-    "express": "^4.21.0",
-    "msnodesqlv8": "^5.2.0",
-    "mssql": "^11.0.1"
+    "express": "^4.21.0"
   }
 }

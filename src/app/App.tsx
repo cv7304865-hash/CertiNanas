@@ -1,22 +1,23 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Star, Shield, Lock, Search, ShieldPlus, ChevronRight, Briefcase, FileText, CheckCircle, SearchX, LayoutDashboard, MessageSquare, LogOut, UserCircle } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { AuthModal } from './components/AuthModal';
 import { InterviewModal } from './components/InterviewModal';
 import { FloatingSupport } from './components/FloatingSupport';
 import { LegalModal } from './components/LegalModal';
 import { ProfileModal, NanaProfile } from './components/ProfileModal';
 import { Dashboard } from './components/Dashboard';
+import { AdminDashboard } from './components/AdminDashboard';
 import { Messages } from './components/Messages';
 import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
 import { HeroLanding } from './components/HeroLanding';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 
-type View = 'home' | 'dashboard' | 'messages' | 'checkout';
+type View = 'home' | 'dashboard' | 'messages' | 'checkout' | 'admin';
 
 function AppContent() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const [view, setView] = useState<View>('home');
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [selectedExperience, setSelectedExperience] = useState('');
@@ -26,6 +27,12 @@ function AppContent() {
     isOpen: false,
     mode: 'login',
   });
+
+  useEffect(() => {
+    if (!loading && !user) {
+      setAuthModalConfig({ isOpen: true, mode: 'login' });
+    }
+  }, [loading, user]);
   const [interviewModal, setInterviewModal] = useState<{ isOpen: boolean; nanaName: string }>({
     isOpen: false,
     nanaName: '',
@@ -222,6 +229,11 @@ function AppContent() {
             <div className="flex items-center space-x-3">
               {user ? (
                 <>
+                  {user.rol === 'admin' && (
+                    <button onClick={() => setView('admin')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'admin' ? 'text-amber-600' : 'text-gray-600 hover:text-amber-600'}`}>
+                      <Shield className="w-4 h-4" /> Admin
+                    </button>
+                  )}
                   <NotificationsBell />
                   <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
                     <div className="flex items-center gap-2 text-sm">
@@ -267,6 +279,9 @@ function AppContent() {
 
       {view === 'dashboard' && (
         <Dashboard onOpenMessages={() => setView('messages')} onOpenCheckout={() => setView('checkout')} />
+      )}
+      {view === 'admin' && user?.rol === 'admin' && (
+        <AdminDashboard onBack={() => setView('home')} />
       )}
       {view === 'messages' && <Messages />}
       {view === 'checkout' && <Checkout onBack={() => setView('dashboard')} />}

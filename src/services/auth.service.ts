@@ -3,23 +3,30 @@ export interface User {
   email: string;
   nombres: string;
   apellidos: string;
-  rol: 'familia' | 'cuidadora';
+  rol: 'admin' | 'familia' | 'cuidadora';
 }
 
 const API = `${import.meta.env.VITE_API_URL || ''}/api/auth`;
 
 export const authService = {
   async login(email: string, password: string): Promise<User | null> {
-    const res = await fetch(`${API}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || 'Error al iniciar sesión');
+    let res;
+    try {
+      res = await fetch(`${API}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+    } catch {
+      throw new Error('No se pudo conectar con el servidor. ¿Está corriendo el backend?');
     }
-    const user = await res.json();
+    if (!res.ok) {
+      try { const data = await res.json(); throw new Error(data.error || 'Error al iniciar sesión'); }
+      catch { throw new Error('Error al iniciar sesión (sin respuesta del servidor)'); }
+    }
+    const text = await res.text();
+    if (!text) throw new Error('El servidor respondió vacío. Verifica que el backend esté corriendo.');
+    const user = JSON.parse(text);
     sessionStorage.setItem('certinanas_session', JSON.stringify(user));
     return user;
   },
@@ -31,16 +38,23 @@ export const authService = {
     apellidos: string;
     rol: 'familia' | 'cuidadora';
   }): Promise<User> {
-    const res = await fetch(`${API}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || 'Error al registrarse');
+    let res;
+    try {
+      res = await fetch(`${API}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    } catch {
+      throw new Error('No se pudo conectar con el servidor.');
     }
-    const user = await res.json();
+    if (!res.ok) {
+      try { const err = await res.json(); throw new Error(err.error || 'Error al registrarse'); }
+      catch { throw new Error('Error al registrarse'); }
+    }
+    const text = await res.text();
+    if (!text) throw new Error('El servidor respondió vacío.');
+    const user = JSON.parse(text);
     sessionStorage.setItem('certinanas_session', JSON.stringify(user));
     return user;
   },

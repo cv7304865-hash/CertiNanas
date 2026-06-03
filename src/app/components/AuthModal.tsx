@@ -65,14 +65,14 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
     }
   }, [isOpen]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!loginEmail || !loginPassword) {
       setError('Todos los campos son obligatorios.');
       return;
     }
-    const err = login(loginEmail, loginPassword);
+    const err = await login(loginEmail, loginPassword);
     if (err) {
       setError(err);
     } else {
@@ -80,14 +80,14 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
     }
   };
 
-  const handleFamilyRegister = (e: React.FormEvent) => {
+  const handleFamilyRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!familyNombres || !familyApellidos || !familyEmail || !familyPassword) {
       setError('Todos los campos son obligatorios.');
       return;
     }
-    const err = register({ email: familyEmail, password: familyPassword, nombres: familyNombres, apellidos: familyApellidos, rol: 'familia' });
+    const err = await register({ email: familyEmail, password: familyPassword, nombres: familyNombres, apellidos: familyApellidos, rol: 'familia' });
     if (err) {
       setError(err);
     } else {
@@ -95,13 +95,13 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
     }
   };
 
-  const handleCaregiverRegister = () => {
+  const handleCaregiverRegister = async () => {
     setError('');
     if (!caregiverNombres || !caregiverApellidos || !caregiverEmail) {
       setError('Todos los campos son obligatorios.');
       return;
     }
-    const err = register({ email: caregiverEmail, password: 'temporal123', nombres: caregiverNombres, apellidos: caregiverApellidos, rol: 'cuidadora' });
+    const err = await register({ email: caregiverEmail, password: 'temporal123', nombres: caregiverNombres, apellidos: caregiverApellidos, rol: 'cuidadora' });
     if (err) {
       setError(err);
     } else {
