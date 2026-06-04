@@ -194,10 +194,7 @@ function AppContent() {
               onClick={() => { setView('home'); setTimeout(() => scrollToSection('inicio'), 50); }}
             >
               <div className="relative flex items-center justify-center">
-                <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform group-hover:scale-105 transition-transform duration-300">
-                  <path d="M22 4.58334C22 4.58334 34.8333 8.25 36.6667 17.4167C38.5 26.5833 27.5 36.6667 22 39.4167C16.5 36.6667 5.5 26.5833 7.33333 17.4167C9.16667 8.25 22 4.58334 22 4.58334Z" fill="#10B981" fillOpacity="0.12" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M22 28.4167C22 28.4167 14.6667 22 14.6667 17.4167C14.6667 14.85 16.5 12.8333 19.25 12.8333C21.0833 12.8333 22 14.6667 22 14.6667C22 14.6667 22.9167 12.8333 24.75 12.8333C27.5 12.8333 29.3333 14.85 29.3333 17.4167C29.3333 22 22 28.4167 22 28.4167Z" fill="#10B981" />
-                </svg>
+                <img src="/logo.png" alt="CertiNanas" className="w-11 h-11 object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[26px] font-extrabold tracking-[-0.03em] text-[#1E3A8A] uppercase leading-none mt-1" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
