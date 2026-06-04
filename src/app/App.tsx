@@ -194,7 +194,9 @@ function AppContent() {
               onClick={() => { setView('home'); setTimeout(() => scrollToSection('inicio'), 50); }}
             >
               <div className="relative flex items-center justify-center">
-                <img src="/logo.png" alt="CertiNanas" className="w-11 h-11 object-contain" />
+                <div className="w-11 h-11 overflow-hidden">
+                  <img src="/logo.png" alt="CertiNanas" className="w-full h-full object-cover mix-blend-multiply" />
+                </div>
               </div>
               <div className="flex flex-col">
                 <span className="text-[26px] font-extrabold tracking-[-0.03em] text-[#1E3A8A] uppercase leading-none mt-1" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
