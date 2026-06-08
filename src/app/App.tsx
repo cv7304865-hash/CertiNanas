@@ -12,6 +12,7 @@ import { CaregiverPanel } from './components/CaregiverPanel';
 import { SearchPage } from './components/SearchPage';
 import { FamilyPanel } from './components/FamilyPanel';
 import { ContractPage } from './components/ContractPage';
+import { PaymentPage } from './components/PaymentPage';
 import { Messages } from './components/Messages';
 import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
@@ -321,7 +322,10 @@ function AppContent() {
         <FamilyPanel onNavigate={setView} onViewContract={(id) => { setContractOrderId(id); setView('contract'); }} />
       )}
       {view === 'contract' && contractOrderId && (
-        <ContractPage orderId={contractOrderId} onBack={() => setView('familia')} />
+        <ContractPage orderId={contractOrderId} onBack={() => setView('familia')} onProceedToPayment={() => setView('payment')} />
+      )}
+      {view === 'payment' && contractOrderId && (
+        <PaymentPage orderId={contractOrderId} onBack={() => setView('familia')} />
       )}
       {view === 'messages' && <Messages />}
       {view === 'checkout' && <Checkout onBack={() => setView('dashboard')} />}

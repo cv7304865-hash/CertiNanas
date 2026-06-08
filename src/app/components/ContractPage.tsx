@@ -12,7 +12,7 @@ type ContratoData = {
   FamiliaNombres: string; FamiliaApellidos: string;
 };
 
-export function ContractPage({ orderId, onBack }: { orderId?: number; onBack?: () => void }) {
+export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?: number; onBack?: () => void; onProceedToPayment?: () => void }) {
   const { user, logout } = useAuth();
   const [data, setData] = useState<ContratoData | null>(null);
   const [accepted, setAccepted] = useState(false);
@@ -149,7 +149,7 @@ export function ContractPage({ orderId, onBack }: { orderId?: number; onBack?: (
               whileHover={accepted ? { scale: 1.01 } : {}}
               whileTap={accepted ? { scale: 0.99 } : {}}
               disabled={!accepted}
-              onClick={() => alert('Redirigiendo a pasarela de pago...')}
+              onClick={onProceedToPayment}
               className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all shadow-md ${
                 accepted
                   ? 'bg-[#F59E0B] hover:bg-[#D97706] text-white hover:shadow-lg cursor-pointer'
