@@ -186,6 +186,24 @@ db.exec(`
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS Postulaciones (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdUsuario INTEGER NOT NULL REFERENCES Usuarios(Id),
+    FechaPostulacion TEXT NOT NULL DEFAULT (datetime('now')),
+    Estado TEXT NOT NULL DEFAULT 'Pendiente' CHECK (Estado IN ('Pendiente', 'Aprobada', 'Rechazada')),
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS DocumentosPostulacion (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdPostulacion INTEGER NOT NULL REFERENCES Postulaciones(Id) ON DELETE CASCADE,
+    TipoRequisito TEXT NOT NULL,
+    NombreArchivo TEXT NOT NULL,
+    Peso TEXT,
+    Estado TEXT NOT NULL DEFAULT 'Pendiente' CHECK (Estado IN ('Pendiente', 'Aprobado', 'Rechazado')),
+    FechaSubida TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS Notificaciones (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     IdUsuarioDestino INTEGER NOT NULL REFERENCES Usuarios(Id),

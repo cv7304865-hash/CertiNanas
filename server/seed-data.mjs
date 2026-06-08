@@ -153,6 +153,24 @@ export function seed(db) {
     }
   }
 
+  // ========== 10. POSTULACIONES ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM Postulaciones').get().c === 0) {
+    const cuidadorasUsers = db.prepare('SELECT Id, Nombres, Apellidos FROM Usuarios WHERE IdRol = 3').all();
+    const tiposDoc = [['DNI', '120 KB'], ['Antecedentes PNP', '340 KB'], ['Certificado Salud', '210 KB'], ['Certificado Estudios', '180 KB'], ['Carta Presentacion', '95 KB']];
+    const estadosPos = ['Pendiente', 'Pendiente', 'Pendiente', 'Aprobada'];
+    let j = 0;
+    for (const u of cuidadorasUsers.slice(0, 6)) {
+      const estado = estadosPos[j % estadosPos.length];
+      const diasAgo = rand(1, 45);
+      const r = db.prepare(`INSERT INTO Postulaciones (IdUsuario, Estado, FechaPostulacion) VALUES (?, ?, datetime('now', '-${diasAgo} days'))`).run(u.Id, estado);
+      const docs = [...tiposDoc].sort(() => Math.random() - 0.5).slice(0, rand(2, 4));
+      for (const [tipo, peso] of docs) {
+        db.prepare('INSERT INTO DocumentosPostulacion (IdPostulacion, TipoRequisito, NombreArchivo, Peso) VALUES (?, ?, ?, ?)').run(r.lastInsertRowid, tipo, `${tipo.toLowerCase().replace(/\s/g, '_')}_${u.Nombres.toLowerCase()}_${u.Apellidos.toLowerCase()}.pdf`, peso);
+      }
+      j++;
+    }
+  }
+
   console.log('✅ Datos demo generados:');
   console.log(`   ${db.prepare('SELECT COUNT(*) AS c FROM Usuarios').get().c} usuarios`);
   console.log(`   ${db.prepare('SELECT COUNT(*) AS c FROM Cuidadoras').get().c} cuidadoras`);

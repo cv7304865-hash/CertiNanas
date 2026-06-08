@@ -7,7 +7,7 @@ import { FloatingSupport } from './components/FloatingSupport';
 import { LegalModal } from './components/LegalModal';
 import { ProfileModal, NanaProfile } from './components/ProfileModal';
 import { Dashboard } from './components/Dashboard';
-import { AdminDashboard } from './components/AdminDashboard';
+import { AdminLayout } from './components/AdminLayout';
 import { Messages } from './components/Messages';
 import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
@@ -280,7 +280,7 @@ function AppContent() {
         <Dashboard onOpenMessages={() => setView('messages')} onOpenCheckout={() => setView('checkout')} />
       )}
       {view === 'admin' && user?.rol === 'admin' && (
-        <AdminDashboard onBack={() => setView('home')} />
+        <AdminLayout />
       )}
       {view === 'messages' && <Messages />}
       {view === 'checkout' && <Checkout onBack={() => setView('dashboard')} />}
