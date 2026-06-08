@@ -9,6 +9,7 @@ import { ProfileModal, NanaProfile } from './components/ProfileModal';
 import { Dashboard } from './components/Dashboard';
 import { AdminLayout } from './components/AdminLayout';
 import { CaregiverPanel } from './components/CaregiverPanel';
+import { SearchPage } from './components/SearchPage';
 import { Messages } from './components/Messages';
 import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
@@ -43,7 +44,7 @@ function AppContent() {
     }
     if (user.rol === 'cuidadora') setView('cuidadora');
     else if (user.rol === 'admin') setView('admin');
-    else setView('dashboard');
+    else setView('search');
   }, [loading, user?.id]);
   const [interviewModal, setInterviewModal] = useState<{ isOpen: boolean; nanaName: string }>({
     isOpen: false,
@@ -229,9 +230,11 @@ function AppContent() {
               <button onClick={() => { setView('home'); setTimeout(() => scrollToSection('catalogo'), 50); }} className="text-sm font-semibold text-gray-600 hover:text-[#1E3A8A] transition-colors">
                 Catálogo
               </button>
+              {user?.rol !== 'familia' && (
               <button onClick={() => setView('dashboard')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'dashboard' ? 'text-[#1E3A8A]' : 'text-gray-600 hover:text-[#1E3A8A]'}`}>
                 <LayoutDashboard className="w-4 h-4" /> Mi Panel
               </button>
+              )}
               <button onClick={() => setView('messages')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'messages' ? 'text-[#1E3A8A]' : 'text-gray-600 hover:text-[#1E3A8A]'}`}>
                 <MessageSquare className="w-4 h-4" /> Mensajes
               </button>
@@ -303,6 +306,10 @@ function AppContent() {
       )}
       {view === 'cuidadora' && user?.rol === 'cuidadora' && (
         <CaregiverPanel />
+      )}
+
+      {view === 'search' && (
+        <SearchPage />
       )}
       {view === 'messages' && <Messages />}
       {view === 'checkout' && <Checkout onBack={() => setView('dashboard')} />}

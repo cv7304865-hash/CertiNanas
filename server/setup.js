@@ -51,6 +51,7 @@ db.exec(`
     CalificacionPromedio REAL NOT NULL DEFAULT 0,
     TotalResenas INTEGER NOT NULL DEFAULT 0,
     Disponible INTEGER NOT NULL DEFAULT 1,
+    Zona TEXT,
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -228,7 +229,9 @@ db.exec(`
   INSERT OR IGNORE INTO Areas (Nombre, Descripcion) VALUES ('Cuidado domiciliario', 'Cuidado en el hogar de la familia');
   INSERT OR IGNORE INTO Areas (Nombre, Descripcion) VALUES ('Acompaniamiento escolar', 'Acompaniamiento y apoyo en el entorno escolar');
   INSERT OR IGNORE INTO Areas (Nombre, Descripcion) VALUES ('Terapias de estimulacion', 'Terapias de estimulacion sensorial y motriz');
-`);
+
+  // Migraciones
+  try { db.prepare(`ALTER TABLE Cuidadoras ADD COLUMN Zona TEXT`).run(); } catch(e) {}
 
 console.log('Tablas creadas y datos de semilla insertados.');
 }

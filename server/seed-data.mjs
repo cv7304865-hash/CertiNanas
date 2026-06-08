@@ -46,10 +46,11 @@ export function seed(db) {
     const existe = db.prepare('SELECT Id FROM Cuidadoras WHERE IdUsuario = ?').get(u.Id);
     if (!existe) {
       const tarifa = randDec(25, 60);
-      const r = db.prepare(`INSERT INTO Cuidadoras (IdUsuario, AniosExperiencia, TarifaHora, DescripcionCorta, DescripcionLarga, CalificacionPromedio, TotalResenas, Disponible)
-        VALUES (?, ?, ?, ?, ?, 0, 0, 1)`).run(u.Id, rand(2, 15), tarifa,
+      const r = db.prepare(`INSERT INTO Cuidadoras (IdUsuario, AniosExperiencia, TarifaHora, DescripcionCorta, DescripcionLarga, CalificacionPromedio, TotalResenas, Disponible, Zona)
+        VALUES (?, ?, ?, ?, ?, 0, 0, 1, ?)`).run(u.Id, rand(2, 15), tarifa,
         pick(['Especialista en cuidado infantil con amplia experiencia.', 'Profesional dedicada y con vocación de servicio.', 'Amor por los niños y formación especializada.']),
-        pick(['Más de 10 años de experiencia en cuidado de niños con necesidades especiales.', 'Certificaciones en primeros auxilios y educación especial.', 'Experiencia en terapias de estimulación temprana.']));
+        pick(['Más de 10 años de experiencia en cuidado de niños con necesidades especiales.', 'Certificaciones en primeros auxilios y educación especial.', 'Experiencia en terapias de estimulación temprana.']),
+        pick(['Trujillo Centro', 'Víctor Larco', 'La Esperanza', 'Moche', 'Buenos Aires']));
       const cId = r.lastInsertRowid;
       for (const e of [...especialidadesList].sort(() => Math.random() - 0.5).slice(0, rand(2, 3)))
         db.prepare('INSERT OR IGNORE INTO CuidadoraEspecialidades (IdCuidadora, IdEspecialidad) VALUES (?, ?)').run(cId, e);
