@@ -224,7 +224,10 @@ db.exec(`
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
-  -- Seed data
+`);
+
+  // Seed data
+  db.exec(`
   INSERT OR IGNORE INTO Roles (Nombre, Descripcion) VALUES ('Admin', 'Administrador del sistema');
   INSERT OR IGNORE INTO Roles (Nombre, Descripcion) VALUES ('Familia', 'Usuario familiar que busca servicios de cuidado');
   INSERT OR IGNORE INTO Roles (Nombre, Descripcion) VALUES ('Cuidadora', 'Profesional cuidadora que ofrece sus servicios');
@@ -238,6 +241,7 @@ db.exec(`
   INSERT OR IGNORE INTO Areas (Nombre, Descripcion) VALUES ('Cuidado domiciliario', 'Cuidado en el hogar de la familia');
   INSERT OR IGNORE INTO Areas (Nombre, Descripcion) VALUES ('Acompaniamiento escolar', 'Acompaniamiento y apoyo en el entorno escolar');
   INSERT OR IGNORE INTO Areas (Nombre, Descripcion) VALUES ('Terapias de estimulacion', 'Terapias de estimulacion sensorial y motriz');
+`);
 
   // Migraciones
   try { db.prepare(`ALTER TABLE Cuidadoras ADD COLUMN Zona TEXT`).run(); } catch(e) {}
