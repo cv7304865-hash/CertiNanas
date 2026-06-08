@@ -111,8 +111,10 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
 
             {currentMode === 'login' ? (
               <form className="space-y-5" onSubmit={handleLogin}>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Bienvenido de vuelta</h2>
-                <p className="text-gray-500 mb-6 text-sm">Ingresa a tu cuenta para continuar.</p>
+                <h2 className="text-2xl font-bold text-gray-900 text-center">
+                  Bienvenido a <span className="text-[#F59E0B]">CERTINANAS</span>
+                </h2>
+                <p className="text-gray-500 text-sm text-center">Ingresa a tu cuenta</p>
 
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -125,7 +127,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                     className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#F59E0B]/40 focus:border-transparent transition-all outline-none" />
                 </div>
                 <button type="submit" className="w-full py-3.5 bg-[#F59E0B] text-white rounded-xl font-bold hover:bg-[#D97706] transition-all shadow-md">
-                  Iniciar Sesión
+                  Iniciar sesión
                 </button>
                 <p className="text-center text-sm text-gray-500">
                   ¿No tienes cuenta?{' '}
