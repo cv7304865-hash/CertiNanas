@@ -14,6 +14,7 @@ import { FamilyPanel } from './components/FamilyPanel';
 import { ContractPage } from './components/ContractPage';
 import { PaymentPage } from './components/PaymentPage';
 import { MessagesPage } from './components/MessagesPage';
+import { ReviewFormPage } from './components/ReviewFormPage';
 import { Messages } from './components/Messages';
 import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
@@ -320,13 +321,16 @@ function AppContent() {
       )}
 
       {view === 'familia' && (
-        <FamilyPanel onNavigate={setView} onViewContract={(id) => { setContractOrderId(id); setView('contract'); }} />
+        <FamilyPanel onNavigate={setView} onViewContract={(id) => { setContractOrderId(id); setView('contract'); }} onReview={(id) => { setContractOrderId(id); setView('review'); }} />
       )}
       {view === 'contract' && contractOrderId && (
         <ContractPage orderId={contractOrderId} onBack={() => setView('familia')} onProceedToPayment={() => setView('payment')} />
       )}
       {view === 'payment' && contractOrderId && (
         <PaymentPage orderId={contractOrderId} onBack={() => setView('familia')} />
+      )}
+      {view === 'review' && contractOrderId && (
+        <ReviewFormPage orderId={contractOrderId} onBack={() => setView('familia')} />
       )}
       {view === 'messages' && (
         <MessagesPage onNavigate={setView} />

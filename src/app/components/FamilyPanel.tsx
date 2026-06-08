@@ -18,7 +18,7 @@ const badgeClass: Record<string, string> = {
   Cancelada: 'bg-red-50 text-red-700 border-red-200',
 };
 
-export function FamilyPanel({ onNavigate, onViewContract }: { onNavigate?: (v: string) => void; onViewContract?: (id: number) => void }) {
+export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNavigate?: (v: string) => void; onViewContract?: (id: number) => void; onReview?: (id: number) => void }) {
   const { user, logout } = useAuth();
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,12 +115,18 @@ export function FamilyPanel({ onNavigate, onViewContract }: { onNavigate?: (v: s
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => onViewContract?.(s.Id)}
-                          className="text-xs font-semibold text-[#F59E0B] hover:text-[#D97706] transition-colors"
-                        >
-                          Ver contrato
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          {s.Estado === 'Finalizada' && (
+                            <button onClick={() => onReview?.(s.Id)}
+                              className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
+                              Evaluar
+                            </button>
+                          )}
+                          <button onClick={() => onViewContract?.(s.Id)}
+                            className="text-xs font-semibold text-[#F59E0B] hover:text-[#D97706] transition-colors">
+                            Ver contrato
+                          </button>
+                        </div>
                       </td>
                     </motion.tr>
                   ))}

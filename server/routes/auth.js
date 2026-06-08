@@ -67,5 +67,23 @@ router.post('/register', (req, res) => {
     res.status(500).json({ error: 'Error del servidor.' });
   }
 });
+router.post('/resena', (req, res) => {
+  const db = getDb();
+  const userId = req.headers['x-user-id'];
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+  const { idOrden, calificacion, comentario } = req.body;
+  if (!idOrden || !calificacion) return res.status(400).json({ error: 'idOrden y calificacion requeridos' });
+
+  const orden = db.prepare('SELECT IdCuidadora, IdUsuarioFamilia FROM Ordenes WHERE Id = ?').get(idOrden);
+  if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+
+  db.prepare(`INSERT INTO Resenas (IdCuidadora, IdUsuarioFamilia, Calificacion, Comentario, FechaResena, FechaCreacion)
+    VALUES (?, ?, ?, ?, date('now'), datetime('now'))`).run(orden.IdCuidadora, orden.IdUsuarioFamilia, calificacion, comentario || '');
+
+  const avg = db.prepare('SELECT AVG(Calificacion) AS prom, COUNT(*) AS tot FROM Resenas WHERE IdCuidadora = ?').get(orden.IdCuidadora);
+  if (avg.prom) db.prepare('UPDATE Cuidadoras SET CalificacionPromedio = ?, TotalResenas = ? WHERE Id = ?').run(+avg.prom.toFixed(1), avg.tot, orden.IdCuidadora);
+
+  res.json({ success: true });
+});
 
 export default router;
