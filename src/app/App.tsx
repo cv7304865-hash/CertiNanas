@@ -11,6 +11,7 @@ import { AdminLayout } from './components/AdminLayout';
 import { CaregiverPanel } from './components/CaregiverPanel';
 import { SearchPage } from './components/SearchPage';
 import { FamilyPanel } from './components/FamilyPanel';
+import { ContractPage } from './components/ContractPage';
 import { Messages } from './components/Messages';
 import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
@@ -49,6 +50,7 @@ function AppContent() {
   }, [loading, user?.id]);
 
   const isFamily = user?.rol === 'familia';
+  const [contractOrderId, setContractOrderId] = useState<number | null>(null);
   const [interviewModal, setInterviewModal] = useState<{ isOpen: boolean; nanaName: string }>({
     isOpen: false,
     nanaName: '',
@@ -316,7 +318,10 @@ function AppContent() {
       )}
 
       {view === 'familia' && (
-        <FamilyPanel onNavigate={setView} />
+        <FamilyPanel onNavigate={setView} onViewContract={(id) => { setContractOrderId(id); setView('contract'); }} />
+      )}
+      {view === 'contract' && contractOrderId && (
+        <ContractPage orderId={contractOrderId} onBack={() => setView('familia')} />
       )}
       {view === 'messages' && <Messages />}
       {view === 'checkout' && <Checkout onBack={() => setView('dashboard')} />}

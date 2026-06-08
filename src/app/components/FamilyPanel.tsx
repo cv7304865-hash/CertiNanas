@@ -18,7 +18,7 @@ const badgeClass: Record<string, string> = {
   Cancelada: 'bg-red-50 text-red-700 border-red-200',
 };
 
-export function FamilyPanel({ onNavigate }: { onNavigate?: (v: string) => void }) {
+export function FamilyPanel({ onNavigate, onViewContract }: { onNavigate?: (v: string) => void; onViewContract?: (id: number) => void }) {
   const { user, logout } = useAuth();
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,6 +88,7 @@ export function FamilyPanel({ onNavigate }: { onNavigate?: (v: string) => void }
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Horario</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Monto</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                    <th className="text-right px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Acción</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -112,6 +113,14 @@ export function FamilyPanel({ onNavigate }: { onNavigate?: (v: string) => void }
                         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeClass[s.Estado] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
                           {s.Estado}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => onViewContract?.(s.Id)}
+                          className="text-xs font-semibold text-[#F59E0B] hover:text-[#D97706] transition-colors"
+                        >
+                          Ver contrato
+                        </button>
                       </td>
                     </motion.tr>
                   ))}
