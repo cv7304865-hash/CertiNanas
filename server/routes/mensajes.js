@@ -77,4 +77,39 @@ router.post('/reportar-incidencia', (req, res) => {
   res.json({ success: true });
 });
 
+// Solicitar contrato desde el chat
+router.post('/solicitar-contrato', (req, res) => {
+  const db = getDb();
+  const userId = req.headers['x-user-id'];
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+  const { idConversacion, idMenor, fechaServicio, horaInicio, horaFin, totalHoras } = req.body;
+  if (!idConversacion) return res.status(400).json({ error: 'idConversacion requerido' });
+
+  const conv = db.prepare('SELECT IdCuidadora, IdUsuarioFamilia FROM Conversaciones WHERE Id = ?').get(idConversacion);
+  if (!conv) return res.status(404).json({ error: 'Conversación no encontrada' });
+
+  const cuidadora = db.prepare('SELECT TarifaHora FROM Cuidadoras WHERE Id = ?').get(conv.IdCuidadora);
+  if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
+
+  const tarifa = cuidadora.TarifaHora;
+  const horas = totalHoras || 4;
+  const subtotal = +(tarifa * horas).toFixed(2);
+  const plataforma = +(subtotal * 0.15).toFixed(2);
+  const total = +(subtotal + plataforma).toFixed(2);
+  const fecha = fechaServicio || new Date().toISOString().slice(0, 10);
+  const hInicio = horaInicio || '08:00';
+  const hFin = horaFin || '12:00';
+
+  db.prepare(`INSERT INTO Ordenes (IdCuidadora, IdUsuarioFamilia, TipoServicio, FechaServicio, TotalHoras, TarifaHora, Subtotal, TarifaPlataforma, Total, Estado, FechaCreacion, IdMenor, HoraInicio, HoraFin)
+    VALUES (?, ?, 'Cuidado domiciliario', ?, ?, ?, ?, ?, ?, 'Pendiente', datetime('now'), ?, ?, ?)`).run(
+    conv.IdCuidadora, conv.IdUsuarioFamilia, fecha, horas, tarifa, subtotal, plataforma, total, idMenor || null, hInicio, hFin);
+
+  db.prepare(`INSERT INTO Mensajes (IdConversacion, IdRemitente, Contenido, Leido) VALUES (?, ?, ?, 0)`).run(
+    idConversacion, Number(userId), '📄 Se ha generado una solicitud de contrato. Revisa la sección Mis Servicios para confirmar.');
+
+  db.prepare(`UPDATE Conversaciones SET FechaUltimoMensaje = datetime('now') WHERE Id = ?`).run(idConversacion);
+
+  res.json({ success: true });
+});
+
 export default router;

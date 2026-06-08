@@ -152,4 +152,34 @@ router.get('/usuarios', isAdmin, (req, res) => {
   res.json(usuarios);
 });
 
+router.get('/contratos', isAdmin, (req, res) => {
+  const db = getDb();
+  const contratos = db.prepare(`
+    SELECT o.Id, o.FechaServicio, o.HoraInicio, o.HoraFin, o.Total, o.Estado, o.FechaCreacion,
+           u.Nombres AS FamiliaNombres, u.Apellidos AS FamiliaApellidos,
+           uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
+           m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico,
+           o.TipoServicio, o.TotalHoras, o.TarifaHora, o.Subtotal, o.TarifaPlataforma
+    FROM Ordenes o
+    INNER JOIN Usuarios u ON u.Id = o.IdUsuarioFamilia
+    INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+    INNER JOIN Usuarios uc ON uc.Id = c.IdUsuario
+    LEFT JOIN Menores m ON m.Id = o.IdMenor
+    ORDER BY o.FechaCreacion DESC
+  `).all();
+  res.json(contratos);
+});
+
+router.put('/contratos/:id/aprobar', isAdmin, (req, res) => {
+  const db = getDb();
+  db.prepare("UPDATE Ordenes SET Estado = 'Confirmada' WHERE Id = ?").run(Number(req.params.id));
+  res.json({ success: true });
+});
+
+router.put('/contratos/:id/rechazar', isAdmin, (req, res) => {
+  const db = getDb();
+  db.prepare("UPDATE Ordenes SET Estado = 'Cancelada' WHERE Id = ?").run(Number(req.params.id));
+  res.json({ success: true });
+});
+
 export default router;

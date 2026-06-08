@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
-import { LogOut, Send, AlertTriangle, Bell, X } from 'lucide-react';
+import { LogOut, Send, AlertTriangle, Bell, X, FileSignature } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 type Conversacion = {
@@ -150,12 +150,30 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                       </span>
                     )}
                   </div>
-                  <button
-                    onClick={() => setShowReportModal(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-xs font-semibold"
-                  >
-                    <AlertTriangle className="w-3.5 h-3.5" /> Reportar incidencia
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={async () => {
+                        if (!selectedChat) return;
+                        await fetch('/api/mensajes/solicitar-contrato', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) },
+                          body: JSON.stringify({ idConversacion: selectedChat.Id }),
+                        });
+                        // Recargar mensajes
+                        const r = await fetch(`/api/mensajes/conversaciones/${selectedChat.Id}/mensajes`, { headers: { 'x-user-id': String(user?.id) } });
+                        setMensajes(await r.json());
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors text-xs font-semibold"
+                    >
+                      <FileSignature className="w-3.5 h-3.5" /> Solicitar contrato
+                    </button>
+                    <button
+                      onClick={() => setShowReportModal(true)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-xs font-semibold"
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5" /> Reportar incidencia
+                    </button>
+                  </div>
                 </div>
 
                 {/* Mensajes */}

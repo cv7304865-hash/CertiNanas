@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, ChevronLeft, CheckCircle, XCircle, Eye, Search, ArrowUpDown } from 'lucide-react';
+import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, ChevronLeft, CheckCircle, XCircle, Eye, Search, ArrowUpDown, FileSignature } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 type Postulacion = {
@@ -13,10 +13,11 @@ type Documento = {
   NombreArchivo: string; Peso: string; Estado: string;
 };
 
-type Tab = 'dashboard' | 'postulaciones' | 'perfiles' | 'incidencias' | 'usuarios' | 'reportes';
+type Tab = 'dashboard' | 'postulaciones' | 'perfiles' | 'incidencias' | 'usuarios' | 'reportes' | 'contratos';
 
 const navItems: { key: Tab; label: string; icon: any }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { key: 'contratos', label: 'Contratos', icon: FileSignature },
   { key: 'postulaciones', label: 'Postulaciones', icon: FileText },
   { key: 'perfiles', label: 'Perfiles Validados', icon: UserCheck },
   { key: 'incidencias', label: 'Incidencias', icon: AlertTriangle },
@@ -83,6 +84,7 @@ export function AdminLayout() {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         {tab === 'dashboard' && <DashboardView />}
+        {tab === 'contratos' && <ContratosView />}
         {tab === 'postulaciones' && <PostulacionesView />}
         {tab === 'perfiles' && <PerfilesView />}
         {tab === 'incidencias' && <IncidenciasView />}
@@ -195,6 +197,106 @@ function DashboardView() {
               ))}
               {data.incidencias.length === 0 && (
                 <tr><td colSpan={3} className="py-8 text-center text-gray-400 text-sm">No hay incidencias abiertas</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ======== CONTRATOS ======== */
+function ContratosView() {
+  const [contratos, setContratos] = useState<any[]>([]);
+  const headers = { 'Content-Type': 'application/json', 'x-admin-user': String(useAuth().user?.id) };
+
+  const cargar = () => {
+    fetch('/api/admin/contratos', { headers }).then(r => r.json()).then(setContratos).catch(() => {});
+  };
+
+  useEffect(() => { cargar(); }, []);
+
+  const aprobar = async (id: number) => {
+    await fetch(`/api/admin/contratos/${id}/aprobar`, { method: 'PUT', headers });
+    cargar();
+  };
+
+  const rechazar = async (id: number) => {
+    await fetch(`/api/admin/contratos/${id}/rechazar`, { method: 'PUT', headers });
+    cargar();
+  };
+
+  const formatFecha = (f: string) => {
+    const d = new Date(f + 'T00:00:00');
+    return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  const badgeEstado: Record<string, string> = {
+    Pendiente: 'bg-amber-50 text-amber-700 border-amber-200',
+    Confirmada: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    'En curso': 'bg-blue-50 text-blue-700 border-blue-200',
+    Finalizada: 'bg-teal-50 text-teal-700 border-teal-200',
+    Cancelada: 'bg-red-50 text-red-700 border-red-200',
+  };
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold text-gray-900">Contratos</h1>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">#</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Familia</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Cuidadora</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Menor</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Servicio</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Total</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Estado</th>
+                <th className="text-center py-3 px-4 font-semibold text-gray-600">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contratos.map(c => (
+                <tr key={c.Id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <td className="py-3 px-4 font-mono font-bold text-gray-900">CTN-{String(c.Id).padStart(4, '0')}</td>
+                  <td className="py-3 px-4 font-semibold text-gray-900">{c.FamiliaNombres} {c.FamiliaApellidos?.charAt(0)}.</td>
+                  <td className="py-3 px-4 text-gray-700">{c.CuidadoraNombres} {c.CuidadoraApellidos?.charAt(0)}.</td>
+                  <td className="py-3 px-4 text-gray-600">
+                    {c.MenorNombre || '—'}
+                    {c.MenorDiagnostico && <span className="text-gray-400"> ({c.MenorDiagnostico})</span>}
+                  </td>
+                  <td className="py-3 px-4 text-gray-600 text-xs">
+                    {formatFecha(c.FechaServicio)} · {c.HoraInicio || '--'}-{c.HoraFin || '--'}
+                  </td>
+                  <td className="py-3 px-4 font-semibold text-gray-900">S/ {c.Total.toFixed(2)}</td>
+                  <td className="py-3 px-4">
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeEstado[c.Estado] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                      {c.Estado}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    {c.Estado === 'Pendiente' ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <button onClick={() => aprobar(c.Id)}
+                          className="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors">
+                          Aprobar
+                        </button>
+                        <button onClick={() => rechazar(c.Id)}
+                          className="px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors">
+                          Rechazar
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {contratos.length === 0 && (
+                <tr><td colSpan={8} className="py-8 text-center text-gray-400 text-sm">No hay contratos registrados</td></tr>
               )}
             </tbody>
           </table>
