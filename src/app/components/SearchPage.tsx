@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { Search, Star, LogOut, MessageSquare, LayoutDashboard, X, CheckCircle } from 'lucide-react';
+import { Search, Star, LogOut, X, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { ScheduleInterviewModal } from './ScheduleInterviewModal';
 
 type CuidadoraCard = {
   Id: number; IdUsuario: number; AniosExperiencia: number; TarifaHora: number;
@@ -26,6 +27,7 @@ export function SearchPage() {
   const [experiencia, setExperiencia] = useState('3+ años');
   const [tarifaMax, setTarifaMax] = useState('40');
   const [selectedNana, setSelectedNana] = useState<CuidadoraCard | null>(null);
+  const [showSchedule, setShowSchedule] = useState<CuidadoraCard | null>(null);
 
   const buscar = async () => {
     setLoading(true);
@@ -67,8 +69,8 @@ export function SearchPage() {
               <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
-              <button className="text-sm font-bold text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5">Inicio</button>
-              <button className="text-sm text-white/70 hover:text-white transition-colors">Mis Servicios</button>
+              <button className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
+              <button className="text-sm font-bold text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5">Mis Servicios</button>
               <button className="text-sm text-white/70 hover:text-white transition-colors">Mensajes</button>
               <div className="w-9 h-9 rounded-full bg-[#F59E0B]/20 flex items-center justify-center text-sm font-bold text-[#F59E0B] ml-2">
                 {user?.nombres?.charAt(0) || 'F'}
@@ -200,13 +202,22 @@ export function SearchPage() {
                   </div>
                 </div>
                 <div className="mt-6">
-                  <button className="w-full py-3 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm">
-                    Solicitar Servicio
-                  </button>
+                <button
+                  onClick={() => { setSelectedNana(null); setTimeout(() => setShowSchedule(selectedNana), 200); }}
+                  className="w-full py-3 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm"
+                >
+                  Solicitar Servicio
+                </button>
                 </div>
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showSchedule && (
+          <ScheduleInterviewModal cuidadora={showSchedule} onClose={() => setShowSchedule(null)} />
         )}
       </AnimatePresence>
     </div>
