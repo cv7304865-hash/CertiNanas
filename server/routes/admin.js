@@ -54,6 +54,7 @@ router.get('/postulaciones/:id/documentos', isAdmin, (req, res) => {
 router.post('/postulaciones/:id/aprobar', isAdmin, (req, res) => {
   const db = getDb();
   db.prepare("UPDATE Postulaciones SET Estado = 'Aprobada' WHERE Id = ?").run(req.params.id);
+  db.prepare("UPDATE DocumentosPostulacion SET Estado = 'Aprobado' WHERE IdPostulacion = ?").run(req.params.id);
   const post = db.prepare('SELECT IdUsuario FROM Postulaciones WHERE Id = ?').get(req.params.id);
   if (post) db.prepare("UPDATE Usuarios SET Activo = 1 WHERE Id = ?").run(post.IdUsuario);
   res.json({ success: true });
@@ -62,7 +63,54 @@ router.post('/postulaciones/:id/aprobar', isAdmin, (req, res) => {
 router.post('/postulaciones/:id/rechazar', isAdmin, (req, res) => {
   const db = getDb();
   db.prepare("UPDATE Postulaciones SET Estado = 'Rechazada' WHERE Id = ?").run(req.params.id);
+  db.prepare("UPDATE DocumentosPostulacion SET Estado = 'Rechazado' WHERE IdPostulacion = ?").run(req.params.id);
   res.json({ success: true });
+});
+
+router.get('/perfiles-validados', isAdmin, (req, res) => {
+  const db = getDb();
+  const perfiles = db.prepare(`
+    SELECT u.Id, u.Nombres, u.Apellidos, u.Email, u.Telefono, u.FechaCreacion,
+           c.AniosExperiencia, c.TarifaHora, c.CalificacionPromedio, c.TotalResenas,
+           (SELECT COUNT(*) FROM Postulaciones WHERE IdUsuario = u.Id AND Estado = 'Aprobada') AS PostulacionAprobada
+    FROM Usuarios u
+    INNER JOIN Cuidadoras c ON c.IdUsuario = u.Id
+    WHERE u.IdRol = 3 AND u.Activo = 1
+    ORDER BY c.CalificacionPromedio DESC
+  `).all();
+  res.json(perfiles);
+});
+
+router.get('/incidencias', isAdmin, (req, res) => {
+  const db = getDb();
+  const incidencias = db.prepare(`
+    SELECT 'Cita cancelada' AS Tipo, c.Id AS ReferenciaId,
+           CONCAT(u.Nombres, ' ', u.Apellidos) AS Usuario,
+           c.FechaCreacion AS Fecha, c.Estado
+    FROM Citas c INNER JOIN Usuarios u ON u.Id = c.IdUsuarioFamilia
+    WHERE c.Estado = 'Cancelada'
+    UNION ALL
+    SELECT 'Postulacion rechazada' AS Tipo, p.Id,
+           CONCAT(u.Nombres, ' ', u.Apellidos),
+           p.FechaCreacion, p.Estado
+    FROM Postulaciones p INNER JOIN Usuarios u ON u.Id = p.IdUsuario
+    WHERE p.Estado = 'Rechazada'
+    ORDER BY Fecha DESC
+    LIMIT 20
+  `).all();
+  res.json(incidencias);
+});
+
+router.get('/reportes', isAdmin, (req, res) => {
+  const db = getDb();
+  const totalOrdenes = db.prepare('SELECT COUNT(*) AS c FROM Ordenes').get().c;
+  const totalPagos = db.prepare('SELECT COUNT(*) AS c FROM Pagos').get().c;
+  const totalCompletadas = db.prepare("SELECT COUNT(*) AS c FROM Ordenes WHERE Estado = 'Completada'").get().c;
+  const totalCanceladas = db.prepare("SELECT COUNT(*) AS c FROM Ordenes WHERE Estado = 'Cancelada'").get().c;
+  const ingresos = db.prepare('SELECT COALESCE(SUM(Monto), 0) AS total FROM Pagos WHERE Estado = ?').get('Completado');
+  const citasCompletadas = db.prepare("SELECT COUNT(*) AS c FROM Citas WHERE Estado = 'Completada'").get().c;
+  const resenasPromedio = db.prepare('SELECT COALESCE(AVG(Calificacion), 0) AS prom FROM Resenas').get().prom;
+  res.json({ totalOrdenes, totalPagos, totalCompletadas, totalCanceladas, ingresos: ingresos.total, citasCompletadas, resenasPromedio: +resenasPromedio.toFixed(1) });
 });
 
 router.get('/usuarios', isAdmin, (req, res) => {

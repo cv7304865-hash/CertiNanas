@@ -84,12 +84,10 @@ export function AdminLayout() {
       <main className="flex-1 overflow-y-auto">
         {tab === 'dashboard' && <DashboardView />}
         {tab === 'postulaciones' && <PostulacionesView />}
+        {tab === 'perfiles' && <PerfilesView />}
+        {tab === 'incidencias' && <IncidenciasView />}
+        {tab === 'reportes' && <ReportesView />}
         {tab === 'usuarios' && <UsuariosView />}
-        {(tab === 'perfiles' || tab === 'incidencias' || tab === 'reportes') && (
-          <div className="flex items-center justify-center h-full text-gray-400 text-lg">
-            Módulo en desarrollo
-          </div>
-        )}
       </main>
     </div>
   );
@@ -372,6 +370,136 @@ function PostulacionesView() {
             ))}
           </div>
         </motion.div>
+      )}
+    </div>
+  );
+}
+
+/* ======== PERFILES VALIDADOS ======== */
+function PerfilesView() {
+  const [perfiles, setPerfiles] = useState<any[]>([]);
+  const headers = { 'Content-Type': 'application/json', 'x-admin-user': String(useAuth().user?.id) };
+
+  useEffect(() => {
+    fetch('/api/admin/perfiles-validados', { headers }).then(r => r.json()).then(setPerfiles).catch(() => {});
+  }, []);
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto">
+      <h1 className="text-2xl font-bold text-gray-900 mb-8">Perfiles Validados</h1>
+      <div className="space-y-4">
+        {perfiles.map(p => (
+          <div key={p.Id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-5">
+            <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-bold text-lg">
+              {p.Nombres?.charAt(0)}{p.Apellidos?.charAt(0)}
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-gray-800">{p.Nombres} {p.Apellidos}</p>
+              <p className="text-sm text-gray-500">{p.Email}</p>
+            </div>
+            <div className="text-sm text-gray-600 text-center">
+              <p className="font-bold">{p.AniosExperiencia}</p>
+              <p className="text-xs text-gray-400">años exp.</p>
+            </div>
+            <div className="text-sm text-gray-600 text-center">
+              <p className="font-bold">S/ {p.TarifaHora?.toFixed(2)}</p>
+              <p className="text-xs text-gray-400">tarifa/hora</p>
+            </div>
+            <div className="text-sm text-gray-600 text-center">
+              <p className="font-bold text-amber-600">{p.CalificacionPromedio}</p>
+              <p className="text-xs text-gray-400">({p.TotalResenas} reseñas)</p>
+            </div>
+            <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">Validado</span>
+          </div>
+        ))}
+        {perfiles.length === 0 && <p className="text-center text-gray-400 py-12">No hay perfiles validados</p>}
+      </div>
+    </div>
+  );
+}
+
+/* ======== INCIDENCIAS ======== */
+function IncidenciasView() {
+  const [incidencias, setIncidencias] = useState<any[]>([]);
+  const headers = { 'Content-Type': 'application/json', 'x-admin-user': String(useAuth().user?.id) };
+
+  useEffect(() => {
+    fetch('/api/admin/incidencias', { headers }).then(r => r.json()).then(setIncidencias).catch(() => {});
+  }, []);
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto">
+      <h1 className="text-2xl font-bold text-gray-900 mb-8">Incidencias</h1>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Tipo</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Usuario</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Fecha</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-600">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {incidencias.map((inc, i) => (
+                <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
+                  <td className="py-3 px-4">
+                    <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700">{inc.Tipo}</span>
+                  </td>
+                  <td className="py-3 px-4 text-gray-800">{inc.Usuario}</td>
+                  <td className="py-3 px-4 text-gray-500">{inc.Fecha}</td>
+                  <td className="py-3 px-4">
+                    <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-red-50 text-red-700">{inc.Estado}</span>
+                  </td>
+                </tr>
+              ))}
+              {incidencias.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-gray-400">Sin incidencias</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ======== REPORTES ======== */
+function ReportesView() {
+  const [reportes, setReportes] = useState<any>(null);
+  const headers = { 'Content-Type': 'application/json', 'x-admin-user': String(useAuth().user?.id) };
+
+  useEffect(() => {
+    fetch('/api/admin/reportes', { headers }).then(r => r.json()).then(setReportes).catch(() => {});
+  }, []);
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto">
+      <h1 className="text-2xl font-bold text-gray-900 mb-8">Reportes</h1>
+      {reportes && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { label: 'Órdenes Totales', value: reportes.totalOrdenes, color: 'blue' },
+            { label: 'Completadas', value: reportes.totalCompletadas, color: 'emerald' },
+            { label: 'Canceladas', value: reportes.totalCanceladas, color: 'red' },
+            { label: 'Pagos Registrados', value: reportes.totalPagos, color: 'purple' },
+            { label: 'Ingresos', value: `S/ ${Number(reportes.ingresos).toFixed(2)}`, color: 'amber' },
+            { label: 'Citas Completadas', value: reportes.citasCompletadas, color: 'teal' },
+            { label: 'Reseñas Promedio', value: reportes.resenasPromedio, color: 'orange' },
+          ].map(({ label, value, color }) => (
+            <div key={label} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              <p className={`text-3xl font-bold ${
+                color === 'emerald' ? 'text-emerald-600' :
+                color === 'red' ? 'text-red-600' :
+                color === 'purple' ? 'text-purple-600' :
+                color === 'amber' ? 'text-amber-600' :
+                color === 'teal' ? 'text-teal-600' :
+                color === 'orange' ? 'text-orange-600' :
+                'text-blue-600'
+              }`}>{value}</p>
+              <p className="text-sm text-gray-500 mt-1">{label}</p>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
