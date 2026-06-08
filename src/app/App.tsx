@@ -34,6 +34,17 @@ function AppContent() {
       setAuthModalConfig({ isOpen: true, mode: 'login' });
     }
   }, [loading, user]);
+  // Redirigir al panel correspondiente según el rol al iniciar sesión
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      setView('home');
+      return;
+    }
+    if (user.rol === 'cuidadora') setView('cuidadora');
+    else if (user.rol === 'admin') setView('admin');
+    else setView('dashboard');
+  }, [loading, user?.id]);
   const [interviewModal, setInterviewModal] = useState<{ isOpen: boolean; nanaName: string }>({
     isOpen: false,
     nanaName: '',
@@ -183,7 +194,8 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans selection:bg-[#10B981] selection:text-white overflow-x-hidden">
-      {/* Header */}
+      {/* Header - oculto cuando la cuidadora usa su propio panel */}
+      {view !== 'cuidadora' && (
       <header className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-40 transition-all duration-300 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -281,6 +293,7 @@ function AppContent() {
           </div>
         </div>
       </header>
+      )}
 
       {view === 'dashboard' && (
         <Dashboard onOpenMessages={() => setView('messages')} onOpenCheckout={() => setView('checkout')} />
