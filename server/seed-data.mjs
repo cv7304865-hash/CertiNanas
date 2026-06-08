@@ -27,6 +27,22 @@ export function seed(db) {
   }
   const familias = db.prepare('SELECT Id, Nombres, Apellidos FROM Usuarios WHERE IdRol = 2').all();
 
+  // Menores (hijos) de cada familia
+  const nombresNinos = ['Mateo', 'Sofía', 'Liam', 'Valentina', 'Sebastián', 'Emilia', 'Benjamín', 'Camila', 'Lucas', 'Isabella', 'Santiago', 'Martina', 'Daniel', 'Victoria', 'Gabriel'];
+  const diagnosticos = ['TEA', 'TDAH', 'Down', 'Discapacidad Motriz', null, null, null];
+  const menoresInsertados = db.prepare('SELECT COUNT(*) AS c FROM Menores').get().c;
+  if (menoresInsertados < 5) {
+    for (const f of familias) {
+      const cant = rand(1, 2);
+      for (let i = 0; i < cant; i++) {
+        const diag = pick(diagnosticos);
+        const fecNac = `${rand(2016, 2023)}-${String(rand(1, 12)).padStart(2, '0')}-${String(rand(1, 28)).padStart(2, '0')}`;
+        db.prepare('INSERT INTO Menores (IdUsuarioFamilia, Nombre, Diagnostico, FechaNacimiento) VALUES (?, ?, ?, ?)').run(f.Id, pick(nombresNinos), diag, fecNac);
+      }
+    }
+  }
+  const menores = db.prepare('SELECT * FROM Menores').all();
+
   // ========== 2. CUIDADORAS ==========
   const cuiCount = db.prepare('SELECT COUNT(*) AS c FROM Usuarios WHERE IdRol = 3').get().c;
   for (let i = cuiCount; i < 10; i++) {
@@ -120,22 +136,25 @@ export function seed(db) {
 
   // ========== 8. ÓRDENES Y PAGOS ==========
   if (db.prepare('SELECT COUNT(*) AS c FROM Ordenes').get().c < 5) {
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 20; i++) {
       const c = pick(cuidadoras);
       const f = pick(familias.filter(ff => ff.Id !== c.IdUsuario));
+      const m = pick(menores.filter(m => m.IdUsuarioFamilia === f.Id) || menores);
       const tarifa = c.TarifaHora;
       const horas = randDec(2, 8, 1);
       const subtotal = +(tarifa * horas).toFixed(2);
       const plataforma = +(subtotal * 0.15).toFixed(2);
       const total = +(subtotal + plataforma).toFixed(2);
-      const esExito = i < 10;
-      const estado = esExito ? pick(['Completada', 'Pagada']) : 'Cancelada';
       const daysAgo = rand(1, 60);
-      const r = db.prepare(`INSERT INTO Ordenes (IdCuidadora, IdUsuarioFamilia, TipoServicio, FechaServicio, TotalHoras, TarifaHora, Subtotal, TarifaPlataforma, Total, Estado, FechaCreacion)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(c.Id, f.Id,
+      const horaInicio = `${String(rand(6, 16)).padStart(2, '0')}:00`;
+      const horaFin = `${String(parseInt(horaInicio) + Math.ceil(horas)).padStart(2, '0')}:00`;
+      const estados = ['Pendiente', 'Confirmada', 'En curso', 'Finalizada', 'Cancelada'];
+      const estado = i < 3 ? 'Pendiente' : i < 6 ? 'Confirmada' : i < 9 ? 'En curso' : i < 16 ? 'Finalizada' : 'Cancelada';
+      const r = db.prepare(`INSERT INTO Ordenes (IdCuidadora, IdUsuarioFamilia, TipoServicio, FechaServicio, TotalHoras, TarifaHora, Subtotal, TarifaPlataforma, Total, Estado, FechaCreacion, IdMenor, HoraInicio, HoraFin)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(c.Id, f.Id,
         pick(['Cuidado domiciliario', 'Acompañamiento escolar', 'Terapia de estimulación']), dateStr(daysAgo),
-        horas, tarifa, subtotal, plataforma, total, estado, dateAgo(daysAgo));
-      if (esExito) {
+        horas, tarifa, subtotal, plataforma, total, estado, dateAgo(daysAgo), m?.Id || null, horaInicio, horaFin);
+      if (estado === 'Finalizada' || estado === 'En curso' || estado === 'Confirmada') {
         db.prepare('INSERT INTO Pagos (IdOrden, Monto, MetodoPago, Estado, FechaPago) VALUES (?, ?, ?, ?, ?)').run(r.lastInsertRowid, total, pick(['Tarjeta', 'Yape', 'Transferencia']), 'Completado', dateAgo(daysAgo - rand(0, 2)));
       }
     }

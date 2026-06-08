@@ -17,7 +17,7 @@ const expOptions = ['0+ años', '1+ años', '3+ años', '5+ años', '10+ años']
 
 const COLORS = ['bg-orange-500', 'bg-blue-500', 'bg-emerald-500'];
 
-export function SearchPage() {
+export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void }) {
   const { user, logout } = useAuth();
   const [cuidadoras, setCuidadoras] = useState<CuidadoraCard[]>([]);
   const [count, setCount] = useState(0);
@@ -69,8 +69,8 @@ export function SearchPage() {
               <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
-              <button className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
-              <button className="text-sm font-bold text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5">Mis Servicios</button>
+              <button onClick={() => onNavigate?.('search')} className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
+              <button onClick={() => onNavigate?.('familia')} className="text-sm font-bold text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5">Mis Servicios</button>
               <button className="text-sm text-white/70 hover:text-white transition-colors">Mensajes</button>
               <div className="w-9 h-9 rounded-full bg-[#F59E0B]/20 flex items-center justify-center text-sm font-bold text-[#F59E0B] ml-2">
                 {user?.nombres?.charAt(0) || 'F'}

@@ -160,6 +160,15 @@ db.exec(`
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS Menores (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdUsuarioFamilia INTEGER NOT NULL REFERENCES Usuarios(Id),
+    Nombre TEXT NOT NULL,
+    Diagnostico TEXT,
+    FechaNacimiento TEXT,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS Pagos (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
@@ -232,6 +241,9 @@ db.exec(`
 
   // Migraciones
   try { db.prepare(`ALTER TABLE Cuidadoras ADD COLUMN Zona TEXT`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN IdMenor INTEGER REFERENCES Menores(Id)`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN HoraInicio TEXT`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN HoraFin TEXT`).run(); } catch(e) {}
 
 console.log('Tablas creadas y datos de semilla insertados.');
 }

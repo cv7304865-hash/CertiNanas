@@ -10,6 +10,7 @@ import { Dashboard } from './components/Dashboard';
 import { AdminLayout } from './components/AdminLayout';
 import { CaregiverPanel } from './components/CaregiverPanel';
 import { SearchPage } from './components/SearchPage';
+import { FamilyPanel } from './components/FamilyPanel';
 import { Messages } from './components/Messages';
 import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
@@ -46,6 +47,8 @@ function AppContent() {
     else if (user.rol === 'admin') setView('admin');
     else setView('search');
   }, [loading, user?.id]);
+
+  const isFamily = user?.rol === 'familia';
   const [interviewModal, setInterviewModal] = useState<{ isOpen: boolean; nanaName: string }>({
     isOpen: false,
     nanaName: '',
@@ -195,8 +198,8 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans selection:bg-[#10B981] selection:text-white overflow-x-hidden">
-      {/* Header - oculto cuando la cuidadora usa su propio panel */}
-      {view !== 'cuidadora' && (
+      {/* Header - oculto cuando la cuidadora o familia usan su propio panel */}
+      {view !== 'cuidadora' && view !== 'familia' && (
       <header className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-40 transition-all duration-300 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -309,7 +312,11 @@ function AppContent() {
       )}
 
       {view === 'search' && (
-        <SearchPage />
+        <SearchPage onNavigate={setView} />
+      )}
+
+      {view === 'familia' && (
+        <FamilyPanel onNavigate={setView} />
       )}
       {view === 'messages' && <Messages />}
       {view === 'checkout' && <Checkout onBack={() => setView('dashboard')} />}
