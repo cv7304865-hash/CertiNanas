@@ -19,7 +19,36 @@ router.get('/stats', isAdmin, (req, res) => {
   const totalFamilias = db.prepare('SELECT COUNT(*) AS c FROM Usuarios WHERE IdRol = 2').get().c;
   const totalAdmins = db.prepare('SELECT COUNT(*) AS c FROM Usuarios WHERE IdRol = 1').get().c;
   const postulacionesPendientes = db.prepare("SELECT COUNT(*) AS c FROM Postulaciones WHERE Estado = 'Pendiente'").get().c;
-  res.json({ totalUsers, totalCuidadoras, totalFamilias, totalAdmins, postulacionesPendientes });
+  const serviciosCompletados = db.prepare("SELECT COUNT(*) AS c FROM Ordenes WHERE Estado IN ('Finalizada', 'Completada', 'Pagada')").get().c;
+  const incidenciasAbiertas = db.prepare("SELECT COUNT(*) AS c FROM Citas WHERE Estado = 'Cancelada'").get().c;
+  res.json({ totalUsers, totalCuidadoras, totalFamilias, totalAdmins, postulacionesPendientes, serviciosCompletados, incidenciasAbiertas });
+});
+
+router.get('/dashboard', isAdmin, (req, res) => {
+  const db = getDb();
+  // Postulaciones recientes
+  const postulacionesRecientes = db.prepare(`
+    SELECT p.Id, p.IdUsuario, p.FechaPostulacion, p.Estado,
+           u.Nombres, u.Apellidos
+    FROM Postulaciones p
+    INNER JOIN Usuarios u ON u.Id = p.IdUsuario
+    ORDER BY p.FechaPostulacion DESC
+    LIMIT 6
+  `).all();
+  // Incidencias abiertas (citas canceladas)
+  const incidencias = db.prepare(`
+    SELECT c.Id AS IdCita, c.FechaCita, c.Estado,
+           u.Nombres AS CuidadoraNombres, u.Apellidos AS CuidadoraApellidos,
+           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos
+    FROM Citas c
+    INNER JOIN Cuidadoras cu ON cu.Id = c.IdCuidadora
+    INNER JOIN Usuarios u ON u.Id = cu.IdUsuario
+    INNER JOIN Usuarios uf ON uf.Id = c.IdUsuarioFamilia
+    WHERE c.Estado = 'Cancelada'
+    ORDER BY c.FechaCreacion DESC
+    LIMIT 6
+  `).all();
+  res.json({ postulacionesRecientes, incidencias });
 });
 
 router.get('/exito', isAdmin, (req, res) => {

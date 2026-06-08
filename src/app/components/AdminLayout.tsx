@@ -96,60 +96,108 @@ export function AdminLayout() {
 /* ======== DASHBOARD ======== */
 function DashboardView() {
   const [stats, setStats] = useState<any>(null);
-  const [exitos, setExitos] = useState<any[]>([]);
-  const [noAcuerdo, setNoAcuerdo] = useState<any[]>([]);
+  const [data, setData] = useState<{ postulacionesRecientes: any[]; incidencias: any[] }>({ postulacionesRecientes: [], incidencias: [] });
   const headers = { 'Content-Type': 'application/json', 'x-admin-user': String(useAuth().user?.id) };
 
   useEffect(() => {
     fetch('/api/admin/stats', { headers }).then(r => r.json()).then(setStats).catch(() => {});
-    fetch('/api/admin/exito', { headers }).then(r => r.json()).then(setExitos).catch(() => {});
-    fetch('/api/admin/no-acuerdo', { headers }).then(r => r.json()).then(setNoAcuerdo).catch(() => {});
+    fetch('/api/admin/dashboard', { headers }).then(r => r.json()).then(setData).catch(() => {});
   }, []);
 
+  const kpis = [
+    { label: 'Usuarios totales', value: stats?.totalUsers ?? '—', color: 'text-amber-500' },
+    { label: 'Cuidadoras activas', value: stats?.totalCuidadoras ?? '—', color: 'text-blue-500' },
+    { label: 'Servicios completados', value: stats?.serviciosCompletados ?? '—', color: 'text-emerald-500' },
+    { label: 'Incidencias abiertas', value: stats?.incidenciasAbiertas ?? '—', color: 'text-red-500' },
+  ];
+
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Dashboard</h1>
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-          {[
-            { label: 'Total Usuarios', value: stats.totalUsers, color: 'blue' },
-            { label: 'Familias', value: stats.totalFamilias, color: 'emerald' },
-            { label: 'Cuidadoras', value: stats.totalCuidadoras, color: 'purple' },
-            { label: 'Admins', value: stats.totalAdmins, color: 'amber' },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <p className="text-3xl font-bold text-gray-900">{value}</p>
-              <p className="text-sm text-gray-500 mt-1">{label}</p>
-            </div>
-          ))}
-        </div>
-      )}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
-          <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-emerald-600" /> Casos de Éxito
-          </h2>
-          <div className="space-y-3">
-            {exitos.slice(0, 4).map(c => (
-              <div key={c.Id} className="bg-white rounded-xl p-4 border border-gray-100">
-                <h3 className="font-semibold text-gray-800">{c.Titulo}</h3>
-                <p className="text-sm text-gray-500 mt-1">{c.Descripcion}</p>
-              </div>
-            ))}
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+
+      {/* KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {kpis.map(k => (
+          <div key={k.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-center">
+            <p className={`text-4xl font-extrabold ${k.color}`}>{k.value}</p>
+            <p className="text-sm text-gray-500 mt-2">{k.label}</p>
           </div>
+        ))}
+      </div>
+
+      {/* Postulaciones recientes */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-[#F59E0B]" />
+          <h2 className="font-bold text-gray-900">Postulaciones recientes</h2>
         </div>
-        <div>
-          <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <XCircle className="w-5 h-5 text-red-500" /> Casos sin Acuerdo
-          </h2>
-          <div className="space-y-3">
-            {noAcuerdo.slice(0, 4).map(c => (
-              <div key={c.Id} className="bg-white rounded-xl p-4 border border-gray-100">
-                <h3 className="font-semibold text-gray-800">{c.Titulo}</h3>
-                <p className="text-sm text-gray-500 mt-1">{c.Descripcion}</p>
-              </div>
-            ))}
-          </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-left py-3 px-6 font-semibold text-gray-600">Nombre</th>
+                <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.postulacionesRecientes.map(p => (
+                <tr key={p.Id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <td className="py-3 px-6 font-semibold text-gray-900">{p.Nombres} {p.Apellidos?.charAt(0)}.</td>
+                  <td className="py-3 px-6">
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${
+                      p.Estado === 'Pendiente' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    }`}>{p.Estado}</span>
+                  </td>
+                </tr>
+              ))}
+              {data.postulacionesRecientes.length === 0 && (
+                <tr><td colSpan={2} className="py-8 text-center text-gray-400 text-sm">No hay postulaciones recientes</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Incidencias abiertas */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 text-red-500" />
+          <h2 className="font-bold text-gray-900">Incidencias abiertas</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="text-left py-3 px-6 font-semibold text-gray-600">Servicio</th>
+                <th className="text-left py-3 px-6 font-semibold text-gray-600">Tipo</th>
+                <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.incidencias.map((inc, i) => (
+                <tr key={inc.IdCita} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <td className="py-3 px-6 font-bold text-gray-900 font-mono">#SOL-{String(inc.IdCita).padStart(3, '0')}</td>
+                  <td className="py-3 px-6">
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${
+                      i === 0 ? 'bg-red-50 text-red-700 border-red-200' : i === 1 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    }`}>
+                      {i === 0 ? 'Grave' : i === 1 ? 'Moderada' : 'Leve'}
+                    </span>
+                  </td>
+                  <td className="py-3 px-6">
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${
+                      i < 2 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-blue-700 border-blue-200'
+                    }`}>
+                      {i < 2 ? 'Abierta' : 'En revisión'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {data.incidencias.length === 0 && (
+                <tr><td colSpan={3} className="py-8 text-center text-gray-400 text-sm">No hay incidencias abiertas</td></tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
