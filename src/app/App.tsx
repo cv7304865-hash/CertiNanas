@@ -13,6 +13,7 @@ import { SearchPage } from './components/SearchPage';
 import { FamilyPanel } from './components/FamilyPanel';
 import { ContractPage } from './components/ContractPage';
 import { PaymentPage } from './components/PaymentPage';
+import { MessagesPage } from './components/MessagesPage';
 import { Messages } from './components/Messages';
 import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
@@ -202,7 +203,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans selection:bg-[#10B981] selection:text-white overflow-x-hidden">
       {/* Header - oculto cuando la cuidadora o familia usan su propio panel */}
-      {view !== 'cuidadora' && view !== 'familia' && (
+      {view !== 'cuidadora' && view !== 'familia' && view !== 'search' && view !== 'messages' && view !== 'contract' && view !== 'payment' && (
       <header className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-40 transition-all duration-300 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -327,7 +328,9 @@ function AppContent() {
       {view === 'payment' && contractOrderId && (
         <PaymentPage orderId={contractOrderId} onBack={() => setView('familia')} />
       )}
-      {view === 'messages' && <Messages />}
+      {view === 'messages' && (
+        <MessagesPage onNavigate={setView} />
+      )}
       {view === 'checkout' && <Checkout onBack={() => setView('dashboard')} />}
 
       {view === 'home' && (<>
