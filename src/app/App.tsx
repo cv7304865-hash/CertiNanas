@@ -8,13 +8,14 @@ import { LegalModal } from './components/LegalModal';
 import { ProfileModal, NanaProfile } from './components/ProfileModal';
 import { Dashboard } from './components/Dashboard';
 import { AdminLayout } from './components/AdminLayout';
+import { CaregiverPanel } from './components/CaregiverPanel';
 import { Messages } from './components/Messages';
 import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
 import { HeroLanding } from './components/HeroLanding';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 
-type View = 'home' | 'dashboard' | 'messages' | 'checkout' | 'admin';
+type View = 'home' | 'dashboard' | 'messages' | 'checkout' | 'admin' | 'cuidadora';
 
 function AppContent() {
   const { user, logout, loading } = useAuth();
@@ -233,6 +234,11 @@ function AppContent() {
                       <Shield className="w-4 h-4" /> Admin
                     </button>
                   )}
+                  {user.rol === 'cuidadora' && (
+                    <button onClick={() => setView('cuidadora')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'cuidadora' ? 'text-amber-600' : 'text-gray-600 hover:text-amber-600'}`}>
+                      <UserCircle className="w-4 h-4" /> Mi Perfil
+                    </button>
+                  )}
                   <NotificationsBell />
                   <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
                     <div className="flex items-center gap-2 text-sm">
@@ -281,6 +287,9 @@ function AppContent() {
       )}
       {view === 'admin' && user?.rol === 'admin' && (
         <AdminLayout />
+      )}
+      {view === 'cuidadora' && user?.rol === 'cuidadora' && (
+        <CaregiverPanel />
       )}
       {view === 'messages' && <Messages />}
       {view === 'checkout' && <Checkout onBack={() => setView('dashboard')} />}
