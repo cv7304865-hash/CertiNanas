@@ -46,4 +46,18 @@ router.get('/search/cuidadoras', (req, res) => {
   res.json(cuidadoras);
 });
 
+// Endpoint público: casos de éxito visibles para familias
+router.get('/casos/exito', (req, res) => {
+  const db = getDb();
+  const casos = db.prepare(`
+    SELECT c.Id, c.Titulo, c.Descripcion, c.FechaCreacion,
+           u.Nombres, u.Apellidos
+    FROM Casos c
+    LEFT JOIN Usuarios u ON u.Id = c.IdUsuarioReporta
+    WHERE c.Tipo = 'Exito'
+    ORDER BY c.FechaCreacion DESC
+  `).all();
+  res.json(casos);
+});
+
 export default router;

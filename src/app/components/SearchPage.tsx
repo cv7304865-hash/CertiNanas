@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { Search, Star, LogOut, X, CheckCircle } from 'lucide-react';
+import { Search, Star, LogOut, X, CheckCircle, Heart, Quote } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 import { ScheduleInterviewModal } from './ScheduleInterviewModal';
@@ -18,6 +18,11 @@ const expOptions = ['0+ años', '1+ años', '3+ años', '5+ años', '10+ años']
 
 const COLORS = ['bg-orange-500', 'bg-blue-500', 'bg-emerald-500'];
 
+type CasoExito = {
+  Id: number; Titulo: string; Descripcion: string; FechaCreacion: string;
+  Nombres: string; Apellidos: string;
+};
+
 export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void }) {
   const { user, logout } = useAuth();
   const [cuidadoras, setCuidadoras] = useState<CuidadoraCard[]>([]);
@@ -29,6 +34,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
   const [tarifaMax, setTarifaMax] = useState('100');
   const [selectedNana, setSelectedNana] = useState<CuidadoraCard | null>(null);
   const [showSchedule, setShowSchedule] = useState<CuidadoraCard | null>(null);
+  const [exitos, setExitos] = useState<CasoExito[]>([]);
 
   const buscar = async () => {
     setLoading(true);
@@ -47,6 +53,10 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
   };
 
   useEffect(() => { buscar(); }, []);
+
+  useEffect(() => {
+    fetch('/api/casos/exito').then(r => r.json()).then(setExitos).catch(() => {});
+  }, []);
 
   const getIniciales = (n: string, a: string) => {
     const names = n?.split(' ');
@@ -213,6 +223,32 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Casos de Éxito - Inspiración para familias */}
+      {exitos.length > 0 && (
+        <section className="mt-16 mb-8">
+          <div className="flex items-center gap-3 mb-8">
+            <Heart className="w-6 h-6 text-[#cc8db3]" />
+            <h2 className="text-2xl font-bold text-[#250e2c]">Casos de Éxito</h2>
+            <p className="text-[#250e2c]/50 text-sm">Familias que encontraron a la cuidadora perfecta</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {exitos.slice(0, 6).map((c) => (
+              <motion.div
+                key={c.Id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="bg-white/30 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6 relative"
+              >
+                <Quote className="w-8 h-8 text-[#f6a5c0]/30 absolute top-4 right-4" />
+                <h3 className="font-bold text-[#250e2c] text-base mb-3 pr-8">{c.Titulo}</h3>
+                <p className="text-sm text-[#250e2c]/70 leading-relaxed">{c.Descripcion}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <AnimatePresence>
         {showSchedule && (
