@@ -139,7 +139,30 @@ router.get('/reportes', isAdmin, (req, res) => {
   const ingresos = db.prepare('SELECT COALESCE(SUM(Monto), 0) AS total FROM Pagos WHERE Estado = ?').get('Completado');
   const citasCompletadas = db.prepare("SELECT COUNT(*) AS c FROM Citas WHERE Estado = 'Completada'").get().c;
   const resenasPromedio = db.prepare('SELECT COALESCE(AVG(Calificacion), 0) AS prom FROM Resenas').get().prom;
-  res.json({ totalOrdenes, totalPagos, totalCompletadas, totalCanceladas, ingresos: ingresos.total, citasCompletadas, resenasPromedio: +resenasPromedio.toFixed(1) });
+  const ordenesPorEstado = db.prepare("SELECT Estado, COUNT(*) AS count FROM Ordenes GROUP BY Estado ORDER BY count DESC").all();
+  const ordenesPorMes = db.prepare(`
+    SELECT strftime('%Y-%m', FechaCreacion) AS mes, COUNT(*) AS count
+    FROM Ordenes GROUP BY mes ORDER BY mes ASC
+  `).all();
+  const ingresosPorMes = db.prepare(`
+    SELECT strftime('%Y-%m', p.FechaCreacion) AS mes, COALESCE(SUM(p.Monto), 0) AS total
+    FROM Pagos p WHERE p.Estado = 'Completado'
+    GROUP BY mes ORDER BY mes ASC
+  `).all();
+  const topCuidadoras = db.prepare(`
+    SELECT u.Nombres || ' ' || u.Apellidos AS nombre, COUNT(o.Id) AS total
+    FROM Ordenes o
+    INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+    INNER JOIN Usuarios u ON u.Id = c.IdUsuario
+    GROUP BY c.Id ORDER BY total DESC LIMIT 5
+  `).all();
+  const pagosPorEstado = db.prepare("SELECT Estado, COUNT(*) AS count FROM Pagos GROUP BY Estado").all();
+  res.json({
+    totalOrdenes, totalPagos, totalCompletadas, totalCanceladas,
+    ingresos: ingresos.total, citasCompletadas,
+    resenasPromedio: +resenasPromedio.toFixed(1),
+    ordenesPorEstado, ordenesPorMes, ingresosPorMes, topCuidadoras, pagosPorEstado
+  });
 });
 
 router.get('/usuarios', isAdmin, (req, res) => {

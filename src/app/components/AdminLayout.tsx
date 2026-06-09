@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, ChevronLeft, CheckCircle, XCircle, Eye, Search, ArrowUpDown, FileSignature } from 'lucide-react';
+import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, ChevronLeft, CheckCircle, XCircle, Eye, Search, ArrowUpDown, FileSignature, TrendingUp, DollarSign, PieChart as PieIcon } from 'lucide-react';
+import { BarChart, Bar, PieChart, Pie, LineChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 
 type Postulacion = {
@@ -622,34 +623,122 @@ function ReportesView() {
     fetch('/api/admin/reportes', { headers }).then(r => r.json()).then(setReportes).catch(() => {});
   }, []);
 
+  const COLORS = ['#2563EB', '#10B981', '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6'];
+
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Reportes</h1>
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <h1 className="text-2xl font-bold text-gray-900">Reportes</h1>
       {reportes && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { label: 'Órdenes Totales', value: reportes.totalOrdenes, color: 'blue' },
-            { label: 'Completadas', value: reportes.totalCompletadas, color: 'emerald' },
-            { label: 'Canceladas', value: reportes.totalCanceladas, color: 'red' },
-            { label: 'Pagos Registrados', value: reportes.totalPagos, color: 'purple' },
-            { label: 'Ingresos', value: `S/ ${Number(reportes.ingresos).toFixed(2)}`, color: 'amber' },
-            { label: 'Citas Completadas', value: reportes.citasCompletadas, color: 'teal' },
-            { label: 'Reseñas Promedio', value: reportes.resenasPromedio, color: 'orange' },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <p className={`text-3xl font-bold ${
-                color === 'emerald' ? 'text-emerald-600' :
-                color === 'red' ? 'text-red-600' :
-                color === 'purple' ? 'text-purple-600' :
-                color === 'amber' ? 'text-amber-600' :
-                color === 'teal' ? 'text-teal-600' :
-                color === 'orange' ? 'text-orange-600' :
-                'text-blue-600'
-              }`}>{value}</p>
-              <p className="text-sm text-gray-500 mt-1">{label}</p>
+        <>
+          {/* KPIs */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
+            {[
+              { label: 'Órdenes', value: reportes.totalOrdenes, color: 'text-blue-600', icon: TrendingUp },
+              { label: 'Completadas', value: reportes.totalCompletadas, color: 'text-emerald-600', icon: CheckCircle },
+              { label: 'Canceladas', value: reportes.totalCanceladas, color: 'text-red-600', icon: XCircle },
+              { label: 'Pagos', value: reportes.totalPagos, color: 'text-purple-600', icon: DollarSign },
+              { label: 'Ingresos', value: `S/ ${Number(reportes.ingresos).toFixed(0)}`, color: 'text-amber-600', icon: TrendingUp },
+              { label: 'Citas', value: reportes.citasCompletadas, color: 'text-teal-600', icon: CheckCircle },
+              { label: 'Reseñas', value: reportes.resenasPromedio, color: 'text-orange-600', icon: BarChart3 },
+            ].map(({ label, value, color, icon: Icon }) => (
+              <div key={label} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${color.replace('text-', 'bg-').replace('600', '100')}`}>
+                  <Icon className={`w-5 h-5 ${color}`} />
+                </div>
+                <div>
+                  <p className={`text-xl font-bold ${color}`}>{value}</p>
+                  <p className="text-xs text-gray-500">{label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Gráficos: 2 columnas */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Órdenes por Estado - Barras */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              <h3 className="font-bold text-gray-900 mb-4">Órdenes por Estado</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={reportes.ordenesPorEstado}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="Estado" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} />
+                  <Bar dataKey="count" name="Cantidad" radius={[6, 6, 0, 0]}>
+                    {reportes.ordenesPorEstado.map((_: any, i: number) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-          ))}
-        </div>
+
+            {/* Distribución de Pagos - Pastel */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              <h3 className="font-bold text-gray-900 mb-4">Distribución de Pagos</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={reportes.pagosPorEstado}
+                    dataKey="count"
+                    nameKey="Estado"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={({ Estado, count }) => `${Estado} (${count})`}
+                  >
+                    {reportes.pagosPorEstado.map((_: any, i: number) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Órdenes por Mes - Líneas */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              <h3 className="font-bold text-gray-900 mb-4">Órdenes por Mes</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={reportes.ordenesPorMes}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} />
+                  <Line type="monotone" dataKey="count" name="Órdenes" stroke="#2563EB" strokeWidth={2} dot={{ fill: '#2563EB', r: 4 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Ingresos por Mes - Barras */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              <h3 className="font-bold text-gray-900 mb-4">Ingresos por Mes</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={reportes.ingresosPorMes}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} formatter={(v: number) => [`S/ ${v.toFixed(2)}`, 'Ingresos']} />
+                  <Bar dataKey="total" name="Ingresos" radius={[6, 6, 0, 0]} fill="#10B981" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Top Cuidadoras - Barras horizontales */}
+          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <h3 className="font-bold text-gray-900 mb-4">Top 5 Cuidadoras con más servicios</h3>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={reportes.topCuidadoras} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis type="number" tick={{ fontSize: 12 }} />
+                <YAxis type="category" dataKey="nombre" tick={{ fontSize: 12 }} width={160} />
+                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} />
+                <Bar dataKey="total" name="Servicios" radius={[0, 6, 6, 0]} fill="#8B5CF6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </>
       )}
     </div>
   );
