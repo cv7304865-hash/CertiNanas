@@ -229,7 +229,7 @@ db.exec(`
     IdOrden INTEGER REFERENCES Ordenes(Id),
     IdCita INTEGER REFERENCES Citas(Id),
     Tipo TEXT NOT NULL CHECK (Tipo IN ('Leve', 'Moderada', 'Grave')),
-    Estado TEXT NOT NULL DEFAULT 'Abierta' CHECK (Estado IN ('Abierta', 'En revision', 'Cerrada')),
+    Estado TEXT NOT NULL DEFAULT 'Abierta' CHECK (Estado IN ('Abierta', 'En revisión', 'Cerrada')),
     Descripcion TEXT,
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );

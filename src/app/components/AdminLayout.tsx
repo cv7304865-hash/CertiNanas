@@ -178,7 +178,7 @@ function DashboardView() {
             <tbody>
               {data.incidencias.map((inc) => {
                 const tipoCls = inc.Tipo === 'Grave' ? 'bg-red-50 text-red-700 border-red-200' : inc.Tipo === 'Moderada' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                const estCls = inc.Estado === 'Abierta' ? 'bg-amber-50 text-amber-700 border-amber-200' : inc.Estado === 'En revision' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-200';
+                const estCls = inc.Estado === 'Abierta' ? 'bg-amber-50 text-amber-700 border-amber-200' : inc.Estado === 'En revisión' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-200';
                 return (
                 <tr key={inc.Id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                   <td className="py-3 px-6 font-bold text-gray-900 font-mono">#SOL-{String(inc.IdCita || inc.Id).padStart(3, '0')}</td>
@@ -186,7 +186,7 @@ function DashboardView() {
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${tipoCls}`}>{inc.Tipo}</span>
                   </td>
                   <td className="py-3 px-6">
-                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${estCls}`}>{inc.Estado === 'En revision' ? 'En revisión' : inc.Estado}</span>
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${estCls}`}>{inc.Estado}</span>
                   </td>
                 </tr>
                 );
@@ -587,9 +587,9 @@ function IncidenciasView() {
     if (t === 'Moderada') return 'bg-amber-50 text-amber-700 border-amber-200';
     return 'bg-emerald-50 text-emerald-700 border-emerald-200';
   };
-  const badgeEst = (e: string) => {
+                const badgeEst = (e: string) => {
     if (e === 'Abierta') return 'bg-amber-50 text-amber-700 border-amber-200';
-    if (e === 'En revision') return 'bg-blue-50 text-blue-700 border-blue-200';
+    if (e === 'En revisión') return 'bg-blue-50 text-blue-700 border-blue-200';
     return 'bg-gray-50 text-gray-600 border-gray-200';
   };
 
@@ -598,12 +598,11 @@ function IncidenciasView() {
       <h1 className="text-2xl font-bold text-gray-900 mb-8">Incidencias</h1>
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+              <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100">
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Servicio</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Tipo</th>
-                <th className="text-left py-3 px-6 font-semibold text-gray-600">Descripción</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
               </tr>
             </thead>
@@ -614,13 +613,12 @@ function IncidenciasView() {
                   <td className="py-3 px-6">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeTipo(inc.Tipo)}`}>{inc.Tipo}</span>
                   </td>
-                  <td className="py-3 px-6 text-gray-600 text-xs max-w-xs truncate">{inc.Descripcion || '—'}</td>
                   <td className="py-3 px-6">
-                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeEst(inc.Estado)}`}>{inc.Estado === 'En revision' ? 'En revisión' : inc.Estado}</span>
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeEst(inc.Estado)}`}>{inc.Estado}</span>
                   </td>
                 </tr>
               ))}
-              {incidencias.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-gray-400">Sin incidencias</td></tr>}
+              {incidencias.length === 0 && <tr><td colSpan={3} className="py-12 text-center text-gray-400">Sin incidencias</td></tr>}
             </tbody>
           </table>
         </div>

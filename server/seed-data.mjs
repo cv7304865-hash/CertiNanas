@@ -348,9 +348,9 @@ export function seed(db) {
     const paresInc = [
       { ordenIdx: 9,  tipo: 'Grave',    estado: 'Abierta' },
       { ordenIdx: 0,  tipo: 'Moderada', estado: 'Abierta' },
-      { ordenIdx: 38, tipo: 'Leve',     estado: 'En revision' },
-      { ordenIdx: 10, tipo: 'Leve',     estado: 'En revision' },
-      { ordenIdx: 17, tipo: 'Leve',     estado: 'En revision' },
+      { ordenIdx: 38, tipo: 'Leve',     estado: 'En revisión' },
+      { ordenIdx: 10, tipo: 'Leve',     estado: 'En revisión' },
+      { ordenIdx: 17, tipo: 'Leve',     estado: 'En revisión' },
       { ordenIdx: 33, tipo: 'Leve',     estado: 'Cerrada' },
     ];
     for (const p of paresInc) {
