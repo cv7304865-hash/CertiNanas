@@ -95,6 +95,13 @@ export function AdminLayout() {
   );
 }
 
+function cerrarIncidencia(id: number) {
+  const headers = { 'Content-Type': 'application/json', 'x-admin-user': String(useAuth().user?.id) };
+  fetch(`/api/admin/incidencias/${id}/cerrar`, { method: 'PUT', headers }).then(r => {
+    if (r.ok) window.location.reload();
+  });
+}
+
 /* ======== DASHBOARD ======== */
 function DashboardView() {
   const [stats, setStats] = useState<any>(null);
@@ -173,6 +180,7 @@ function DashboardView() {
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Servicio</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Tipo</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
+                <th className="text-right py-3 px-6 font-semibold text-gray-600">Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -188,11 +196,17 @@ function DashboardView() {
                   <td className="py-3 px-6">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${estCls}`}>{inc.Estado}</span>
                   </td>
+                  <td className="py-3 px-6 text-right">
+                    {inc.Estado !== 'Cerrada' && (
+                      <button onClick={() => cerrarIncidencia(inc.Id)}
+                        className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">Resolver</button>
+                    )}
+                  </td>
                 </tr>
                 );
               })}
               {data.incidencias.length === 0 && (
-                <tr><td colSpan={3} className="py-8 text-center text-gray-400 text-sm">No hay incidencias abiertas</td></tr>
+                <tr><td colSpan={4} className="py-8 text-center text-gray-400 text-sm">No hay incidencias abiertas</td></tr>
               )}
             </tbody>
           </table>
@@ -593,17 +607,24 @@ function IncidenciasView() {
     return 'bg-gray-50 text-gray-600 border-gray-200';
   };
 
+  const resolver = (id: number) => {
+    fetch(`/api/admin/incidencias/${id}/cerrar`, { method: 'PUT', headers }).then(r => {
+      if (r.ok) fetch('/api/admin/incidencias', { headers }).then(r => r.json()).then(setIncidencias);
+    });
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-8">Incidencias</h1>
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+          <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100">
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Servicio</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Tipo</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
+                <th className="text-right py-3 px-6 font-semibold text-gray-600">Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -616,9 +637,15 @@ function IncidenciasView() {
                   <td className="py-3 px-6">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeEst(inc.Estado)}`}>{inc.Estado}</span>
                   </td>
+                  <td className="py-3 px-6 text-right">
+                    {inc.Estado !== 'Cerrada' && (
+                      <button onClick={() => resolver(inc.Id)}
+                        className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">Resolver</button>
+                    )}
+                  </td>
                 </tr>
               ))}
-              {incidencias.length === 0 && <tr><td colSpan={3} className="py-12 text-center text-gray-400">Sin incidencias</td></tr>}
+              {incidencias.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-gray-400">Sin incidencias</td></tr>}
             </tbody>
           </table>
         </div>

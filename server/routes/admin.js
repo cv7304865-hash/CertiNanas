@@ -119,6 +119,13 @@ router.get('/incidencias', isAdmin, (req, res) => {
   res.json(incidencias);
 });
 
+router.put('/incidencias/:id/cerrar', isAdmin, (req, res) => {
+  const db = getDb();
+  const result = db.prepare("UPDATE Incidencias SET Estado = 'Cerrada' WHERE Id = ? AND Estado != 'Cerrada'").run(req.params.id);
+  if (result.changes === 0) return res.status(404).json({ error: 'Incidencia no encontrada o ya cerrada' });
+  res.json({ success: true });
+});
+
 router.get('/reportes', isAdmin, (req, res) => {
   const db = getDb();
   const totalOrdenes = db.prepare('SELECT COUNT(*) AS c FROM Ordenes').get().c;
