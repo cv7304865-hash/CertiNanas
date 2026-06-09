@@ -201,4 +201,35 @@ router.put('/contratos/:id/rechazar', isAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// Admin puede ver todas las conversaciones
+router.get('/conversaciones', isAdmin, (req, res) => {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT cv.Id, cv.FechaCreacion, cv.FechaUltimoMensaje,
+           c.Id AS CuidadoraId, u.Nombres, u.Apellidos,
+           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos,
+           o.Estado AS OrdenEstado, o.Id AS OrdenId,
+           m.Nombre AS MenorNombre
+    FROM Conversaciones cv
+    INNER JOIN Cuidadoras c ON c.Id = cv.IdCuidadora
+    INNER JOIN Usuarios u ON u.Id = c.IdUsuario
+    INNER JOIN Usuarios uf ON uf.Id = cv.IdUsuarioFamilia
+    LEFT JOIN Ordenes o ON o.IdCuidadora = c.Id AND o.IdUsuarioFamilia = cv.IdUsuarioFamilia
+    LEFT JOIN Menores m ON m.Id = o.IdMenor
+    GROUP BY cv.Id
+    ORDER BY cv.FechaUltimoMensaje DESC
+  `).all();
+  res.json(rows);
+});
+
+// Admin envia mensaje en una conversacion
+router.post('/conversaciones/:id/mensajes', isAdmin, (req, res) => {
+  const db = getDb();
+  const { contenido } = req.body;
+  if (!contenido?.trim()) return res.status(400).json({ error: 'Contenido requerido' });
+  const result = db.prepare(`INSERT INTO Mensajes (IdConversacion, IdRemitente, Contenido, Leido) VALUES (?, ?, ?, 0)`).run(Number(req.params.id), Number(req.headers['x-admin-user']), contenido.trim());
+  db.prepare(`UPDATE Conversaciones SET FechaUltimoMensaje = datetime('now') WHERE Id = ?`).run(Number(req.params.id));
+  res.json({ id: result.lastInsertRowid });
+});
+
 export default router;

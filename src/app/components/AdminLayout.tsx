@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { useState, useEffect } from 'react';
-import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, ChevronLeft, CheckCircle, XCircle, Eye, Search, ArrowUpDown, FileSignature, TrendingUp, DollarSign, PieChart as PieIcon, Download } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, ChevronLeft, CheckCircle, XCircle, Eye, Search, ArrowUpDown, FileSignature, TrendingUp, DollarSign, PieChart as PieIcon, Download, MessageSquare, Send } from 'lucide-react';
 import { BarChart, Bar, PieChart, Pie, LineChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
@@ -15,16 +15,17 @@ type Documento = {
   NombreArchivo: string; Peso: string; Estado: string;
 };
 
-type Tab = 'dashboard' | 'postulaciones' | 'perfiles' | 'incidencias' | 'usuarios' | 'reportes' | 'contratos';
+type Tab = 'dashboard' | 'postulaciones' | 'perfiles' | 'incidencias' | 'usuarios' | 'reportes' | 'contratos' | 'mensajes';
 
-const navItems: { key: Tab; label: string; icon: any }[] = [
-  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { key: 'contratos', label: 'Contratos', icon: FileSignature },
-  { key: 'postulaciones', label: 'Postulaciones', icon: FileText },
-  { key: 'perfiles', label: 'Perfiles Validados', icon: UserCheck },
-  { key: 'incidencias', label: 'Incidencias', icon: AlertTriangle },
-  { key: 'usuarios', label: 'Usuarios', icon: Users },
-  { key: 'reportes', label: 'Reportes', icon: BarChart3 },
+const navItems: { key: Tab; label: string }[] = [
+  { key: 'dashboard', label: 'Dashboard' },
+  { key: 'contratos', label: 'Contratos' },
+  { key: 'postulaciones', label: 'Postulaciones' },
+  { key: 'perfiles', label: 'Perfiles' },
+  { key: 'incidencias', label: 'Incidencias' },
+  { key: 'mensajes', label: 'Mensajes' },
+  { key: 'usuarios', label: 'Usuarios' },
+  { key: 'reportes', label: 'Reportes' },
 ];
 
 export function AdminLayout() {
@@ -32,62 +33,54 @@ export function AdminLayout() {
   const [tab, setTab] = useState<Tab>('dashboard');
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-[#1E293B] text-white flex flex-col flex-shrink-0">
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/20 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-[#F59E0B]" />
+    <div className="min-h-screen bg-gray-50">
+      {/* Navbar */}
+      <header className="bg-[#1E293B] text-white sticky top-0 z-40 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-[#F59E0B]" />
+                <span className="text-lg font-extrabold text-[#F59E0B] tracking-tight">ADMIN</span>
+              </div>
+              <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
+              <span className="text-white/60 text-sm hidden sm:inline">Panel de control</span>
             </div>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight">Admin</h1>
-              <p className="text-xs text-white/50">Panel de control</p>
-            </div>
-          </div>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {navItems.map(item => {
-            const active = tab === item.key;
-            return (
-              <button
-                key={item.key}
-                onClick={() => setTab(item.key)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  active
-                    ? 'bg-[#F59E0B]/10 text-[#F59E0B] border-l-2 border-[#F59E0B]'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <item.icon className={`w-5 h-5 ${active ? 'text-[#F59E0B]' : ''}`} />
-                <span>{item.label}</span>
+            <nav className="hidden md:flex items-center gap-3">
+              {navItems.map(item => (
+                <button key={item.key} onClick={() => setTab(item.key)}
+                  className={`text-xs font-bold whitespace-nowrap transition-colors ${
+                    tab === item.key ? 'text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5' : 'text-white/70 hover:text-white'
+                  }`}>{item.label}</button>
+              ))}
+            </nav>
+            <div className="flex items-center gap-3">
+              <ProfileAvatar size={32} />
+              <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                <LogOut className="w-4 h-4 text-white/60" />
               </button>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-white/10">
-          <div className="flex items-center gap-3 px-4 py-3">
-            <ProfileAvatar size={32} />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user?.nombres} {user?.apellidos}</p>
-              <p className="text-xs text-white/50 truncate">{user?.email}</p>
             </div>
-            <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors" title="Cerrar sesión">
-              <LogOut className="w-4 h-4 text-white/60" />
-            </button>
           </div>
+          {/* Mobile nav */}
+          <nav className="md:hidden flex items-center gap-2 pb-2 overflow-x-auto">
+            {navItems.map(item => (
+              <button key={item.key} onClick={() => setTab(item.key)}
+                className={`text-xs font-bold whitespace-nowrap px-2 py-1 rounded transition-colors ${
+                  tab === item.key ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 'text-white/70 hover:text-white'
+                }`}>{item.label}</button>
+            ))}
+          </nav>
         </div>
-      </aside>
+      </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="max-w-7xl mx-auto">
         {tab === 'dashboard' && <DashboardView />}
         {tab === 'contratos' && <ContratosView />}
         {tab === 'postulaciones' && <PostulacionesView />}
         {tab === 'perfiles' && <PerfilesView />}
         {tab === 'incidencias' && <IncidenciasView />}
+        {tab === 'mensajes' && <AdminMessages />}
         {tab === 'reportes' && <ReportesView />}
         {tab === 'usuarios' && <UsuariosView />}
       </main>
@@ -100,6 +93,113 @@ function cerrarIncidencia(id: number) {
   fetch(`/api/admin/incidencias/${id}/cerrar`, { method: 'PUT', headers }).then(r => {
     if (r.ok) window.location.reload();
   });
+}
+
+/* ======== MENSAJES ADMIN ======== */
+function AdminMessages() {
+  const { user } = useAuth();
+  const headers = { 'Content-Type': 'application/json', 'x-admin-user': String(user?.id) };
+  const [conversaciones, setConversaciones] = useState<any[]>([]);
+  const [selectedChat, setSelectedChat] = useState<any | null>(null);
+  const [mensajes, setMensajes] = useState<any[]>([]);
+  const [texto, setTexto] = useState('');
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch('/api/admin/conversaciones', { headers }).then(r => r.json()).then(data => {
+      setConversaciones(data);
+      if (data.length > 0) setSelectedChat(data[0]);
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!selectedChat) return;
+    fetch(`/api/mensajes/conversaciones/${selectedChat.Id}/mensajes`, { headers: { 'x-user-id': String(user?.id) } })
+      .then(r => r.json()).then(setMensajes).catch(() => {});
+  }, [selectedChat?.Id]);
+
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [mensajes]);
+
+  const enviar = async () => {
+    if (!texto.trim() || !selectedChat) return;
+    const r = await fetch(`/api/admin/conversaciones/${selectedChat.Id}/mensajes`, {
+      method: 'POST', headers, body: JSON.stringify({ contenido: texto.trim() }),
+    });
+    if (r.ok) {
+      setMensajes(prev => [...prev, { Id: Date.now(), IdRemitente: Number(user?.id), Contenido: texto.trim(), Leido: 0, FechaEnvio: new Date().toISOString() }]);
+      setTexto('');
+    }
+  };
+
+  const formatHora = (f: string) => {
+    const d = new Date(f);
+    return d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: true });
+  };
+
+  const formatFecha = (f: string) => {
+    const d = new Date(f);
+    return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  return (
+    <div className="flex h-[calc(100vh-8rem)] p-4 sm:p-6 lg:p-8 gap-6">
+      {/* Lista conversaciones */}
+      <div className="w-72 flex-shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-y-auto">
+        <div className="p-4 border-b border-gray-100">
+          <h2 className="font-bold text-gray-900">Conversaciones</h2>
+          <p className="text-xs text-gray-400 mt-0.5">{conversaciones.length} en total</p>
+        </div>
+        {conversaciones.map(c => (
+          <button key={c.Id} onClick={() => setSelectedChat(c)}
+            className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors ${selectedChat?.Id === c.Id ? 'bg-amber-50' : ''}`}>
+            <p className="text-sm font-semibold text-gray-900 truncate">{c.Nombres} {c.Apellidos?.charAt(0)}. ↔ {c.FamiliaNombres} {c.FamiliaApellidos?.charAt(0)}.</p>
+            <p className="text-xs text-gray-400 truncate mt-0.5">{c.MenorNombre || 'Sin menor'}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{formatFecha(c.FechaUltimoMensaje || c.FechaCreacion)}</p>
+          </button>
+        ))}
+        {conversaciones.length === 0 && <p className="text-sm text-gray-400 text-center py-8">Sin conversaciones</p>}
+      </div>
+
+      {/* Chat */}
+      <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+        {selectedChat ? (
+          <>
+            <div className="p-4 border-b border-gray-100">
+              <h3 className="font-bold text-gray-900">{selectedChat.Nombres} {selectedChat.Apellidos} — {selectedChat.FamiliaNombres} {selectedChat.FamiliaApellidos}</h3>
+              <p className="text-xs text-gray-400">{selectedChat.MenorNombre || 'Conversación general'}</p>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {mensajes.map(m => {
+                const esAdmin = m.IdRemitente === Number(user?.id);
+                return (
+                  <div key={m.Id} className={`flex ${esAdmin ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[70%] px-4 py-2 rounded-2xl text-sm ${
+                      esAdmin ? 'bg-[#F59E0B] text-white rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-bl-md'
+                    }`}>
+                      <p>{m.Contenido}</p>
+                      <p className={`text-xs mt-1 ${esAdmin ? 'text-white/70' : 'text-gray-400'}`}>{formatHora(m.FechaEnvio)}</p>
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={chatEndRef} />
+            </div>
+            <div className="p-4 border-t border-gray-100">
+              <div className="flex gap-2">
+                <input value={texto} onChange={e => setTexto(e.target.value)} onKeyDown={e => e.key === 'Enter' && enviar()}
+                  placeholder="Escribir mensaje..." className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40" />
+                <button onClick={enviar} className="p-2.5 bg-[#F59E0B] hover:bg-[#D97706] text-white rounded-xl transition-colors">
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Selecciona una conversación</div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 /* ======== DASHBOARD ======== */
