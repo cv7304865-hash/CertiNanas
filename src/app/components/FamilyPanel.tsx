@@ -11,11 +11,23 @@ type Solicitud = {
   MenorNombre: string | null; MenorDiagnostico: string | null;
 };
 
+const statusLabel: Record<string, string> = {
+  Pendiente: 'Pendiente',
+  Confirmada: 'Confirmada',
+  'En curso': 'En curso',
+  Finalizada: 'Pagado',
+  Completada: 'Pagado',
+  Pagada: 'Pagado',
+  Cancelada: 'Cancelada',
+};
+
 const badgeClass: Record<string, string> = {
   Pendiente: 'bg-[#f6a5c0] text-white',
   Confirmada: 'bg-[#cc8db3] text-white',
   'En curso': 'bg-[#9d85b6] text-white',
-  Finalizada: 'bg-[#f6a5c0] text-white',
+  Finalizada: 'bg-emerald-500 text-white',
+  Completada: 'bg-emerald-500 text-white',
+  Pagada: 'bg-emerald-500 text-white',
   Cancelada: 'bg-[#cc8db3] text-white',
 };
 
@@ -110,7 +122,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                       <td className="px-6 py-4 text-sm font-semibold text-white">S/ {s.Total.toFixed(2)}</td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${badgeClass[s.Estado] || 'bg-[#f6a5c0] text-white'}`}>
-                          {s.Estado}
+                          {statusLabel[s.Estado] || s.Estado}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">

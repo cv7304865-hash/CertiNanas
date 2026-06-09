@@ -50,9 +50,9 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
               <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
-              <button className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
-              <button className="text-sm font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0] pb-0.5">Mis Servicios</button>
-              <button className="text-sm text-white/70 hover:text-white transition-colors">Mensajes</button>
+              <button onClick={onBack} className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
+              <button onClick={onBack} className="text-sm font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0] pb-0.5">Mis Servicios</button>
+              <button onClick={onBack} className="text-sm text-white/70 hover:text-white transition-colors">Mensajes</button>
               <ProfileAvatar size={36} className="ml-2" />
               <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
                 <LogOut className="w-4 h-4 text-white/60" />
@@ -63,6 +63,9 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
       </header>
 
       <div className="max-w-3xl mx-auto px-4 py-8">
+        <button onClick={onBack} className="mb-4 text-sm text-white/60 hover:text-white transition-colors flex items-center gap-1">
+          ← Volver a mis servicios
+        </button>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
           {/* Encabezado */}
           <div className="p-6 sm:p-8">

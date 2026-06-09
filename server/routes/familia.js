@@ -45,4 +45,22 @@ router.get('/solicitudes/:id', (req, res) => {
   res.json(row);
 });
 
+// Endpoint para pagar y margar orden como Pagada
+router.post('/pagar/:id', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+
+  const orden = db.prepare('SELECT * FROM Ordenes WHERE Id = ? AND IdUsuarioFamilia = ?').get(Number(req.params.id), userId);
+  if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+  if (orden.Estado === 'Pagada' || orden.Estado === 'Completada') return res.status(400).json({ error: 'Orden ya pagada' });
+
+  db.transaction(() => {
+    db.prepare("UPDATE Ordenes SET Estado = 'Pagada' WHERE Id = ?").run(orden.Id);
+    db.prepare("INSERT INTO Pagos (IdOrden, Monto, MetodoPago, Estado) VALUES (?, ?, 'Tarjeta', 'Completado')").run(orden.Id, orden.Total);
+  })();
+
+  res.json({ success: true });
+});
+
 export default router;

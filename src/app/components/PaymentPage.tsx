@@ -39,10 +39,18 @@ export function PaymentPage({ orderId, onBack, onSuccess }: { orderId?: number; 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simular pago
-    await new Promise(r => setTimeout(r, 1500));
+    try {
+      const r = await fetch(`/api/familia/pagar/${orderId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) },
+      });
+      if (!r.ok) throw new Error('Error al procesar el pago');
+      await new Promise(r => setTimeout(r, 1000));
+      setDone(true);
+    } catch {
+      alert('Error al procesar el pago. Intente nuevamente.');
+    }
     setLoading(false);
-    setDone(true);
   };
 
   const nroContrato = data ? `CTN-2026-${String(data.Id).padStart(4, '0')}` : '---';
