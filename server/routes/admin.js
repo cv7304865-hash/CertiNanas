@@ -37,8 +37,10 @@ router.get('/dashboard', isAdmin, (req, res) => {
   `).all();
   // Incidencias abiertas
   const incidencias = db.prepare(`
-    SELECT i.Id, i.IdOrden AS IdCita, i.Tipo, i.Estado, i.FechaCreacion
+    SELECT i.Id, i.IdOrden AS IdCita, i.Tipo, i.Estado, i.FechaCreacion,
+           COALESCE(o.TipoServicio, 'Incidencia general') AS Servicio
     FROM Incidencias i
+    LEFT JOIN Ordenes o ON o.Id = i.IdOrden
     ORDER BY i.FechaCreacion DESC
     LIMIT 6
   `).all();
@@ -107,15 +109,14 @@ router.get('/perfiles-validados', isAdmin, (req, res) => {
 router.get('/incidencias', isAdmin, (req, res) => {
   const db = getDb();
   const incidencias = db.prepare(`
-    SELECT i.Id, i.IdOrden, i.Tipo, i.Estado, i.Descripcion, i.FechaCreacion
+    SELECT i.Id, i.IdOrden, i.Tipo, i.Estado, i.Descripcion, i.FechaCreacion,
+           COALESCE(o.TipoServicio, 'Incidencia general') AS Servicio
     FROM Incidencias i
+    LEFT JOIN Ordenes o ON o.Id = i.IdOrden
     ORDER BY i.FechaCreacion DESC
     LIMIT 20
   `).all();
-  res.json(incidencias.map(i => ({
-    ...i,
-    Servicio: `#SOL-${String(i.IdOrden || i.Id).padStart(3, '0')}`,
-  })));
+  res.json(incidencias);
 });
 
 router.get('/reportes', isAdmin, (req, res) => {

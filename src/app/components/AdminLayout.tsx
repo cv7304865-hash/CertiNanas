@@ -181,7 +181,7 @@ function DashboardView() {
                 const estCls = inc.Estado === 'Abierta' ? 'bg-amber-50 text-amber-700 border-amber-200' : inc.Estado === 'En revisión' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-200';
                 return (
                 <tr key={inc.Id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                  <td className="py-3 px-6 font-bold text-gray-900 font-mono">#SOL-{String(inc.IdCita || inc.Id).padStart(3, '0')}</td>
+                  <td className="py-3 px-6 font-medium text-gray-900">{inc.Servicio}</td>
                   <td className="py-3 px-6">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${tipoCls}`}>{inc.Tipo}</span>
                   </td>
@@ -609,7 +609,7 @@ function IncidenciasView() {
             <tbody>
               {incidencias.map((inc) => (
                 <tr key={inc.Id} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-3 px-6 font-bold text-gray-900 font-mono">{inc.Servicio}</td>
+                  <td className="py-3 px-6 font-medium text-gray-900">{inc.Servicio}</td>
                   <td className="py-3 px-6">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeTipo(inc.Tipo)}`}>{inc.Tipo}</span>
                   </td>
