@@ -313,7 +313,10 @@ function AppContent() {
         <AdminLayout />
       )}
       {view === 'cuidadora' && user?.rol === 'cuidadora' && (
-        <CaregiverPanel />
+        <CaregiverPanel onNavigate={setView} />
+      )}
+      {view === 'messages' && user?.rol === 'cuidadora' && (
+        <MessagesPage onNavigate={setView} />
       )}
 
       {view === 'search' && (

@@ -48,4 +48,24 @@ router.put('/perfil', isCaregiver, (req, res) => {
   res.json({ success: true });
 });
 
+router.get('/servicios', isCaregiver, (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  const cuidadora = db.prepare('SELECT Id FROM Cuidadoras WHERE IdUsuario = ?').get(userId);
+  if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
+
+  const rows = db.prepare(`
+    SELECT o.Id, o.FechaServicio, o.TotalHoras, o.TarifaHora, o.Total, o.Subtotal, o.TarifaPlataforma, o.Estado, o.HoraInicio, o.HoraFin, o.TipoServicio,
+           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos,
+           m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico
+    FROM Ordenes o
+    INNER JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
+    LEFT JOIN Menores m ON m.Id = o.IdMenor
+    WHERE o.IdCuidadora = ?
+    ORDER BY o.FechaCreacion DESC
+  `).all(cuidadora.Id);
+
+  res.json(rows);
+});
+
 export default router;

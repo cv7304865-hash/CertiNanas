@@ -1,7 +1,25 @@
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { Star, MessageSquare, Briefcase, LogOut, CheckCircle, ChevronRight } from 'lucide-react';
+import { Star, MessageSquare, Briefcase, LogOut, CheckCircle, ChevronRight, Clock, User, DollarSign, Calendar } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+
+type Servicio = {
+  Id: number;
+  FechaServicio: string;
+  TotalHoras: number;
+  TarifaHora: number;
+  Total: number;
+  Subtotal: number;
+  TarifaPlataforma: number;
+  Estado: string;
+  HoraInicio: string;
+  HoraFin: string;
+  TipoServicio: string;
+  FamiliaNombres: string;
+  FamiliaApellidos: string;
+  MenorNombre: string;
+  MenorDiagnostico: string;
+};
 
 type PerfilCuidadora = {
   user: { Id: number; Nombres: string; Apellidos: string; Email: string; Telefono: string };
@@ -12,7 +30,11 @@ type PerfilCuidadora = {
   stats: { CalificacionPromedio: number; TotalResenas: number };
 };
 
-export function CaregiverPanel() {
+type CaregiverPanelProps = {
+  onNavigate?: (view: string) => void;
+};
+
+export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
   const { user, logout } = useAuth();
   const [perfil, setPerfil] = useState<PerfilCuidadora | null>(null);
   const [bio, setBio] = useState('');
@@ -20,6 +42,8 @@ export function CaregiverPanel() {
   const [experiencia, setExperiencia] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [tab, setTab] = useState<'perfil' | 'servicios'>('perfil');
+  const [servicios, setServicios] = useState<Servicio[]>([]);
   const headers = { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) };
 
   useEffect(() => {
@@ -33,6 +57,14 @@ export function CaregiverPanel() {
       })
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (tab !== 'servicios') return;
+    fetch('/api/cuidadora/servicios', { headers })
+      .then(r => r.json())
+      .then(setServicios)
+      .catch(() => {});
+  }, [tab]);
 
   const guardar = async () => {
     setSaving(true);
@@ -71,9 +103,18 @@ export function CaregiverPanel() {
               <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
-              <button className="text-sm font-bold text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5">Mi Perfil</button>
-              <button className="text-sm text-white/70 hover:text-white transition-colors">Servicios</button>
-              <button className="text-sm text-white/70 hover:text-white transition-colors">Mensajes</button>
+              <button
+                onClick={() => setTab('perfil')}
+                className={`text-sm pb-0.5 ${tab === 'perfil' ? 'font-bold text-[#F59E0B] border-b-2 border-[#F59E0B]' : 'text-white/70 hover:text-white transition-colors'}`}
+              >Mi Perfil</button>
+              <button
+                onClick={() => setTab('servicios')}
+                className={`text-sm pb-0.5 ${tab === 'servicios' ? 'font-bold text-[#F59E0B] border-b-2 border-[#F59E0B]' : 'text-white/70 hover:text-white transition-colors'}`}
+              >Servicios</button>
+              <button
+                onClick={() => onNavigate?.('messages')}
+                className="text-sm text-white/70 hover:text-white transition-colors"
+              >Mensajes</button>
               <div className="w-9 h-9 rounded-full bg-[#F59E0B]/20 flex items-center justify-center text-sm font-bold text-[#F59E0B] ml-2">
                 {user?.nombres?.charAt(0) || 'C'}
               </div>
@@ -114,7 +155,7 @@ export function CaregiverPanel() {
           </motion.div>
         )}
 
-        {/* Formulario Editar Perfil */}
+        {tab === 'perfil' && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Editar Perfil Profesional</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -210,6 +251,65 @@ export function CaregiverPanel() {
             </motion.button>
           </div>
         </motion.div>
+      )}
+
+      {/* Lista de Servicios */}
+      {tab === 'servicios' && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+          <h2 className="text-xl font-bold text-gray-900">Mis Servicios</h2>
+          {servicios.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
+              <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 font-medium">No tienes servicios asignados aún</p>
+              <p className="text-gray-400 text-sm mt-1">Los servicios aparecerán aquí cuando una familia te contrate</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {servicios.map(s => {
+                const badgeColor: Record<string, string> = {
+                  Pendiente: 'bg-amber-50 text-amber-700 border-amber-200',
+                  Confirmada: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                  Completado: 'bg-blue-50 text-blue-700 border-blue-200',
+                  Rechazado: 'bg-red-50 text-red-700 border-red-200',
+                };
+                return (
+                  <div key={s.Id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg font-bold text-gray-900">{s.FamiliaNombres} {s.FamiliaApellidos}</span>
+                          <span className={`px-3 py-0.5 rounded-full text-xs font-bold border ${badgeColor[s.Estado] || 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                            {s.Estado}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5" /> {s.FechaServicio}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" /> {s.HoraInicio} - {s.HoraFin}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <User className="w-3.5 h-3.5" /> {s.MenorNombre}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <DollarSign className="w-3.5 h-3.5" /> S/ {s.Total.toFixed(2)}
+                          </span>
+                        </div>
+                        {s.MenorDiagnostico && (
+                          <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                            {s.MenorDiagnostico}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
+      )}
       </div>
     </div>
   );
