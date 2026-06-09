@@ -82,7 +82,7 @@ export function AdminLayout() {
       </header>
 
       {/* ======= SIDEBAR ======= */}
-      <aside className="fixed left-0 top-16 bottom-0 w-64 bg-[#2D3748] z-40 overflow-y-auto">
+      <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] bg-[#2D3748] z-40 overflow-y-auto">
         <nav className="py-4">
           {navItems.map(item => {
             const isActive = tab === item.key;
@@ -108,7 +108,7 @@ export function AdminLayout() {
       </aside>
 
       {/* ======= MAIN CONTENT ======= */}
-      <main className="ml-64 mt-16 p-8 h-[calc(100vh-4rem)] overflow-y-auto">
+      <main className="ml-64 mt-16 p-8 pb-16 min-h-[calc(100vh-4rem)]">
         {tab === 'dashboard' && <DashboardView />}
         {tab === 'contratos' && <ContratosView />}
         {tab === 'postulaciones' && <PostulacionesView />}
@@ -176,7 +176,7 @@ function AdminMessages() {
   };
 
   return (
-    <div className="flex h-full p-6 gap-6">
+    <div className="flex h-[calc(100vh-8rem)] p-6 gap-6">
       <div className="w-72 flex-shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-y-auto">
         <div className="p-4 border-b border-gray-100">
           <h2 className="font-bold text-gray-900">Conversaciones</h2>
@@ -253,7 +253,7 @@ function DashboardView() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-8 pb-8">
       <h1 className="text-2xl font-extrabold text-gray-900">Dashboard</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
