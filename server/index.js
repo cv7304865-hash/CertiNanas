@@ -1,7 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
+import multer from 'multer';
 import { getDb } from './db.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
@@ -13,6 +15,15 @@ import { setupDatabase } from './setup.js';
 import { seed } from './seed-data.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadsDir),
+  filename: (_req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
+});
+const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -25,6 +36,37 @@ app.use('/api/cuidadora', cuidadoraRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/familia', familiaRoutes);
 app.use('/api/mensajes', mensajesRoutes);
+
+// Servir archivos subidos
+app.use('/uploads', express.static(uploadsDir));
+
+// Endpoint para subir documentos de postulación (cuidadora)
+app.post('/api/cuidadora/documentos', upload.single('archivo'), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No se envió ningún archivo' });
+    const userId = Number(req.headers['x-user-id']);
+    if (!userId) return res.status(401).json({ error: 'No autenticado' });
+    const db = getDb();
+    const user = db.prepare('SELECT Id, IdRol FROM Usuarios WHERE Id = ?').get(userId);
+    if (!user || user.IdRol !== 3) return res.status(403).json({ error: 'Acceso denegado' });
+
+    let post = db.prepare('SELECT Id, Estado FROM Postulaciones WHERE IdUsuario = ?').get(userId);
+    if (!post) {
+      const r = db.prepare("INSERT INTO Postulaciones (IdUsuario, Estado) VALUES (?, 'Pendiente')").run(userId);
+      post = { Id: r.lastInsertRowid, Estado: 'Pendiente' };
+    }
+    if (post.Estado === 'Aprobada') return res.status(400).json({ error: 'Postulación ya aprobada' });
+
+    const tipoRequisito = req.body.tipo || 'Documento';
+    const pesoKB = (req.file.size / 1024).toFixed(0);
+    const nombreDB = req.file.filename;
+
+    db.prepare('INSERT INTO DocumentosPostulacion (IdPostulacion, TipoRequisito, NombreArchivo, Peso, Estado) VALUES (?, ?, ?, ?, ?)').run(post.Id, tipoRequisito, nombreDB, `${pesoKB} KB`, 'Pendiente');
+    res.json({ success: true, archivo: nombreDB });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.get('/api/health', (req, res) => {
   try {
@@ -90,24 +132,19 @@ try {
     console.log('Casos sin acuerdo de seed insertados.');
   }
 
-  // Seed postulaciones demo si están vacías
-  if (db.prepare('SELECT COUNT(*) AS c FROM Postulaciones').get().c === 0) {
-    const cuidadorasUsers = db.prepare('SELECT Id, Nombres, Apellidos, Email FROM Usuarios WHERE IdRol = 3').all();
-    const tiposDoc = [['DNI', '120 KB'], ['Antecedentes PNP', '340 KB'], ['Certificado Salud', '210 KB'], ['Certificado Estudios', '180 KB'], ['Carta Presentacion', '95 KB']];
-    const estadosPos = ['Pendiente', 'Pendiente', 'Pendiente', 'Aprobada'];
-    let j = 0;
-    for (const u of cuidadorasUsers.slice(0, 6)) {
-      const estado = estadosPos[j % estadosPos.length];
-      const diasAgo = Math.floor(Math.random() * 45) + 1;
-      const r = db.prepare(`INSERT INTO Postulaciones (IdUsuario, Estado, FechaPostulacion) VALUES (?, ?, datetime('now', '-${diasAgo} days'))`).run(u.Id, estado);
-      const docs = [...tiposDoc].sort(() => Math.random() - 0.5).slice(0, rand(2, 4));
-      for (const [tipo, peso] of docs) {
-        const ext = tipo === 'DNI' ? 'pdf' : 'pdf';
-        db.prepare('INSERT INTO DocumentosPostulacion (IdPostulacion, TipoRequisito, NombreArchivo, Peso) VALUES (?, ?, ?, ?)').run(r.lastInsertRowid, tipo, `${tipo.toLowerCase().replace(/\s/g, '_')}_${u.Nombres.toLowerCase()}_${u.Apellidos.toLowerCase()}.${ext}`, peso);
-      }
-      j++;
-    }
-    console.log('Postulaciones demo insertadas.');
+  // Corregir documentos inconsistentes: postulaciones Aprobada deben tener documentos Aprobado
+  const docsInconsistentes = db.prepare(`
+    SELECT COUNT(*) AS c FROM DocumentosPostulacion dp
+    INNER JOIN Postulaciones p ON p.Id = dp.IdPostulacion
+    WHERE p.Estado = 'Aprobada' AND dp.Estado != 'Aprobado'
+  `).get().c;
+  if (docsInconsistentes > 0) {
+    db.prepare(`
+      UPDATE DocumentosPostulacion SET Estado = 'Aprobado'
+      WHERE IdPostulacion IN (SELECT Id FROM Postulaciones WHERE Estado = 'Aprobada')
+      AND Estado != 'Aprobado'
+    `).run();
+    console.log(`${docsInconsistentes} documento(s) corregido(s) al estado Aprobado.`);
   }
 
   console.log('Esquema de BD verificado.');

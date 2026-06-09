@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, ChevronLeft, CheckCircle, XCircle, Eye, Search, ArrowUpDown, FileSignature, TrendingUp, DollarSign, PieChart as PieIcon } from 'lucide-react';
+import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, ChevronLeft, CheckCircle, XCircle, Eye, Search, ArrowUpDown, FileSignature, TrendingUp, DollarSign, PieChart as PieIcon, Download } from 'lucide-react';
 import { BarChart, Bar, PieChart, Pie, LineChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 
@@ -509,13 +509,22 @@ function PostulacionesView() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-800 text-sm">{doc.TipoRequisito}</p>
-                    <p className="text-xs text-gray-400 mt-1 truncate">{doc.NombreArchivo} - {doc.Peso}</p>
+                    <p className="text-xs text-gray-400 mt-1 truncate">{doc.Peso}</p>
                     <span className={`inline-block mt-2 px-2 py-0.5 rounded text-xs font-medium ${
                       doc.Estado === 'Pendiente' ? 'bg-orange-50 text-orange-700' :
                       doc.Estado === 'Aprobado' ? 'bg-emerald-50 text-emerald-700' :
                       'bg-red-50 text-red-700'
                     }`}>{doc.Estado}</span>
                   </div>
+                  <a
+                    href={`/uploads/${doc.NombreArchivo}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors flex-shrink-0"
+                    title="Descargar"
+                  >
+                    <Download className="w-4 h-4 text-gray-500" />
+                  </a>
                 </div>
               </div>
             ))}

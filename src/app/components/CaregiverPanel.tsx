@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { Star, MessageSquare, Briefcase, LogOut, CheckCircle, ChevronRight, Clock, User, DollarSign, Calendar } from 'lucide-react';
+import { Star, MessageSquare, Briefcase, LogOut, CheckCircle, ChevronRight, Clock, User, DollarSign, Calendar, Upload, File, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 type Servicio = {
@@ -28,6 +28,8 @@ type PerfilCuidadora = {
   areas: string[];
   documentos: { TipoRequisito: string; NombreArchivo: string; Peso: string; Estado: string }[];
   stats: { CalificacionPromedio: number; TotalResenas: number };
+  postulacion: { Id: number; Estado: string } | null;
+  tiposRequeridos: string[];
 };
 
 type CaregiverPanelProps = {
@@ -214,23 +216,33 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
             </div>
           )}
 
-          {/* Documentos cargados */}
-          {perfil && perfil.documentos.length > 0 && (
+          {/* Documentos cargados / Subir documentos */}
+          {perfil && (
             <div className="mt-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Documentos cargados</label>
-              <div className="flex flex-wrap gap-3">
-                {perfil.documentos.map((d, i) => (
-                  <div key={i} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm">
-                    <Briefcase className="w-4 h-4 text-gray-500" />
-                    <span className="text-gray-700 font-medium">{d.TipoRequisito}.pdf</span>
-                    {d.Estado === 'Aprobado' ? (
-                      <CheckCircle className="w-4 h-4 text-emerald-500" />
-                    ) : (
-                      <span className="text-xs text-amber-600 font-medium">Pendiente</span>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                {perfil.postulacion?.Estado === 'Aprobada' ? 'Documentos aprobados' : 'Documentos de postulación'}
+              </label>
+              {perfil.documentos.length > 0 && (
+                <div className="flex flex-wrap gap-3 mb-4">
+                  {perfil.documentos.map((d, i) => (
+                    <div key={i} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm">
+                      <File className="w-4 h-4 text-gray-500" />
+                      <span className="text-gray-700 font-medium">{d.TipoRequisito}</span>
+                      <span className="text-gray-400 text-xs">({d.Peso})</span>
+                      {d.Estado === 'Aprobado' ? (
+                        <CheckCircle className="w-4 h-4 text-emerald-500" />
+                      ) : d.Estado === 'Rechazado' ? (
+                        <span className="text-xs text-red-600 font-medium">Rechazado</span>
+                      ) : (
+                        <span className="text-xs text-amber-600 font-medium">Pendiente</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {perfil.postulacion?.Estado !== 'Aprobada' && (
+                <UploadDocs postulacionId={perfil.postulacion?.Id} tiposRequeridos={perfil.tiposRequeridos} headers={headers} />
+              )}
             </div>
           )}
 
@@ -311,6 +323,52 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
         </motion.div>
       )}
       </div>
+    </div>
+  );
+}
+
+function UploadDocs({ postulacionId, tiposRequeridos, headers }: { postulacionId?: number; tiposRequeridos: string[]; headers: Record<string, string> }) {
+  const [tipo, setTipo] = useState(tiposRequeridos[0] || 'DNI');
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  const subir = async () => {
+    if (!file) return setMsg('Selecciona un archivo');
+    setUploading(true);
+    setMsg('');
+    const form = new FormData();
+    form.append('archivo', file);
+    form.append('tipo', tipo);
+    try {
+      const r = await fetch('/api/cuidadora/documentos', { method: 'POST', headers: { 'x-user-id': headers['x-user-id'] }, body: form });
+      const data = await r.json();
+      if (r.ok) { setMsg('Documento subido correctamente'); setFile(null); setTimeout(() => setMsg(''), 2500); }
+      else setMsg(data.error || 'Error al subir');
+    } catch { setMsg('Error de conexión'); }
+    setUploading(false);
+  };
+
+  return (
+    <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50/50">
+      <p className="text-sm font-semibold text-gray-700 mb-3">Subir documento</p>
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Tipo</label>
+          <select value={tipo} onChange={e => setTipo(e.target.value)} className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/30 bg-white">
+            {tiposRequeridos.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs text-gray-500 mb-1">Archivo (PDF, máx 10MB)</label>
+          <input type="file" accept=".pdf,.jpg,.png" onChange={e => setFile(e.target.files?.[0] || null)} className="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#F59E0B]/10 file:text-[#F59E0B] hover:file:bg-[#F59E0B]/20" />
+        </div>
+        <button onClick={subir} disabled={uploading || !file} className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#F59E0B] text-white rounded-lg text-sm font-bold hover:bg-[#D97706] transition-colors disabled:opacity-50">
+          {uploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+          {uploading ? 'Subiendo...' : 'Subir'}
+        </button>
+      </div>
+      {msg && <p className={`text-xs mt-2 ${msg.includes('correctamente') ? 'text-emerald-600' : 'text-red-600'}`}>{msg}</p>}
     </div>
   );
 }

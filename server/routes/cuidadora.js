@@ -35,7 +35,9 @@ router.get('/perfil', isCaregiver, (req, res) => {
   const stats = db.prepare(`
     SELECT CalificacionPromedio, TotalResenas FROM Cuidadoras WHERE Id = ?
   `).get(cuidadora.Id);
-  res.json({ user, cuidadora, especialidades, areas, documentos, stats });
+  const postulacion = db.prepare('SELECT Id, Estado FROM Postulaciones WHERE IdUsuario = ?').get(userId);
+  const tiposRequeridos = ['DNI', 'Antecedentes PNP', 'Certificado Salud', 'Certificado Estudios', 'Carta Presentacion'];
+  res.json({ user, cuidadora, especialidades, areas, documentos, stats, postulacion, tiposRequeridos });
 });
 
 router.put('/perfil', isCaregiver, (req, res) => {

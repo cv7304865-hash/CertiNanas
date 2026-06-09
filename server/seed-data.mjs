@@ -185,7 +185,8 @@ export function seed(db) {
       const r = db.prepare(`INSERT INTO Postulaciones (IdUsuario, Estado, FechaPostulacion) VALUES (?, ?, datetime('now', '-${diasAgo} days'))`).run(u.Id, estado);
       const docs = [...tiposDoc].sort(() => Math.random() - 0.5).slice(0, rand(2, 4));
       for (const [tipo, peso] of docs) {
-        db.prepare('INSERT INTO DocumentosPostulacion (IdPostulacion, TipoRequisito, NombreArchivo, Peso) VALUES (?, ?, ?, ?)').run(r.lastInsertRowid, tipo, `${tipo.toLowerCase().replace(/\s/g, '_')}_${u.Nombres.toLowerCase()}_${u.Apellidos.toLowerCase()}.pdf`, peso);
+        const docEstado = estado === 'Aprobada' ? 'Aprobado' : 'Pendiente';
+        db.prepare('INSERT INTO DocumentosPostulacion (IdPostulacion, TipoRequisito, NombreArchivo, Peso, Estado) VALUES (?, ?, ?, ?, ?)').run(r.lastInsertRowid, tipo, `${tipo.toLowerCase().replace(/\s/g, '_')}_${u.Nombres.toLowerCase()}_${u.Apellidos.toLowerCase()}.pdf`, peso, docEstado);
       }
       j++;
     }
