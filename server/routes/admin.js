@@ -166,7 +166,7 @@ router.get('/usuarios', isAdmin, (req, res) => {
   const usuarios = db.prepare(`
     SELECT u.Id, u.Email, u.Nombres, u.Apellidos, u.Telefono, u.Activo, u.FechaCreacion, r.Nombre AS Rol
     FROM Usuarios u INNER JOIN Roles r ON r.Id = u.IdRol
-    ORDER BY u.FechaCreacion DESC
+    ORDER BY u.Id ASC
   `).all();
   res.json(usuarios);
 });
@@ -184,7 +184,7 @@ router.get('/contratos', isAdmin, (req, res) => {
     INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
     INNER JOIN Usuarios uc ON uc.Id = c.IdUsuario
     LEFT JOIN Menores m ON m.Id = o.IdMenor
-    ORDER BY o.FechaCreacion DESC
+    ORDER BY o.Id ASC
   `).all();
   res.json(contratos);
 });
