@@ -265,6 +265,9 @@ erDiagram
 
     Ordenes ||--o{ Incidencias : "IdOrden"
     Citas ||--o{ Incidencias : "IdCita"
+
+    Usuarios ||--o{ Casos : "IdUsuarioReporta"
+    Ordenes ||--o{ Casos : "IdOrden"
 ```
 
 ## Resumen de Tablas (20)
