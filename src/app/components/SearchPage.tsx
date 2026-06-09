@@ -23,10 +23,10 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
   const [cuidadoras, setCuidadoras] = useState<CuidadoraCard[]>([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [especialidad, setEspecialidad] = useState('TEA');
-  const [zona, setZona] = useState('Trujillo Centro');
-  const [experiencia, setExperiencia] = useState('3+ años');
-  const [tarifaMax, setTarifaMax] = useState('40');
+  const [especialidad, setEspecialidad] = useState('Todas');
+  const [zona, setZona] = useState('Todas');
+  const [experiencia, setExperiencia] = useState('0+ años');
+  const [tarifaMax, setTarifaMax] = useState('100');
   const [selectedNana, setSelectedNana] = useState<CuidadoraCard | null>(null);
   const [showSchedule, setShowSchedule] = useState<CuidadoraCard | null>(null);
 
@@ -70,8 +70,8 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
               <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
-              <button onClick={() => onNavigate?.('search')} className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
-              <button onClick={() => onNavigate?.('familia')} className="text-sm font-bold text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5">Mis Servicios</button>
+              <button onClick={() => onNavigate?.('search')} className="text-sm font-bold text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5">Inicio</button>
+              <button onClick={() => onNavigate?.('familia')} className="text-sm text-white/70 hover:text-white transition-colors">Mis Servicios</button>
               <button onClick={() => onNavigate?.('messages')} className="text-sm text-white/70 hover:text-white transition-colors">Mensajes</button>
               <ProfileAvatar size={36} className="ml-2" />
               <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
