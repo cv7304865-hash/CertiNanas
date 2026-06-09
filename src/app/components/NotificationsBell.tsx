@@ -43,10 +43,10 @@ export function NotificationsBell() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen((o) => !o)}
-        className="relative p-2.5 rounded-xl hover:bg-gray-100 transition-colors"
+        className="relative p-2.5 rounded-xl hover:bg-white/20 transition-colors"
         aria-label="Notificaciones"
       >
-        <Bell className="w-5 h-5 text-gray-600" />
+        <Bell className="w-5 h-5 text-[#250e2c]/70" />
         {unread > 0 && (
           <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-[#cc8db3] text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
             {unread}
@@ -61,12 +61,12 @@ export function NotificationsBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-[380px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50"
+            className="absolute right-0 mt-2 w-[380px] bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl shadow-2xl border border-white/20 overflow-hidden z-50"
           >
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+            <div className="p-4 border-b border-white/20 flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-[#250e2c]">Notificaciones</h3>
-                <p className="text-xs text-gray-500">{unread} nuevas</p>
+                <p className="text-xs text-[#250e2c]/60">{unread} nuevas</p>
               </div>
               <button onClick={markAllRead} className="text-xs font-bold text-[#cc8db3] hover:underline">
                 Marcar todo leído
@@ -77,7 +77,7 @@ export function NotificationsBell() {
                 <button
                   key={n.id}
                   onClick={() => setItems((p) => p.map((i) => (i.id === n.id ? { ...i, unread: false } : i)))}
-                  className={`w-full flex items-start gap-3 p-4 border-b border-gray-50 text-left transition-colors hover:bg-gray-50 ${
+                  className={`w-full flex items-start gap-3 p-4 border-b border-gray-50 text-left transition-colors hover:bg-white/10 ${
                     n.unread ? 'bg-[#f6a5c0]/20/30' : ''
                   }`}
                 >
@@ -86,16 +86,16 @@ export function NotificationsBell() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <h4 className="font-bold text-sm text-gray-900 truncate">{n.title}</h4>
+                      <h4 className="font-bold text-sm text-[#250e2c] truncate">{n.title}</h4>
                       {n.unread && <span className="w-2 h-2 bg-[#cc8db3] rounded-full shrink-0" />}
                     </div>
-                    <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">{n.desc}</p>
-                    <p className="text-[10px] text-gray-400 mt-1 font-semibold">{n.time}</p>
+                    <p className="text-xs text-[#250e2c]/70 mt-0.5 leading-relaxed">{n.desc}</p>
+                    <p className="text-[10px] text-[#250e2c]/50 mt-1 font-semibold">{n.time}</p>
                   </div>
                 </button>
               ))}
             </div>
-            <div className="p-3 border-t border-gray-100 bg-gray-50/50 text-center">
+            <div className="p-3 border-t border-white/20 bg-white/10 text-center">
               <button className="text-xs font-bold text-[#250e2c] hover:underline">Ver todas las notificaciones</button>
             </div>
           </motion.div>
@@ -104,4 +104,6 @@ export function NotificationsBell() {
     </div>
   );
 }
+
+
 

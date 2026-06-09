@@ -12,11 +12,11 @@ type Solicitud = {
 };
 
 const badgeClass: Record<string, string> = {
-  Pendiente: 'bg-[#f6a5c0]/20 text-[#cc8db3] border-[#f6a5c0]/30',
-  Confirmada: 'bg-[#cc8db3]/20 text-[#b07a9a] border-[#cc8db3]/30',
-  'En curso': 'bg-[#9d85b6]/20 text-[#9d85b6] border-[#9d85b6]/30',
-  Finalizada: 'bg-[#f6a5c0]/20 text-[#cc8db3] border-[#f6a5c0]/30',
-  Cancelada: 'bg-[#cc8db3]/20 text-[#b07a9a] border-[#cc8db3]/30',
+  Pendiente: 'bg-[#f6a5c0] text-white',
+  Confirmada: 'bg-[#cc8db3] text-white',
+  'En curso': 'bg-[#9d85b6] text-white',
+  Finalizada: 'bg-[#f6a5c0] text-white',
+  Cancelada: 'bg-[#cc8db3] text-white',
 };
 
 export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNavigate?: (v: string) => void; onViewContract?: (id: number) => void; onReview?: (id: number) => void }) {
@@ -37,9 +37,9 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
   };
 
   return (
-    <div className="min-h-screen bg-[#f7c2ca]">
+    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
       {/* Navbar */}
-      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -66,28 +66,28 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
       </header>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Mis solicitudes de servicio</h1>
+        <h1 className="text-2xl font-bold text-white/90 mb-6">Mis solicitudes de servicio</h1>
 
         {loading ? (
-          <p className="text-gray-500 text-sm">Cargando...</p>
+          <p className="text-white/60 text-sm">Cargando...</p>
         ) : solicitudes.length === 0 ? (
           <div className="text-center py-16">
-            <Search className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">No tienes solicitudes de servicio aún.</p>
+            <Search className="w-12 h-12 text-white/30 mx-auto mb-3" />
+            <p className="text-white/60">No tienes solicitudes de servicio aún.</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="bg-white/30 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-[#f6a5c0]/10">
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Cuidadora</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Menor</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Horario</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Monto</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
-                    <th className="text-right px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Acción</th>
+                  <tr className="border-b border-white/10 bg-white/20 backdrop-blur-sm">
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Cuidadora</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Menor</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Fecha</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Horario</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Monto</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Estado</th>
+                    <th className="text-right px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Acción</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -96,23 +96,20 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                       key={s.Id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className={[
-                        'border-b border-gray-50 transition-colors',
-                        s.Estado === 'Confirmada' ? 'bg-[#f6a5c0]/20' : i % 2 === 1 ? 'bg-[#f6a5c0]/10' : 'bg-white',
-                      ].join(' ')}
+                      className="border-b border-white/10 transition-colors hover:bg-white/10"
                     >
                       <td className="px-6 py-4">
-                        <span className="font-semibold text-gray-900">{s.CuidadoraNombres} {s.CuidadoraApellidos?.charAt(0)}.</span>
+                        <span className="font-semibold text-white/90">{s.CuidadoraNombres} {s.CuidadoraApellidos?.charAt(0)}.</span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="px-6 py-4 text-sm text-white/70">
                         {s.MenorNombre}
-                        {s.MenorDiagnostico && <span className="text-gray-400"> ({s.MenorDiagnostico})</span>}
+                        {s.MenorDiagnostico && <span className="text-white/50"> ({s.MenorDiagnostico})</span>}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{formatFecha(s.FechaServicio)}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600 font-mono">{s.HoraInicio || '--'}-{s.HoraFin || '--'}</td>
-                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">S/ {s.Total.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-sm text-white/70">{formatFecha(s.FechaServicio)}</td>
+                      <td className="px-6 py-4 text-sm text-white/70 font-mono">{s.HoraInicio || '--'}-{s.HoraFin || '--'}</td>
+                      <td className="px-6 py-4 text-sm font-semibold text-white">S/ {s.Total.toFixed(2)}</td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeClass[s.Estado] || 'bg-[#f6a5c0]/20 text-[#cc8db3] border-[#f6a5c0]/30'}`}>
+                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${badgeClass[s.Estado] || 'bg-[#f6a5c0] text-white'}`}>
                           {s.Estado}
                         </span>
                       </td>
@@ -120,7 +117,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                         <div className="flex items-center justify-end gap-2">
                           {s.Estado === 'Finalizada' && (
                             <button onClick={() => onReview?.(s.Id)}
-                              className="text-xs font-semibold text-[#cc8db3] hover:text-[#b07a9a] transition-colors">
+                              className="text-xs font-semibold text-white/70 hover:text-white transition-colors">
                               Evaluar
                             </button>
                           )}

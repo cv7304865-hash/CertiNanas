@@ -112,10 +112,10 @@ export function FloatingSupport() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className="fixed bottom-24 right-6 z-50 w-[350px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col h-[500px]"
+            className="fixed bottom-24 right-6 z-50 w-[350px] bg-white/30 backdrop-blur-xl border border-white/30 rounded-3xl shadow-xl shadow-black/10 overflow-hidden flex flex-col h-[500px]"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-[#250e2c] to-[#837ab6] p-4 text-white flex justify-between items-center shadow-md z-10">
+            <div className="bg-[#250e2c]/80 backdrop-blur-xl p-4 text-white flex justify-between items-center shadow-md z-10">
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <div className="bg-white/20 p-2 rounded-full">
@@ -137,7 +137,7 @@ export function FloatingSupport() {
             </div>
 
             {/* Chat Body */}
-            <div className="p-4 overflow-y-auto bg-gray-50 flex-1 flex flex-col gap-4 custom-scrollbar">
+            <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-4 custom-scrollbar">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
 
@@ -152,7 +152,7 @@ export function FloatingSupport() {
                     <div className={`p-3.5 text-sm whitespace-pre-wrap leading-relaxed shadow-sm ${
                       msg.sender === 'user'
                         ? 'bg-[#250e2c] text-white rounded-2xl rounded-tr-sm'
-                        : 'bg-white border border-gray-100 text-gray-700 rounded-2xl rounded-tl-sm'
+                        : 'bg-white/30 backdrop-blur-sm border border-white/30 text-[#250e2c] rounded-2xl rounded-tl-sm'
                     }`}>
                       {msg.text}
                     </div>
@@ -165,7 +165,7 @@ export function FloatingSupport() {
                         <button
                           key={idx}
                           onClick={() => handleSend(option)}
-                          className="text-left text-xs text-[#250e2c] bg-[#f6a5c0]/20 hover:bg-[#250e2c] hover:text-white border border-[#f6a5c0]/20 py-2.5 px-4 rounded-xl transition-colors font-medium shadow-sm"
+                          className="text-left text-xs bg-white/20 backdrop-blur-sm text-[#250e2c] border border-white/30 hover:bg-[#250e2c] hover:text-white py-2.5 px-4 rounded-xl transition-colors font-medium shadow-sm"
                         >
                           {option}
                         </button>
@@ -180,7 +180,7 @@ export function FloatingSupport() {
                   <div className="w-6 h-6 rounded-full bg-[#9d85b6]/30 flex items-center justify-center shrink-0 mb-1">
                     <Bot className="w-3.5 h-3.5 text-[#250e2c]" />
                   </div>
-                  <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-gray-100 shadow-sm flex items-center gap-1.5">
+                  <div className="bg-white/30 backdrop-blur-sm p-4 rounded-2xl rounded-tl-sm border border-white/30 shadow-sm flex items-center gap-1.5">
                     <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                     <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                     <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"></div>
@@ -192,7 +192,7 @@ export function FloatingSupport() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-white border-t border-gray-100 shrink-0">
+            <div className="p-4 bg-white/20 backdrop-blur-sm border-t border-white/20 shrink-0">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -205,7 +205,7 @@ export function FloatingSupport() {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Escriba su consulta aquí..."
-                  className="flex-1 bg-gray-50 border border-gray-200 rounded-full pl-5 pr-12 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/50 focus:bg-white transition-all text-gray-700"
+                  className="flex-1 bg-white/30 border border-white/40 backdrop-blur-sm rounded-full pl-5 pr-12 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/50 transition-all text-[#250e2c]"
                 />
                 <button
                   type="submit"
@@ -226,8 +226,8 @@ export function FloatingSupport() {
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #D1D5DB; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
       `}</style>
     </>
   );

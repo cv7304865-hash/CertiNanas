@@ -48,8 +48,8 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-[#f7c2ca]">
-        <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
+      <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
+        <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40 shadow-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-2">
@@ -74,8 +74,8 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
   }
 
   return (
-    <div className="min-h-screen bg-[#f7c2ca]">
-      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
+      <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -100,7 +100,7 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
       </header>
 
       <div className="max-w-lg mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg shadow-black/5 overflow-hidden">
           <div className="p-6 sm:p-8">
             <div className="flex items-center gap-3 mb-1">
               <Star className="w-6 h-6 text-[#cc8db3]" />
@@ -118,7 +118,7 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
             <form onSubmit={handleSubmit}>
               <div className="px-6 sm:px-8 space-y-6">
                 {/* Tarjeta del servicio */}
-                <div className="bg-[#9d85b6]/20 rounded-xl p-4 flex items-center gap-4">
+                <div className="bg-white/30 backdrop-blur-sm border border-white/30 rounded-xl p-4 flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-[#cc8db3] flex items-center justify-center text-white font-bold flex-shrink-0">
                     {getIniciales(data.CuidadoraNombres, data.CuidadoraApellidos)}
                   </div>
@@ -156,7 +156,7 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
                     onChange={e => setComentario(e.target.value)}
                     placeholder="Cuenta tu experiencia con esta cuidadora..."
                     rows={5}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/40 resize-none"
+                    className="w-full px-4 py-3 rounded-xl bg-white/30 border border-white/40 backdrop-blur-sm text-[#250e2c] text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/40 focus:bg-white/50 resize-none"
                   />
                 </div>
               </div>

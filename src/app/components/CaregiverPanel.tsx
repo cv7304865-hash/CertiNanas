@@ -84,15 +84,15 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
   };
 
   const getColorForEspecialidad = (e: string) => {
-    if (['TEA', 'TDAH'].includes(e)) return 'bg-[#f6a5c0]/20 text-[#250e2c] border-[#f6a5c0]/40';
-    if (e === 'Primeros Auxilios') return 'bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]/30';
-    return 'bg-[#cc8db3]/20 text-[#250e2c] border-[#cc8db3]/30';
+    if (['TEA', 'TDAH'].includes(e)) return 'bg-[#f6a5c0] text-white border-0';
+    if (e === 'Primeros Auxilios') return 'bg-[#9d85b6] text-white border-0';
+    return 'bg-[#cc8db3] text-white border-0';
   };
 
   return (
-    <div className="min-h-screen bg-[#f7c2ca]">
+    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
       {/* Navbar Oscura */}
-      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -130,14 +130,14 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {/* Tarjeta de Resumen */}
         {perfil && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-8">
             <div className="flex items-start gap-6">
               <ProfileAvatar size={80} />
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-gray-900">{perfil.user.Nombres} {perfil.user.Apellidos}</h1>
                 <div className="flex items-center gap-3 mt-1">
                   <span className="text-gray-500">Cuidadora Especializada</span>
-                  <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#f6a5c0]/20 text-[#cc8db3] text-xs font-bold border border-[#f6a5c0]/40">
+                  <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#f6a5c0] text-white text-xs font-bold">
                     <CheckCircle className="w-3 h-3" /> Perfil Verificado
                   </span>
                 </div>
@@ -155,7 +155,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
         )}
 
         {tab === 'perfil' && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Editar Perfil Profesional</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Biografía */}
@@ -165,7 +165,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 value={bio}
                 onChange={e => setBio(e.target.value)}
                 rows={4}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/30 focus:border-[#cc8db3] resize-none"
+                className="w-full rounded-xl border border-white/40 bg-white/30 backdrop-blur-sm px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50 focus:border-transparent resize-none"
                 placeholder="Especialista en TEA y TDAH con 5 años de experiencia..."
               />
             </div>
@@ -177,7 +177,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 step="0.01"
                 value={tarifa}
                 onChange={e => setTarifa(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/30 focus:border-[#cc8db3]"
+                className="w-full rounded-xl border border-white/40 bg-white/30 backdrop-blur-sm px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50 focus:border-transparent"
                 placeholder="35.00"
               />
             </div>
@@ -188,7 +188,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 type="number"
                 value={experiencia}
                 onChange={e => setExperiencia(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/30 focus:border-[#cc8db3]"
+                className="w-full rounded-xl border border-white/40 bg-white/30 backdrop-blur-sm px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50 focus:border-transparent"
                 placeholder="5"
               />
             </div>
@@ -200,12 +200,12 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
               <label className="block text-sm font-semibold text-gray-700 mb-3">Especialidades</label>
               <div className="flex flex-wrap gap-2">
                 {perfil.especialidades.map(e => (
-                  <span key={e} className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium border ${getColorForEspecialidad(e)}`}>
+                  <span key={e} className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium ${getColorForEspecialidad(e)}`}>
                     {e}
                   </span>
                 ))}
                 {perfil.areas.map(a => (
-                  <span key={a} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium border bg-[#cc8db3]/20 text-[#250e2c] border-[#cc8db3]/30">
+                  <span key={a} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-[#cc8db3] text-white">
                     {a}
                   </span>
                 ))}
@@ -222,7 +222,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
               {perfil.documentos.length > 0 && (
                 <div className="flex flex-wrap gap-3 mb-4">
                   {perfil.documentos.map((d, i) => (
-                    <div key={i} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm">
+                    <div key={i} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-sm">
                       <File className="w-4 h-4 text-gray-500" />
                       <span className="text-gray-700 font-medium">{d.TipoRequisito}</span>
                       <span className="text-gray-400 text-xs">({d.Peso})</span>
@@ -267,7 +267,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
           <h2 className="text-xl font-bold text-gray-900">Mis Servicios</h2>
           {servicios.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
+            <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-12 text-center">
               <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500 font-medium">No tienes servicios asignados aún</p>
               <p className="text-gray-400 text-sm mt-1">Los servicios aparecerán aquí cuando una familia te contrate</p>
@@ -276,18 +276,18 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
             <div className="space-y-3">
               {servicios.map(s => {
                 const badgeColor: Record<string, string> = {
-                  Pendiente: 'bg-[#f6a5c0]/20 text-[#250e2c] border-[#f6a5c0]/40',
-                  Confirmada: 'bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]/30',
-                  Completado: 'bg-[#cc8db3]/20 text-[#250e2c] border-[#cc8db3]/30',
-                  Rechazado: 'bg-red-50 text-red-700 border-red-200',
+                  Pendiente: 'bg-[#f6a5c0] text-white',
+                  Confirmada: 'bg-[#9d85b6] text-white',
+                  Completado: 'bg-[#cc8db3] text-white',
+                  Rechazado: 'bg-red-500/80 text-white',
                 };
                 return (
-                  <div key={s.Id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                  <div key={s.Id} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">
                         <div className="flex items-center gap-3">
                           <span className="text-lg font-bold text-gray-900">{s.FamiliaNombres} {s.FamiliaApellidos}</span>
-                          <span className={`px-3 py-0.5 rounded-full text-xs font-bold border ${badgeColor[s.Estado] || 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                          <span className={`px-3 py-0.5 rounded-full text-xs font-bold ${badgeColor[s.Estado] || 'bg-white/20 backdrop-blur-sm text-gray-700'}`}>
                             {s.Estado}
                           </span>
                         </div>
@@ -306,7 +306,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                           </span>
                         </div>
                         {s.MenorDiagnostico && (
-                          <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-medium bg-[#cc8db3]/20 text-[#250e2c] border border-[#cc8db3]/30">
+                          <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-medium bg-[#cc8db3] text-white">
                             {s.MenorDiagnostico}
                           </span>
                         )}
@@ -347,18 +347,18 @@ function UploadDocs({ postulacionId, tiposRequeridos, headers }: { postulacionId
   };
 
   return (
-    <div className="border border-dashed border-[#cc8db3] rounded-xl p-4 bg-gray-50/50">
+    <div className="border border-dashed border-white/50 bg-white/10 rounded-xl p-4">
       <p className="text-sm font-semibold text-gray-700 mb-3">Subir documento</p>
       <div className="flex flex-wrap items-end gap-3">
         <div>
           <label className="block text-xs text-gray-500 mb-1">Tipo</label>
-          <select value={tipo} onChange={e => setTipo(e.target.value)} className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/30 bg-white">
+          <select value={tipo} onChange={e => setTipo(e.target.value)} className="rounded-lg border border-white/40 bg-white/30 backdrop-blur-sm px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50">
             {tiposRequeridos.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Archivo (PDF, máx 10MB)</label>
-          <input type="file" accept=".pdf,.jpg,.png" onChange={e => setFile(e.target.files?.[0] || null)} className="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#cc8db3]/20 file:text-[#cc8db3] hover:file:bg-[#cc8db3]/30" />
+          <input type="file" accept=".pdf,.jpg,.png" onChange={e => setFile(e.target.files?.[0] || null)} className="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white/30 file:text-white hover:file:bg-white/40" />
         </div>
         <button onClick={subir} disabled={uploading || !file} className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#cc8db3] text-white rounded-lg text-sm font-bold hover:bg-[#b87a9f] transition-colors disabled:opacity-50">
           {uploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}

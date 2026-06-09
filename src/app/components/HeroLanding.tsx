@@ -8,9 +8,9 @@ type Props = {
 };
 
 const trustBadges = [
-  { icon: Shield, label: 'Perfiles Verificados', color: 'text-[#250e2c]', glow: 'shadow-[0_8px_30px_rgba(30,58,138,0.18)]' },
-  { icon: Lock, label: 'Pago Seguro Escrow', color: 'text-[#cc8db3]', glow: 'shadow-[0_8px_30px_rgba(16,185,129,0.22)]' },
-  { icon: FileText, label: 'Ley 29733 Cumplida', color: 'text-[#250e2c]', glow: 'shadow-[0_8px_30px_rgba(30,58,138,0.18)]' },
+  { icon: Shield, label: 'Perfiles Verificados', color: 'text-[#250e2c]' },
+  { icon: Lock, label: 'Pago Seguro Escrow', color: 'text-[#cc8db3]' },
+  { icon: FileText, label: 'Ley 29733 Cumplida', color: 'text-[#250e2c]' },
 ];
 
 const steps = [
@@ -93,7 +93,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + i * 0.08 }}
               whileHover={{ y: -3 }}
-              className={`group inline-flex items-center gap-2.5 px-5 py-3 rounded-full bg-white/90 backdrop-blur-xl border border-white ${b.glow} transition-all`}
+              className="group inline-flex items-center gap-2.5 px-5 py-3 rounded-full bg-white/50 backdrop-blur-xl border border-white/40 shadow-xl shadow-black/5 transition-all"
             >
               <span className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-50 to-white border border-gray-100 flex items-center justify-center shadow-inner">
                 <b.icon className={`w-4 h-4 ${b.color}`} />
@@ -119,7 +119,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               className="relative group lg:translate-y-3"
             >
               <div className="absolute -inset-0.5 bg-gradient-to-br from-[#cc8db3]/30 to-[#250e2c]/20 rounded-[2.25rem] blur opacity-40 group-hover:opacity-70 transition-opacity" />
-              <div className="relative bg-white rounded-[2rem] shadow-xl shadow-blue-900/10 border border-white overflow-hidden">
+              <div className="relative bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
                 {/* image */}
                 <div className="relative h-60 overflow-hidden">
                   <img
@@ -135,7 +135,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.4 }}
-                    className="absolute top-4 right-4 bg-white/95 backdrop-blur-xl rounded-2xl px-3 py-2 shadow-lg shadow-[#cc8db3]/20 border border-white flex items-center gap-2"
+                    className="absolute top-4 right-4 bg-white/50 backdrop-blur-xl border border-white/40 shadow-xl shadow-black/5 rounded-2xl px-3 py-2 flex items-center gap-2"
                   >
                     <div className="w-7 h-7 rounded-full bg-[#f6a5c0]/30 flex items-center justify-center">
                       <BadgeCheck className="w-4 h-4 text-[#cc8db3]" />
@@ -149,7 +149,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
 
                 {/* content */}
                 <div className="p-7">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f6a5c0]/20 border border-[#f6a5c0]/30 text-[#250e2c] text-xs font-bold mb-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f6a5c0] text-white text-xs font-bold mb-4">
                     PARA FAMILIAS
                   </div>
                   <h3 className="text-2xl font-bold text-[#250e2c] mb-3">Encuentra cuidado especializado para tu familia</h3>
@@ -169,7 +169,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={onRegisterFamily}
-                    className="w-full py-3.5 bg-gradient-to-r from-[#cc8db3] to-[#b07a9a] text-white rounded-xl text-base font-bold hover:shadow-xl hover:shadow-[#cc8db3]/30 transition-all inline-flex items-center justify-center gap-2 group/btn"
+                    className="w-full py-3.5 bg-[#cc8db3] text-white rounded-xl text-base font-bold hover:shadow-xl hover:shadow-[#cc8db3]/30 transition-all inline-flex items-center justify-center gap-2 group/btn"
                   >
                     Crear Cuenta de Familia
                     <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -183,7 +183,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.6 }}
-                className="hidden lg:flex absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl shadow-blue-900/10 border border-gray-100 px-4 py-3 items-center gap-3"
+                className="hidden lg:flex absolute -bottom-6 -left-6 bg-white/50 backdrop-blur-xl border border-white/40 shadow-xl shadow-black/5 rounded-2xl px-4 py-3 items-center gap-3"
               >
                 <div className="flex -space-x-2">
                   <img className="w-8 h-8 rounded-full border-2 border-white object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100" alt="" />
@@ -210,7 +210,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               className="relative group lg:-translate-y-3"
             >
               <div className="absolute -inset-0.5 bg-gradient-to-br from-[#250e2c]/30 to-[#cc8db3]/20 rounded-[2.25rem] blur opacity-40 group-hover:opacity-70 transition-opacity" />
-              <div className="relative bg-white rounded-[2rem] shadow-xl shadow-blue-900/10 border border-white overflow-hidden">
+              <div className="relative bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
                 <div className="relative h-60 overflow-hidden">
                   <img
                     src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=1200&auto=format&fit=crop&q=80"
@@ -224,7 +224,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.5 }}
-                    className="absolute top-4 right-4 bg-white/95 backdrop-blur-xl rounded-2xl px-3 py-2 shadow-lg shadow-blue-900/20 border border-white flex items-center gap-2"
+                    className="absolute top-4 right-4 bg-white/50 backdrop-blur-xl border border-white/40 shadow-xl shadow-black/5 rounded-2xl px-3 py-2 flex items-center gap-2"
                   >
                     <div className="w-7 h-7 rounded-full bg-[#9d85b6]/30 flex items-center justify-center">
                       <Award className="w-4 h-4 text-[#250e2c]" />
@@ -237,7 +237,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                 </div>
 
                 <div className="p-7">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f6a5c0]/20 border border-[#f6a5c0]/30 text-[#cc8db3] text-xs font-bold mb-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#cc8db3] text-white text-xs font-bold mb-4">
                     PARA CUIDADORAS
                   </div>
                   <h3 className="text-2xl font-bold text-[#250e2c] mb-3">Únete a nuestra red de profesionales certificadas</h3>
@@ -257,7 +257,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={onRegisterCaregiver}
-                    className="w-full py-3.5 bg-white text-[#250e2c] border-2 border-[#250e2c] rounded-xl text-base font-bold hover:bg-[#250e2c] hover:text-white transition-all inline-flex items-center justify-center gap-2 group/btn"
+                    className="w-full py-3.5 bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] text-white rounded-xl text-base font-bold hover:shadow-lg transition-all inline-flex items-center justify-center gap-2 group/btn"
                   >
                     Postular como Cuidadora
                     <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -270,7 +270,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.7 }}
-                className="hidden lg:flex absolute -top-5 -right-5 bg-white rounded-2xl shadow-xl shadow-blue-900/10 border border-gray-100 px-4 py-3 items-center gap-3"
+                className="hidden lg:flex absolute -top-5 -right-5 bg-white/50 backdrop-blur-xl border border-white/40 shadow-xl shadow-black/5 rounded-2xl px-4 py-3 items-center gap-3"
               >
                 <div className="w-9 h-9 rounded-xl bg-[#f6a5c0]/20 flex items-center justify-center">
                   <Lock className="w-4 h-4 text-[#cc8db3]" />
@@ -358,7 +358,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={onScrollCatalog}
-              className="px-7 py-3.5 bg-white text-[#250e2c] border border-gray-200 rounded-xl font-bold hover:border-[#250e2c] hover:shadow-md transition-all inline-flex items-center gap-2"
+              className="px-7 py-3.5 bg-white/20 backdrop-blur-sm border border-white/30 text-[#250e2c] rounded-xl font-bold hover:border-white/60 hover:shadow-md transition-all inline-flex items-center gap-2"
             >
               Explorar catálogo de cuidadoras
               <ArrowRight className="w-4 h-4" />
@@ -369,4 +369,3 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
     </section>
   );
 }
-

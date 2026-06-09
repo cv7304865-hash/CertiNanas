@@ -49,7 +49,7 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
           exit={{ scale: 0.95, opacity: 0, y: 30 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] my-auto relative"
+          className="bg-white/30 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] my-auto relative"
         >
           {/* Close Button (Floating) */}
           <button
@@ -103,13 +103,13 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
           </div>
 
           {/* Scrollable Body */}
-          <div className="p-8 overflow-y-auto custom-scrollbar bg-gray-50 flex-1">
+          <div className="p-8 overflow-y-auto custom-scrollbar bg-white/10 backdrop-blur-sm flex-1">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               
               {/* Left Column (Main Info) */}
               <div className="lg:col-span-2 space-y-8">
                 {/* About Me */}
-                <section className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <section className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-6">
                   <h3 className="text-xl font-bold text-[#250e2c] mb-4 flex items-center gap-2">
                     <Heart className="w-5 h-5 text-[#cc8db3]" /> Sobre Mí
                   </h3>
@@ -120,7 +120,7 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
 
                 {/* Education & Certs */}
                 <section className="grid sm:grid-cols-2 gap-6">
-                  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                  <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-6">
                     <h3 className="text-lg font-bold text-[#250e2c] mb-4 flex items-center gap-2">
                       <GraduationCap className="w-5 h-5 text-[#cc8db3]" /> Formación
                     </h3>
@@ -134,7 +134,7 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
                     </ul>
                   </div>
 
-                  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                  <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-6">
                     <h3 className="text-lg font-bold text-[#250e2c] mb-4 flex items-center gap-2">
                       <Award className="w-5 h-5 text-[#cc8db3]" /> Certificaciones
                     </h3>
@@ -150,13 +150,13 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
                 </section>
 
                 {/* Reviews */}
-                <section className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <section className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-6">
                   <h3 className="text-xl font-bold text-[#250e2c] mb-6 flex items-center gap-2">
                     <MessageSquare className="w-5 h-5 text-[#cc8db3]" /> Reseñas de Familias
                   </h3>
                   <div className="space-y-4">
                     {nana.reviewsList.map((review, i) => (
-                      <div key={i} className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                      <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
                         <div className="flex justify-between items-start mb-2">
                           <span className="font-bold text-gray-800">{review.author}</span>
                           <span className="text-xs text-gray-500 font-medium">{review.date}</span>
@@ -175,7 +175,7 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
 
               {/* Right Column (Sidebar Summary) */}
               <div className="space-y-6">
-                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm sticky top-0">
+                <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-6 sticky top-0">
                   <h4 className="font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3">Áreas de Dedicación</h4>
                   <div className="flex flex-col gap-3 mb-8">
                     {nana.areas.map((area, i) => (
@@ -219,4 +219,3 @@ function CheckCircleIcon(props: any) {
     </svg>
   );
 }
-

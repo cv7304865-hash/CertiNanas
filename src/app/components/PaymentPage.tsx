@@ -49,8 +49,8 @@ export function PaymentPage({ orderId, onBack, onSuccess }: { orderId?: number; 
 
   if (done) {
     return (
-      <div className="min-h-screen bg-[#f7c2ca]">
-        <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
+      <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
+        <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40 shadow-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-4">
@@ -65,12 +65,12 @@ export function PaymentPage({ orderId, onBack, onSuccess }: { orderId?: number; 
           </div>
         </header>
         <div className="max-w-md mx-auto px-4 py-20 text-center">
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-20 h-20 rounded-full bg-[#f6a5c0]/20 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-[#cc8db3]" />
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-20 h-20 rounded-full bg-white/30 backdrop-blur-xl border border-white/30 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-10 h-10 text-white/80" />
           </motion.div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Pago exitoso</h2>
-          <p className="text-gray-500 text-sm mb-8">
-            El monto de <strong className="text-gray-700">S/ {data?.Total.toFixed(2)}</strong> ha sido retenido.<br />
+          <h2 className="text-2xl font-bold text-white/90 mb-2">Pago exitoso</h2>
+          <p className="text-white/60 text-sm mb-8">
+            El monto de <strong className="text-white">S/ {data?.Total.toFixed(2)}</strong> ha sido retenido.<br />
             Se liberará al confirmar la conformidad del servicio.
           </p>
           <button onClick={onBack} className="px-8 py-3 bg-[#cc8db3] hover:bg-[#b07a9a] text-white font-bold rounded-xl transition-all shadow-md">
@@ -82,9 +82,9 @@ export function PaymentPage({ orderId, onBack, onSuccess }: { orderId?: number; 
   }
 
   return (
-    <div className="min-h-screen bg-[#f7c2ca]">
+    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
       {/* Navbar */}
-      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -109,39 +109,39 @@ export function PaymentPage({ orderId, onBack, onSuccess }: { orderId?: number; 
       </header>
 
       <div className="max-w-lg mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
           {/* Encabezado */}
           <div className="p-6 sm:p-8 pb-0">
             <div className="flex items-center gap-3 mb-1">
               <CreditCard className="w-6 h-6 text-[#f6a5c0]" />
-              <h1 className="text-xl font-bold text-gray-900">Pago con retención Escrow</h1>
+              <h1 className="text-xl font-bold text-white/90">Pago con retención Escrow</h1>
             </div>
-            <p className="text-sm text-[#cc8db3] ml-9">El monto será retenido hasta la conformidad del servicio</p>
+            <p className="text-sm text-white/60 ml-9">El monto será retenido hasta la conformidad del servicio</p>
           </div>
 
           {!data ? (
             <div className="p-6 sm:p-8 animate-pulse space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-4 bg-white/20 rounded w-3/4"></div>
+              <div className="h-4 bg-white/20 rounded w-1/2"></div>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
               <div className="p-6 sm:p-8 space-y-6">
                 {/* Resumen de Monto */}
-                <div className="border-2 border-[#f6a5c0] rounded-xl p-6 text-center">
-                  <p className="text-4xl font-extrabold text-[#250e2c]">S/ {data.Total.toFixed(2)}</p>
-                  <p className="text-sm text-[#cc8db3] mt-1">{nroContrato} · {data.CuidadoraNombres} {data.CuidadoraApellidos?.charAt(0)}.</p>
+                <div className="bg-white/40 backdrop-blur-xl border border-white/30 rounded-2xl p-6 text-center">
+                  <p className="text-4xl font-extrabold text-white">S/ {data.Total.toFixed(2)}</p>
+                  <p className="text-sm text-white/60 mt-1">{nroContrato} · {data.CuidadoraNombres} {data.CuidadoraApellidos?.charAt(0)}.</p>
                 </div>
 
                 {/* Número de tarjeta */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Número de tarjeta</label>
+                  <label className="block text-sm font-semibold text-white/80 mb-1.5">Número de tarjeta</label>
                   <input
                     type="text"
                     value={numero}
                     onChange={e => setNumero(formatCard(e.target.value))}
                     placeholder="4532 •••• •••• 7891"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/40 font-mono"
+                    className="w-full px-4 py-3 rounded-xl bg-white/30 border border-white/40 backdrop-blur-sm text-white/90 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50 placeholder-white/40 font-mono"
                     required
                   />
                 </div>
@@ -149,33 +149,33 @@ export function PaymentPage({ orderId, onBack, onSuccess }: { orderId?: number; 
                 {/* Vencimiento y CVV */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Vencimiento</label>
+                    <label className="block text-sm font-semibold text-white/80 mb-1.5">Vencimiento</label>
                     <input
                       type="text"
                       value={vencimiento}
                       onChange={e => setVencimiento(formatExpiry(e.target.value))}
                       placeholder="08/28"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/40 font-mono"
+                      className="w-full px-4 py-3 rounded-xl bg-white/30 border border-white/40 backdrop-blur-sm text-white/90 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50 placeholder-white/40 font-mono"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">CVV</label>
+                    <label className="block text-sm font-semibold text-white/80 mb-1.5">CVV</label>
                     <input
                       type="password"
                       value={cvv}
                       onChange={e => setCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
                       placeholder="•••"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/40 font-mono"
+                      className="w-full px-4 py-3 rounded-xl bg-white/30 border border-white/40 backdrop-blur-sm text-white/90 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50 placeholder-white/40 font-mono"
                       required
                     />
                   </div>
                 </div>
 
                 {/* Seguridad */}
-                <div className="bg-[#f6a5c0]/20 rounded-xl p-4 flex items-start gap-3">
-                  <Lock className="w-5 h-5 text-[#250e2c] mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-[#250e2c]">
+                <div className="bg-[#f6a5c0]/10 backdrop-blur-sm border border-white/30 rounded-xl p-4 flex items-start gap-3">
+                  <Lock className="w-5 h-5 text-white/80 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-white/80">
                     Pago seguro · Los fondos quedan en custodia (Escrow) hasta que confirmes el cierre del servicio.
                   </p>
                 </div>
@@ -190,7 +190,7 @@ export function PaymentPage({ orderId, onBack, onSuccess }: { orderId?: number; 
                   disabled={loading || numero.replace(/\s/g, '').length < 13}
                   className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all shadow-md ${
                     loading || numero.replace(/\s/g, '').length < 13
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      ? 'bg-white/20 text-white/40 cursor-not-allowed'
                       : 'bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] text-white hover:shadow-lg cursor-pointer'
                   }`}
                 >

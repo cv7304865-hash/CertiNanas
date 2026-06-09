@@ -54,9 +54,9 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
   };
 
   return (
-    <div className="min-h-screen bg-[#f7c2ca]">
+    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
       {/* Navbar */}
-      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -84,25 +84,25 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
 
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {/* Buscador */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/30 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6 sm:p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Encuentra la cuidadora ideal para tu hijo</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <select value={especialidad} onChange={e => setEspecialidad(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]">
+              className="w-full px-4 py-3 rounded-xl border border-white/40 bg-white/30 backdrop-blur-sm text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50">
               {especialidadesList.map(e => <option key={e} value={e}>{e === 'Todas' ? 'Todas las especialidades' : e}</option>)}
             </select>
             <select value={zona} onChange={e => setZona(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]">
+              className="w-full px-4 py-3 rounded-xl border border-white/40 bg-white/30 backdrop-blur-sm text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50">
               {zonas.map(z => <option key={z} value={z}>{z === 'Todas' ? 'Todas las zonas' : z}</option>)}
             </select>
             <select value={experiencia} onChange={e => setExperiencia(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]">
+              className="w-full px-4 py-3 rounded-xl border border-white/40 bg-white/30 backdrop-blur-sm text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50">
               {expOptions.map(e => <option key={e} value={e}>{e === '0+ años' ? 'Sin experiencia' : e}</option>)}
             </select>
             <div className="relative">
               <input type="number" value={tarifaMax} onChange={e => setTarifaMax(e.target.value)}
                 placeholder="S/ máx. por hora"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]" />
+                className="w-full px-4 py-3 rounded-xl border border-white/40 bg-white/30 backdrop-blur-sm text-gray-900 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50" />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">S/ /h</span>
             </div>
           </div>
@@ -126,7 +126,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
         <div className="space-y-4">
           {cuidadoras.map((c, i) => (
             <motion.div key={c.Id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              className="bg-white/30 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-3xl overflow-hidden">
               <div className="h-1.5 bg-[#f6a5c0]"></div>
               <div className="p-6 flex flex-col sm:flex-row items-start gap-5">
                 <div className={`w-16 h-16 rounded-full ${COLORS[i % COLORS.length]} flex items-center justify-center text-white text-xl font-bold flex-shrink-0`}>
@@ -161,7 +161,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setSelectedNana(null)}>
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+              className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl max-w-lg w-full overflow-hidden" onClick={e => e.stopPropagation()}>
               <div className="h-1.5 bg-[#f6a5c0]"></div>
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
@@ -172,16 +172,16 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                     <div>
                       <h3 className="text-xl font-bold text-gray-900">{selectedNana.Nombres} {selectedNana.Apellidos?.charAt(0)}.</h3>
                       <p className="text-sm text-gray-500">{selectedNana.Especialidades || 'Cuidado general'}</p>
-                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#f6a5c0]/20 text-[#cc8db3] text-xs font-bold border border-[#f6a5c0]/30 mt-1">
+                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#f6a5c0] text-white text-xs font-bold mt-1">
                         <CheckCircle className="w-3 h-3" /> Perfil Verificado
                       </span>
                     </div>
                   </div>
-                  <button onClick={() => setSelectedNana(null)} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
+                  <button onClick={() => setSelectedNana(null)} className="p-1.5 hover:bg-white/30 rounded-lg transition-colors">
                     <X className="w-5 h-5 text-gray-400" />
                   </button>
                 </div>
-                <div className="space-y-3 text-sm text-gray-600 border-t border-gray-100 pt-4">
+                <div className="space-y-3 text-sm text-gray-600 border-t border-white/20 pt-4">
                   <div className="flex justify-between">
                     <span>Experiencia</span>
                     <span className="font-semibold text-gray-900">{selectedNana.AniosExperiencia} años</span>

@@ -34,9 +34,9 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
   const nroContrato = data ? `CTN-2026-${String(data.Id).padStart(4, '0')}` : '---';
 
   return (
-    <div className="min-h-screen bg-[#f7c2ca]">
+    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
       {/* Navbar */}
-      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -63,66 +63,66 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
       </header>
 
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
           {/* Encabezado */}
           <div className="p-6 sm:p-8">
             <div className="flex items-center gap-3 mb-1">
               <FileSignature className="w-6 h-6 text-[#f6a5c0]" />
-              <h1 className="text-xl font-bold text-gray-900">Contrato de Servicio N° {nroContrato}</h1>
+              <h1 className="text-xl font-bold text-white/90">Contrato de Servicio N° {nroContrato}</h1>
             </div>
-            <p className="text-sm text-[#cc8db3] ml-9">Generado automáticamente por CERTINANAS</p>
+            <p className="text-sm text-white/60 ml-9">Generado automáticamente por CERTINANAS</p>
           </div>
 
           {!data ? (
             <div className="px-6 sm:px-8 pb-8">
               <div className="animate-pulse space-y-4">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                <div className="h-4 bg-white/20 rounded w-3/4"></div>
+                <div className="h-4 bg-white/20 rounded w-1/2"></div>
+                <div className="h-4 bg-white/20 rounded w-2/3"></div>
               </div>
             </div>
           ) : (
             <>
               {/* Datos del Servicio */}
-              <div className="mx-6 sm:mx-8 mb-6 bg-[#f6a5c0]/20 rounded-xl p-5 space-y-3">
+              <div className="mx-6 sm:mx-8 mb-6 bg-[#f6a5c0]/20 backdrop-blur-sm border border-[#f6a5c0]/30 rounded-2xl p-5 space-y-3">
                 <div>
-                  <span className="text-xs font-semibold text-[#cc8db3] uppercase tracking-wider">Familia contratante</span>
-                  <p className="text-sm font-semibold text-gray-900 mt-0.5">{data.FamiliaNombres} {data.FamiliaApellidos}</p>
+                  <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">Familia contratante</span>
+                  <p className="text-sm font-semibold text-white/90 mt-0.5">{data.FamiliaNombres} {data.FamiliaApellidos}</p>
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-[#cc8db3] uppercase tracking-wider">Cuidadora</span>
-                  <p className="text-sm font-semibold text-gray-900 mt-0.5">{data.CuidadoraNombres} {data.CuidadoraApellidos}</p>
+                  <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">Cuidadora</span>
+                  <p className="text-sm font-semibold text-white/90 mt-0.5">{data.CuidadoraNombres} {data.CuidadoraApellidos}</p>
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-[#cc8db3] uppercase tracking-wider">Menor</span>
-                  <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                  <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">Menor</span>
+                  <p className="text-sm font-semibold text-white/90 mt-0.5">
                     {data.MenorNombre || 'No especificado'}
-                    {data.MenorDiagnostico && <span className="text-gray-500 font-normal"> ({data.MenorDiagnostico})</span>}
+                    {data.MenorDiagnostico && <span className="text-white/50 font-normal"> ({data.MenorDiagnostico})</span>}
                   </p>
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-[#cc8db3] uppercase tracking-wider">Servicio</span>
-                  <p className="text-sm font-semibold text-gray-900 mt-0.5">
+                  <span className="text-xs font-semibold text-white/70 uppercase tracking-wider">Servicio</span>
+                  <p className="text-sm font-semibold text-white/90 mt-0.5">
                     {formatFecha(data.FechaServicio)} · {data.HoraInicio || '--'}-{data.HoraFin || '--'} · {data.TipoServicio}
                   </p>
                 </div>
               </div>
 
               {/* Desglose Económico */}
-              <div className="mx-6 sm:mx-8 mb-6 bg-[#f6a5c0]/20 rounded-2xl p-5">
+              <div className="mx-6 sm:mx-8 mb-6 bg-[#f6a5c0]/20 backdrop-blur-sm border border-[#f6a5c0]/30 rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-2">
-                  <Wallet className="w-5 h-5 text-[#250e2c]" />
-                  <span className="text-lg font-bold text-[#250e2c]">Monto total: S/ {data.Total.toFixed(2)}</span>
+                  <Wallet className="w-5 h-5 text-white/80" />
+                  <span className="text-lg font-bold text-white">Monto total: S/ {data.Total.toFixed(2)}</span>
                 </div>
-                <p className="text-sm text-[#250e2c]">
+                <p className="text-sm text-white/70">
                   Comisión CERTINANAS: S/ {data.TarifaPlataforma.toFixed(2)} · Pago a cuidadora: S/ {data.Subtotal.toFixed(2)}
                 </p>
               </div>
 
               {/* Términos Escrow */}
-              <div className="mx-6 sm:mx-8 mb-6 bg-[#f6a5c0]/20 rounded-xl p-5">
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  <strong>Términos del Servicio Escrow:</strong> Al aceptar, el monto será retenido por la pasarela de pagos hasta la conformidad del servicio. La liberación se realizará al cierre sin incidencias graves pendientes, conforme a la RN-16 del negocio CERTINANAS.
+              <div className="mx-6 sm:mx-8 mb-6 bg-[#f6a5c0]/20 backdrop-blur-sm border border-[#f6a5c0]/30 rounded-2xl p-5">
+                <p className="text-xs text-white/70 leading-relaxed">
+                  <strong className="text-white/90">Términos del Servicio Escrow:</strong> Al aceptar, el monto será retenido por la pasarela de pagos hasta la conformidad del servicio. La liberación se realizará al cierre sin incidencias graves pendientes, conforme a la RN-16 del negocio CERTINANAS.
                 </p>
               </div>
 
@@ -133,9 +133,9 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
                   id="terms"
                   checked={accepted}
                   onChange={e => setAccepted(e.target.checked)}
-                  className="mt-1 w-4 h-4 rounded border-gray-300 text-[#cc8db3] focus:ring-[#cc8db3]/40 accent-[#cc8db3]"
+                  className="mt-1 w-4 h-4 rounded border-white/40 bg-white/30 text-[#cc8db3] focus:ring-[#cc8db3]/40 accent-[#cc8db3]"
                 />
-                <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer select-none">
+                <label htmlFor="terms" className="text-sm text-white/70 cursor-pointer select-none">
                   Acepto los Términos del Servicio y la Política de Datos Sensibles (Ley N° 29733).
                 </label>
               </div>
@@ -152,7 +152,7 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
               className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all shadow-md ${
                 accepted
                   ? 'bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] text-white hover:shadow-lg cursor-pointer'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-white/20 text-white/40 cursor-not-allowed'
               }`}
             >
               Firmar y proceder al pago

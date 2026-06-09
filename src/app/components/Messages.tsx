@@ -48,7 +48,7 @@ export function Messages() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-[#250e2c] tracking-tight">Mensajes</h1>
-        <p className="text-gray-500 mt-1 text-sm inline-flex items-center gap-2">
+        <p className="text-[#250e2c]/60 mt-1 text-sm inline-flex items-center gap-2">
           <Lock className="w-3.5 h-3.5 text-[#cc8db3]" /> Conversación cifrada · Datos personales protegidos
         </p>
       </div>
@@ -56,16 +56,16 @@ export function Messages() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-3 h-[640px]"
+        className="bg-white/30 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-3xl border border-white/20 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-3 h-[640px]"
       >
         {/* Sidebar */}
-        <aside className="border-r border-gray-100 flex flex-col">
-          <div className="p-4 border-b border-gray-100">
+        <aside className="border-r border-white/20 flex flex-col">
+          <div className="p-4 border-b border-white/20">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#250e2c]/50" />
               <input
                 placeholder="Buscar conversación..."
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-[#250e2c]/30 outline-none"
+                className="w-full pl-10 pr-4 py-2.5 bg-white/10 border border-white/20 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-[#250e2c]/30 outline-none"
               />
             </div>
           </div>
@@ -75,7 +75,7 @@ export function Messages() {
                 key={c.id}
                 onClick={() => setActiveId(c.id)}
                 className={`w-full text-left p-4 flex items-center gap-3 border-b border-gray-50 transition-colors ${
-                  activeId === c.id ? 'bg-[#f6a5c0]/20/60' : 'hover:bg-gray-50'
+                  activeId === c.id ? 'bg-[#f6a5c0]/20/60' : 'hover:bg-white/10'
                 }`}
               >
                 <div className="relative">
@@ -84,10 +84,10 @@ export function Messages() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-sm text-gray-900 truncate">{c.name}</h3>
-                    <span className="text-[10px] text-gray-400">{c.time}</span>
+                    <h3 className="font-bold text-sm text-[#250e2c] truncate">{c.name}</h3>
+                    <span className="text-[10px] text-[#250e2c]/50">{c.time}</span>
                   </div>
-                  <p className="text-xs text-gray-500 truncate mt-0.5">{c.lastMsg}</p>
+                  <p className="text-xs text-[#250e2c]/60 truncate mt-0.5">{c.lastMsg}</p>
                 </div>
                 {c.unread > 0 && (
                   <span className="w-5 h-5 rounded-full bg-[#cc8db3] text-white text-[10px] font-bold flex items-center justify-center">
@@ -100,14 +100,14 @@ export function Messages() {
         </aside>
 
         {/* Conversation */}
-        <section className="md:col-span-2 flex flex-col bg-gray-50/40">
-          <header className="p-4 bg-white border-b border-gray-100 flex items-center gap-3">
+        <section className="md:col-span-2 flex flex-col bg-white/10">
+          <header className="p-4 bg-white border-b border-white/20 flex items-center gap-3">
             <div className="relative">
               <img src={active.photo} alt={active.name} className="w-11 h-11 rounded-full object-cover" />
               {active.online && <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#f6a5c0]/200 border-2 border-white rounded-full" />}
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-gray-900">{active.name}</h3>
+              <h3 className="font-bold text-[#250e2c]">{active.name}</h3>
               <p className="text-xs text-[#cc8db3] font-semibold inline-flex items-center gap-1">
                 <Shield className="w-3 h-3" /> Cuidadora Verificada
               </p>
@@ -126,11 +126,11 @@ export function Messages() {
                   className={`max-w-[70%] px-4 py-2.5 rounded-2xl shadow-sm text-sm leading-relaxed ${
                     m.from === 'me'
                       ? 'bg-[#250e2c] text-white rounded-tr-sm'
-                      : 'bg-white border border-gray-100 text-gray-800 rounded-tl-sm'
+                      : 'bg-white border border-white/20 text-[#250e2c] rounded-tl-sm'
                   }`}
                 >
                   <p>{m.text}</p>
-                  <div className={`flex items-center justify-end gap-1 mt-1 text-[10px] ${m.from === 'me' ? 'text-[#9d85b6]' : 'text-gray-400'}`}>
+                  <div className={`flex items-center justify-end gap-1 mt-1 text-[10px] ${m.from === 'me' ? 'text-[#9d85b6]' : 'text-[#250e2c]/50'}`}>
                     {m.time}
                     {m.from === 'me' && <CheckCheck className="w-3 h-3" />}
                   </div>
@@ -140,17 +140,17 @@ export function Messages() {
             <div ref={endRef} />
           </div>
 
-          <form onSubmit={send} className="p-4 bg-white border-t border-gray-100 flex items-center gap-2">
-            <button type="button" className="p-2 text-gray-400 hover:text-[#250e2c] transition-colors">
+          <form onSubmit={send} className="p-4 bg-white border-t border-white/20 flex items-center gap-2">
+            <button type="button" className="p-2 text-[#250e2c]/50 hover:text-[#250e2c] transition-colors">
               <Paperclip className="w-5 h-5" />
             </button>
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Escribe un mensaje..."
-              className="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-full text-sm focus:bg-white focus:ring-2 focus:ring-[#250e2c]/30 outline-none"
+              className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-full text-sm focus:bg-white focus:ring-2 focus:ring-[#250e2c]/30 outline-none"
             />
-            <button type="button" className="p-2 text-gray-400 hover:text-[#250e2c] transition-colors">
+            <button type="button" className="p-2 text-[#250e2c]/50 hover:text-[#250e2c] transition-colors">
               <Smile className="w-5 h-5" />
             </button>
             <button
@@ -166,4 +166,6 @@ export function Messages() {
     </div>
   );
 }
+
+
 

@@ -34,9 +34,9 @@ export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="min-h-screen bg-[#f7c2ca] font-['Inter',system-ui,sans-serif]">
+    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20 font-['Inter',system-ui,sans-serif]">
       {/* ======= HEADER ======= */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-[#250e2c] z-50 flex items-center px-6 shadow-lg">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 z-50 flex items-center px-6 shadow-lg">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <svg viewBox="0 0 40 40" className="w-9 h-9 flex-shrink-0">
@@ -82,7 +82,7 @@ export function AdminLayout() {
       </header>
 
       {/* ======= SIDEBAR ======= */}
-      <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] bg-[#250e2c] z-40 overflow-y-auto">
+      <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] bg-[#250e2c]/70 backdrop-blur-xl border-r border-white/10 z-40 overflow-y-auto">
         <nav className="py-4">
           {navItems.map(item => {
             const isActive = tab === item.key;
@@ -177,14 +177,14 @@ function AdminMessages() {
 
   return (
     <div className="flex h-[calc(100vh-8rem)] p-6 gap-6">
-      <div className="w-72 flex-shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-y-auto">
-        <div className="p-4 border-b border-gray-100">
+      <div className="w-72 flex-shrink-0 bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-y-auto">
+        <div className="p-4 border-b border-white/20">
           <h2 className="font-bold text-gray-900">Conversaciones</h2>
           <p className="text-xs text-gray-400 mt-0.5">{conversaciones.length} en total</p>
         </div>
         {conversaciones.map(c => (
           <button key={c.Id} onClick={() => setSelectedChat(c)}
-            className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-[#f6a5c0]/10 transition-colors ${selectedChat?.Id === c.Id ? 'bg-[#f6a5c0]/20' : ''}`}>
+            className={`w-full text-left px-4 py-3 border-b border-white/10 hover:bg-white/10 transition-colors ${selectedChat?.Id === c.Id ? 'bg-[#f6a5c0]/20 backdrop-blur-sm' : ''}`}>
             <p className="text-sm font-semibold text-gray-900 truncate">{c.Nombres} {c.Apellidos?.charAt(0)}. ↔ {c.FamiliaNombres} {c.FamiliaApellidos?.charAt(0)}.</p>
             <p className="text-xs text-gray-400 truncate mt-0.5">{c.MenorNombre || 'Sin menor'}</p>
             <p className="text-xs text-gray-400 mt-0.5">{formatFecha(c.FechaUltimoMensaje || c.FechaCreacion)}</p>
@@ -193,10 +193,10 @@ function AdminMessages() {
         {conversaciones.length === 0 && <p className="text-sm text-gray-400 text-center py-8">Sin conversaciones</p>}
       </div>
 
-      <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+      <div className="flex-1 bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl flex flex-col">
         {selectedChat ? (
           <>
-            <div className="p-4 border-b border-gray-100">
+            <div className="p-4 border-b border-white/20">
               <h3 className="font-bold text-gray-900">{selectedChat.Nombres} {selectedChat.Apellidos} — {selectedChat.FamiliaNombres} {selectedChat.FamiliaApellidos}</h3>
               <p className="text-xs text-gray-400">{selectedChat.MenorNombre || 'Conversación general'}</p>
             </div>
@@ -216,10 +216,10 @@ function AdminMessages() {
               })}
               <div ref={chatEndRef} />
             </div>
-            <div className="p-4 border-t border-gray-100">
+            <div className="p-4 border-t border-white/20">
               <div className="flex gap-2">
                 <input value={texto} onChange={e => setTexto(e.target.value)} onKeyDown={e => e.key === 'Enter' && enviar()}
-                  placeholder="Escribir mensaje..." className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#f6a5c0]/40" />
+                  placeholder="Escribir mensaje..." className="flex-1 px-4 py-2.5 rounded-xl bg-white/30 border-white/40 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#f6a5c0]/40 focus:bg-white/50" />
                 <button onClick={enviar} className="p-2.5 bg-[#f6a5c0] hover:bg-[#f6a5c0]/80 text-white rounded-xl transition-colors">
                   <Send className="w-5 h-5" />
                 </button>
@@ -258,29 +258,29 @@ function DashboardView() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpis.map(k => (
-          <div key={k.label} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center">
+          <div key={k.label} className="bg-white/40 backdrop-blur-xl border border-white/30 rounded-2xl p-6 text-center">
             <p className={`text-4xl font-extrabold ${k.color}`}>{k.value}</p>
             <p className="text-sm text-gray-600 mt-2 font-medium">{k.label}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+      <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-white/20 flex items-center gap-2">
           <FileText className="w-5 h-5 text-[#f6a5c0]" />
           <h2 className="font-bold text-gray-900">Postulaciones recientes</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-[#f6a5c0]/10 border-b border-gray-100">
+              <tr className="bg-white/20 backdrop-blur-sm border-b border-white/20">
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Nombre</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
               </tr>
             </thead>
             <tbody>
               {data.postulacionesRecientes.length > 0 ? data.postulacionesRecientes.map((p, i) => (
-                <tr key={p.Id || i} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-[#f6a5c0]/10'} hover:bg-[#f6a5c0]/20 transition-colors`}>
+                <tr key={p.Id || i} className={`border-b border-white/10 ${i % 2 === 0 ? 'bg-white/10' : 'bg-white/5'} hover:bg-white/20 transition-colors`}>
                   <td className="py-3 px-6 font-semibold text-gray-900">{p.Nombres} {p.Apellidos?.charAt(0)}.</td>
                   <td className="py-3 px-6">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${
@@ -292,15 +292,15 @@ function DashboardView() {
                 </tr>
               )) : (
                 <>
-                  <tr className="border-b border-gray-50 bg-white hover:bg-[#f6a5c0]/20 transition-colors">
+                  <tr className="border-b border-white/10 bg-white/10 hover:bg-white/20 transition-colors">
                     <td className="py-3 px-6 font-semibold text-gray-900">Milagros del Carmen T.</td>
                     <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-[#f6a5c0]/20 text-[#f6a5c0] border-[#f6a5c0]/40">Pendiente</span></td>
                   </tr>
-                  <tr className="border-b border-gray-50 bg-[#f6a5c0]/10 hover:bg-[#f6a5c0]/20 transition-colors">
+                  <tr className="border-b border-white/10 bg-white/5 hover:bg-white/20 transition-colors">
                     <td className="py-3 px-6 font-semibold text-gray-900">Diana Carolina R.</td>
                     <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-[#cc8db3]/20 text-[#cc8db3] border-[#cc8db3]/40">Aprobada</span></td>
                   </tr>
-                  <tr className="border-b border-gray-50 bg-white hover:bg-[#f6a5c0]/20 transition-colors">
+                  <tr className="border-b border-white/10 bg-white/10 hover:bg-white/20 transition-colors">
                     <td className="py-3 px-6 font-semibold text-gray-900">Ana Lucía M.</td>
                     <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]/30">Rechazada</span></td>
                   </tr>
@@ -351,11 +351,11 @@ function ContratosView() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       <h1 className="text-2xl font-extrabold text-gray-900">Contratos</h1>
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-[#f6a5c0]/10 border-b border-gray-100">
+              <tr className="bg-white/20 backdrop-blur-sm border-b border-white/20">
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">#</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Familia</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Cuidadora</th>
@@ -368,7 +368,7 @@ function ContratosView() {
             </thead>
             <tbody>
               {contratos.map((c, i) => (
-                <tr key={c.Id} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-[#f6a5c0]/10'} hover:bg-[#f6a5c0]/20 transition-colors`}>
+                <tr key={c.Id} className={`border-b border-white/10 ${i % 2 === 0 ? 'bg-white/10' : 'bg-white/5'} hover:bg-white/20 transition-colors`}>
                   <td className="py-3 px-4 font-mono font-bold text-gray-900">CTN-{String(c.Id).padStart(4, '0')}</td>
                   <td className="py-3 px-4 font-semibold text-gray-900">{c.FamiliaNombres} {c.FamiliaApellidos?.charAt(0)}.</td>
                   <td className="py-3 px-4 text-gray-700">{c.CuidadoraNombres} {c.CuidadoraApellidos?.charAt(0)}.</td>
@@ -381,7 +381,7 @@ function ContratosView() {
                   </td>
                   <td className="py-3 px-4 font-semibold text-gray-900">S/ {c.Total.toFixed(2)}</td>
                   <td className="py-3 px-4">
-                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeEstado[c.Estado] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeEstado[c.Estado] || 'bg-white/20 text-[#250e2c]/60 border-white/30'}`}>
                       {c.Estado}
                     </span>
                   </td>
@@ -426,11 +426,11 @@ function UsuariosView() {
   return (
     <div className="max-w-7xl mx-auto">
       <h1 className="text-2xl font-extrabold text-gray-900 mb-8">Usuarios</h1>
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-[#f6a5c0]/10 border-b border-gray-100">
+              <tr className="bg-white/20 backdrop-blur-sm border-b border-white/20">
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">ID</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Nombre</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Email</th>
@@ -441,7 +441,7 @@ function UsuariosView() {
             </thead>
             <tbody>
               {usuarios.map((u, i) => (
-                <tr key={u.Id} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-[#f6a5c0]/10'} hover:bg-[#f6a5c0]/20 transition-colors`}>
+                <tr key={u.Id} className={`border-b border-white/10 ${i % 2 === 0 ? 'bg-white/10' : 'bg-white/5'} hover:bg-white/20 transition-colors`}>
                   <td className="py-3 px-4 text-gray-800 font-mono">{u.Id}</td>
                   <td className="py-3 px-4 text-gray-800 font-medium">{u.Nombres} {u.Apellidos}</td>
                   <td className="py-3 px-4 text-gray-600">{u.Email}</td>
@@ -519,16 +519,16 @@ function PostulacionesView() {
             placeholder="Buscar postulante..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#f6a5c0]/30 focus:border-[#f6a5c0]"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/30 border-white/40 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#f6a5c0]/30 focus:border-[#f6a5c0] focus:bg-white/50"
           />
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-8">
+      <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden mb-8">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-[#f6a5c0]/10 border-b border-gray-100">
+              <tr className="bg-white/20 backdrop-blur-sm border-b border-white/20">
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Postulante</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Fecha</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Documentos</th>
@@ -540,9 +540,9 @@ function PostulacionesView() {
               {filtered.map((p, i) => (
                 <tr
                   key={p.Id}
-                  className={`border-b border-gray-50 transition-colors cursor-pointer ${
-                    p.Estado === 'Aprobada' ? 'bg-[#cc8db3]/20' : i % 2 === 0 ? 'bg-white' : 'bg-[#f6a5c0]/10'
-                  } hover:bg-[#f6a5c0]/20 ${selectedPost?.Id === p.Id ? 'bg-[#cc8db3]/30' : ''}`}
+                  className={`border-b border-white/10 transition-colors cursor-pointer ${
+                    p.Estado === 'Aprobada' ? 'bg-[#cc8db3]/20' : i % 2 === 0 ? 'bg-white/10' : 'bg-white/5'
+                  } hover:bg-white/20 ${selectedPost?.Id === p.Id ? 'bg-[#cc8db3]/30 backdrop-blur-sm' : ''}`}
                   onClick={() => selectPostulacion(p)}
                 >
                   <td className="py-3 px-4">
@@ -599,7 +599,7 @@ function PostulacionesView() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
+          className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6"
         >
           <h2 className="text-lg font-bold text-gray-800 mb-6">
             Documentos de <span className="text-[#f6a5c0]">{selectedPost.Nombres} {selectedPost.Apellidos}</span>
@@ -653,7 +653,7 @@ function PerfilesView() {
       <h1 className="text-2xl font-extrabold text-gray-900 mb-8">Perfiles Validados</h1>
       <div className="space-y-4">
         {perfiles.map(p => (
-          <div key={p.Id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-5">
+          <div key={p.Id} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-5 flex items-center gap-5">
             <div className="w-12 h-12 rounded-full bg-[#cc8db3]/20 flex items-center justify-center text-[#cc8db3] font-bold text-lg">
               {p.Nombres?.charAt(0)}{p.Apellidos?.charAt(0)}
             </div>
@@ -699,7 +699,7 @@ function IncidenciasView() {
   const badgeEst = (e: string) => {
     if (e === 'Abierta') return 'bg-[#f6a5c0]/20 text-[#f6a5c0] border-[#f6a5c0]/40';
     if (e === 'En revisión') return 'bg-blue-50 text-[#cc8db3] border-blue-200';
-    return 'bg-gray-50 text-gray-600 border-gray-200';
+    return 'bg-white/20 text-[#250e2c]/60 border-white/30';
   };
 
   const resolver = (id: number) => {
@@ -711,11 +711,11 @@ function IncidenciasView() {
   return (
     <div className="max-w-7xl mx-auto">
       <h1 className="text-2xl font-extrabold text-gray-900 mb-8">Incidencias</h1>
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-[#f6a5c0]/10 border-b border-gray-100">
+              <tr className="bg-white/20 backdrop-blur-sm border-b border-white/20">
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Servicio</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Tipo</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
@@ -724,7 +724,7 @@ function IncidenciasView() {
             </thead>
             <tbody>
               {incidencias.map((inc, i) => (
-                <tr key={inc.Id} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-[#f6a5c0]/10'} hover:bg-[#f6a5c0]/20`}>
+                <tr key={inc.Id} className={`border-b border-white/10 ${i % 2 === 0 ? 'bg-white/10' : 'bg-white/5'} hover:bg-white/20`}>
                   <td className="py-3 px-6 font-medium text-gray-900">{inc.Servicio}</td>
                   <td className="py-3 px-6">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeTipo(inc.Tipo)}`}>{inc.Tipo}</span>
@@ -775,7 +775,7 @@ function ReportesView() {
               { label: 'Citas', value: reportes.citasCompletadas, color: 'text-teal-600', icon: CheckCircle },
               { label: 'Reseñas', value: reportes.resenasPromedio, color: 'text-orange-600', icon: BarChart3 },
             ].map(({ label, value, color, icon: Icon }) => (
-              <div key={label} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm flex items-center gap-3">
+              <div key={label} className="bg-white/40 backdrop-blur-xl border border-white/30 rounded-2xl p-4 flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${color.replace('text-', 'bg-').replace('600', '100')}`}>
                   <Icon className={`w-5 h-5 ${color}`} />
                 </div>
@@ -788,7 +788,7 @@ function ReportesView() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
               <h3 className="font-bold text-gray-900 mb-4">Órdenes por Estado</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={reportes.ordenesPorEstado}>
@@ -805,7 +805,7 @@ function ReportesView() {
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
               <h3 className="font-bold text-gray-900 mb-4">Distribución de Pagos</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
@@ -825,7 +825,7 @@ function ReportesView() {
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
               <h3 className="font-bold text-gray-900 mb-4">Órdenes por Mes</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={reportes.ordenesPorMes}>
@@ -838,7 +838,7 @@ function ReportesView() {
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
               <h3 className="font-bold text-gray-900 mb-4">Ingresos por Mes</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={reportes.ingresosPorMes}>
@@ -852,7 +852,7 @@ function ReportesView() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+          <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
             <h3 className="font-bold text-gray-900 mb-4">Top 5 Cuidadoras con más servicios</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={reportes.topCuidadoras} layout="vertical">
@@ -869,3 +869,4 @@ function ReportesView() {
     </div>
   );
 }
+

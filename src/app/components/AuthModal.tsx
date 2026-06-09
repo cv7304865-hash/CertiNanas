@@ -69,7 +69,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#d8b4e2]/60 backdrop-blur-md overflow-y-auto"
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#250e2c]/50 backdrop-blur-sm overflow-y-auto"
         onClick={onClose}
       >
         <motion.div
@@ -78,24 +78,24 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
           exit={{ scale: 0.95, opacity: 0, y: 30 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           onClick={e => e.stopPropagation()}
-          className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden relative my-8"
+          className="bg-white/30 backdrop-blur-xl border border-white/30 shadow-xl shadow-black/5 rounded-3xl w-full max-w-md overflow-hidden relative my-8"
         >
-          <button onClick={onClose} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-colors z-10">
+          <button onClick={onClose} className="absolute top-4 right-4 p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-full transition-colors z-10">
             <X className="w-5 h-5" />
           </button>
 
           <div className="p-8">
             {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2 text-sm text-red-700">
+              <div className="mb-4 p-3 bg-white/20 border-white/30 backdrop-blur-sm rounded-xl flex items-start gap-2 text-sm text-red-700">
                 <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />{error}
               </div>
             )}
 
             {/* Tabs: Registrarme / Iniciar sesión */}
-            <div className="flex mb-8 gap-2 bg-gray-100 p-1 rounded-full">
+            <div className="bg-white/20 backdrop-blur-sm rounded-full p-1 inline-flex mb-8">
               <button
                 onClick={() => setCurrentMode('register')}
-                className={`flex-1 py-2 px-4 text-sm font-bold transition-all rounded-full ${
+                className={`py-2 px-4 text-sm font-bold transition-all rounded-full ${
                   currentMode === 'register' ? 'bg-[#f6a5c0] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
@@ -103,7 +103,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
               </button>
               <button
                 onClick={() => setCurrentMode('login')}
-                className={`flex-1 py-2 px-4 text-sm font-bold transition-all rounded-full ${
+                className={`py-2 px-4 text-sm font-bold transition-all rounded-full ${
                   currentMode === 'login' ? 'bg-[#f6a5c0] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'
                 }`}
               >
@@ -121,12 +121,12 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input type="email" placeholder="Correo electrónico" value={loginEmail} onChange={e => setLoginEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3]/40 focus:border-transparent transition-all outline-none" />
+                    className="w-full pl-12 pr-4 py-3.5 bg-white/30 border border-white/40 backdrop-blur-sm rounded-xl focus:bg-white/50 focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none" />
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input type="password" placeholder="Contraseña" value={loginPassword} onChange={e => setLoginPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3]/40 focus:border-transparent transition-all outline-none" />
+                    className="w-full pl-12 pr-4 py-3.5 bg-white/30 border border-white/40 backdrop-blur-sm rounded-xl focus:bg-white/50 focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none" />
                 </div>
                 <button type="submit" className="w-full py-3.5 text-white rounded-xl font-bold transition-all shadow-md bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] hover:brightness-110">
                   Iniciar sesión
@@ -148,17 +148,17 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input type="text" placeholder="Nombre completo" value={nombre} onChange={e => setNombre(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3]/40 focus:border-transparent transition-all outline-none" />
+                    className="w-full pl-12 pr-4 py-3.5 bg-white/30 border border-white/40 backdrop-blur-sm rounded-xl focus:bg-white/50 focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none" />
                 </div>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input type="email" placeholder="Correo electrónico" value={email} onChange={e => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3]/40 focus:border-transparent transition-all outline-none" />
+                    className="w-full pl-12 pr-4 py-3.5 bg-white/30 border border-white/40 backdrop-blur-sm rounded-xl focus:bg-white/50 focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none" />
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input type="password" placeholder="Contraseña" value={password} onChange={e => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3]/40 focus:border-transparent transition-all outline-none" />
+                    className="w-full pl-12 pr-4 py-3.5 bg-white/30 border border-white/40 backdrop-blur-sm rounded-xl focus:bg-white/50 focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none" />
                 </div>
 
                 {/* Selector de tipo de cuenta */}
@@ -166,8 +166,8 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                   <button type="button" onClick={() => setRegisterRole('familia')}
                     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 transition-all ${
                       registerRole === 'familia'
-                        ? 'border-[#cc8db3] bg-[#f6a5c0]/20'
-                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                        ? 'bg-[#f6a5c0]/30 backdrop-blur-sm border-[#cc8db3]'
+                        : 'bg-white/20 border-white/30 text-gray-500 hover:border-gray-300'
                     }`}>
                     <Users className={`w-5 h-5 ${registerRole === 'familia' ? 'text-[#cc8db3]' : 'text-gray-400'}`} />
                     <span className={`text-sm font-semibold ${registerRole === 'familia' ? 'text-[#250e2c]' : 'text-gray-500'}`}>Familia</span>
@@ -175,8 +175,8 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                   <button type="button" onClick={() => setRegisterRole('cuidadora')}
                     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 transition-all ${
                       registerRole === 'cuidadora'
-                        ? 'border-[#cc8db3] bg-[#f6a5c0]/20'
-                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                        ? 'bg-[#f6a5c0]/30 backdrop-blur-sm border-[#cc8db3]'
+                        : 'bg-white/20 border-white/30 text-gray-500 hover:border-gray-300'
                     }`}>
                     <Shield className={`w-5 h-5 ${registerRole === 'cuidadora' ? 'text-[#cc8db3]' : 'text-gray-400'}`} />
                     <span className={`text-sm font-semibold ${registerRole === 'cuidadora' ? 'text-[#250e2c]' : 'text-gray-500'}`}>Cuidadora</span>

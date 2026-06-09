@@ -202,10 +202,10 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7c2ca] font-['Inter',system-ui,sans-serif] selection:bg-[#cc8db3] selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20 font-['Inter',system-ui,sans-serif] selection:bg-[#cc8db3] selection:text-white overflow-x-hidden">
       {/* Header - oculto cuando la cuidadora o familia usan su propio panel */}
       {view !== 'admin' && view !== 'cuidadora' && view !== 'familia' && view !== 'search' && view !== 'messages' && view !== 'contract' && view !== 'payment' && (
-      <header className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-40 transition-all duration-300 shadow-sm">
+      <header className="border-b border-white/30 bg-white/30 backdrop-blur-xl sticky top-0 z-40 transition-all duration-300 shadow-lg shadow-black/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Custom SVG Logo */}
@@ -253,12 +253,12 @@ function AppContent() {
               {user ? (
                 <>
                   {user.rol === 'admin' && (
-                    <button onClick={() => setView('admin')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'admin' ? 'text-[#cc8db3]' : 'text-gray-600 hover:text-[#cc8db3]'}`}>
+                    <button onClick={() => setView('admin')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'admin' ? 'text-[#cc8db3]' : 'text-gray-600 hover:text-[#f6a5c0]'}`}>
                       <Shield className="w-4 h-4" /> Admin
                     </button>
                   )}
                   {user.rol === 'cuidadora' && (
-                    <button onClick={() => setView('cuidadora')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'cuidadora' ? 'text-[#cc8db3]' : 'text-gray-600 hover:text-[#cc8db3]'}`}>
+                    <button onClick={() => setView('cuidadora')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'cuidadora' ? 'text-[#cc8db3]' : 'text-gray-600 hover:text-[#f6a5c0]'}`}>
                       <UserCircle className="w-4 h-4" /> Mi Perfil
                     </button>
                   )}
@@ -390,7 +390,7 @@ function AppContent() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => scrollToSection('seguridad')}
-                  className="w-full sm:w-auto px-8 py-4 bg-white text-gray-700 border-2 border-gray-200 rounded-2xl text-lg font-bold hover:border-gray-300 hover:bg-gray-50 transition-all flex items-center justify-center"
+                  className="w-full sm:w-auto px-8 py-4 bg-white/20 backdrop-blur-sm text-[#250e2c] border-2 border-white/30 rounded-2xl text-lg font-bold hover:bg-white/30 hover:border-white/50 transition-all flex items-center justify-center"
                 >
                   Cómo Funciona
                 </motion.button>
@@ -473,7 +473,7 @@ function AppContent() {
       )}
 
       {/* Main Content Area */}
-      <main className="relative z-20 pb-20 bg-[#f7c2ca] pt-16">
+      <main className="relative z-20 pb-20 pt-16">
         
         {/* Search/Filter Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -482,18 +482,18 @@ function AppContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
-            className="bg-white rounded-3xl shadow-xl shadow-blue-900/5 p-6 md:p-8 border border-gray-100 backdrop-blur-xl"
+            className="bg-white/30 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-3xl p-6 md:p-8"
           >
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-[#250e2c] mb-2">
                   Especialización
                 </label>
                 <div className="relative">
                   <select
                     value={selectedSpecialty}
                     onChange={(e) => setSelectedSpecialty(e.target.value)}
-                    className="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none appearance-none font-medium text-gray-700"
+                    className="w-full pl-4 pr-10 py-3.5 bg-white/30 border-white/40 backdrop-blur-sm rounded-xl focus:bg-white/50 focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none appearance-none font-medium text-[#250e2c]"
                   >
                     <option value="">Todas las especialidades</option>
                     <option value="TEA">TEA</option>
@@ -503,20 +503,20 @@ function AppContent() {
                     <option value="Discapacidad Motriz">Discapacidad Motriz</option>
                   </select>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <ChevronRight className="w-5 h-5 text-gray-400 rotate-90" />
+                    <ChevronRight className="w-5 h-5 text-white/50 rotate-90" />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-[#250e2c] mb-2">
                   Años de Experiencia
                 </label>
                 <div className="relative">
                   <select
                     value={selectedExperience}
                     onChange={(e) => setSelectedExperience(e.target.value)}
-                    className="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none appearance-none font-medium text-gray-700"
+                    className="w-full pl-4 pr-10 py-3.5 bg-white/30 border-white/40 backdrop-blur-sm rounded-xl focus:bg-white/50 focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none appearance-none font-medium text-[#250e2c]"
                   >
                     <option value="">Cualquier experiencia</option>
                     <option value="0-2">0 - 2 años</option>
@@ -524,20 +524,20 @@ function AppContent() {
                     <option value="5+">Más de 5 años</option>
                   </select>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <ChevronRight className="w-5 h-5 text-gray-400 rotate-90" />
+                    <ChevronRight className="w-5 h-5 text-white/50 rotate-90" />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-[#250e2c] mb-2">
                   Área de Dedicación
                 </label>
                 <div className="relative">
                   <select 
                     value={selectedArea}
                     onChange={(e) => setSelectedArea(e.target.value)}
-                    className="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none appearance-none font-medium text-gray-700"
+                    className="w-full pl-4 pr-10 py-3.5 bg-white/30 border-white/40 backdrop-blur-sm rounded-xl focus:bg-white/50 focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none appearance-none font-medium text-[#250e2c]"
                   >
                     <option value="">Cualquier área</option>
                     <option value="Cuidado domiciliario">Cuidado domiciliario</option>
@@ -545,7 +545,7 @@ function AppContent() {
                     <option value="Terapias de estimulación">Terapias de estimulación</option>
                   </select>
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <ChevronRight className="w-5 h-5 text-gray-400 rotate-90" />
+                    <ChevronRight className="w-5 h-5 text-white/50 rotate-90" />
                   </div>
                 </div>
               </div>
@@ -559,7 +559,7 @@ function AppContent() {
                   setSelectedArea('');
                   scrollToSection('catalogo');
                 }}
-                className="w-full py-3.5 bg-white text-[#250e2c] border-2 border-[#250e2c] rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center justify-center space-x-2"
+                className="w-full py-3.5 bg-white/20 backdrop-blur-sm text-[#250e2c] border-2 border-white/40 rounded-xl font-bold hover:bg-white/30 transition-all flex items-center justify-center space-x-2"
               >
                 <span>Limpiar Filtros</span>
               </motion.button>
@@ -594,16 +594,16 @@ function AppContent() {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm"
+                className="text-center py-20 bg-white/30 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-3xl"
               >
-                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6">
                   <SearchX className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">No encontramos cuidadoras</h3>
                 <p className="text-gray-500 max-w-md mx-auto">No hay perfiles que coincidan exactamente con estos criterios específicos. Intenta ajustar tus filtros para ver más resultados.</p>
                 <button 
                   onClick={() => { setSelectedSpecialty(''); setSelectedExperience(''); setSelectedArea(''); }}
-                  className="mt-8 px-8 py-3 bg-[#cc8db3] text-white font-bold rounded-xl hover:bg-[#b07a9a] transition-all shadow-lg shadow-[#cc8db3]/20"
+                  className="mt-8 px-8 py-3 bg-[#cc8db3] text-white font-bold rounded-xl hover:bg-[#b07a9a] transition-all shadow-lg"
                 >
                   Limpiar Filtros
                 </button>
@@ -622,7 +622,7 @@ function AppContent() {
                       key={nana.id}
                       variants={itemVariants}
                       layout
-                      className="bg-white rounded-3xl overflow-hidden hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-300 border border-gray-100 group flex flex-col h-full"
+                      className="bg-white/30 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col h-full"
                     >
                       {/* Photo Container */}
                       <div className="relative h-56 overflow-hidden bg-gray-100">
@@ -666,14 +666,14 @@ function AppContent() {
                             </span>
                           ))}
                           {nana.specialties.length > 3 && (
-                            <span className="px-2.5 py-1 bg-gray-50 text-gray-500 text-[11px] font-bold rounded-md border border-gray-200">
+                            <span className="px-2.5 py-1 bg-white/20 text-[#250e2c]/60 text-[11px] font-bold rounded-md border border-white/30">
                               +{nana.specialties.length - 3}
                             </span>
                           )}
                         </div>
 
                         {/* Short Description */}
-                        <p className="text-gray-600 text-sm leading-relaxed mb-6 line-clamp-2 flex-1">
+                        <p className="text-[#250e2c]/70 text-sm leading-relaxed mb-6 line-clamp-2 flex-1">
                           {nana.shortDescription}
                         </p>
 
@@ -692,7 +692,7 @@ function AppContent() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => handleRequestInterview(nana.name)}
-                            className="w-full py-3 bg-[#cc8db3] text-white rounded-xl hover:bg-[#b07a9a] hover:shadow-lg hover:shadow-[#cc8db3]/25 transition-all duration-300 font-bold tracking-wide flex items-center justify-center gap-2 group/btn"
+                            className="w-full py-3 bg-[#cc8db3] text-white rounded-xl hover:bg-[#b07a9a] transition-all duration-300 font-bold tracking-wide flex items-center justify-center gap-2 group/btn"
                           >
                             Solicitar Cita 
                             <ChevronRight className="w-4 h-4 text-white/70 group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all" />
@@ -708,7 +708,7 @@ function AppContent() {
         </section>
 
         {/* Security Section */}
-        <section id="seguridad" className="py-24 bg-[#250e2c] text-white">
+        <section id="seguridad" className="py-24 bg-[#250e2c]/80 backdrop-blur-xl text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <motion.h2 
@@ -751,7 +751,7 @@ function AppContent() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.2 }}
-                  className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/10 hover:bg-white/15 transition-colors"
+                  className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/10 hover:bg-white/20 transition-colors"
                 >
                   <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br ${item.color} shadow-lg mb-6`}>
                     {item.icon}
@@ -770,7 +770,7 @@ function AppContent() {
 
       {/* Footer - oculto en admin */}
       {view !== 'admin' && (
-      <footer className="bg-gray-900 text-white py-16 border-t border-gray-800">
+      <footer className="bg-[#250e2c]/90 backdrop-blur-xl text-white py-16 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="md:col-span-2">
@@ -789,26 +789,26 @@ function AppContent() {
 
             <div>
               <h4 className="font-bold mb-6 text-lg">Plataforma</h4>
-              <ul className="space-y-4 text-gray-400">
-                <li><a href="#" className="hover:text-[#cc8db3] transition-colors">¿Cómo funciona?</a></li>
-                <li><a href="#" className="hover:text-[#cc8db3] transition-colors">Seguridad y Confianza</a></li>
-                <li><a href="#" className="hover:text-[#cc8db3] transition-colors">Para Familias</a></li>
-                <li><a href="#" className="hover:text-[#cc8db3] transition-colors">Postular como Cuidadora</a></li>
+              <ul className="space-y-4 text-white/60">
+                <li><a href="#" className="hover:text-[#f6a5c0] transition-colors">¿Cómo funciona?</a></li>
+                <li><a href="#" className="hover:text-[#f6a5c0] transition-colors">Seguridad y Confianza</a></li>
+                <li><a href="#" className="hover:text-[#f6a5c0] transition-colors">Para Familias</a></li>
+                <li><a href="#" className="hover:text-[#f6a5c0] transition-colors">Postular como Cuidadora</a></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-bold mb-6 text-lg">Soporte</h4>
-              <ul className="space-y-4 text-gray-400">
-                <li><span className="block text-sm text-gray-500 mb-1">Email</span> contacto@certinanas.pe</li>
-                <li><span className="block text-sm text-gray-500 mb-1">WhatsApp</span> +51 987 654 321</li>
-                <li><span className="block text-sm text-gray-500 mb-1">Oficina</span> Lima, Perú</li>
+              <ul className="space-y-4 text-white/60">
+                <li><span className="block text-sm text-white/50 mb-1">Email</span> contacto@certinanas.pe</li>
+                <li><span className="block text-sm text-white/50 mb-1">WhatsApp</span> +51 987 654 321</li>
+                <li><span className="block text-sm text-white/50 mb-1">Oficina</span> Lima, Perú</li>
               </ul>
             </div>
           </div>
 
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-gray-500 text-sm">
+            <p className="text-white/50 text-sm">
               &copy; 2026 CERTINANAS. Todos los derechos reservados.
             </p>
             <div className="flex gap-6 text-sm text-gray-500">
@@ -859,5 +859,9 @@ export default function App() {
     </AuthProvider>
   );
 }
+
+
+
+
 
 

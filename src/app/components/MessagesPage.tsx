@@ -79,9 +79,9 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
   };
 
   return (
-    <div className="min-h-screen bg-[#f7c2ca] flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20 flex flex-col">
       {/* Navbar */}
-      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -109,8 +109,8 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
       <div className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
         <div className="flex gap-6 h-[calc(100vh-13rem)]">
           {/* Columna izquierda: Lista de conversaciones */}
-          <div className="w-72 flex-shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-            <div className="p-4 border-b border-gray-100">
+          <div className="w-72 flex-shrink-0 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg shadow-black/5 overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-white/20">
               <h2 className="font-bold text-gray-900">Conversaciones</h2>
             </div>
             <div className="flex-1 overflow-y-auto">
@@ -118,8 +118,8 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                 <button
                   key={c.Id}
                   onClick={() => setSelectedChat(c)}
-                  className={`w-full text-left px-4 py-3.5 border-b border-gray-50 transition-colors relative ${
-                    selectedChat?.Id === c.Id ? 'bg-[#f6a5c0]/20' : 'hover:bg-gray-50'
+                  className={`w-full text-left px-4 py-3.5 border-b border-white/10 transition-colors relative ${
+                    selectedChat?.Id === c.Id ? 'bg-[#f6a5c0]/20 backdrop-blur-sm' : 'hover:bg-white/10'
                   }`}
                 >
                   {selectedChat?.Id === c.Id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#f6a5c0]" />}
@@ -136,15 +136,15 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
           </div>
 
           {/* Columna derecha: Chat */}
-          <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+          <div className="flex-1 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg shadow-black/5 overflow-hidden flex flex-col">
             {selectedChat ? (
               <>
                 {/* Encabezado del chat */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-white/20">
                   <div className="flex items-center gap-3">
                     <h3 className="font-bold text-gray-900">{selectedChat.Nombres} {selectedChat.Apellidos}</h3>
                     {selectedChat.OrdenEstado && (
-                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${badgeEstado[selectedChat.OrdenEstado] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${badgeEstado[selectedChat.OrdenEstado] || 'bg-white/20 text-[#250e2c]/60 border-white/30'}`}>
                         {selectedChat.OrdenEstado}
                       </span>
                     )}
@@ -181,7 +181,7 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                     return (
                       <div key={m.Id} className={`flex flex-col ${esMio ? 'items-end' : 'items-start'}`}>
                         <div className={`max-w-[70%] px-4 py-2.5 rounded-2xl ${
-                          esMio ? 'bg-[#f6a5c0] text-white rounded-br-md' : 'bg-[#9d85b6]/30 text-[#250e2c] rounded-bl-md'
+                          esMio ? 'bg-[#f6a5c0] text-white rounded-br-md' : 'bg-white/20 backdrop-blur-sm border border-white/30 text-[#250e2c] rounded-bl-md'
                         }`}>
                           <p className="text-sm">{m.Contenido}</p>
                         </div>
@@ -195,7 +195,7 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                 </div>
 
                 {/* Input */}
-                <div className="px-6 py-4 border-t border-gray-100">
+                <div className="bg-white/20 backdrop-blur-sm border-t border-white/20 px-6 py-4">
                   <div className="flex gap-3">
                     <input
                       type="text"
@@ -203,7 +203,7 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                       onChange={e => setTexto(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && enviar()}
                       placeholder="Escribe un mensaje..."
-                      className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/40"
+                      className="flex-1 px-4 py-2.5 rounded-xl bg-white/30 border border-white/40 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/40 focus:bg-white/50"
                     />
                     <button
                       onClick={enviar}
@@ -228,8 +228,8 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
 
       {/* Barra inferior de notificaciones */}
       <div className="max-w-6xl mx-auto w-full px-4 pb-6">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg shadow-black/5 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-[#250e2c]/70">
             <Bell className="w-4 h-4 text-[#f6a5c0]" />
             Notificaciones: <strong>2</strong> nuevas
           </div>
@@ -261,7 +261,7 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
               </div>
             </div>
             <div className="flex gap-3">
-              <button onClick={() => setShowReportModal(false)} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+              <button onClick={() => setShowReportModal(false)} className="flex-1 py-2.5 rounded-xl border border-white/30 text-sm font-semibold text-[#250e2c]/70 hover:bg-white/10 transition-colors">
                 Cancelar
               </button>
               <button onClick={reportarIncidencia} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-colors shadow-md">
@@ -274,3 +274,4 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
     </div>
   );
 }
+

@@ -55,7 +55,7 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
-            className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center justify-between mb-4">
               <div className={`w-12 h-12 rounded-xl ${s.bg} flex items-center justify-center`}>
@@ -70,14 +70,14 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Upcoming Appointments */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className="lg:col-span-2 bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-[#250e2c]">Próximas Citas Agendadas</h2>
             <button className="text-sm font-semibold text-[#cc8db3] hover:underline">Ver todas</button>
           </div>
           <div className="space-y-4">
             {appointments.map((apt) => (
-              <div key={apt.id} className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-[#250e2c]/20 hover:bg-gray-50/60 transition-all">
+              <div key={apt.id} className="flex items-center gap-4 p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm hover:border-white/60 hover:bg-white/30 transition-all">
                 <img src={apt.photo} alt={apt.nana} className="w-14 h-14 rounded-full object-cover ring-2 ring-white shadow-sm" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -85,8 +85,8 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
                     <span
                       className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                         apt.status === 'Confirmada'
-                          ? 'bg-[#f6a5c0]/20 text-[#cc8db3]'
-                          : 'bg-[#f6a5c0]/20 text-[#cc8db3]'
+                          ? 'bg-[#f6a5c0] text-white'
+                          : 'bg-[#cc8db3] text-white'
                       }`}
                     >
                       {apt.status === 'Confirmada' ? (
@@ -105,7 +105,7 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={onOpenMessages}
-                    className="px-3 py-2 text-xs font-bold text-[#250e2c] bg-[#f6a5c0]/20 hover:bg-[#9d85b6]/30 rounded-lg transition-colors inline-flex items-center gap-1"
+                    className="px-3 py-2 text-xs font-bold text-white bg-[#cc8db3] hover:bg-[#b07a9a] rounded-lg transition-colors inline-flex items-center gap-1"
                   >
                     <MessageSquare className="w-3.5 h-3.5" /> Mensajes
                   </button>
@@ -151,14 +151,14 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
       </div>
 
       {/* Favorites */}
-      <div className="mt-10 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className="mt-10 bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-[#250e2c]">Cuidadoras Favoritas</h2>
           <button className="text-sm font-semibold text-[#cc8db3] hover:underline">Gestionar</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {favorites.map((f) => (
-            <div key={f.id} className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
+            <div key={f.id} className="flex items-center gap-4 p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm hover:shadow-md transition-shadow">
               <img src={f.photo} alt={f.name} className="w-14 h-14 rounded-full object-cover" />
               <div className="flex-1">
                 <h3 className="font-bold text-gray-900">{f.name}</h3>
@@ -176,4 +176,3 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
     </div>
   );
 }
-

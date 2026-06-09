@@ -54,7 +54,7 @@ export function AdminDashboard({ onBack }: Props) {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={onBack} className="p-2 text-gray-400 hover:text-[#250e2c] hover:bg-[#f6a5c0]/20 rounded-xl transition-all">
+            <button onClick={onBack} className="p-2 text-[#250e2c]/50 hover:text-[#250e2c] hover:bg-[#f6a5c0]/20 rounded-xl transition-all">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
@@ -62,26 +62,26 @@ export function AdminDashboard({ onBack }: Props) {
                 <Shield className="w-6 h-6 text-[#250e2c]" />
                 <h1 className="text-3xl font-bold text-[#250e2c]">Panel Admin</h1>
               </div>
-              <p className="text-gray-500 mt-1">Bienvenido, {user?.nombres} — aquí puedes supervisar toda la plataforma.</p>
+              <p className="text-[#250e2c]/60 mt-1">Bienvenido, {user?.nombres} — aquí puedes supervisar toda la plataforma.</p>
             </div>
           </div>
-          <button onClick={logout} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Cerrar sesión">
+          <button onClick={logout} className="p-2 text-[#250e2c]/50 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Cerrar sesión">
             <LogOut className="w-5 h-5" />
           </button>
         </div>
       </motion.div>
 
       <div className="flex gap-2 mb-8 flex-wrap">
-        <button onClick={() => setTab('stats')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'stats' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+        <button onClick={() => setTab('stats')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'stats' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-white/20 text-[#250e2c]/70 hover:bg-white/30'}`}>
           Estadísticas
         </button>
-        <button onClick={() => setTab('usuarios')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'usuarios' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+        <button onClick={() => setTab('usuarios')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'usuarios' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-white/20 text-[#250e2c]/70 hover:bg-white/30'}`}>
           Usuarios
         </button>
-        <button onClick={() => setTab('exito')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'exito' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+        <button onClick={() => setTab('exito')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'exito' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-white/20 text-[#250e2c]/70 hover:bg-white/30'}`}>
           <Heart className="w-4 h-4 inline mr-1.5 -mt-0.5" />Casos de Éxito
         </button>
-        <button onClick={() => setTab('noacuerdo')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'noacuerdo' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+        <button onClick={() => setTab('noacuerdo')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'noacuerdo' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-white/20 text-[#250e2c]/70 hover:bg-white/30'}`}>
           <XCircle className="w-4 h-4 inline mr-1.5 -mt-0.5" />Sin Acuerdo
         </button>
       </div>
@@ -94,7 +94,7 @@ export function AdminDashboard({ onBack }: Props) {
             { label: 'Cuidadoras', value: stats.totalCuidadoras, icon: UserCog, color: 'purple' },
             { label: 'Admins', value: stats.totalAdmins, icon: Shield, color: 'amber' },
           ].map(({ label, value, icon: Icon, color }) => (
-            <motion.div key={label} whileHover={{ scale: 1.02 }} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <motion.div key={label} whileHover={{ scale: 1.02 }} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6 border border-white/20 shadow-sm">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
                 color === 'blue' ? 'bg-[#f6a5c0]/20 text-[#250e2c]' :
                 color === 'emerald' ? 'bg-[#f6a5c0]/20 text-[#cc8db3]' :
@@ -103,8 +103,8 @@ export function AdminDashboard({ onBack }: Props) {
               }`}>
                 <Icon className="w-6 h-6" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">{value}</p>
-              <p className="text-sm text-gray-500 mt-1">{label}</p>
+              <p className="text-3xl font-bold text-[#250e2c]">{value}</p>
+              <p className="text-sm text-[#250e2c]/60 mt-1">{label}</p>
             </motion.div>
           ))}
         </div>
@@ -114,14 +114,14 @@ export function AdminDashboard({ onBack }: Props) {
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <Heart className="w-5 h-5 text-[#cc8db3]" />
-            <h2 className="text-xl font-bold text-gray-800">Historias de Éxito</h2>
-            <span className="text-sm text-gray-400 ml-2">({exitos.length} casos)</span>
+            <h2 className="text-xl font-bold text-[#250e2c]">Historias de Éxito</h2>
+            <span className="text-sm text-[#250e2c]/50 ml-2">({exitos.length} casos)</span>
           </div>
           {exitos.map(c => (
-            <motion.div key={c.Id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <h3 className="font-bold text-gray-800 text-lg">{c.Titulo}</h3>
-              <p className="text-gray-600 mt-2 leading-relaxed">{c.Descripcion}</p>
-              <p className="text-xs text-gray-400 mt-3">{c.FechaCreacion}</p>
+            <motion.div key={c.Id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6 border border-white/20 shadow-sm">
+              <h3 className="font-bold text-[#250e2c] text-lg">{c.Titulo}</h3>
+              <p className="text-[#250e2c]/70 mt-2 leading-relaxed">{c.Descripcion}</p>
+              <p className="text-xs text-[#250e2c]/50 mt-3">{c.FechaCreacion}</p>
             </motion.div>
           ))}
         </div>
@@ -131,39 +131,39 @@ export function AdminDashboard({ onBack }: Props) {
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <XCircle className="w-5 h-5 text-red-500" />
-            <h2 className="text-xl font-bold text-gray-800">Casos sin Acuerdo</h2>
-            <span className="text-sm text-gray-400 ml-2">({noAcuerdo.length} casos)</span>
+            <h2 className="text-xl font-bold text-[#250e2c]">Casos sin Acuerdo</h2>
+            <span className="text-sm text-[#250e2c]/50 ml-2">({noAcuerdo.length} casos)</span>
           </div>
           {noAcuerdo.map(c => (
-            <motion.div key={c.Id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <h3 className="font-bold text-gray-800 text-lg">{c.Titulo}</h3>
-              <p className="text-gray-600 mt-2 leading-relaxed">{c.Descripcion}</p>
-              <p className="text-xs text-gray-400 mt-3">{c.FechaCreacion}</p>
+            <motion.div key={c.Id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6 border border-white/20 shadow-sm">
+              <h3 className="font-bold text-[#250e2c] text-lg">{c.Titulo}</h3>
+              <p className="text-[#250e2c]/70 mt-2 leading-relaxed">{c.Descripcion}</p>
+              <p className="text-xs text-[#250e2c]/50 mt-3">{c.FechaCreacion}</p>
             </motion.div>
           ))}
         </div>
       )}
 
       {tab === 'usuarios' && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl border border-white/20 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-600">ID</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-600">Nombre</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-600">Email</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-600">Rol</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-600">Activo</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-600">Creado</th>
+                <tr className="bg-white/10 border-b border-white/20">
+                  <th className="text-left py-3 px-4 font-semibold text-[#250e2c]/70">ID</th>
+                  <th className="text-left py-3 px-4 font-semibold text-[#250e2c]/70">Nombre</th>
+                  <th className="text-left py-3 px-4 font-semibold text-[#250e2c]/70">Email</th>
+                  <th className="text-left py-3 px-4 font-semibold text-[#250e2c]/70">Rol</th>
+                  <th className="text-left py-3 px-4 font-semibold text-[#250e2c]/70">Activo</th>
+                  <th className="text-left py-3 px-4 font-semibold text-[#250e2c]/70">Creado</th>
                 </tr>
               </thead>
               <tbody>
                 {usuarios.map(u => (
-                  <tr key={u.Id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 text-gray-800 font-mono">{u.Id}</td>
-                    <td className="py-3 px-4 text-gray-800 font-medium">{u.Nombres} {u.Apellidos}</td>
-                    <td className="py-3 px-4 text-gray-600">{u.Email}</td>
+                  <tr key={u.Id} className="border-b border-gray-50 hover:bg-white/10 transition-colors">
+                    <td className="py-3 px-4 text-[#250e2c] font-mono">{u.Id}</td>
+                    <td className="py-3 px-4 text-[#250e2c] font-medium">{u.Nombres} {u.Apellidos}</td>
+                    <td className="py-3 px-4 text-[#250e2c]/70">{u.Email}</td>
                     <td className="py-3 px-4">
                       <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                         u.Rol === 'Admin' ? 'bg-[#f6a5c0]/20 text-[#cc8db3]' :
@@ -174,7 +174,7 @@ export function AdminDashboard({ onBack }: Props) {
                     <td className="py-3 px-4">
                       <span className={`inline-block w-2 h-2 rounded-full ${u.Activo ? 'bg-green-500' : 'bg-red-400'}`} />
                     </td>
-                    <td className="py-3 px-4 text-gray-400 text-xs">{u.FechaCreacion}</td>
+                    <td className="py-3 px-4 text-[#250e2c]/50 text-xs">{u.FechaCreacion}</td>
                   </tr>
                 ))}
               </tbody>
@@ -185,4 +185,5 @@ export function AdminDashboard({ onBack }: Props) {
     </div>
   );
 }
+
 
