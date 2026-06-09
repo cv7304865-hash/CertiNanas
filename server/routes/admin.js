@@ -145,7 +145,7 @@ router.get('/reportes', isAdmin, (req, res) => {
     FROM Ordenes GROUP BY mes ORDER BY mes ASC
   `).all();
   const ingresosPorMes = db.prepare(`
-    SELECT strftime('%Y-%m', p.FechaCreacion) AS mes, COALESCE(SUM(p.Monto), 0) AS total
+    SELECT strftime('%Y-%m', p.FechaPago) AS mes, COALESCE(SUM(p.Monto), 0) AS total
     FROM Pagos p WHERE p.Estado = 'Completado'
     GROUP BY mes ORDER BY mes ASC
   `).all();
