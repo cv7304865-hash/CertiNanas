@@ -48,7 +48,7 @@ export function ScheduleInterviewModal({ cuidadora, onClose }: Props) {
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <Video className="w-5 h-5 text-[#F59E0B]" />
+                  <Video className="w-5 h-5 text-[#f6a5c0]" />
                   <h2 className="text-lg font-bold text-gray-900">Agendar entrevista virtual</h2>
                 </div>
                 <p className="text-sm text-gray-400 mt-1">Conoce a {cuidadora.Nombres} {cuidadora.Apellidos?.charAt(0)}. antes de contratar</p>
@@ -61,8 +61,8 @@ export function ScheduleInterviewModal({ cuidadora, onClose }: Props) {
 
           <div className="p-6 space-y-5">
             {/* Tarjeta de perfil */}
-            <div className="bg-amber-50/70 rounded-xl p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold flex-shrink-0">
+            <div className="bg-[#f6a5c0]/20/70 rounded-xl p-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-[#f6a5c0]/200 flex items-center justify-center text-white font-bold flex-shrink-0">
                 {getIniciales(cuidadora.Nombres, cuidadora.Apellidos)}
               </div>
               <div>
@@ -72,7 +72,7 @@ export function ScheduleInterviewModal({ cuidadora, onClose }: Props) {
                   <span className="text-gray-300">·</span>
                   <span className="flex items-center gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className={`w-3 h-3 ${i < Math.round(cuidadora.CalificacionPromedio) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />
+                      <Star key={i} className={`w-3 h-3 ${i < Math.round(cuidadora.CalificacionPromedio) ? 'text-[#cc8db3] fill-[#cc8db3]' : 'text-gray-200'}`} />
                     ))}
                     <span className="ml-0.5">{cuidadora.CalificacionPromedio.toFixed(1)}</span>
                   </span>
@@ -87,7 +87,7 @@ export function ScheduleInterviewModal({ cuidadora, onClose }: Props) {
                 type="date"
                 value={fecha}
                 onChange={e => setFecha(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#f6a5c0]/40"
               />
             </div>
 
@@ -97,7 +97,7 @@ export function ScheduleInterviewModal({ cuidadora, onClose }: Props) {
               <select
                 value={hora}
                 onChange={e => setHora(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#f6a5c0]/40"
               >
                 {horarios.map(h => <option key={h} value={h}>{h}</option>)}
               </select>
@@ -111,13 +111,13 @@ export function ScheduleInterviewModal({ cuidadora, onClose }: Props) {
                   onClick={() => setPlataforma('google-meet')}
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
                     plataforma === 'google-meet'
-                      ? 'border-[#F59E0B] bg-amber-50 text-[#F59E0B]'
+                      ? 'border-[#f6a5c0] bg-[#f6a5c0]/20 text-[#f6a5c0]'
                       : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
                   }`}
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-                    <rect x="2" y="4" width="15" height="16" rx="2" fill={plataforma === 'google-meet' ? '#F59E0B' : '#9CA3AF'}/>
-                    <path d="M17 10l4-2v8l-4-2" fill={plataforma === 'google-meet' ? '#F59E0B' : '#9CA3AF'}/>
+                    <rect x="2" y="4" width="15" height="16" rx="2" fill={plataforma === 'google-meet' ? '#f6a5c0' : '#9CA3AF'}/>
+                    <path d="M17 10l4-2v8l-4-2" fill={plataforma === 'google-meet' ? '#f6a5c0' : '#9CA3AF'}/>
                   </svg>
                   Google Meet
                 </button>
@@ -125,13 +125,13 @@ export function ScheduleInterviewModal({ cuidadora, onClose }: Props) {
                   onClick={() => setPlataforma('zoom')}
                   className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all ${
                     plataforma === 'zoom'
-                      ? 'border-[#F59E0B] bg-amber-50 text-[#F59E0B]'
+                      ? 'border-[#f6a5c0] bg-[#f6a5c0]/20 text-[#f6a5c0]'
                       : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
                   }`}
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-                    <rect x="2" y="6" width="16" height="12" rx="2" fill={plataforma === 'zoom' ? '#F59E0B' : '#9CA3AF'}/>
-                    <path d="M18 10l4-2v8l-4-2" fill={plataforma === 'zoom' ? '#F59E0B' : '#9CA3AF'}/>
+                    <rect x="2" y="6" width="16" height="12" rx="2" fill={plataforma === 'zoom' ? '#f6a5c0' : '#9CA3AF'}/>
+                    <path d="M18 10l4-2v8l-4-2" fill={plataforma === 'zoom' ? '#f6a5c0' : '#9CA3AF'}/>
                   </svg>
                   Zoom
                 </button>
@@ -139,9 +139,9 @@ export function ScheduleInterviewModal({ cuidadora, onClose }: Props) {
             </div>
 
             {/* Mensaje informativo */}
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-emerald-700">
+            <div className="bg-[#f6a5c0]/20 border border-[#f6a5c0]/40 rounded-xl p-3 flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-[#cc8db3] mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-[#cc8db3]">
                 Se enviará un enlace de videollamada a ambas partes por correo electrónico.
               </p>
             </div>
@@ -149,7 +149,7 @@ export function ScheduleInterviewModal({ cuidadora, onClose }: Props) {
 
           {/* Botón principal */}
           <div className="px-6 pb-6">
-            <button className="w-full py-3 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg">
+            <button className="w-full py-3 bg-[#f6a5c0] hover:bg-[#b07a9a] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg">
               Confirmar entrevista
             </button>
           </div>
@@ -158,3 +158,4 @@ export function ScheduleInterviewModal({ cuidadora, onClose }: Props) {
     </>
   );
 }
+

@@ -54,9 +54,9 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f7c2ca]">
       {/* Navbar */}
-      <header className="bg-[#1E293B] text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -64,13 +64,13 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                 <div className="w-8 h-8 overflow-hidden rounded">
                   <img src="/logo.png" alt="" className="w-full h-full object-cover" />
                 </div>
-                <span className="text-lg font-extrabold text-[#F59E0B] tracking-tight">CERTINANAS</span>
+                <span className="text-lg font-extrabold text-[#f6a5c0] tracking-tight">CERTINANAS</span>
               </div>
               <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
               <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
-              <button onClick={() => onNavigate?.('search')} className="text-sm font-bold text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5">Inicio</button>
+              <button onClick={() => onNavigate?.('search')} className="text-sm font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0] pb-0.5">Inicio</button>
               <button onClick={() => onNavigate?.('familia')} className="text-sm text-white/70 hover:text-white transition-colors">Mis Servicios</button>
               <button onClick={() => onNavigate?.('messages')} className="text-sm text-white/70 hover:text-white transition-colors">Mensajes</button>
               <ProfileAvatar size={36} className="ml-2" />
@@ -88,27 +88,27 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
           <h2 className="text-xl font-bold text-gray-900 mb-6">Encuentra la cuidadora ideal para tu hijo</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <select value={especialidad} onChange={e => setEspecialidad(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40">
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]">
               {especialidadesList.map(e => <option key={e} value={e}>{e === 'Todas' ? 'Todas las especialidades' : e}</option>)}
             </select>
             <select value={zona} onChange={e => setZona(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40">
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]">
               {zonas.map(z => <option key={z} value={z}>{z === 'Todas' ? 'Todas las zonas' : z}</option>)}
             </select>
             <select value={experiencia} onChange={e => setExperiencia(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40">
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]">
               {expOptions.map(e => <option key={e} value={e}>{e === '0+ años' ? 'Sin experiencia' : e}</option>)}
             </select>
             <div className="relative">
               <input type="number" value={tarifaMax} onChange={e => setTarifaMax(e.target.value)}
                 placeholder="S/ máx. por hora"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40" />
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]" />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">S/ /h</span>
             </div>
           </div>
           <div className="mt-5">
             <button onClick={buscar}
-              className="inline-flex items-center gap-2 px-8 py-3 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg">
+              className="inline-flex items-center gap-2 px-8 py-3 bg-[#cc8db3] hover:bg-[#b07a9a] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg">
               <Search className="w-5 h-5" /> Buscar
             </button>
           </div>
@@ -127,7 +127,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
           {cuidadoras.map((c, i) => (
             <motion.div key={c.Id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="h-1.5 bg-[#F59E0B]"></div>
+              <div className="h-1.5 bg-[#f6a5c0]"></div>
               <div className="p-6 flex flex-col sm:flex-row items-start gap-5">
                 <div className={`w-16 h-16 rounded-full ${COLORS[i % COLORS.length]} flex items-center justify-center text-white text-xl font-bold flex-shrink-0`}>
                   {getIniciales(c.Nombres, c.Apellidos)}
@@ -137,14 +137,14 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                   <p className="text-sm text-gray-500 mt-0.5">{c.Especialidades || 'Cuidado general'} · {c.AniosExperiencia} años exp.</p>
                   <div className="flex items-center gap-1 mt-2">
                     {[1, 2, 3, 4, 5].map(j => (
-                      <Star key={j} className={`w-4 h-4 ${j <= Math.round(c.CalificacionPromedio) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />
+                      <Star key={j} className={`w-4 h-4 ${j <= Math.round(c.CalificacionPromedio) ? 'text-[#cc8db3] fill-[#cc8db3]' : 'text-gray-200'}`} />
                     ))}
                     <span className="text-sm text-gray-500 ml-1">{c.CalificacionPromedio.toFixed(1)}</span>
                   </div>
-                  <p className="text-lg font-bold text-[#F59E0B] mt-2">S/ {c.TarifaHora}/h</p>
+                  <p className="text-lg font-bold text-[#cc8db3] mt-2">S/ {c.TarifaHora}/h</p>
                 </div>
                 <div className="self-end sm:self-center flex-shrink-0">
-                  <button onClick={() => setSelectedNana(c)} className="px-6 py-2.5 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm">
+                  <button onClick={() => setSelectedNana(c)} className="px-6 py-2.5 bg-[#f6a5c0] hover:bg-[#cc8db3] text-white font-bold rounded-full transition-all shadow-md hover:shadow-lg text-sm">
                     Ver perfil
                   </button>
                 </div>
@@ -162,7 +162,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
             onClick={() => setSelectedNana(null)}>
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-              <div className="h-1.5 bg-[#F59E0B]"></div>
+              <div className="h-1.5 bg-[#f6a5c0]"></div>
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-4">
@@ -172,7 +172,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                     <div>
                       <h3 className="text-xl font-bold text-gray-900">{selectedNana.Nombres} {selectedNana.Apellidos?.charAt(0)}.</h3>
                       <p className="text-sm text-gray-500">{selectedNana.Especialidades || 'Cuidado general'}</p>
-                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 mt-1">
+                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#f6a5c0]/20 text-[#cc8db3] text-xs font-bold border border-[#f6a5c0]/30 mt-1">
                         <CheckCircle className="w-3 h-3" /> Perfil Verificado
                       </span>
                     </div>
@@ -188,13 +188,13 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                   </div>
                   <div className="flex justify-between">
                     <span>Tarifa</span>
-                    <span className="font-semibold text-[#F59E0B]">S/ {selectedNana.TarifaHora}/h</span>
+                    <span className="font-semibold text-[#cc8db3]">S/ {selectedNana.TarifaHora}/h</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Calificación</span>
                     <div className="flex items-center gap-1">
                       {[1, 2, 3, 4, 5].map(j => (
-                        <Star key={j} className={`w-4 h-4 ${j <= Math.round(selectedNana.CalificacionPromedio) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />
+                        <Star key={j} className={`w-4 h-4 ${j <= Math.round(selectedNana.CalificacionPromedio) ? 'text-[#cc8db3] fill-[#cc8db3]' : 'text-gray-200'}`} />
                       ))}
                       <span className="ml-1 font-semibold text-gray-900">{selectedNana.CalificacionPromedio.toFixed(1)}</span>
                     </div>
@@ -203,7 +203,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                 <div className="mt-6">
                 <button
                   onClick={() => { setSelectedNana(null); setTimeout(() => setShowSchedule(selectedNana), 200); }}
-                  className="w-full py-3 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm"
+                  className="w-full py-3 bg-[#cc8db3] hover:bg-[#b07a9a] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm"
                 >
                   Solicitar Servicio
                 </button>

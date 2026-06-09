@@ -202,7 +202,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans selection:bg-[#10B981] selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#f7c2ca] font-['Inter',system-ui,sans-serif] selection:bg-[#cc8db3] selection:text-white overflow-x-hidden">
       {/* Header - oculto cuando la cuidadora o familia usan su propio panel */}
       {view !== 'admin' && view !== 'cuidadora' && view !== 'familia' && view !== 'search' && view !== 'messages' && view !== 'contract' && view !== 'payment' && (
       <header className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-40 transition-all duration-300 shadow-sm">
@@ -221,7 +221,7 @@ function AppContent() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-[26px] font-extrabold tracking-[-0.03em] text-[#1E3A8A] uppercase leading-none mt-1" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+                <span className="text-[26px] font-extrabold tracking-[-0.03em] text-[#250e2c] uppercase leading-none mt-1" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
                   CERTINANAS
                 </span>
                 <span className="text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase mt-1">
@@ -232,18 +232,18 @@ function AppContent() {
 
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
-              <button onClick={() => { setView('home'); setTimeout(() => scrollToSection('inicio'), 50); }} className={`text-sm font-semibold transition-colors ${view === 'home' ? 'text-[#1E3A8A]' : 'text-gray-600 hover:text-[#1E3A8A]'}`}>
+              <button onClick={() => { setView('home'); setTimeout(() => scrollToSection('inicio'), 50); }} className={`text-sm font-semibold transition-colors ${view === 'home' ? 'text-[#250e2c]' : 'text-gray-600 hover:text-[#250e2c]'}`}>
                 Inicio
               </button>
-              <button onClick={() => { setView('home'); setTimeout(() => scrollToSection('catalogo'), 50); }} className="text-sm font-semibold text-gray-600 hover:text-[#1E3A8A] transition-colors">
+              <button onClick={() => { setView('home'); setTimeout(() => scrollToSection('catalogo'), 50); }} className="text-sm font-semibold text-gray-600 hover:text-[#250e2c] transition-colors">
                 Catálogo
               </button>
               {user?.rol !== 'familia' && (
-              <button onClick={() => setView('dashboard')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'dashboard' ? 'text-[#1E3A8A]' : 'text-gray-600 hover:text-[#1E3A8A]'}`}>
+              <button onClick={() => setView('dashboard')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'dashboard' ? 'text-[#250e2c]' : 'text-gray-600 hover:text-[#250e2c]'}`}>
                 <LayoutDashboard className="w-4 h-4" /> Mi Panel
               </button>
               )}
-              <button onClick={() => setView('messages')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'messages' ? 'text-[#1E3A8A]' : 'text-gray-600 hover:text-[#1E3A8A]'}`}>
+              <button onClick={() => setView('messages')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'messages' ? 'text-[#250e2c]' : 'text-gray-600 hover:text-[#250e2c]'}`}>
                 <MessageSquare className="w-4 h-4" /> Mensajes
               </button>
             </nav>
@@ -253,27 +253,27 @@ function AppContent() {
               {user ? (
                 <>
                   {user.rol === 'admin' && (
-                    <button onClick={() => setView('admin')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'admin' ? 'text-amber-600' : 'text-gray-600 hover:text-amber-600'}`}>
+                    <button onClick={() => setView('admin')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'admin' ? 'text-[#cc8db3]' : 'text-gray-600 hover:text-[#cc8db3]'}`}>
                       <Shield className="w-4 h-4" /> Admin
                     </button>
                   )}
                   {user.rol === 'cuidadora' && (
-                    <button onClick={() => setView('cuidadora')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'cuidadora' ? 'text-amber-600' : 'text-gray-600 hover:text-amber-600'}`}>
+                    <button onClick={() => setView('cuidadora')} className={`text-sm font-semibold inline-flex items-center gap-1.5 transition-colors ${view === 'cuidadora' ? 'text-[#cc8db3]' : 'text-gray-600 hover:text-[#cc8db3]'}`}>
                       <UserCircle className="w-4 h-4" /> Mi Perfil
                     </button>
                   )}
                   <NotificationsBell />
                   <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
                     <div className="flex items-center gap-2 text-sm">
-                      <UserCircle className="w-5 h-5 text-[#1E3A8A]" />
+                      <UserCircle className="w-5 h-5 text-[#250e2c]" />
                       <span className="font-semibold text-gray-800">{user.nombres}</span>
-                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-blue-50 text-[#1E3A8A]">{user.rol}</span>
+                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-[#f6a5c0]/20 text-[#250e2c]">{user.rol}</span>
                     </div>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={logout}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-[#f6a5c0]/20 rounded-xl transition-all"
                       title="Cerrar sesión"
                     >
                       <LogOut className="w-4 h-4" />
@@ -286,7 +286,7 @@ function AppContent() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setAuthModalConfig({ isOpen: true, mode: 'login' })}
-                    className="px-5 py-2.5 text-sm font-semibold text-[#1E3A8A] border-2 border-transparent hover:border-gray-200 rounded-xl transition-all"
+                    className="px-5 py-2.5 text-sm font-semibold text-[#250e2c] border-2 border-transparent hover:border-gray-200 rounded-xl transition-all"
                   >
                     Iniciar Sesión
                   </motion.button>
@@ -294,7 +294,7 @@ function AppContent() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setAuthModalConfig({ isOpen: true, mode: 'register' })}
-                    className="px-6 py-2.5 bg-[#10B981] text-white rounded-xl text-sm font-bold hover:bg-[#059669] transition-all shadow-lg shadow-emerald-500/25 flex items-center gap-2"
+                    className="px-6 py-2.5 bg-[#cc8db3] text-white rounded-xl text-sm font-bold hover:bg-[#b07a9a] transition-all shadow-lg shadow-[#cc8db3]/25 flex items-center gap-2"
                   >
                     Regístrate <ChevronRight className="w-4 h-4" />
                   </motion.button>
@@ -346,8 +346,8 @@ function AppContent() {
       {false && (
       <section id="inicio-old" className="hidden">
         {/* Soft Decorative Background */}
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#10B981]/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#1E3A8A]/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#cc8db3]/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#250e2c]/10 rounded-full blur-[120px] pointer-events-none" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center">
@@ -359,16 +359,16 @@ function AppContent() {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="max-w-2xl"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm font-bold tracking-wide mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#f6a5c0]/20 border border-[#f6a5c0]/30 text-[#cc8db3] text-sm font-bold tracking-wide mb-8">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f6a5c0]/200"></span>
                 </span>
                 La plataforma #1 en cuidado neurodivergente
               </div>
               
-              <h1 className="text-[3.5rem] lg:text-[4.5rem] font-extrabold text-[#1E3A8A] leading-[1.05] tracking-tight mb-6">
-                Cuidado experto para <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#10B981] to-emerald-500">quienes más amas</span>
+              <h1 className="text-[3.5rem] lg:text-[4.5rem] font-extrabold text-[#250e2c] leading-[1.05] tracking-tight mb-6">
+                Cuidado experto para <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#cc8db3] to-[#f6a5c0]">quienes más amas</span>
               </h1>
               
               <p className="text-xl lg:text-2xl text-gray-600 mb-10 font-light leading-relaxed max-w-lg">
@@ -380,7 +380,7 @@ function AppContent() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => scrollToSection('catalogo')}
-                  className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded-2xl text-lg font-bold hover:shadow-xl hover:shadow-emerald-500/30 transition-all flex items-center justify-center gap-2 group"
+                  className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] text-white rounded-2xl text-lg font-bold hover:shadow-xl hover:shadow-[#cc8db3]/30 transition-all flex items-center justify-center gap-2 group"
                 >
                   Buscar Nana Ideal
                   <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -399,14 +399,14 @@ function AppContent() {
               {/* Security Badges */}
               <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-gray-100">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-[#1E3A8A]" />
+                  <div className="w-8 h-8 rounded-full bg-[#f6a5c0]/20 flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-[#250e2c]" />
                   </div>
                   <span className="text-sm font-semibold text-gray-600">Perfiles 100% Verificados</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center">
-                    <Lock className="w-4 h-4 text-[#10B981]" />
+                  <div className="w-8 h-8 rounded-full bg-[#f6a5c0]/20 flex items-center justify-center">
+                    <Lock className="w-4 h-4 text-[#cc8db3]" />
                   </div>
                   <span className="text-sm font-semibold text-gray-600">Pago Seguro Escrow</span>
                 </div>
@@ -437,7 +437,7 @@ function AppContent() {
                 transition={{ duration: 0.6, delay: 0.6 }}
                 className="absolute top-10 -left-6 lg:-left-12 bg-white/95 p-4 rounded-2xl shadow-xl shadow-blue-900/10 border border-white flex items-center gap-4 backdrop-blur-xl"
               >
-                <div className="bg-emerald-100 p-2.5 rounded-full text-[#10B981]">
+                <div className="bg-[#f6a5c0]/30 p-2.5 rounded-full text-[#cc8db3]">
                   <CheckCircle className="w-6 h-6" />
                 </div>
                 <div>
@@ -454,7 +454,7 @@ function AppContent() {
                 className="absolute bottom-16 -right-6 lg:-right-8 bg-white/95 p-5 rounded-2xl shadow-xl shadow-blue-900/10 border border-white flex flex-col gap-2 backdrop-blur-xl"
               >
                 <div className="flex items-center gap-1.5">
-                  <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  <Star className="w-5 h-5 text-[#cc8db3] fill-[#cc8db3]" />
                   <span className="font-black text-xl text-gray-900">4.9/5</span>
                 </div>
                 <p className="text-xs font-semibold text-gray-500">Calificación Promedio</p>
@@ -473,7 +473,7 @@ function AppContent() {
       )}
 
       {/* Main Content Area */}
-      <main className="relative z-20 pb-20 bg-gray-50 pt-16">
+      <main className="relative z-20 pb-20 bg-[#f7c2ca] pt-16">
         
         {/* Search/Filter Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -493,7 +493,7 @@ function AppContent() {
                   <select
                     value={selectedSpecialty}
                     onChange={(e) => setSelectedSpecialty(e.target.value)}
-                    className="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all outline-none appearance-none font-medium text-gray-700"
+                    className="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none appearance-none font-medium text-gray-700"
                   >
                     <option value="">Todas las especialidades</option>
                     <option value="TEA">TEA</option>
@@ -516,7 +516,7 @@ function AppContent() {
                   <select
                     value={selectedExperience}
                     onChange={(e) => setSelectedExperience(e.target.value)}
-                    className="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all outline-none appearance-none font-medium text-gray-700"
+                    className="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none appearance-none font-medium text-gray-700"
                   >
                     <option value="">Cualquier experiencia</option>
                     <option value="0-2">0 - 2 años</option>
@@ -537,7 +537,7 @@ function AppContent() {
                   <select 
                     value={selectedArea}
                     onChange={(e) => setSelectedArea(e.target.value)}
-                    className="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-all outline-none appearance-none font-medium text-gray-700"
+                    className="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3] focus:border-transparent transition-all outline-none appearance-none font-medium text-gray-700"
                   >
                     <option value="">Cualquier área</option>
                     <option value="Cuidado domiciliario">Cuidado domiciliario</option>
@@ -559,7 +559,7 @@ function AppContent() {
                   setSelectedArea('');
                   scrollToSection('catalogo');
                 }}
-                className="w-full py-3.5 bg-white text-[#1E3A8A] border-2 border-[#1E3A8A] rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center justify-center space-x-2"
+                className="w-full py-3.5 bg-white text-[#250e2c] border-2 border-[#250e2c] rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center justify-center space-x-2"
               >
                 <span>Limpiar Filtros</span>
               </motion.button>
@@ -575,7 +575,7 @@ function AppContent() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-4xl md:text-5xl font-bold text-[#1E3A8A] mb-4 tracking-tight"
+                className="text-4xl md:text-5xl font-bold text-[#250e2c] mb-4 tracking-tight"
               >
                 Nuestras Cuidadoras
               </motion.h2>
@@ -603,7 +603,7 @@ function AppContent() {
                 <p className="text-gray-500 max-w-md mx-auto">No hay perfiles que coincidan exactamente con estos criterios específicos. Intenta ajustar tus filtros para ver más resultados.</p>
                 <button 
                   onClick={() => { setSelectedSpecialty(''); setSelectedExperience(''); setSelectedArea(''); }}
-                  className="mt-8 px-8 py-3 bg-[#10B981] text-white font-bold rounded-xl hover:bg-[#059669] transition-all shadow-lg shadow-emerald-500/20"
+                  className="mt-8 px-8 py-3 bg-[#cc8db3] text-white font-bold rounded-xl hover:bg-[#b07a9a] transition-all shadow-lg shadow-[#cc8db3]/20"
                 >
                   Limpiar Filtros
                 </button>
@@ -631,17 +631,17 @@ function AppContent() {
                           alt={nana.name}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#1E3A8A]/80 via-black/20 to-transparent opacity-80"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#250e2c]/80 via-black/20 to-transparent opacity-80"></div>
                         
-                        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-full p-2 shadow-lg flex items-center justify-center border-2 border-[#10B981] group-hover:scale-110 transition-transform" title="Perfil Verificado">
-                          <CheckCircle className="w-4 h-4 text-[#10B981]" />
+                        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-full p-2 shadow-lg flex items-center justify-center border-2 border-[#cc8db3] group-hover:scale-110 transition-transform" title="Perfil Verificado">
+                          <CheckCircle className="w-4 h-4 text-[#cc8db3]" />
                         </div>
 
                         <div className="absolute bottom-4 left-4 right-4 text-white">
                           <h3 className="text-2xl font-bold drop-shadow-md leading-tight mb-1">{nana.name}</h3>
                           <div className="flex items-center gap-2">
                             <div className="flex items-center">
-                              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1" />
+                              <Star className="w-4 h-4 text-[#cc8db3] fill-[#cc8db3] mr-1" />
                               <span className="font-semibold text-sm">{nana.rating}</span>
                             </div>
                             <span className="text-white/60 text-xs">|</span>
@@ -660,7 +660,7 @@ function AppContent() {
                           {nana.specialties.slice(0, 3).map((specialty, index) => (
                             <span
                               key={index}
-                              className="px-2.5 py-1 bg-blue-50 text-[#1E3A8A] text-[11px] font-bold rounded-md border border-blue-100"
+                              className="px-2.5 py-1 bg-[#f6a5c0]/20 text-[#250e2c] text-[11px] font-bold rounded-md border border-blue-100"
                             >
                               {specialty}
                             </span>
@@ -682,7 +682,7 @@ function AppContent() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => setProfileModalConfig({ isOpen: true, nana })}
-                            className="w-full py-2.5 bg-white text-[#1E3A8A] border border-blue-200 rounded-xl hover:bg-blue-50 transition-colors text-sm font-bold flex items-center justify-center gap-2"
+                            className="w-full py-2.5 bg-white text-[#250e2c] border border-blue-200 rounded-xl hover:bg-[#f6a5c0]/20 transition-colors text-sm font-bold flex items-center justify-center gap-2"
                           >
                             <FileText className="w-4 h-4" />
                             Ver Perfil Completo
@@ -692,7 +692,7 @@ function AppContent() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => handleRequestInterview(nana.name)}
-                            className="w-full py-3 bg-[#10B981] text-white rounded-xl hover:bg-[#059669] hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 font-bold tracking-wide flex items-center justify-center gap-2 group/btn"
+                            className="w-full py-3 bg-[#cc8db3] text-white rounded-xl hover:bg-[#b07a9a] hover:shadow-lg hover:shadow-[#cc8db3]/25 transition-all duration-300 font-bold tracking-wide flex items-center justify-center gap-2 group/btn"
                           >
                             Solicitar Cita 
                             <ChevronRight className="w-4 h-4 text-white/70 group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all" />
@@ -708,7 +708,7 @@ function AppContent() {
         </section>
 
         {/* Security Section */}
-        <section id="seguridad" className="py-24 bg-[#1E3A8A] text-white">
+        <section id="seguridad" className="py-24 bg-[#250e2c] text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <motion.h2 
@@ -719,7 +719,7 @@ function AppContent() {
               >
                 Tu tranquilidad es nuestra prioridad
               </motion.h2>
-              <p className="text-xl text-blue-200/80">
+              <p className="text-xl text-[#f6a5c0]/80">
                 Garantizamos un entorno seguro y confiable para tu familia
               </p>
             </div>
@@ -730,19 +730,19 @@ function AppContent() {
                   icon: <ShieldPlus className="w-10 h-10 text-white" />,
                   title: "Verificación Rigurosa",
                   desc: "Antecedentes penales, certificados de salud y referencias comprobadas exhaustivamente.",
-                  color: "from-blue-400 to-blue-600"
+                  color: "from-[#837ab6] to-[#9d85b6]"
                 },
                 {
                   icon: <Lock className="w-10 h-10 text-white" />,
                   title: "Pagos Seguros Escrow",
                   desc: "Tu dinero se retiene de forma segura hasta que el servicio culmine satisfactoriamente.",
-                  color: "from-emerald-400 to-emerald-600"
+                  color: "from-[#cc8db3] to-[#9d85b6]"
                 },
                 {
                   icon: <Star className="w-10 h-10 text-white" />,
                   title: "Reseñas Verídicas",
                   desc: "Sistema de calificaciones basado únicamente en experiencias reales de otras familias.",
-                  color: "from-purple-400 to-purple-600"
+                  color: "from-[#9d85b6] to-[#f6a5c0]"
                 }
               ].map((item, index) => (
                 <motion.div 
@@ -757,7 +757,7 @@ function AppContent() {
                     {item.icon}
                   </div>
                   <h3 className="text-2xl font-bold mb-4">{item.title}</h3>
-                  <p className="text-blue-100/80 leading-relaxed">
+                  <p className="text-[#f6a5c0]/80 leading-relaxed">
                     {item.desc}
                   </p>
                 </motion.div>
@@ -775,7 +775,7 @@ function AppContent() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-6">
-                <div className="bg-[#10B981] p-2 rounded-lg">
+                <div className="bg-[#cc8db3] p-2 rounded-lg">
                   <ShieldPlus className="w-6 h-6 text-white" />
                 </div>
                 <span className="text-2xl font-black tracking-tight uppercase">
@@ -790,10 +790,10 @@ function AppContent() {
             <div>
               <h4 className="font-bold mb-6 text-lg">Plataforma</h4>
               <ul className="space-y-4 text-gray-400">
-                <li><a href="#" className="hover:text-[#10B981] transition-colors">¿Cómo funciona?</a></li>
-                <li><a href="#" className="hover:text-[#10B981] transition-colors">Seguridad y Confianza</a></li>
-                <li><a href="#" className="hover:text-[#10B981] transition-colors">Para Familias</a></li>
-                <li><a href="#" className="hover:text-[#10B981] transition-colors">Postular como Cuidadora</a></li>
+                <li><a href="#" className="hover:text-[#cc8db3] transition-colors">¿Cómo funciona?</a></li>
+                <li><a href="#" className="hover:text-[#cc8db3] transition-colors">Seguridad y Confianza</a></li>
+                <li><a href="#" className="hover:text-[#cc8db3] transition-colors">Para Familias</a></li>
+                <li><a href="#" className="hover:text-[#cc8db3] transition-colors">Postular como Cuidadora</a></li>
               </ul>
             </div>
 
@@ -859,3 +859,5 @@ export default function App() {
     </AuthProvider>
   );
 }
+
+

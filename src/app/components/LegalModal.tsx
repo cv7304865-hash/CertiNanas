@@ -13,7 +13,7 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
   const content = {
     privacy: {
       title: 'Política de Privacidad',
-      icon: <ShieldCheck className="w-6 h-6 text-[#10B981]" />,
+      icon: <ShieldCheck className="w-6 h-6 text-[#cc8db3]" />,
       text: (
         <div className="space-y-4 text-gray-600 leading-relaxed">
           <p>
@@ -30,7 +30,7 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
     },
     terms: {
       title: 'Términos de Servicio',
-      icon: <FileText className="w-6 h-6 text-[#1E3A8A]" />,
+      icon: <FileText className="w-6 h-6 text-[#250e2c]" />,
       text: (
         <div className="space-y-4 text-gray-600 leading-relaxed">
           <p>
@@ -71,7 +71,7 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
           {/* Header */}
           <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 shrink-0">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${type === 'privacy' ? 'bg-emerald-100' : 'bg-blue-100'}`}>
+              <div className={`p-2 rounded-xl ${type === 'privacy' ? 'bg-[#f6a5c0]/30' : 'bg-[#9d85b6]/30'}`}>
                 {icon}
               </div>
               <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
@@ -93,7 +93,7 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
           <div className="p-6 border-t border-gray-100 bg-gray-50 shrink-0">
             <button
               onClick={onClose}
-              className="w-full py-3.5 bg-[#1E3A8A] text-white rounded-xl font-bold hover:bg-[#1e40af] transition-all shadow-lg shadow-blue-900/20"
+              className="w-full py-3.5 bg-[#250e2c] text-white rounded-xl font-bold hover:bg-[#1e40af] transition-all shadow-lg shadow-blue-900/20"
             >
               Entendido y Cerrar
             </button>
@@ -103,3 +103,4 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
     </AnimatePresence>
   );
 }
+

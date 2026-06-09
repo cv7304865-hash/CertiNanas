@@ -43,14 +43,14 @@ export function ProfileAvatar({ size = 36, className = '' }: Props) {
         onClick={handleClick}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
-        className={`relative rounded-full overflow-hidden flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/50 ${className}`}
+        className={`relative rounded-full overflow-hidden flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-[#f6a5c0]/50 ${className}`}
         style={{ width: px, height: px }}
         title="Cambiar foto de perfil"
       >
         {fotoUrl ? (
           <img src={fotoUrl} alt="" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-[#F59E0B]/20 flex items-center justify-center text-sm font-bold text-[#F59E0B]">
+          <div className="w-full h-full bg-[#f6a5c0]/20 flex items-center justify-center text-sm font-bold text-[#f6a5c0]">
             {initial}
           </div>
         )}
@@ -63,3 +63,4 @@ export function ProfileAvatar({ size = 36, className = '' }: Props) {
     </>
   );
 }
+

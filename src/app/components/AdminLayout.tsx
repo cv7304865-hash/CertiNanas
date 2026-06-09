@@ -34,13 +34,13 @@ export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] font-['Inter',system-ui,sans-serif]">
+    <div className="min-h-screen bg-[#f7c2ca] font-['Inter',system-ui,sans-serif]">
       {/* ======= HEADER ======= */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-[#1A202C] z-50 flex items-center px-6 shadow-lg">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-[#250e2c] z-50 flex items-center px-6 shadow-lg">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <svg viewBox="0 0 40 40" className="w-9 h-9 flex-shrink-0">
-            <circle cx="20" cy="20" r="20" fill="#28C76F" />
+            <circle cx="20" cy="20" r="20" fill="#cc8db3" />
             <path d="M20 30 C12 24 8 19 8 15 C8 11 11 8 15 8 C17.5 8 19.5 9.5 20 11 C20.5 9.5 22.5 8 25 8 C29 8 32 11 32 15 C32 19 28 24 20 30Z" fill="white" />
           </svg>
           <div className="flex flex-col leading-tight">
@@ -57,15 +57,15 @@ export function AdminLayout() {
           {/* Notification bell */}
           <button className="relative text-gray-300 hover:text-white transition-colors">
             <Bell className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#28C76F] rounded-full flex items-center justify-center text-white text-[10px] font-bold">3</span>
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#cc8db3] rounded-full flex items-center justify-center text-white text-[10px] font-bold">3</span>
           </button>
 
           {/* Avatar 1 - brown */}
-          <div className="w-8 h-8 rounded-full bg-[#8B5E3C] flex items-center justify-center text-white text-sm font-bold">A</div>
+          <div className="w-8 h-8 rounded-full bg-[#9d85b6] flex items-center justify-center text-white text-sm font-bold">A</div>
           <span className="text-white text-sm font-medium">Admin</span>
 
           {/* Avatar 2 - orange */}
-          <div className="w-8 h-8 rounded-full bg-[#FF9F43] flex items-center justify-center text-white text-sm font-bold">A</div>
+          <div className="w-8 h-8 rounded-full bg-[#f6a5c0] flex items-center justify-center text-white text-sm font-bold">A</div>
 
           {/* Profile icon */}
           <button className="text-gray-300 hover:text-white transition-colors">
@@ -82,7 +82,7 @@ export function AdminLayout() {
       </header>
 
       {/* ======= SIDEBAR ======= */}
-      <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] bg-[#2D3748] z-40 overflow-y-auto">
+      <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] bg-[#250e2c] z-40 overflow-y-auto">
         <nav className="py-4">
           {navItems.map(item => {
             const isActive = tab === item.key;
@@ -92,14 +92,14 @@ export function AdminLayout() {
                 onClick={() => setTab(item.key)}
                 className={`w-full flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all relative ${
                   isActive
-                    ? 'text-[#FF9F43] bg-white/5'
+                    ? 'text-[#f6a5c0] bg-white/5'
                     : 'text-gray-300 hover:text-white hover:bg-white/5'
                 }`}
               >
                 {isActive && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[#FF9F43] rounded-r-full" />
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[#f6a5c0] rounded-r-full" />
                 )}
-                <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-[#FF9F43]' : 'text-gray-400'}`} />
+                <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-[#f6a5c0]' : 'text-gray-400'}`} />
                 <span>{item.label}</span>
               </button>
             );
@@ -184,7 +184,7 @@ function AdminMessages() {
         </div>
         {conversaciones.map(c => (
           <button key={c.Id} onClick={() => setSelectedChat(c)}
-            className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors ${selectedChat?.Id === c.Id ? 'bg-amber-50' : ''}`}>
+            className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-[#f6a5c0]/10 transition-colors ${selectedChat?.Id === c.Id ? 'bg-[#f6a5c0]/20' : ''}`}>
             <p className="text-sm font-semibold text-gray-900 truncate">{c.Nombres} {c.Apellidos?.charAt(0)}. ↔ {c.FamiliaNombres} {c.FamiliaApellidos?.charAt(0)}.</p>
             <p className="text-xs text-gray-400 truncate mt-0.5">{c.MenorNombre || 'Sin menor'}</p>
             <p className="text-xs text-gray-400 mt-0.5">{formatFecha(c.FechaUltimoMensaje || c.FechaCreacion)}</p>
@@ -206,7 +206,7 @@ function AdminMessages() {
                 return (
                   <div key={m.Id} className={`flex ${esAdmin ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[70%] px-4 py-2 rounded-2xl text-sm ${
-                      esAdmin ? 'bg-[#FF9F43] text-white rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-bl-md'
+                      esAdmin ? 'bg-[#f6a5c0] text-white rounded-br-md' : 'bg-[#9d85b6]/30 text-gray-800 rounded-bl-md'
                     }`}>
                       <p>{m.Contenido}</p>
                       <p className={`text-xs mt-1 ${esAdmin ? 'text-white/70' : 'text-gray-400'}`}>{formatHora(m.FechaEnvio)}</p>
@@ -219,8 +219,8 @@ function AdminMessages() {
             <div className="p-4 border-t border-gray-100">
               <div className="flex gap-2">
                 <input value={texto} onChange={e => setTexto(e.target.value)} onKeyDown={e => e.key === 'Enter' && enviar()}
-                  placeholder="Escribir mensaje..." className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF9F43]/40" />
-                <button onClick={enviar} className="p-2.5 bg-[#FF9F43] hover:bg-[#E88A2E] text-white rounded-xl transition-colors">
+                  placeholder="Escribir mensaje..." className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#f6a5c0]/40" />
+                <button onClick={enviar} className="p-2.5 bg-[#f6a5c0] hover:bg-[#f6a5c0]/80 text-white rounded-xl transition-colors">
                   <Send className="w-5 h-5" />
                 </button>
               </div>
@@ -246,10 +246,10 @@ function DashboardView() {
   }, []);
 
   const kpis = [
-    { label: 'Usuarios totales', value: stats?.totalUsers ?? '26', color: 'text-[#FF9F43]', bg: 'bg-orange-50' },
-    { label: 'Cuidadoras activas', value: stats?.totalCuidadoras ?? '10', color: 'text-[#407BFF]', bg: 'bg-blue-50' },
-    { label: 'Servicios completados', value: stats?.serviciosCompletados ?? '61', color: 'text-[#28C76F]', bg: 'bg-emerald-50' },
-    { label: 'Incidencias abiertas', value: stats?.incidenciasAbiertas ?? '5', color: 'text-[#EA5455]', bg: 'bg-red-50' },
+    { label: 'Usuarios totales', value: stats?.totalUsers ?? '26', color: 'text-[#f6a5c0]', bg: 'bg-orange-50' },
+    { label: 'Cuidadoras activas', value: stats?.totalCuidadoras ?? '10', color: 'text-[#cc8db3]', bg: 'bg-blue-50' },
+    { label: 'Servicios completados', value: stats?.serviciosCompletados ?? '61', color: 'text-[#cc8db3]', bg: 'bg-emerald-50' },
+    { label: 'Incidencias abiertas', value: stats?.incidenciasAbiertas ?? '5', color: 'text-[#cc8db3]', bg: 'bg-red-50' },
   ];
 
   return (
@@ -267,42 +267,42 @@ function DashboardView() {
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-          <FileText className="w-5 h-5 text-[#FF9F43]" />
+          <FileText className="w-5 h-5 text-[#f6a5c0]" />
           <h2 className="font-bold text-gray-900">Postulaciones recientes</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
+              <tr className="bg-[#f6a5c0]/10 border-b border-gray-100">
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Nombre</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
               </tr>
             </thead>
             <tbody>
               {data.postulacionesRecientes.length > 0 ? data.postulacionesRecientes.map((p, i) => (
-                <tr key={p.Id || i} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-gray-100/50 transition-colors`}>
+                <tr key={p.Id || i} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-[#f6a5c0]/10'} hover:bg-[#f6a5c0]/20 transition-colors`}>
                   <td className="py-3 px-6 font-semibold text-gray-900">{p.Nombres} {p.Apellidos?.charAt(0)}.</td>
                   <td className="py-3 px-6">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${
-                      p.Estado === 'Aprobada' ? 'bg-green-50 text-[#28C76F] border-green-200' :
-                      p.Estado === 'Pendiente' ? 'bg-orange-50 text-[#FF9F43] border-orange-200' :
-                      'bg-red-50 text-[#EA5455] border-red-200'
+                      p.Estado === 'Aprobada' ? 'bg-[#cc8db3]/20 text-[#cc8db3] border-[#cc8db3]/40' :
+                      p.Estado === 'Pendiente' ? 'bg-[#f6a5c0]/20 text-[#f6a5c0] border-[#f6a5c0]/40' :
+                      'bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]/30'
                     }`}>{p.Estado}</span>
                   </td>
                 </tr>
               )) : (
                 <>
-                  <tr className="border-b border-gray-50 bg-white hover:bg-gray-100/50 transition-colors">
+                  <tr className="border-b border-gray-50 bg-white hover:bg-[#f6a5c0]/20 transition-colors">
                     <td className="py-3 px-6 font-semibold text-gray-900">Milagros del Carmen T.</td>
-                    <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-orange-50 text-[#FF9F43] border-orange-200">Pendiente</span></td>
+                    <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-[#f6a5c0]/20 text-[#f6a5c0] border-[#f6a5c0]/40">Pendiente</span></td>
                   </tr>
-                  <tr className="border-b border-gray-50 bg-gray-50/50 hover:bg-gray-100/50 transition-colors">
+                  <tr className="border-b border-gray-50 bg-[#f6a5c0]/10 hover:bg-[#f6a5c0]/20 transition-colors">
                     <td className="py-3 px-6 font-semibold text-gray-900">Diana Carolina R.</td>
-                    <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-green-50 text-[#28C76F] border-green-200">Aprobada</span></td>
+                    <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-[#cc8db3]/20 text-[#cc8db3] border-[#cc8db3]/40">Aprobada</span></td>
                   </tr>
-                  <tr className="border-b border-gray-50 bg-white hover:bg-gray-100/50 transition-colors">
+                  <tr className="border-b border-gray-50 bg-white hover:bg-[#f6a5c0]/20 transition-colors">
                     <td className="py-3 px-6 font-semibold text-gray-900">Ana Lucía M.</td>
-                    <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-red-50 text-[#EA5455] border-red-200">Rechazada</span></td>
+                    <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]/30">Rechazada</span></td>
                   </tr>
                 </>
               )}
@@ -341,11 +341,11 @@ function ContratosView() {
   };
 
   const badgeEstado: Record<string, string> = {
-    Pendiente: 'bg-orange-50 text-[#FF9F43] border-orange-200',
-    Confirmada: 'bg-emerald-50 text-[#28C76F] border-emerald-200',
-    'En curso': 'bg-blue-50 text-[#407BFF] border-blue-200',
+    Pendiente: 'bg-[#f6a5c0]/20 text-[#f6a5c0] border-[#f6a5c0]/40',
+    Confirmada: 'bg-[#cc8db3]/20 text-[#cc8db3] border-[#cc8db3]/40',
+    'En curso': 'bg-blue-50 text-[#cc8db3] border-blue-200',
     Finalizada: 'bg-teal-50 text-teal-700 border-teal-200',
-    Cancelada: 'bg-red-50 text-[#EA5455] border-red-200',
+    Cancelada: 'bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]/30',
   };
 
   return (
@@ -355,7 +355,7 @@ function ContratosView() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
+              <tr className="bg-[#f6a5c0]/10 border-b border-gray-100">
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">#</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Familia</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Cuidadora</th>
@@ -368,7 +368,7 @@ function ContratosView() {
             </thead>
             <tbody>
               {contratos.map((c, i) => (
-                <tr key={c.Id} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-gray-100/50 transition-colors`}>
+                <tr key={c.Id} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-[#f6a5c0]/10'} hover:bg-[#f6a5c0]/20 transition-colors`}>
                   <td className="py-3 px-4 font-mono font-bold text-gray-900">CTN-{String(c.Id).padStart(4, '0')}</td>
                   <td className="py-3 px-4 font-semibold text-gray-900">{c.FamiliaNombres} {c.FamiliaApellidos?.charAt(0)}.</td>
                   <td className="py-3 px-4 text-gray-700">{c.CuidadoraNombres} {c.CuidadoraApellidos?.charAt(0)}.</td>
@@ -389,11 +389,11 @@ function ContratosView() {
                     {c.Estado === 'Pendiente' ? (
                       <div className="flex items-center justify-center gap-2">
                         <button onClick={() => aprobar(c.Id)}
-                          className="px-3 py-1.5 bg-emerald-50 text-[#28C76F] border border-emerald-200 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors">
+                          className="px-3 py-1.5 bg-[#cc8db3]/20 text-[#cc8db3] border border-[#cc8db3]/40 rounded-lg text-xs font-bold hover:bg-[#cc8db3]/30 transition-colors">
                           Aprobar
                         </button>
                         <button onClick={() => rechazar(c.Id)}
-                          className="px-3 py-1.5 bg-red-50 text-[#EA5455] border border-red-200 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors">
+                          className="px-3 py-1.5 bg-[#f6a5c0]/20 text-[#f6a5c0] border border-[#f6a5c0]/40 rounded-lg text-xs font-bold hover:bg-[#f6a5c0]/30 transition-colors">
                           Rechazar
                         </button>
                       </div>
@@ -430,7 +430,7 @@ function UsuariosView() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
+              <tr className="bg-[#f6a5c0]/10 border-b border-gray-100">
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">ID</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Nombre</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Email</th>
@@ -441,19 +441,19 @@ function UsuariosView() {
             </thead>
             <tbody>
               {usuarios.map((u, i) => (
-                <tr key={u.Id} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-gray-100/50 transition-colors`}>
+                <tr key={u.Id} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-[#f6a5c0]/10'} hover:bg-[#f6a5c0]/20 transition-colors`}>
                   <td className="py-3 px-4 text-gray-800 font-mono">{u.Id}</td>
                   <td className="py-3 px-4 text-gray-800 font-medium">{u.Nombres} {u.Apellidos}</td>
                   <td className="py-3 px-4 text-gray-600">{u.Email}</td>
                   <td className="py-3 px-4">
                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                      u.Rol === 'Admin' ? 'bg-orange-50 text-[#FF9F43]' :
-                      u.Rol === 'Cuidadora' ? 'bg-emerald-50 text-[#28C76F]' :
-                      'bg-blue-50 text-[#407BFF]'
+                      u.Rol === 'Admin' ? 'bg-[#f6a5c0]/20 text-[#f6a5c0]' :
+                      u.Rol === 'Cuidadora' ? 'bg-[#cc8db3]/20 text-[#cc8db3]' :
+                      'bg-blue-50 text-[#cc8db3]'
                     }`}>{u.Rol}</span>
                   </td>
                   <td className="py-3 px-4">
-                    <span className={`inline-block w-2 h-2 rounded-full ${u.Activo ? 'bg-[#28C76F]' : 'bg-[#EA5455]'}`} />
+                    <span className={`inline-block w-2 h-2 rounded-full ${u.Activo ? 'bg-[#cc8db3]' : 'bg-[#cc8db3]'}`} />
                   </td>
                   <td className="py-3 px-4 text-gray-400 text-xs">{u.FechaCreacion}</td>
                 </tr>
@@ -519,7 +519,7 @@ function PostulacionesView() {
             placeholder="Buscar postulante..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#FF9F43]/30 focus:border-[#FF9F43]"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#f6a5c0]/30 focus:border-[#f6a5c0]"
           />
         </div>
       </div>
@@ -528,7 +528,7 @@ function PostulacionesView() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
+              <tr className="bg-[#f6a5c0]/10 border-b border-gray-100">
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Postulante</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Fecha</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-600">Documentos</th>
@@ -541,8 +541,8 @@ function PostulacionesView() {
                 <tr
                   key={p.Id}
                   className={`border-b border-gray-50 transition-colors cursor-pointer ${
-                    p.Estado === 'Aprobada' ? 'bg-emerald-50/40' : i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
-                  } hover:bg-gray-100/50 ${selectedPost?.Id === p.Id ? 'bg-blue-50/60' : ''}`}
+                    p.Estado === 'Aprobada' ? 'bg-[#cc8db3]/20' : i % 2 === 0 ? 'bg-white' : 'bg-[#f6a5c0]/10'
+                  } hover:bg-[#f6a5c0]/20 ${selectedPost?.Id === p.Id ? 'bg-[#cc8db3]/30' : ''}`}
                   onClick={() => selectPostulacion(p)}
                 >
                   <td className="py-3 px-4">
@@ -551,16 +551,16 @@ function PostulacionesView() {
                   </td>
                   <td className="py-3 px-4 text-gray-600">{formatDate(p.FechaPostulacion)}</td>
                   <td className="py-3 px-4">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-[#407BFF] text-xs font-medium">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-[#cc8db3] text-xs font-medium">
                       <Eye className="w-3.5 h-3.5" />
                       {p.TotalDocumentos} archivos
                     </span>
                   </td>
                   <td className="py-3 px-4">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
-                      p.Estado === 'Pendiente' ? 'bg-orange-50 text-[#FF9F43]' :
-                      p.Estado === 'Aprobada' ? 'bg-emerald-50 text-[#28C76F]' :
-                      'bg-red-50 text-[#EA5455]'
+                      p.Estado === 'Pendiente' ? 'bg-[#f6a5c0]/20 text-[#f6a5c0]' :
+                      p.Estado === 'Aprobada' ? 'bg-[#cc8db3]/20 text-[#cc8db3]' :
+                      'bg-[#9d85b6]/20 text-[#250e2c]'
                     }`}>{p.Estado}</span>
                   </td>
                   <td className="py-3 px-4">
@@ -568,19 +568,19 @@ function PostulacionesView() {
                       <div className="flex gap-2">
                         <button
                           onClick={e => { e.stopPropagation(); aprobar(p.Id); }}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-50 text-[#28C76F] text-xs font-bold hover:bg-emerald-100 transition-colors"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#cc8db3]/20 text-[#cc8db3] text-xs font-bold hover:bg-[#cc8db3]/30 transition-colors"
                         >
                           <CheckCircle className="w-3.5 h-3.5" /> Aprobar
                         </button>
                         <button
                           onClick={e => { e.stopPropagation(); rechazar(p.Id); }}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-50 text-[#EA5455] text-xs font-bold hover:bg-red-100 transition-colors"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#f6a5c0]/20 text-[#f6a5c0] text-xs font-bold hover:bg-[#f6a5c0]/30 transition-colors"
                         >
                           <XCircle className="w-3.5 h-3.5" /> Rechazar
                         </button>
                       </div>
                     ) : (
-                      <span className="text-emerald-600 text-xs font-bold flex items-center gap-1">
+                      <span className="text-[#cc8db3] text-xs font-bold flex items-center gap-1">
                         <CheckCircle className="w-3.5 h-3.5" /> Validada
                       </span>
                     )}
@@ -602,7 +602,7 @@ function PostulacionesView() {
           className="bg-white rounded-xl border border-gray-100 shadow-sm p-6"
         >
           <h2 className="text-lg font-bold text-gray-800 mb-6">
-            Documentos de <span className="text-[#FF9F43]">{selectedPost.Nombres} {selectedPost.Apellidos}</span>
+            Documentos de <span className="text-[#f6a5c0]">{selectedPost.Nombres} {selectedPost.Apellidos}</span>
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {documentos.map(doc => (
@@ -615,9 +615,9 @@ function PostulacionesView() {
                     <p className="font-medium text-gray-800 text-sm">{doc.TipoRequisito}</p>
                     <p className="text-xs text-gray-400 mt-1 truncate">{doc.Peso}</p>
                     <span className={`inline-block mt-2 px-2 py-0.5 rounded text-xs font-medium ${
-                      doc.Estado === 'Pendiente' ? 'bg-orange-50 text-[#FF9F43]' :
-                      doc.Estado === 'Aprobado' ? 'bg-emerald-50 text-[#28C76F]' :
-                      'bg-red-50 text-[#EA5455]'
+                      doc.Estado === 'Pendiente' ? 'bg-[#f6a5c0]/20 text-[#f6a5c0]' :
+                      doc.Estado === 'Aprobado' ? 'bg-[#cc8db3]/20 text-[#cc8db3]' :
+                      'bg-[#9d85b6]/20 text-[#250e2c]'
                     }`}>{doc.Estado}</span>
                   </div>
                   <a
@@ -654,7 +654,7 @@ function PerfilesView() {
       <div className="space-y-4">
         {perfiles.map(p => (
           <div key={p.Id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-5">
-            <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-[#28C76F] font-bold text-lg">
+            <div className="w-12 h-12 rounded-full bg-[#cc8db3]/20 flex items-center justify-center text-[#cc8db3] font-bold text-lg">
               {p.Nombres?.charAt(0)}{p.Apellidos?.charAt(0)}
             </div>
             <div className="flex-1">
@@ -670,10 +670,10 @@ function PerfilesView() {
               <p className="text-xs text-gray-400">tarifa/hora</p>
             </div>
             <div className="text-sm text-gray-600 text-center">
-              <p className="font-bold text-[#FF9F43]">{p.CalificacionPromedio}</p>
+              <p className="font-bold text-[#f6a5c0]">{p.CalificacionPromedio}</p>
               <p className="text-xs text-gray-400">({p.TotalResenas} reseñas)</p>
             </div>
-            <span className="px-3 py-1 rounded-full bg-emerald-50 text-[#28C76F] text-xs font-bold">Validado</span>
+            <span className="px-3 py-1 rounded-full bg-[#cc8db3]/20 text-[#cc8db3] text-xs font-bold">Validado</span>
           </div>
         ))}
         {perfiles.length === 0 && <p className="text-center text-gray-400 py-12">No hay perfiles validados</p>}
@@ -692,13 +692,13 @@ function IncidenciasView() {
   }, []);
 
   const badgeTipo = (t: string) => {
-    if (t === 'Grave') return 'bg-red-50 text-[#EA5455] border-red-200';
-    if (t === 'Moderada') return 'bg-orange-50 text-[#FF9F43] border-orange-200';
-    return 'bg-emerald-50 text-[#28C76F] border-emerald-200';
+    if (t === 'Grave') return 'bg-red-50 text-[#cc8db3] border-red-200';
+    if (t === 'Moderada') return 'bg-orange-50 text-[#f6a5c0] border-orange-200';
+    return 'bg-emerald-50 text-[#cc8db3] border-emerald-200';
   };
   const badgeEst = (e: string) => {
-    if (e === 'Abierta') return 'bg-orange-50 text-[#FF9F43] border-orange-200';
-    if (e === 'En revisión') return 'bg-blue-50 text-[#407BFF] border-blue-200';
+    if (e === 'Abierta') return 'bg-[#f6a5c0]/20 text-[#f6a5c0] border-[#f6a5c0]/40';
+    if (e === 'En revisión') return 'bg-blue-50 text-[#cc8db3] border-blue-200';
     return 'bg-gray-50 text-gray-600 border-gray-200';
   };
 
@@ -715,7 +715,7 @@ function IncidenciasView() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
+              <tr className="bg-[#f6a5c0]/10 border-b border-gray-100">
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Servicio</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Tipo</th>
                 <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
@@ -724,7 +724,7 @@ function IncidenciasView() {
             </thead>
             <tbody>
               {incidencias.map((inc, i) => (
-                <tr key={inc.Id} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} hover:bg-gray-100/50`}>
+                <tr key={inc.Id} className={`border-b border-gray-50 ${i % 2 === 0 ? 'bg-white' : 'bg-[#f6a5c0]/10'} hover:bg-[#f6a5c0]/20`}>
                   <td className="py-3 px-6 font-medium text-gray-900">{inc.Servicio}</td>
                   <td className="py-3 px-6">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeTipo(inc.Tipo)}`}>{inc.Tipo}</span>
@@ -735,7 +735,7 @@ function IncidenciasView() {
                   <td className="py-3 px-6 text-right">
                     {inc.Estado !== 'Cerrada' && (
                       <button onClick={() => resolver(inc.Id)}
-                        className="text-xs font-semibold text-[#28C76F] hover:text-emerald-700 transition-colors">Resolver</button>
+                        className="text-xs font-semibold text-[#cc8db3] hover:text-[#cc8db3]/80 transition-colors">Resolver</button>
                     )}
                   </td>
                 </tr>
@@ -758,7 +758,7 @@ function ReportesView() {
     fetch('/api/admin/reportes', { headers }).then(r => r.json()).then(setReportes).catch(() => {});
   }, []);
 
-  const COLORS = ['#407BFF', '#28C76F', '#EA5455', '#FF9F43', '#8B5CF6', '#EC4899', '#14B8A6'];
+  const COLORS = ['#837ab6', '#9d85b6', '#cc8db3', '#f6a5c0'];
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -767,11 +767,11 @@ function ReportesView() {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
             {[
-              { label: 'Órdenes', value: reportes.totalOrdenes, color: 'text-[#407BFF]', icon: TrendingUp },
-              { label: 'Completadas', value: reportes.totalCompletadas, color: 'text-[#28C76F]', icon: CheckCircle },
-              { label: 'Canceladas', value: reportes.totalCanceladas, color: 'text-[#EA5455]', icon: XCircle },
+              { label: 'Órdenes', value: reportes.totalOrdenes, color: 'text-[#cc8db3]', icon: TrendingUp },
+              { label: 'Completadas', value: reportes.totalCompletadas, color: 'text-[#cc8db3]', icon: CheckCircle },
+              { label: 'Canceladas', value: reportes.totalCanceladas, color: 'text-[#cc8db3]', icon: XCircle },
               { label: 'Pagos', value: reportes.totalPagos, color: 'text-purple-600', icon: DollarSign },
-              { label: 'Ingresos', value: `S/ ${Number(reportes.ingresos).toFixed(0)}`, color: 'text-[#FF9F43]', icon: TrendingUp },
+              { label: 'Ingresos', value: `S/ ${Number(reportes.ingresos).toFixed(0)}`, color: 'text-[#f6a5c0]', icon: TrendingUp },
               { label: 'Citas', value: reportes.citasCompletadas, color: 'text-teal-600', icon: CheckCircle },
               { label: 'Reseñas', value: reportes.resenasPromedio, color: 'text-orange-600', icon: BarChart3 },
             ].map(({ label, value, color, icon: Icon }) => (
@@ -833,7 +833,7 @@ function ReportesView() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} />
-                  <Line type="monotone" dataKey="count" name="Órdenes" stroke="#407BFF" strokeWidth={2} dot={{ fill: '#407BFF', r: 4 }} />
+                  <Line type="monotone" dataKey="count" name="Órdenes" stroke="#cc8db3" strokeWidth={2} dot={{ fill: '#cc8db3', r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -846,7 +846,7 @@ function ReportesView() {
                   <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} formatter={(v: number) => [`S/ ${v.toFixed(2)}`, 'Ingresos']} />
-                  <Bar dataKey="total" name="Ingresos" radius={[6, 6, 0, 0]} fill="#28C76F" />
+                  <Bar dataKey="total" name="Ingresos" radius={[6, 6, 0, 0]} fill="#cc8db3" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -860,7 +860,7 @@ function ReportesView() {
                 <XAxis type="number" tick={{ fontSize: 12 }} />
                 <YAxis type="category" dataKey="nombre" tick={{ fontSize: 12 }} width={160} />
                 <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} />
-                <Bar dataKey="total" name="Servicios" radius={[0, 6, 6, 0]} fill="#8B5CF6" />
+                <Bar dataKey="total" name="Servicios" radius={[0, 6, 6, 0]} fill="#9d85b6" />
               </BarChart>
             </ResponsiveContainer>
           </div>

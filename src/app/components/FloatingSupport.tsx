@@ -50,22 +50,20 @@ export function FloatingSupport() {
     setInputText('');
     setIsTyping(true);
 
-    // Simulate bot thinking and replying
     setTimeout(() => {
       let botResponseText = '';
-      
+
       const lowerText = text.toLowerCase();
-      
-      // Intent matching based on predefined options or keywords
+
       if (lowerText.includes('encontrar') || lowerText.includes('buscar')) {
         botResponseText = 'Te ayudo encantado. Visita la sección "Catálogo" y utiliza los filtros por: \n\n• Especialización (TEA, TDAH, Síndrome de Down, etc.)\n• Años de experiencia\n• Área de dedicación (cuidado domiciliario, escolar, terapias)\n\n¿Sobre qué especialización en particular necesitas apoyo?';
       }
       else if (lowerText.includes('cómo verifican') || lowerText.includes('verifican')) {
         botResponseText = 'Nuestro proceso incluye 3 fases rigurosas:\n\n1. Validación de identidad (DNI/CE).\n2. Verificación manual de certificados (Educación Especial, RCP).\n3. Revisión obligatoria de Antecedentes Policiales y Penales (con máximo 3 meses de antigüedad). \n\nSolo el 10% de las postulantes logra ingresar a nuestro catálogo.';
-      } 
+      }
       else if (lowerText.includes('pago seguro') || lowerText.includes('dudas sobre el pago')) {
         botResponseText = 'Utilizamos un sistema Escrow (Retención Segura). Usted realiza el pago al confirmar el servicio, pero el dinero se mantiene protegido en nuestra plataforma. Solo se transfiere a la cuenta de la cuidadora cuando usted confirma que el cuidado finalizó satisfactoriamente.';
-      } 
+      }
       else if (lowerText.includes('agendar una cita') || lowerText.includes('necesito ayuda para agendar')) {
         botResponseText = '¡Por supuesto! Para agendar una cita, diríjase a la sección "Catálogo", seleccione a la cuidadora especializada de su preferencia y haga clic en "Solicitar Entrevista". Podrá elegir la fecha y hora para una videollamada de conocimiento de 15 minutos sin costo alguno.';
       }
@@ -98,7 +96,7 @@ export function FloatingSupport() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-40 p-4 bg-[#10B981] text-white rounded-full shadow-2xl hover:bg-[#059669] transition-colors shadow-emerald-600/30"
+        className="fixed bottom-6 right-6 z-40 p-4 bg-[#cc8db3] text-white rounded-full shadow-2xl hover:bg-[#b07a9a] transition-colors shadow-[#cc8db3]/30"
         aria-label="Abrir chat de soporte"
       >
         <MessageCircle className="w-7 h-7" />
@@ -117,22 +115,22 @@ export function FloatingSupport() {
             className="fixed bottom-24 right-6 z-50 w-[350px] bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col h-[500px]"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-[#1E3A8A] to-[#2563EB] p-4 text-white flex justify-between items-center shadow-md z-10">
+            <div className="bg-gradient-to-r from-[#250e2c] to-[#837ab6] p-4 text-white flex justify-between items-center shadow-md z-10">
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <div className="bg-white/20 p-2 rounded-full">
                     <Bot className="w-5 h-5" />
                   </div>
-                  <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#1E3A8A] rounded-full"></div>
+                  <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#250e2c] rounded-full"></div>
                 </div>
                 <div>
                   <span className="font-bold text-sm block">Asistente CERTINANAS</span>
-                  <span className="text-[10px] text-blue-200">En línea</span>
+                  <span className="text-[10px] text-[#cc8db3]">En línea</span>
                 </div>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-blue-200 hover:text-white transition-colors p-1.5 hover:bg-white/10 rounded-full"
+                className="text-[#cc8db3] hover:text-white transition-colors p-1.5 hover:bg-white/10 rounded-full"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -142,18 +140,18 @@ export function FloatingSupport() {
             <div className="p-4 overflow-y-auto bg-gray-50 flex-1 flex flex-col gap-4 custom-scrollbar">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                  
+
                   {/* Avatar + Message row */}
                   <div className={`flex items-end gap-2 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                     {msg.sender === 'bot' && (
-                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mb-1">
-                        <Bot className="w-3.5 h-3.5 text-[#1E3A8A]" />
+                      <div className="w-6 h-6 rounded-full bg-[#9d85b6]/30 flex items-center justify-center shrink-0 mb-1">
+                        <Bot className="w-3.5 h-3.5 text-[#250e2c]" />
                       </div>
                     )}
-                    
+
                     <div className={`p-3.5 text-sm whitespace-pre-wrap leading-relaxed shadow-sm ${
-                      msg.sender === 'user' 
-                        ? 'bg-[#1E3A8A] text-white rounded-2xl rounded-tr-sm' 
+                      msg.sender === 'user'
+                        ? 'bg-[#250e2c] text-white rounded-2xl rounded-tr-sm'
                         : 'bg-white border border-gray-100 text-gray-700 rounded-2xl rounded-tl-sm'
                     }`}>
                       {msg.text}
@@ -167,7 +165,7 @@ export function FloatingSupport() {
                         <button
                           key={idx}
                           onClick={() => handleSend(option)}
-                          className="text-left text-xs text-[#1E3A8A] bg-blue-50 hover:bg-[#1E3A8A] hover:text-white border border-blue-100 py-2.5 px-4 rounded-xl transition-colors font-medium shadow-sm"
+                          className="text-left text-xs text-[#250e2c] bg-[#f6a5c0]/20 hover:bg-[#250e2c] hover:text-white border border-[#f6a5c0]/20 py-2.5 px-4 rounded-xl transition-colors font-medium shadow-sm"
                         >
                           {option}
                         </button>
@@ -179,8 +177,8 @@ export function FloatingSupport() {
 
               {isTyping && (
                 <div className="flex items-end gap-2 max-w-[85%]">
-                  <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mb-1">
-                    <Bot className="w-3.5 h-3.5 text-[#1E3A8A]" />
+                  <div className="w-6 h-6 rounded-full bg-[#9d85b6]/30 flex items-center justify-center shrink-0 mb-1">
+                    <Bot className="w-3.5 h-3.5 text-[#250e2c]" />
                   </div>
                   <div className="bg-white p-4 rounded-2xl rounded-tl-sm border border-gray-100 shadow-sm flex items-center gap-1.5">
                     <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
@@ -189,7 +187,7 @@ export function FloatingSupport() {
                   </div>
                 </div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </div>
 
@@ -207,12 +205,12 @@ export function FloatingSupport() {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Escriba su consulta aquí..."
-                  className="flex-1 bg-gray-50 border border-gray-200 rounded-full pl-5 pr-12 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/50 focus:bg-white transition-all text-gray-700"
+                  className="flex-1 bg-gray-50 border border-gray-200 rounded-full pl-5 pr-12 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/50 focus:bg-white transition-all text-gray-700"
                 />
                 <button
                   type="submit"
                   disabled={!inputText.trim() || isTyping}
-                  className="absolute right-2 p-2 bg-[#10B981] text-white rounded-full hover:bg-[#059669] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
+                  className="absolute right-2 p-2 bg-[#cc8db3] text-white rounded-full hover:bg-[#b07a9a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
                 >
                   <Send className="w-4 h-4 ml-0.5" />
                 </button>

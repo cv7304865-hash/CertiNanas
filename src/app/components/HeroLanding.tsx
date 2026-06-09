@@ -8,15 +8,15 @@ type Props = {
 };
 
 const trustBadges = [
-  { icon: Shield, label: 'Perfiles Verificados', color: 'text-[#1E3A8A]', glow: 'shadow-[0_8px_30px_rgba(30,58,138,0.18)]' },
-  { icon: Lock, label: 'Pago Seguro Escrow', color: 'text-[#10B981]', glow: 'shadow-[0_8px_30px_rgba(16,185,129,0.22)]' },
-  { icon: FileText, label: 'Ley 29733 Cumplida', color: 'text-[#1E3A8A]', glow: 'shadow-[0_8px_30px_rgba(30,58,138,0.18)]' },
+  { icon: Shield, label: 'Perfiles Verificados', color: 'text-[#250e2c]', glow: 'shadow-[0_8px_30px_rgba(30,58,138,0.18)]' },
+  { icon: Lock, label: 'Pago Seguro Escrow', color: 'text-[#cc8db3]', glow: 'shadow-[0_8px_30px_rgba(16,185,129,0.22)]' },
+  { icon: FileText, label: 'Ley 29733 Cumplida', color: 'text-[#250e2c]', glow: 'shadow-[0_8px_30px_rgba(30,58,138,0.18)]' },
 ];
 
 const steps = [
-  { n: 1, title: 'Crea tu cuenta', desc: 'Regístrate como familia o cuidadora con verificación rigurosa.', icon: Users, color: 'from-blue-500 to-[#1E3A8A]' },
-  { n: 2, title: 'Matching inteligente', desc: 'Te conectamos con perfiles certificados según tus necesidades.', icon: Sparkles, color: 'from-emerald-400 to-[#10B981]' },
-  { n: 3, title: 'Cuidado seguro', desc: 'Pago Escrow retenido hasta que confirmes el servicio.', icon: HeartHandshake, color: 'from-[#1E3A8A] to-[#10B981]' },
+  { n: 1, title: 'Crea tu cuenta', desc: 'Regístrate como familia o cuidadora con verificación rigurosa.', icon: Users, color: 'from-blue-500 to-[#250e2c]' },
+  { n: 2, title: 'Matching inteligente', desc: 'Te conectamos con perfiles certificados según tus necesidades.', icon: Sparkles, color: 'from-emerald-400 to-[#cc8db3]' },
+  { n: 3, title: 'Cuidado seguro', desc: 'Pago Escrow retenido hasta que confirmes el servicio.', icon: HeartHandshake, color: 'from-[#250e2c] to-[#cc8db3]' },
 ];
 
 export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCatalog }: Props) {
@@ -33,8 +33,8 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
           WebkitMaskImage: 'radial-gradient(ellipse at center, black 40%, transparent 80%)',
         }}
       />
-      <div className="absolute top-[-15%] left-[-10%] w-[55%] h-[55%] bg-[#10B981]/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute top-[20%] right-[-15%] w-[55%] h-[55%] bg-[#1E3A8A]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-[-15%] left-[-10%] w-[55%] h-[55%] bg-[#cc8db3]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-[20%] right-[-15%] w-[55%] h-[55%] bg-[#250e2c]/10 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-28 lg:pb-32">
         {/* Eyebrow */}
@@ -46,7 +46,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 backdrop-blur-xl border border-gray-200/70 shadow-sm">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f6a5c0]/200" />
             </span>
             <span className="text-xs font-bold tracking-wide text-gray-700">La plataforma #1 en cuidado neurodivergente · Perú</span>
           </div>
@@ -57,15 +57,15 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="max-w-5xl mx-auto text-center text-[2.75rem] sm:text-5xl lg:text-[4.25rem] font-extrabold text-[#1E3A8A] leading-[1.05] tracking-tight"
+          className="max-w-5xl mx-auto text-center text-[2.75rem] sm:text-5xl lg:text-[4.25rem] font-extrabold text-[#250e2c] leading-[1.05] tracking-tight"
         >
           Cuidado especializado y seguro{' '}
           <span className="relative inline-block">
-            <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-[#10B981] to-emerald-500">
+            <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-[#cc8db3] to-emerald-500">
               para quienes más amas
             </span>
             <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none" preserveAspectRatio="none">
-              <path d="M2 9 Q 75 2 150 6 T 298 5" stroke="#10B981" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.4" />
+              <path d="M2 9 Q 75 2 150 6 T 298 5" stroke="#cc8db3" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.4" />
             </svg>
           </span>
         </motion.h1>
@@ -106,7 +106,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
         {/* SPLIT CARDS */}
         <div className="relative mt-20">
           {/* decorative orbs */}
-          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 h-32 bg-[#10B981]/20 blur-3xl rounded-full" />
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 h-32 bg-[#cc8db3]/20 blur-3xl rounded-full" />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-6 relative">
             {/* FAMILY CARD */}
@@ -118,7 +118,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               whileHover={{ y: -6 }}
               className="relative group lg:translate-y-3"
             >
-              <div className="absolute -inset-0.5 bg-gradient-to-br from-[#10B981]/30 to-[#1E3A8A]/20 rounded-[2.25rem] blur opacity-40 group-hover:opacity-70 transition-opacity" />
+              <div className="absolute -inset-0.5 bg-gradient-to-br from-[#cc8db3]/30 to-[#250e2c]/20 rounded-[2.25rem] blur opacity-40 group-hover:opacity-70 transition-opacity" />
               <div className="relative bg-white rounded-[2rem] shadow-xl shadow-blue-900/10 border border-white overflow-hidden">
                 {/* image */}
                 <div className="relative h-60 overflow-hidden">
@@ -135,10 +135,10 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.4 }}
-                    className="absolute top-4 right-4 bg-white/95 backdrop-blur-xl rounded-2xl px-3 py-2 shadow-lg shadow-emerald-500/20 border border-white flex items-center gap-2"
+                    className="absolute top-4 right-4 bg-white/95 backdrop-blur-xl rounded-2xl px-3 py-2 shadow-lg shadow-[#cc8db3]/20 border border-white flex items-center gap-2"
                   >
-                    <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center">
-                      <BadgeCheck className="w-4 h-4 text-[#10B981]" />
+                    <div className="w-7 h-7 rounded-full bg-[#f6a5c0]/30 flex items-center justify-center">
+                      <BadgeCheck className="w-4 h-4 text-[#cc8db3]" />
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-gray-900 leading-none">Verificado</p>
@@ -149,10 +149,10 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
 
                 {/* content */}
                 <div className="p-7">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#1E3A8A] text-xs font-bold mb-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f6a5c0]/20 border border-[#f6a5c0]/30 text-[#250e2c] text-xs font-bold mb-4">
                     PARA FAMILIAS
                   </div>
-                  <h3 className="text-2xl font-bold text-[#1E3A8A] mb-3">Encuentra cuidado especializado para tu familia</h3>
+                  <h3 className="text-2xl font-bold text-[#250e2c] mb-3">Encuentra cuidado especializado para tu familia</h3>
                   <ul className="space-y-2.5 mb-7">
                     {[
                       'Cuidadoras certificadas en TEA, TDAH y Síndrome de Down',
@@ -160,7 +160,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                       'Pago Escrow: tu dinero seguro hasta confirmar el servicio',
                     ].map((t) => (
                       <li key={t} className="flex items-start gap-2.5">
-                        <CheckCircle2 className="w-5 h-5 text-[#10B981] shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-5 h-5 text-[#cc8db3] shrink-0 mt-0.5" />
                         <span className="text-sm text-gray-700 leading-relaxed">{t}</span>
                       </li>
                     ))}
@@ -169,7 +169,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={onRegisterFamily}
-                    className="w-full py-3.5 bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded-xl text-base font-bold hover:shadow-xl hover:shadow-emerald-500/30 transition-all inline-flex items-center justify-center gap-2 group/btn"
+                    className="w-full py-3.5 bg-gradient-to-r from-[#cc8db3] to-[#b07a9a] text-white rounded-xl text-base font-bold hover:shadow-xl hover:shadow-[#cc8db3]/30 transition-all inline-flex items-center justify-center gap-2 group/btn"
                   >
                     Crear Cuenta de Familia
                     <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -209,7 +209,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               whileHover={{ y: -6 }}
               className="relative group lg:-translate-y-3"
             >
-              <div className="absolute -inset-0.5 bg-gradient-to-br from-[#1E3A8A]/30 to-[#10B981]/20 rounded-[2.25rem] blur opacity-40 group-hover:opacity-70 transition-opacity" />
+              <div className="absolute -inset-0.5 bg-gradient-to-br from-[#250e2c]/30 to-[#cc8db3]/20 rounded-[2.25rem] blur opacity-40 group-hover:opacity-70 transition-opacity" />
               <div className="relative bg-white rounded-[2rem] shadow-xl shadow-blue-900/10 border border-white overflow-hidden">
                 <div className="relative h-60 overflow-hidden">
                   <img
@@ -226,8 +226,8 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                     transition={{ delay: 0.5 }}
                     className="absolute top-4 right-4 bg-white/95 backdrop-blur-xl rounded-2xl px-3 py-2 shadow-lg shadow-blue-900/20 border border-white flex items-center gap-2"
                   >
-                    <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center">
-                      <Award className="w-4 h-4 text-[#1E3A8A]" />
+                    <div className="w-7 h-7 rounded-full bg-[#9d85b6]/30 flex items-center justify-center">
+                      <Award className="w-4 h-4 text-[#250e2c]" />
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-gray-900 leading-none">Certificación</p>
@@ -237,10 +237,10 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                 </div>
 
                 <div className="p-7">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-[#10B981] text-xs font-bold mb-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f6a5c0]/20 border border-[#f6a5c0]/30 text-[#cc8db3] text-xs font-bold mb-4">
                     PARA CUIDADORAS
                   </div>
-                  <h3 className="text-2xl font-bold text-[#1E3A8A] mb-3">Únete a nuestra red de profesionales certificadas</h3>
+                  <h3 className="text-2xl font-bold text-[#250e2c] mb-3">Únete a nuestra red de profesionales certificadas</h3>
                   <ul className="space-y-2.5 mb-7">
                     {[
                       'Accede a familias serias que valoran tu experiencia clínica',
@@ -248,7 +248,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                       'Construye reputación con reseñas verídicas y verificables',
                     ].map((t) => (
                       <li key={t} className="flex items-start gap-2.5">
-                        <CheckCircle2 className="w-5 h-5 text-[#1E3A8A] shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-5 h-5 text-[#250e2c] shrink-0 mt-0.5" />
                         <span className="text-sm text-gray-700 leading-relaxed">{t}</span>
                       </li>
                     ))}
@@ -257,7 +257,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={onRegisterCaregiver}
-                    className="w-full py-3.5 bg-white text-[#1E3A8A] border-2 border-[#1E3A8A] rounded-xl text-base font-bold hover:bg-[#1E3A8A] hover:text-white transition-all inline-flex items-center justify-center gap-2 group/btn"
+                    className="w-full py-3.5 bg-white text-[#250e2c] border-2 border-[#250e2c] rounded-xl text-base font-bold hover:bg-[#250e2c] hover:text-white transition-all inline-flex items-center justify-center gap-2 group/btn"
                   >
                     Postular como Cuidadora
                     <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -272,8 +272,8 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                 transition={{ delay: 0.7 }}
                 className="hidden lg:flex absolute -top-5 -right-5 bg-white rounded-2xl shadow-xl shadow-blue-900/10 border border-gray-100 px-4 py-3 items-center gap-3"
               >
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
-                  <Lock className="w-4 h-4 text-[#10B981]" />
+                <div className="w-9 h-9 rounded-xl bg-[#f6a5c0]/20 flex items-center justify-center">
+                  <Lock className="w-4 h-4 text-[#cc8db3]" />
                 </div>
                 <div>
                   <p className="text-xs font-bold text-gray-900 leading-none">Pago garantizado</p>
@@ -291,7 +291,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="inline-block text-xs font-bold tracking-[0.2em] text-[#10B981] uppercase mb-3"
+              className="inline-block text-xs font-bold tracking-[0.2em] text-[#cc8db3] uppercase mb-3"
             >
               ¿Cómo funciona?
             </motion.span>
@@ -299,7 +299,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1E3A8A] tracking-tight"
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#250e2c] tracking-tight"
             >
               Un proceso simple, seguro y fluido
             </motion.h2>
@@ -315,9 +315,9 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
             >
               <defs>
                 <linearGradient id="pathGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#1E3A8A" stopOpacity="0.6" />
-                  <stop offset="50%" stopColor="#10B981" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#1E3A8A" stopOpacity="0.6" />
+                  <stop offset="0%" stopColor="#250e2c" stopOpacity="0.6" />
+                  <stop offset="50%" stopColor="#cc8db3" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#250e2c" stopOpacity="0.6" />
                 </linearGradient>
               </defs>
               <path
@@ -342,11 +342,11 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                 >
                   <div className={`relative w-24 h-24 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center shadow-xl shadow-blue-900/20 mb-6`}>
                     <s.icon className="w-10 h-10 text-white" strokeWidth={1.8} />
-                    <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-xs font-extrabold text-[#1E3A8A]">
+                    <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-xs font-extrabold text-[#250e2c]">
                       {s.n}
                     </span>
                   </div>
-                  <h3 className="text-xl font-bold text-[#1E3A8A] mb-2">{s.title}</h3>
+                  <h3 className="text-xl font-bold text-[#250e2c] mb-2">{s.title}</h3>
                   <p className="text-sm text-gray-600 leading-relaxed max-w-xs">{s.desc}</p>
                 </motion.div>
               ))}
@@ -358,7 +358,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={onScrollCatalog}
-              className="px-7 py-3.5 bg-white text-[#1E3A8A] border border-gray-200 rounded-xl font-bold hover:border-[#1E3A8A] hover:shadow-md transition-all inline-flex items-center gap-2"
+              className="px-7 py-3.5 bg-white text-[#250e2c] border border-gray-200 rounded-xl font-bold hover:border-[#250e2c] hover:shadow-md transition-all inline-flex items-center gap-2"
             >
               Explorar catálogo de cuidadoras
               <ArrowRight className="w-4 h-4" />
@@ -369,3 +369,4 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
     </section>
   );
 }
+

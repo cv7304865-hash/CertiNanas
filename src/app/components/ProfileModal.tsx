@@ -60,15 +60,15 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
           </button>
 
           {/* Header Section */}
-          <div className="bg-[#1E3A8A] text-white px-8 pt-12 pb-8 relative shrink-0 overflow-hidden">
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="bg-[#250e2c] text-white px-8 pt-12 pb-8 relative shrink-0 overflow-hidden">
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-[#f6a5c0]/200/20 rounded-full blur-3xl pointer-events-none"></div>
             
             <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start relative z-10">
               <div className="relative">
                 <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-xl">
                   <img src={nana.photo} alt={nana.name} className="w-full h-full object-cover" />
                 </div>
-                <div className="absolute bottom-0 right-0 bg-[#10B981] p-1.5 rounded-full border-2 border-white" title="Perfil 100% Verificado">
+                <div className="absolute bottom-0 right-0 bg-[#cc8db3] p-1.5 rounded-full border-2 border-white" title="Perfil 100% Verificado">
                   <Award className="w-5 h-5 text-white" />
                 </div>
               </div>
@@ -86,7 +86,7 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
                     <Briefcase className="w-4 h-4 mr-1.5 opacity-80" />
                     {nana.experienceText}
                   </div>
-                  <div className="flex items-center text-sm font-semibold bg-[#10B981] text-white px-3 py-1 rounded-full">
+                  <div className="flex items-center text-sm font-semibold bg-[#cc8db3] text-white px-3 py-1 rounded-full">
                     S/ {nana.rate} / hora
                   </div>
                 </div>
@@ -110,8 +110,8 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
               <div className="lg:col-span-2 space-y-8">
                 {/* About Me */}
                 <section className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                  <h3 className="text-xl font-bold text-[#1E3A8A] mb-4 flex items-center gap-2">
-                    <Heart className="w-5 h-5 text-[#10B981]" /> Sobre Mí
+                  <h3 className="text-xl font-bold text-[#250e2c] mb-4 flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-[#cc8db3]" /> Sobre Mí
                   </h3>
                   <p className="text-gray-600 leading-relaxed">
                     {nana.longDescription}
@@ -121,13 +121,13 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
                 {/* Education & Certs */}
                 <section className="grid sm:grid-cols-2 gap-6">
                   <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h3 className="text-lg font-bold text-[#1E3A8A] mb-4 flex items-center gap-2">
-                      <GraduationCap className="w-5 h-5 text-[#10B981]" /> Formación
+                    <h3 className="text-lg font-bold text-[#250e2c] mb-4 flex items-center gap-2">
+                      <GraduationCap className="w-5 h-5 text-[#cc8db3]" /> Formación
                     </h3>
                     <ul className="space-y-3">
                       {nana.education.map((edu, i) => (
                         <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#1E3A8A] mt-1.5 shrink-0" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#250e2c] mt-1.5 shrink-0" />
                           <span className="leading-tight">{edu}</span>
                         </li>
                       ))}
@@ -135,13 +135,13 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
                   </div>
 
                   <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h3 className="text-lg font-bold text-[#1E3A8A] mb-4 flex items-center gap-2">
-                      <Award className="w-5 h-5 text-[#10B981]" /> Certificaciones
+                    <h3 className="text-lg font-bold text-[#250e2c] mb-4 flex items-center gap-2">
+                      <Award className="w-5 h-5 text-[#cc8db3]" /> Certificaciones
                     </h3>
                     <ul className="space-y-3">
                       {nana.certifications.map((cert, i) => (
                         <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] mt-1.5 shrink-0" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#cc8db3] mt-1.5 shrink-0" />
                           <span className="leading-tight">{cert}</span>
                         </li>
                       ))}
@@ -151,8 +151,8 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
 
                 {/* Reviews */}
                 <section className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                  <h3 className="text-xl font-bold text-[#1E3A8A] mb-6 flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5 text-[#10B981]" /> Reseñas de Familias
+                  <h3 className="text-xl font-bold text-[#250e2c] mb-6 flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-[#cc8db3]" /> Reseñas de Familias
                   </h3>
                   <div className="space-y-4">
                     {nana.reviewsList.map((review, i) => (
@@ -180,7 +180,7 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
                   <div className="flex flex-col gap-3 mb-8">
                     {nana.areas.map((area, i) => (
                       <div key={i} className="flex items-center gap-2 text-sm text-gray-600 font-medium">
-                        <CheckCircleIcon className="w-4 h-4 text-[#10B981]" />
+                        <CheckCircleIcon className="w-4 h-4 text-[#cc8db3]" />
                         {area}
                       </div>
                     ))}
@@ -191,7 +191,7 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
                       onClose();
                       onRequestInterview(nana.name);
                     }}
-                    className="w-full py-4 bg-[#10B981] text-white rounded-xl font-bold hover:bg-[#059669] transition-all shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 group"
+                    className="w-full py-4 bg-[#cc8db3] text-white rounded-xl font-bold hover:bg-[#b07a9a] transition-all shadow-lg shadow-[#cc8db3]/25 flex items-center justify-center gap-2 group"
                   >
                     <Calendar className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                     Agendar Entrevista
@@ -219,3 +219,4 @@ function CheckCircleIcon(props: any) {
     </svg>
   );
 }
+

@@ -34,7 +34,7 @@ export function InterviewModal({ isOpen, onClose, nanaName }: InterviewModalProp
           {isSubmitted ? (
             <div className="p-8 text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Video className="w-8 h-8 text-[#10B981]" />
+                <Video className="w-8 h-8 text-[#cc8db3]" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">¡Cita Programada!</h3>
               <p className="text-gray-600 mb-6">
@@ -42,7 +42,7 @@ export function InterviewModal({ isOpen, onClose, nanaName }: InterviewModalProp
               </p>
               <button
                 onClick={onClose}
-                className="w-full py-3 bg-[#1E3A8A] text-white rounded-xl font-medium hover:bg-[#1e40af] transition-all duration-300"
+                className="w-full py-3 bg-[#250e2c] text-white rounded-xl font-medium hover:bg-[#1e40af] transition-all duration-300"
               >
                 Cerrar
               </button>
@@ -50,7 +50,7 @@ export function InterviewModal({ isOpen, onClose, nanaName }: InterviewModalProp
           ) : (
             <>
               <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                <h3 className="text-xl font-bold text-[#1E3A8A]">Agendar Entrevista</h3>
+                <h3 className="text-xl font-bold text-[#250e2c]">Agendar Entrevista</h3>
                 <button
                   onClick={onClose}
                   className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
@@ -73,7 +73,7 @@ export function InterviewModal({ isOpen, onClose, nanaName }: InterviewModalProp
                       type="date"
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1E3A8A] focus:border-transparent transition-shadow outline-none"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#250e2c] focus:border-transparent transition-shadow outline-none"
                     />
                   </div>
 
@@ -88,8 +88,8 @@ export function InterviewModal({ isOpen, onClose, nanaName }: InterviewModalProp
                           onClick={() => setSelectedTime(time)}
                           className={`py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${
                             selectedTime === time
-                              ? 'bg-[#10B981] text-white border-[#10B981] shadow-md shadow-emerald-500/20'
-                              : 'bg-white text-gray-600 border-gray-200 hover:border-[#10B981] hover:text-[#10B981]'
+                              ? 'bg-[#cc8db3] text-white border-[#cc8db3] shadow-md shadow-[#cc8db3]/20'
+                              : 'bg-white text-gray-600 border-gray-200 hover:border-[#cc8db3] hover:text-[#cc8db3]'
                           }`}
                         >
                           {time}
@@ -102,7 +102,7 @@ export function InterviewModal({ isOpen, onClose, nanaName }: InterviewModalProp
                 <button
                   disabled={!selectedDate || !selectedTime}
                   onClick={() => setIsSubmitted(true)}
-                  className="w-full py-4 bg-[#10B981] text-white rounded-xl font-semibold hover:bg-[#059669] transition-all duration-300 shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
+                  className="w-full py-4 bg-[#cc8db3] text-white rounded-xl font-semibold hover:bg-[#b07a9a] transition-all duration-300 shadow-lg shadow-[#cc8db3]/25 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
                 >
                   Confirmar Cita Virtual
                 </button>
@@ -114,3 +114,4 @@ export function InterviewModal({ isOpen, onClose, nanaName }: InterviewModalProp
     </AnimatePresence>
   );
 }
+

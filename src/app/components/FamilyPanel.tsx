@@ -12,11 +12,11 @@ type Solicitud = {
 };
 
 const badgeClass: Record<string, string> = {
-  Pendiente: 'bg-amber-50 text-amber-700 border-amber-200',
-  Confirmada: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  'En curso': 'bg-blue-50 text-blue-700 border-blue-200',
-  Finalizada: 'bg-teal-50 text-teal-700 border-teal-200',
-  Cancelada: 'bg-red-50 text-red-700 border-red-200',
+  Pendiente: 'bg-[#f6a5c0]/20 text-[#cc8db3] border-[#f6a5c0]/30',
+  Confirmada: 'bg-[#cc8db3]/20 text-[#b07a9a] border-[#cc8db3]/30',
+  'En curso': 'bg-[#9d85b6]/20 text-[#9d85b6] border-[#9d85b6]/30',
+  Finalizada: 'bg-[#f6a5c0]/20 text-[#cc8db3] border-[#f6a5c0]/30',
+  Cancelada: 'bg-[#cc8db3]/20 text-[#b07a9a] border-[#cc8db3]/30',
 };
 
 export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNavigate?: (v: string) => void; onViewContract?: (id: number) => void; onReview?: (id: number) => void }) {
@@ -37,9 +37,9 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f7c2ca]">
       {/* Navbar */}
-      <header className="bg-[#1E293B] text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -47,14 +47,14 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                 <div className="w-8 h-8 overflow-hidden rounded">
                   <img src="/logo.png" alt="" className="w-full h-full object-cover" />
                 </div>
-                <span className="text-lg font-extrabold text-[#F59E0B] tracking-tight">CERTINANAS</span>
+                <span className="text-lg font-extrabold text-[#f6a5c0] tracking-tight">CERTINANAS</span>
               </div>
               <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
               <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
               <button onClick={() => onNavigate?.('search')} className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
-              <button onClick={() => onNavigate?.('familia')} className="text-sm font-bold text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5">Mis Servicios</button>
+              <button onClick={() => onNavigate?.('familia')} className="text-sm font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0] pb-0.5">Mis Servicios</button>
               <button onClick={() => onNavigate?.('messages')} className="text-sm text-white/70 hover:text-white transition-colors">Mensajes</button>
               <ProfileAvatar size={36} className="ml-2" />
               <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
@@ -80,7 +80,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50/50">
+                  <tr className="border-b border-gray-100 bg-[#f6a5c0]/10">
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Cuidadora</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Menor</th>
                     <th className="text-left px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
@@ -91,12 +91,15 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                   </tr>
                 </thead>
                 <tbody>
-                  {solicitudes.map(s => (
+                  {solicitudes.map((s, i) => (
                     <motion.tr
                       key={s.Id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className={`border-b border-gray-50 transition-colors ${s.Estado === 'Confirmada' ? 'bg-amber-50/40' : 'hover:bg-gray-50/60'}`}
+                      className={[
+                        'border-b border-gray-50 transition-colors',
+                        s.Estado === 'Confirmada' ? 'bg-[#f6a5c0]/20' : i % 2 === 1 ? 'bg-[#f6a5c0]/10' : 'bg-white',
+                      ].join(' ')}
                     >
                       <td className="px-6 py-4">
                         <span className="font-semibold text-gray-900">{s.CuidadoraNombres} {s.CuidadoraApellidos?.charAt(0)}.</span>
@@ -109,7 +112,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                       <td className="px-6 py-4 text-sm text-gray-600 font-mono">{s.HoraInicio || '--'}-{s.HoraFin || '--'}</td>
                       <td className="px-6 py-4 text-sm font-semibold text-gray-900">S/ {s.Total.toFixed(2)}</td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeClass[s.Estado] || 'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeClass[s.Estado] || 'bg-[#f6a5c0]/20 text-[#cc8db3] border-[#f6a5c0]/30'}`}>
                           {s.Estado}
                         </span>
                       </td>
@@ -117,12 +120,12 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                         <div className="flex items-center justify-end gap-2">
                           {s.Estado === 'Finalizada' && (
                             <button onClick={() => onReview?.(s.Id)}
-                              className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors">
+                              className="text-xs font-semibold text-[#cc8db3] hover:text-[#b07a9a] transition-colors">
                               Evaluar
                             </button>
                           )}
                           <button onClick={() => onViewContract?.(s.Id)}
-                            className="text-xs font-semibold text-[#F59E0B] hover:text-[#D97706] transition-colors">
+                            className="text-xs font-semibold text-[#f6a5c0] hover:text-[#cc8db3] transition-colors">
                             Ver contrato
                           </button>
                         </div>

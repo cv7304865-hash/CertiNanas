@@ -73,21 +73,21 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
 
   const badgeEstado: Record<string, string> = {
     Pendiente: 'bg-amber-50 text-amber-700 border-amber-200',
-    Confirmada: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    'En curso': 'bg-blue-50 text-blue-700 border-blue-200',
-    Finalizada: 'bg-teal-50 text-teal-700 border-teal-200',
+    Confirmada: 'bg-[#f6a5c0]/20 text-[#250e2c] border-[#f6a5c0]',
+    'En curso': 'bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]',
+    Finalizada: 'bg-[#cc8db3]/20 text-[#250e2c] border-[#cc8db3]',
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[#f7c2ca] flex flex-col">
       {/* Navbar */}
-      <header className="bg-[#1E293B] text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 overflow-hidden rounded"><img src="/logo.png" alt="" className="w-full h-full object-cover" /></div>
-                <span className="text-lg font-extrabold text-[#F59E0B] tracking-tight">CERTINANAS</span>
+                <span className="text-lg font-extrabold text-[#f6a5c0] tracking-tight">CERTINANAS</span>
               </div>
               <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
               <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
@@ -95,7 +95,7 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
             <nav className="flex items-center gap-6">
               <button onClick={() => onNavigate?.('search')} className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
               <button onClick={() => onNavigate?.('familia')} className="text-sm text-white/70 hover:text-white transition-colors">Mis Servicios</button>
-              <button className="text-sm font-bold text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5">Mensajes</button>
+              <button className="text-sm font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0] pb-0.5">Mensajes</button>
               <ProfileAvatar size={36} className="ml-2" />
               <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
                 <LogOut className="w-4 h-4 text-white/60" />
@@ -119,10 +119,10 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                   key={c.Id}
                   onClick={() => setSelectedChat(c)}
                   className={`w-full text-left px-4 py-3.5 border-b border-gray-50 transition-colors relative ${
-                    selectedChat?.Id === c.Id ? 'bg-amber-50/60' : 'hover:bg-gray-50'
+                    selectedChat?.Id === c.Id ? 'bg-[#f6a5c0]/20' : 'hover:bg-gray-50'
                   }`}
                 >
-                  {selectedChat?.Id === c.Id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#F59E0B]" />}
+                  {selectedChat?.Id === c.Id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#f6a5c0]" />}
                   <p className="font-semibold text-sm text-gray-900">{c.Nombres} {c.Apellidos?.charAt(0)}.</p>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {c.OrdenEstado === 'En curso' ? `Servicio activo ${c.MenorNombre ? '· ' + c.MenorNombre : ''}` : 'Servicio pendiente'}
@@ -158,7 +158,6 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                           headers: { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) },
                           body: JSON.stringify({ idConversacion: selectedChat.Id }),
                         });
-                        // Recargar mensajes
                         const r = await fetch(`/api/mensajes/conversaciones/${selectedChat.Id}/mensajes`, { headers: { 'x-user-id': String(user?.id) } });
                         setMensajes(await r.json());
                       }}
@@ -182,7 +181,7 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                     return (
                       <div key={m.Id} className={`flex flex-col ${esMio ? 'items-end' : 'items-start'}`}>
                         <div className={`max-w-[70%] px-4 py-2.5 rounded-2xl ${
-                          esMio ? 'bg-[#F59E0B] text-white rounded-br-md' : 'bg-gray-100 text-gray-900 rounded-bl-md'
+                          esMio ? 'bg-[#f6a5c0] text-white rounded-br-md' : 'bg-[#9d85b6]/30 text-[#250e2c] rounded-bl-md'
                         }`}>
                           <p className="text-sm">{m.Contenido}</p>
                         </div>
@@ -204,13 +203,13 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                       onChange={e => setTexto(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && enviar()}
                       placeholder="Escribe un mensaje..."
-                      className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40"
+                      className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/40"
                     />
                     <button
                       onClick={enviar}
                       disabled={!texto.trim()}
                       className={`px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${
-                        texto.trim() ? 'bg-[#F59E0B] hover:bg-[#D97706] text-white shadow-md' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        texto.trim() ? 'bg-[#cc8db3] hover:bg-[#b07a9a] text-white shadow-md' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       }`}
                     >
                       <Send className="w-4 h-4" /> Enviar
@@ -231,14 +230,14 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
       <div className="max-w-6xl mx-auto w-full px-4 pb-6">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Bell className="w-4 h-4 text-[#F59E0B]" />
+            <Bell className="w-4 h-4 text-[#f6a5c0]" />
             Notificaciones: <strong>2</strong> nuevas
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
               Bitácora pendiente
             </span>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#9d85b6]/20 text-[#250e2c] border border-[#9d85b6]">
               Servicio en curso
             </span>
           </div>

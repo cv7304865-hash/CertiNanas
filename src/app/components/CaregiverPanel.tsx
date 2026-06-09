@@ -84,15 +84,15 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
   };
 
   const getColorForEspecialidad = (e: string) => {
-    if (['TEA', 'TDAH'].includes(e)) return 'bg-amber-50 text-amber-800 border-amber-200';
-    if (e === 'Primeros Auxilios') return 'bg-blue-50 text-blue-800 border-blue-200';
-    return 'bg-emerald-50 text-emerald-800 border-emerald-200';
+    if (['TEA', 'TDAH'].includes(e)) return 'bg-[#f6a5c0]/20 text-[#250e2c] border-[#f6a5c0]/40';
+    if (e === 'Primeros Auxilios') return 'bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]/30';
+    return 'bg-[#cc8db3]/20 text-[#250e2c] border-[#cc8db3]/30';
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#f7c2ca]">
       {/* Navbar Oscura */}
-      <header className="bg-[#1E293B] text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -100,7 +100,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 <div className="w-8 h-8 overflow-hidden rounded">
                   <img src="/logo.png" alt="" className="w-full h-full object-cover" />
                 </div>
-                <span className="text-lg font-extrabold text-[#F59E0B] tracking-tight">CERTINANAS</span>
+                <span className="text-lg font-extrabold text-[#f6a5c0] tracking-tight">CERTINANAS</span>
               </div>
               <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
               <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
@@ -108,11 +108,11 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
             <nav className="flex items-center gap-6">
               <button
                 onClick={() => setTab('perfil')}
-                className={`text-sm pb-0.5 ${tab === 'perfil' ? 'font-bold text-[#F59E0B] border-b-2 border-[#F59E0B]' : 'text-white/70 hover:text-white transition-colors'}`}
+                className={`text-sm pb-0.5 ${tab === 'perfil' ? 'font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0]' : 'text-white/70 hover:text-white transition-colors'}`}
               >Mi Perfil</button>
               <button
                 onClick={() => setTab('servicios')}
-                className={`text-sm pb-0.5 ${tab === 'servicios' ? 'font-bold text-[#F59E0B] border-b-2 border-[#F59E0B]' : 'text-white/70 hover:text-white transition-colors'}`}
+                className={`text-sm pb-0.5 ${tab === 'servicios' ? 'font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0]' : 'text-white/70 hover:text-white transition-colors'}`}
               >Servicios</button>
               <button
                 onClick={() => onNavigate?.('messages')}
@@ -137,13 +137,13 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 <h1 className="text-2xl font-bold text-gray-900">{perfil.user.Nombres} {perfil.user.Apellidos}</h1>
                 <div className="flex items-center gap-3 mt-1">
                   <span className="text-gray-500">Cuidadora Especializada</span>
-                  <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+                  <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#f6a5c0]/20 text-[#cc8db3] text-xs font-bold border border-[#f6a5c0]/40">
                     <CheckCircle className="w-3 h-3" /> Perfil Verificado
                   </span>
                 </div>
                 <div className="flex items-center gap-1 mt-3">
                   {[1, 2, 3, 4, 5].map(i => (
-                    <Star key={i} className={`w-4 h-4 ${i <= Math.round(perfil.stats.CalificacionPromedio) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />
+                    <Star key={i} className={`w-4 h-4 ${i <= Math.round(perfil.stats.CalificacionPromedio) ? 'text-[#cc8db3] fill-[#cc8db3]' : 'text-gray-200'}`} />
                   ))}
                   <span className="text-sm text-gray-500 ml-2">
                     ({perfil.stats.CalificacionPromedio} · {perfil.stats.TotalResenas} reseñas)
@@ -165,7 +165,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 value={bio}
                 onChange={e => setBio(e.target.value)}
                 rows={4}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/30 focus:border-[#F59E0B] resize-none"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/30 focus:border-[#cc8db3] resize-none"
                 placeholder="Especialista en TEA y TDAH con 5 años de experiencia..."
               />
             </div>
@@ -177,7 +177,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 step="0.01"
                 value={tarifa}
                 onChange={e => setTarifa(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/30 focus:border-[#F59E0B]"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/30 focus:border-[#cc8db3]"
                 placeholder="35.00"
               />
             </div>
@@ -188,7 +188,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 type="number"
                 value={experiencia}
                 onChange={e => setExperiencia(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/30 focus:border-[#F59E0B]"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/30 focus:border-[#cc8db3]"
                 placeholder="5"
               />
             </div>
@@ -205,7 +205,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                   </span>
                 ))}
                 {perfil.areas.map(a => (
-                  <span key={a} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium border bg-purple-50 text-purple-800 border-purple-200">
+                  <span key={a} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium border bg-[#cc8db3]/20 text-[#250e2c] border-[#cc8db3]/30">
                     {a}
                   </span>
                 ))}
@@ -250,7 +250,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
               whileTap={{ scale: 0.98 }}
               onClick={guardar}
               disabled={saving}
-              className="inline-flex items-center gap-2 px-8 py-3 bg-[#F59E0B] text-white rounded-xl text-sm font-bold hover:bg-[#D97706] transition-colors shadow-lg shadow-[#F59E0B]/25 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] text-white rounded-xl text-sm font-bold transition-colors shadow-lg disabled:opacity-50"
             >
               {saving ? 'Guardando...' : saved ? (
                 <><CheckCircle className="w-4 h-4" /> Guardado</>
@@ -276,9 +276,9 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
             <div className="space-y-3">
               {servicios.map(s => {
                 const badgeColor: Record<string, string> = {
-                  Pendiente: 'bg-amber-50 text-amber-700 border-amber-200',
-                  Confirmada: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                  Completado: 'bg-blue-50 text-blue-700 border-blue-200',
+                  Pendiente: 'bg-[#f6a5c0]/20 text-[#250e2c] border-[#f6a5c0]/40',
+                  Confirmada: 'bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]/30',
+                  Completado: 'bg-[#cc8db3]/20 text-[#250e2c] border-[#cc8db3]/30',
                   Rechazado: 'bg-red-50 text-red-700 border-red-200',
                 };
                 return (
@@ -306,7 +306,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                           </span>
                         </div>
                         {s.MenorDiagnostico && (
-                          <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                          <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-medium bg-[#cc8db3]/20 text-[#250e2c] border border-[#cc8db3]/30">
                             {s.MenorDiagnostico}
                           </span>
                         )}
@@ -347,20 +347,20 @@ function UploadDocs({ postulacionId, tiposRequeridos, headers }: { postulacionId
   };
 
   return (
-    <div className="border border-dashed border-gray-300 rounded-xl p-4 bg-gray-50/50">
+    <div className="border border-dashed border-[#cc8db3] rounded-xl p-4 bg-gray-50/50">
       <p className="text-sm font-semibold text-gray-700 mb-3">Subir documento</p>
       <div className="flex flex-wrap items-end gap-3">
         <div>
           <label className="block text-xs text-gray-500 mb-1">Tipo</label>
-          <select value={tipo} onChange={e => setTipo(e.target.value)} className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/30 bg-white">
+          <select value={tipo} onChange={e => setTipo(e.target.value)} className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/30 bg-white">
             {tiposRequeridos.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Archivo (PDF, máx 10MB)</label>
-          <input type="file" accept=".pdf,.jpg,.png" onChange={e => setFile(e.target.files?.[0] || null)} className="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#F59E0B]/10 file:text-[#F59E0B] hover:file:bg-[#F59E0B]/20" />
+          <input type="file" accept=".pdf,.jpg,.png" onChange={e => setFile(e.target.files?.[0] || null)} className="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#cc8db3]/20 file:text-[#cc8db3] hover:file:bg-[#cc8db3]/30" />
         </div>
-        <button onClick={subir} disabled={uploading || !file} className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#F59E0B] text-white rounded-lg text-sm font-bold hover:bg-[#D97706] transition-colors disabled:opacity-50">
+        <button onClick={subir} disabled={uploading || !file} className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#cc8db3] text-white rounded-lg text-sm font-bold hover:bg-[#b87a9f] transition-colors disabled:opacity-50">
           {uploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
           {uploading ? 'Subiendo...' : 'Subir'}
         </button>

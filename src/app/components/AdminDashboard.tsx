@@ -54,13 +54,13 @@ export function AdminDashboard({ onBack }: Props) {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={onBack} className="p-2 text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 rounded-xl transition-all">
+            <button onClick={onBack} className="p-2 text-gray-400 hover:text-[#250e2c] hover:bg-[#f6a5c0]/20 rounded-xl transition-all">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <Shield className="w-6 h-6 text-[#1E3A8A]" />
-                <h1 className="text-3xl font-bold text-[#1E3A8A]">Panel Admin</h1>
+                <Shield className="w-6 h-6 text-[#250e2c]" />
+                <h1 className="text-3xl font-bold text-[#250e2c]">Panel Admin</h1>
               </div>
               <p className="text-gray-500 mt-1">Bienvenido, {user?.nombres} — aquí puedes supervisar toda la plataforma.</p>
             </div>
@@ -72,16 +72,16 @@ export function AdminDashboard({ onBack }: Props) {
       </motion.div>
 
       <div className="flex gap-2 mb-8 flex-wrap">
-        <button onClick={() => setTab('stats')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'stats' ? 'bg-[#1E3A8A] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+        <button onClick={() => setTab('stats')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'stats' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
           Estadísticas
         </button>
-        <button onClick={() => setTab('usuarios')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'usuarios' ? 'bg-[#1E3A8A] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+        <button onClick={() => setTab('usuarios')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'usuarios' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
           Usuarios
         </button>
-        <button onClick={() => setTab('exito')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'exito' ? 'bg-[#1E3A8A] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+        <button onClick={() => setTab('exito')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'exito' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
           <Heart className="w-4 h-4 inline mr-1.5 -mt-0.5" />Casos de Éxito
         </button>
-        <button onClick={() => setTab('noacuerdo')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'noacuerdo' ? 'bg-[#1E3A8A] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+        <button onClick={() => setTab('noacuerdo')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'noacuerdo' ? 'bg-[#250e2c] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
           <XCircle className="w-4 h-4 inline mr-1.5 -mt-0.5" />Sin Acuerdo
         </button>
       </div>
@@ -96,10 +96,10 @@ export function AdminDashboard({ onBack }: Props) {
           ].map(({ label, value, icon: Icon, color }) => (
             <motion.div key={label} whileHover={{ scale: 1.02 }} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
-                color === 'blue' ? 'bg-blue-50 text-[#1E3A8A]' :
-                color === 'emerald' ? 'bg-emerald-50 text-[#10B981]' :
-                color === 'purple' ? 'bg-purple-50 text-purple-600' :
-                'bg-amber-50 text-amber-600'
+                color === 'blue' ? 'bg-[#f6a5c0]/20 text-[#250e2c]' :
+                color === 'emerald' ? 'bg-[#f6a5c0]/20 text-[#cc8db3]' :
+                color === 'purple' ? 'bg-[#9d85b6]/20 text-[#250e2c]' :
+                'bg-[#f6a5c0]/20 text-[#cc8db3]'
               }`}>
                 <Icon className="w-6 h-6" />
               </div>
@@ -113,7 +113,7 @@ export function AdminDashboard({ onBack }: Props) {
       {tab === 'exito' && (
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
-            <Heart className="w-5 h-5 text-emerald-600" />
+            <Heart className="w-5 h-5 text-[#cc8db3]" />
             <h2 className="text-xl font-bold text-gray-800">Historias de Éxito</h2>
             <span className="text-sm text-gray-400 ml-2">({exitos.length} casos)</span>
           </div>
@@ -166,9 +166,9 @@ export function AdminDashboard({ onBack }: Props) {
                     <td className="py-3 px-4 text-gray-600">{u.Email}</td>
                     <td className="py-3 px-4">
                       <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                        u.Rol === 'Admin' ? 'bg-amber-50 text-amber-700' :
-                        u.Rol === 'Cuidadora' ? 'bg-emerald-50 text-emerald-700' :
-                        'bg-blue-50 text-blue-700'
+                        u.Rol === 'Admin' ? 'bg-[#f6a5c0]/20 text-[#cc8db3]' :
+                        u.Rol === 'Cuidadora' ? 'bg-[#f6a5c0]/20 text-[#cc8db3]' :
+                        'bg-[#f6a5c0]/20 text-[#cc8db3]'
                       }`}>{u.Rol}</span>
                     </td>
                     <td className="py-3 px-4">
@@ -185,3 +185,4 @@ export function AdminDashboard({ onBack }: Props) {
     </div>
   );
 }
+

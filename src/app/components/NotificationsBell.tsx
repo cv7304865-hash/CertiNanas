@@ -18,11 +18,11 @@ export function NotificationsBell() {
   const ref = useRef<HTMLDivElement>(null);
 
   const [items, setItems] = useState<Notif[]>([
-    { id: 1, icon: Shield, color: 'text-[#10B981]', bg: 'bg-emerald-50', title: 'Tu perfil ha sido verificado', desc: 'Identidad y documentos validados con éxito.', time: 'Hace 2 min', unread: true },
-    { id: 2, icon: Calendar, color: 'text-[#1E3A8A]', bg: 'bg-blue-50', title: 'Nueva solicitud de cita', desc: 'María González confirmó la cita del jueves 21.', time: 'Hace 1 h', unread: true },
-    { id: 3, icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-50', title: 'Mensaje nuevo de Carmen', desc: '"Le envío los detalles de la sesión..."', time: 'Hace 3 h', unread: true },
-    { id: 4, icon: CreditCard, color: 'text-amber-600', bg: 'bg-amber-50', title: 'Pago pendiente', desc: 'Tu reserva del sábado requiere confirmación de pago.', time: 'Ayer', unread: false },
-    { id: 5, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50', title: 'Servicio completado', desc: 'El pago fue liberado a Ana Torres.', time: 'Lun 12', unread: false },
+    { id: 1, icon: Shield, color: 'text-[#cc8db3]', bg: 'bg-[#f6a5c0]/20', title: 'Tu perfil ha sido verificado', desc: 'Identidad y documentos validados con éxito.', time: 'Hace 2 min', unread: true },
+    { id: 2, icon: Calendar, color: 'text-[#250e2c]', bg: 'bg-[#f6a5c0]/20', title: 'Nueva solicitud de cita', desc: 'María González confirmó la cita del jueves 21.', time: 'Hace 1 h', unread: true },
+    { id: 3, icon: MessageSquare, color: 'text-[#250e2c]', bg: 'bg-[#9d85b6]/20', title: 'Mensaje nuevo de Carmen', desc: '"Le envío los detalles de la sesión..."', time: 'Hace 3 h', unread: true },
+    { id: 4, icon: CreditCard, color: 'text-[#cc8db3]', bg: 'bg-[#f6a5c0]/20', title: 'Pago pendiente', desc: 'Tu reserva del sábado requiere confirmación de pago.', time: 'Ayer', unread: false },
+    { id: 5, icon: CheckCircle2, color: 'text-[#cc8db3]', bg: 'bg-[#f6a5c0]/20', title: 'Servicio completado', desc: 'El pago fue liberado a Ana Torres.', time: 'Lun 12', unread: false },
   ]);
 
   const unread = items.filter((i) => i.unread).length;
@@ -48,7 +48,7 @@ export function NotificationsBell() {
       >
         <Bell className="w-5 h-5 text-gray-600" />
         {unread > 0 && (
-          <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-[#10B981] text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
+          <span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-[#cc8db3] text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
             {unread}
           </span>
         )}
@@ -65,10 +65,10 @@ export function NotificationsBell() {
           >
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-[#1E3A8A]">Notificaciones</h3>
+                <h3 className="font-bold text-[#250e2c]">Notificaciones</h3>
                 <p className="text-xs text-gray-500">{unread} nuevas</p>
               </div>
-              <button onClick={markAllRead} className="text-xs font-bold text-[#10B981] hover:underline">
+              <button onClick={markAllRead} className="text-xs font-bold text-[#cc8db3] hover:underline">
                 Marcar todo leído
               </button>
             </div>
@@ -78,7 +78,7 @@ export function NotificationsBell() {
                   key={n.id}
                   onClick={() => setItems((p) => p.map((i) => (i.id === n.id ? { ...i, unread: false } : i)))}
                   className={`w-full flex items-start gap-3 p-4 border-b border-gray-50 text-left transition-colors hover:bg-gray-50 ${
-                    n.unread ? 'bg-blue-50/30' : ''
+                    n.unread ? 'bg-[#f6a5c0]/20/30' : ''
                   }`}
                 >
                   <div className={`w-10 h-10 rounded-xl ${n.bg} flex items-center justify-center shrink-0`}>
@@ -87,7 +87,7 @@ export function NotificationsBell() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <h4 className="font-bold text-sm text-gray-900 truncate">{n.title}</h4>
-                      {n.unread && <span className="w-2 h-2 bg-[#10B981] rounded-full shrink-0" />}
+                      {n.unread && <span className="w-2 h-2 bg-[#cc8db3] rounded-full shrink-0" />}
                     </div>
                     <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">{n.desc}</p>
                     <p className="text-[10px] text-gray-400 mt-1 font-semibold">{n.time}</p>
@@ -96,7 +96,7 @@ export function NotificationsBell() {
               ))}
             </div>
             <div className="p-3 border-t border-gray-100 bg-gray-50/50 text-center">
-              <button className="text-xs font-bold text-[#1E3A8A] hover:underline">Ver todas las notificaciones</button>
+              <button className="text-xs font-bold text-[#250e2c] hover:underline">Ver todas las notificaciones</button>
             </div>
           </motion.div>
         )}
@@ -104,3 +104,4 @@ export function NotificationsBell() {
     </div>
   );
 }
+

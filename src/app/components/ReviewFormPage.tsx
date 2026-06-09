@@ -48,24 +48,24 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-[#1E293B] text-white sticky top-0 z-40 shadow-lg">
+      <div className="min-h-screen bg-[#f7c2ca]">
+        <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 overflow-hidden rounded"><img src="/logo.png" alt="" className="w-full h-full object-cover" /></div>
-                <span className="text-lg font-extrabold text-[#F59E0B] tracking-tight">CERTINANAS</span>
+                <span className="text-lg font-extrabold text-[#f6a5c0] tracking-tight">CERTINANAS</span>
               </div>
             </div>
           </div>
         </header>
         <div className="max-w-md mx-auto px-4 py-20 text-center">
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-emerald-600" />
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-20 h-20 rounded-full bg-[#9d85b6]/30 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-10 h-10 text-[#250e2c]" />
           </motion.div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Gracias por tu evaluación!</h2>
           <p className="text-gray-500 text-sm mb-8">Tu opinión ayuda a otras familias a encontrar la cuidadora ideal.</p>
-          <button onClick={onBack} className="px-8 py-3 bg-[#F59E0B] hover:bg-[#D97706] text-white font-bold rounded-xl transition-all shadow-md">
+          <button onClick={onBack} className="px-8 py-3 bg-[#cc8db3] hover:bg-[#b07a9a] text-white font-bold rounded-xl transition-all shadow-md">
             Volver a mis servicios
           </button>
         </div>
@@ -74,21 +74,21 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-[#1E293B] text-white sticky top-0 z-40 shadow-lg">
+    <div className="min-h-screen bg-[#f7c2ca]">
+      <header className="bg-[#250e2c] text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 overflow-hidden rounded"><img src="/logo.png" alt="" className="w-full h-full object-cover" /></div>
-                <span className="text-lg font-extrabold text-[#F59E0B] tracking-tight">CERTINANAS</span>
+                <span className="text-lg font-extrabold text-[#f6a5c0] tracking-tight">CERTINANAS</span>
               </div>
               <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
               <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
               <button onClick={() => onBack?.()} className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
-              <button className="text-sm font-bold text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5">Mis Servicios</button>
+              <button className="text-sm font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0] pb-0.5">Mis Servicios</button>
               <button className="text-sm text-white/70 hover:text-white transition-colors">Mensajes</button>
               <ProfileAvatar size={36} className="ml-2" />
               <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
@@ -103,7 +103,7 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="p-6 sm:p-8">
             <div className="flex items-center gap-3 mb-1">
-              <Star className="w-6 h-6 text-[#F59E0B]" />
+              <Star className="w-6 h-6 text-[#cc8db3]" />
               <h1 className="text-xl font-bold text-gray-900">Evaluar servicio</h1>
             </div>
             <p className="text-sm text-gray-400 ml-9">Tu opinión ayuda a otras familias</p>
@@ -118,8 +118,8 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
             <form onSubmit={handleSubmit}>
               <div className="px-6 sm:px-8 space-y-6">
                 {/* Tarjeta del servicio */}
-                <div className="bg-blue-50/60 rounded-xl p-4 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold flex-shrink-0">
+                <div className="bg-[#9d85b6]/20 rounded-xl p-4 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-[#cc8db3] flex items-center justify-center text-white font-bold flex-shrink-0">
                     {getIniciales(data.CuidadoraNombres, data.CuidadoraApellidos)}
                   </div>
                   <div>
@@ -141,7 +141,7 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
                         onMouseLeave={() => setHovered(0)}
                         className="transition-transform hover:scale-110"
                       >
-                        <Star className={`w-8 h-8 ${i <= (hovered || rating) ? 'text-amber-400 fill-amber-400' : 'text-gray-200'}`} />
+                        <Star className={`w-8 h-8 ${i <= (hovered || rating) ? 'text-[#cc8db3] fill-[#cc8db3]' : 'text-gray-200'}`} />
                       </button>
                     ))}
                   </div>
@@ -156,7 +156,7 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
                     onChange={e => setComentario(e.target.value)}
                     placeholder="Cuenta tu experiencia con esta cuidadora..."
                     rows={5}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#F59E0B]/40 resize-none"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/40 resize-none"
                   />
                 </div>
               </div>
@@ -169,7 +169,7 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
                   disabled={rating === 0}
                   className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all shadow-md ${
                     rating > 0
-                      ? 'bg-[#F59E0B] hover:bg-[#D97706] text-white hover:shadow-lg cursor-pointer'
+                      ? 'bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] text-white hover:shadow-lg cursor-pointer'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   }`}
                 >

@@ -39,15 +39,15 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-        <h1 className="text-4xl font-bold text-[#1E3A8A] tracking-tight">Hola, {user?.nombres || 'Familia'} 👋</h1>
+        <h1 className="text-4xl font-bold text-[#250e2c] tracking-tight">Hola, {user?.nombres || 'Familia'} 👋</h1>
         <p className="text-gray-500 mt-2 text-lg">Este es el resumen de tu actividad en CERTINANAS.</p>
       </motion.div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         {[
-          { label: 'Próximas Citas', value: '2', icon: Calendar, color: 'blue', bg: 'bg-blue-50', text: 'text-[#1E3A8A]' },
-          { label: 'Pagos en Escrow', value: 'S/ 240', icon: CreditCard, color: 'emerald', bg: 'bg-emerald-50', text: 'text-[#10B981]' },
+          { label: 'Próximas Citas', value: '2', icon: Calendar, color: 'blue', bg: 'bg-[#f6a5c0]/20', text: 'text-[#250e2c]' },
+          { label: 'Pagos en Escrow', value: 'S/ 240', icon: CreditCard, color: 'emerald', bg: 'bg-[#f6a5c0]/20', text: 'text-[#cc8db3]' },
           { label: 'Favoritas', value: '3', icon: Heart, color: 'rose', bg: 'bg-rose-50', text: 'text-rose-500' },
         ].map((s, i) => (
           <motion.div
@@ -72,12 +72,12 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
         {/* Upcoming Appointments */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-[#1E3A8A]">Próximas Citas Agendadas</h2>
-            <button className="text-sm font-semibold text-[#10B981] hover:underline">Ver todas</button>
+            <h2 className="text-xl font-bold text-[#250e2c]">Próximas Citas Agendadas</h2>
+            <button className="text-sm font-semibold text-[#cc8db3] hover:underline">Ver todas</button>
           </div>
           <div className="space-y-4">
             {appointments.map((apt) => (
-              <div key={apt.id} className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-[#1E3A8A]/20 hover:bg-gray-50/60 transition-all">
+              <div key={apt.id} className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-[#250e2c]/20 hover:bg-gray-50/60 transition-all">
                 <img src={apt.photo} alt={apt.nana} className="w-14 h-14 rounded-full object-cover ring-2 ring-white shadow-sm" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -85,8 +85,8 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
                     <span
                       className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                         apt.status === 'Confirmada'
-                          ? 'bg-emerald-50 text-emerald-700'
-                          : 'bg-amber-50 text-amber-700'
+                          ? 'bg-[#f6a5c0]/20 text-[#cc8db3]'
+                          : 'bg-[#f6a5c0]/20 text-[#cc8db3]'
                       }`}
                     >
                       {apt.status === 'Confirmada' ? (
@@ -105,14 +105,14 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={onOpenMessages}
-                    className="px-3 py-2 text-xs font-bold text-[#1E3A8A] bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors inline-flex items-center gap-1"
+                    className="px-3 py-2 text-xs font-bold text-[#250e2c] bg-[#f6a5c0]/20 hover:bg-[#9d85b6]/30 rounded-lg transition-colors inline-flex items-center gap-1"
                   >
                     <MessageSquare className="w-3.5 h-3.5" /> Mensajes
                   </button>
                   {apt.status !== 'Confirmada' && (
                     <button
                       onClick={onOpenCheckout}
-                      className="px-3 py-2 text-xs font-bold text-white bg-[#10B981] hover:bg-[#059669] rounded-lg transition-colors"
+                      className="px-3 py-2 text-xs font-bold text-white bg-[#cc8db3] hover:bg-[#b07a9a] rounded-lg transition-colors"
                     >
                       Pagar
                     </button>
@@ -124,7 +124,7 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
         </div>
 
         {/* Payment status */}
-        <div className="bg-gradient-to-br from-[#1E3A8A] to-[#2563EB] rounded-2xl p-6 text-white shadow-sm">
+        <div className="bg-gradient-to-br from-[#250e2c] to-[#837ab6] rounded-2xl p-6 text-white shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <CreditCard className="w-5 h-5" />
             <h2 className="font-bold">Estado de Pagos</h2>
@@ -132,17 +132,17 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
           <p className="text-blue-100 text-sm mb-6">Resumen de fondos retenidos en Escrow.</p>
           <div className="space-y-4">
             <div className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10">
-              <p className="text-xs text-blue-200">Retenido (Escrow)</p>
+              <p className="text-xs text-[#9d85b6]">Retenido (Escrow)</p>
               <p className="text-2xl font-bold mt-1">S/ 240.00</p>
-              <p className="text-[11px] text-blue-200 mt-1">Se liberará al completar el servicio</p>
+              <p className="text-[11px] text-[#9d85b6] mt-1">Se liberará al completar el servicio</p>
             </div>
             <div className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10">
-              <p className="text-xs text-blue-200">Pagado este mes</p>
+              <p className="text-xs text-[#9d85b6]">Pagado este mes</p>
               <p className="text-2xl font-bold mt-1">S/ 580.00</p>
             </div>
             <button
               onClick={onOpenCheckout}
-              className="w-full py-2.5 bg-[#10B981] hover:bg-[#059669] rounded-xl text-sm font-bold transition-colors inline-flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-[#cc8db3] hover:bg-[#b07a9a] rounded-xl text-sm font-bold transition-colors inline-flex items-center justify-center gap-2"
             >
               Realizar Pago Pendiente <ChevronRight className="w-4 h-4" />
             </button>
@@ -153,8 +153,8 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
       {/* Favorites */}
       <div className="mt-10 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-[#1E3A8A]">Cuidadoras Favoritas</h2>
-          <button className="text-sm font-semibold text-[#10B981] hover:underline">Gestionar</button>
+          <h2 className="text-xl font-bold text-[#250e2c]">Cuidadoras Favoritas</h2>
+          <button className="text-sm font-semibold text-[#cc8db3] hover:underline">Gestionar</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {favorites.map((f) => (
@@ -176,3 +176,4 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
     </div>
   );
 }
+

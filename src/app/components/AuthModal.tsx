@@ -69,7 +69,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md overflow-y-auto"
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#d8b4e2]/60 backdrop-blur-md overflow-y-auto"
         onClick={onClose}
       >
         <motion.div
@@ -92,71 +92,73 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
             )}
 
             {/* Tabs: Registrarme / Iniciar sesión */}
-            <div className="flex mb-8 border-b border-gray-200">
+            <div className="flex mb-8 gap-2 bg-gray-100 p-1 rounded-full">
               <button
                 onClick={() => setCurrentMode('register')}
-                className={`flex-1 pb-3 text-sm font-bold transition-colors relative ${currentMode === 'register' ? 'text-[#F59E0B]' : 'text-gray-400'}`}
+                className={`flex-1 py-2 px-4 text-sm font-bold transition-all rounded-full ${
+                  currentMode === 'register' ? 'bg-[#f6a5c0] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                }`}
               >
                 Registrarme
-                {currentMode === 'register' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F59E0B]" />}
               </button>
               <button
                 onClick={() => setCurrentMode('login')}
-                className={`flex-1 pb-3 text-sm font-bold transition-colors relative ${currentMode === 'login' ? 'text-[#F59E0B]' : 'text-gray-400'}`}
+                className={`flex-1 py-2 px-4 text-sm font-bold transition-all rounded-full ${
+                  currentMode === 'login' ? 'bg-[#f6a5c0] text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                }`}
               >
                 Iniciar sesión
-                {currentMode === 'login' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F59E0B]" />}
               </button>
             </div>
 
             {currentMode === 'login' ? (
               <form className="space-y-5" onSubmit={handleLogin}>
-                <h2 className="text-2xl font-bold text-gray-900 text-center">
-                  Bienvenido a <span className="text-[#F59E0B]">CERTINANAS</span>
+                <h2 className="text-2xl font-bold text-center" style={{ color: '#250e2c' }}>
+                  Bienvenido a <span style={{ color: '#cc8db3' }}>CERTINANAS</span>
                 </h2>
                 <p className="text-gray-500 text-sm text-center">Ingresa a tu cuenta</p>
 
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input type="email" placeholder="Correo electrónico" value={loginEmail} onChange={e => setLoginEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#F59E0B]/40 focus:border-transparent transition-all outline-none" />
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3]/40 focus:border-transparent transition-all outline-none" />
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input type="password" placeholder="Contraseña" value={loginPassword} onChange={e => setLoginPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#F59E0B]/40 focus:border-transparent transition-all outline-none" />
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3]/40 focus:border-transparent transition-all outline-none" />
                 </div>
-                <button type="submit" className="w-full py-3.5 bg-[#F59E0B] text-white rounded-xl font-bold hover:bg-[#D97706] transition-all shadow-md">
+                <button type="submit" className="w-full py-3.5 text-white rounded-xl font-bold transition-all shadow-md bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] hover:brightness-110">
                   Iniciar sesión
                 </button>
                 <p className="text-center text-sm text-gray-500">
                   ¿No tienes cuenta?{' '}
-                  <button type="button" onClick={() => { setCurrentMode('register'); setError(''); }} className="text-[#F59E0B] font-bold hover:underline">
+                  <button type="button" onClick={() => { setCurrentMode('register'); setError(''); }} className="font-bold hover:underline" style={{ color: '#cc8db3' }}>
                     Regístrate
                   </button>
                 </p>
               </form>
             ) : (
               <form className="space-y-5" onSubmit={handleRegister}>
-                <h2 className="text-2xl font-bold text-gray-900 text-center">
-                  Únete a <span className="text-[#F59E0B]">CERTINANAS</span>
+                <h2 className="text-2xl font-bold text-center" style={{ color: '#250e2c' }}>
+                  Únete a <span style={{ color: '#cc8db3' }}>CERTINANAS</span>
                 </h2>
                 <p className="text-gray-500 text-sm text-center">Crea tu cuenta para comenzar</p>
 
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input type="text" placeholder="Nombre completo" value={nombre} onChange={e => setNombre(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#F59E0B]/40 focus:border-transparent transition-all outline-none" />
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3]/40 focus:border-transparent transition-all outline-none" />
                 </div>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input type="email" placeholder="Correo electrónico" value={email} onChange={e => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#F59E0B]/40 focus:border-transparent transition-all outline-none" />
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3]/40 focus:border-transparent transition-all outline-none" />
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input type="password" placeholder="Contraseña" value={password} onChange={e => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#F59E0B]/40 focus:border-transparent transition-all outline-none" />
+                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#cc8db3]/40 focus:border-transparent transition-all outline-none" />
                 </div>
 
                 {/* Selector de tipo de cuenta */}
@@ -164,29 +166,29 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                   <button type="button" onClick={() => setRegisterRole('familia')}
                     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 transition-all ${
                       registerRole === 'familia'
-                        ? 'border-[#F59E0B] bg-amber-50 text-amber-900'
+                        ? 'border-[#cc8db3] bg-[#f6a5c0]/20'
                         : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
                     }`}>
-                    <Users className={`w-5 h-5 ${registerRole === 'familia' ? 'text-[#F59E0B]' : 'text-gray-400'}`} />
-                    <span className="text-sm font-semibold">Familia</span>
+                    <Users className={`w-5 h-5 ${registerRole === 'familia' ? 'text-[#cc8db3]' : 'text-gray-400'}`} />
+                    <span className={`text-sm font-semibold ${registerRole === 'familia' ? 'text-[#250e2c]' : 'text-gray-500'}`}>Familia</span>
                   </button>
                   <button type="button" onClick={() => setRegisterRole('cuidadora')}
                     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 transition-all ${
                       registerRole === 'cuidadora'
-                        ? 'border-[#F59E0B] bg-amber-50 text-amber-900'
+                        ? 'border-[#cc8db3] bg-[#f6a5c0]/20'
                         : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
                     }`}>
-                    <Shield className={`w-5 h-5 ${registerRole === 'cuidadora' ? 'text-[#F59E0B]' : 'text-gray-400'}`} />
-                    <span className="text-sm font-semibold">Cuidadora</span>
+                    <Shield className={`w-5 h-5 ${registerRole === 'cuidadora' ? 'text-[#cc8db3]' : 'text-gray-400'}`} />
+                    <span className={`text-sm font-semibold ${registerRole === 'cuidadora' ? 'text-[#250e2c]' : 'text-gray-500'}`}>Cuidadora</span>
                   </button>
                 </div>
 
-                <button type="submit" className="w-full py-3.5 bg-[#F59E0B] text-white rounded-xl font-bold hover:bg-[#D97706] transition-all shadow-md">
+                <button type="submit" className="w-full py-3.5 text-white rounded-xl font-bold transition-all shadow-md bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] hover:brightness-110">
                   Crear cuenta
                 </button>
                 <p className="text-center text-sm text-gray-500">
                   ¿Ya tienes cuenta?{' '}
-                  <button type="button" onClick={() => { setCurrentMode('login'); setError(''); }} className="text-[#F59E0B] font-bold hover:underline">
+                  <button type="button" onClick={() => { setCurrentMode('login'); setError(''); }} className="font-bold hover:underline" style={{ color: '#cc8db3' }}>
                     Inicia sesión
                   </button>
                 </p>
