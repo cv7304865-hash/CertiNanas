@@ -47,14 +47,17 @@ router.get('/dashboard', isAdmin, (req, res) => {
   res.json({ postulacionesRecientes, incidencias });
 });
 
-router.get('/exito', isAdmin, (req, res) => {
+router.get('/casos', isAdmin, (req, res) => {
   const db = getDb();
-  res.json(db.prepare('SELECT * FROM CasosExito ORDER BY FechaCreacion DESC').all());
-});
-
-router.get('/no-acuerdo', isAdmin, (req, res) => {
-  const db = getDb();
-  res.json(db.prepare('SELECT * FROM CasosNoAcuerdo ORDER BY FechaCreacion DESC').all());
+  const tipo = req.query.tipo;
+  let sql = 'SELECT c.*, u.Nombres AS ReporteroNombres, u.Apellidos AS ReporteroApellidos FROM Casos c LEFT JOIN Usuarios u ON u.Id = c.IdUsuarioReporta';
+  const params = [];
+  if (tipo === 'Exito' || tipo === 'NoAcuerdo') {
+    sql += ' WHERE c.Tipo = ?';
+    params.push(tipo);
+  }
+  sql += ' ORDER BY c.FechaCreacion DESC';
+  res.json(db.prepare(sql).all(...params));
 });
 
 router.get('/postulaciones', isAdmin, (req, res) => {

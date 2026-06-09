@@ -45,8 +45,8 @@ export function AdminDashboard({ onBack }: Props) {
     const headers = { 'Content-Type': 'application/json', 'x-admin-user': String(user?.id) };
     fetch('/api/admin/stats', { headers }).then(r => r.json()).then(setStats).catch(() => {});
     fetch('/api/admin/usuarios', { headers }).then(r => r.json()).then(setUsuarios).catch(() => {});
-    fetch('/api/admin/exito', { headers }).then(r => r.json()).then(setExitos).catch(() => {});
-    fetch('/api/admin/no-acuerdo', { headers }).then(r => r.json()).then(setNoAcuerdo).catch(() => {});
+    fetch('/api/admin/casos?tipo=Exito', { headers }).then(r => r.json()).then(setExitos).catch(() => {});
+    fetch('/api/admin/casos?tipo=NoAcuerdo', { headers }).then(r => r.json()).then(setNoAcuerdo).catch(() => {});
   }, [user?.id]);
 
   return (
