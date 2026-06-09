@@ -114,6 +114,23 @@ try {
     seed(db);
   }
 
+  // Migrar datos de CasosExito/CasosNoAcuerdo viejos a la nueva tabla Casos
+  try {
+    const oldTables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('CasosExito','CasosNoAcuerdo')").all();
+    if (oldTables.length > 0 && db.prepare('SELECT COUNT(*) AS c FROM Casos').get().c === 0) {
+      for (const name of ['CasosExito', 'CasosNoAcuerdo']) {
+        const tipo = name === 'CasosExito' ? 'Exito' : 'NoAcuerdo';
+        try {
+          const rows = db.prepare(`SELECT Titulo, Descripcion, IdFamilia, IdCuidadora, FechaCreacion FROM ${name}`).all();
+          for (const r of rows) {
+            db.prepare('INSERT INTO Casos (Titulo, Descripcion, Tipo, IdUsuarioReporta, IdCuidadora, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?)').run(r.Titulo, r.Descripcion, tipo, r.IdFamilia, r.IdCuidadora, r.FechaCreacion);
+          }
+          if (rows.length > 0) console.log(`${rows.length} ${name} migrados a Casos.`);
+        } catch(e) { /* tabla no existe o vacía */ }
+      }
+    }
+  } catch(e) { console.log('Migración Casos omitida:', e.message); }
+
   // Seed casos si están vacíos
   if (db.prepare('SELECT COUNT(*) AS c FROM Casos').get().c === 0) {
     const casos = [
