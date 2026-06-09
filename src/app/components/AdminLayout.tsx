@@ -33,57 +33,52 @@ export function AdminLayout() {
   const [tab, setTab] = useState<Tab>('dashboard');
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-[#1E293B] text-white flex flex-col flex-shrink-0">
-        <div className="p-6 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/20 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-[#F59E0B]" />
+    <div className="min-h-screen bg-gray-50">
+      {/* Navbar */}
+      <header className="bg-[#1E293B] text-white sticky top-0 z-40 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 overflow-hidden rounded">
+                  <img src="/logo.png" alt="" className="w-full h-full object-cover" />
+                </div>
+                <span className="text-lg font-extrabold text-[#F59E0B] tracking-tight">CERTINANAS</span>
+              </div>
+              <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
+              <span className="text-white/60 text-sm hidden sm:inline">Panel de control</span>
             </div>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight">Admin</h1>
-              <p className="text-xs text-white/50">Panel de control</p>
-            </div>
-          </div>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {navItems.map(item => {
-            const active = tab === item.key;
-            return (
-              <button
-                key={item.key}
-                onClick={() => setTab(item.key)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  active
-                    ? 'bg-[#F59E0B]/10 text-[#F59E0B] border-l-2 border-[#F59E0B]'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <item.icon className={`w-5 h-5 ${active ? 'text-[#F59E0B]' : ''}`} />
-                <span>{item.label}</span>
+            <nav className="hidden md:flex items-center gap-4">
+              {navItems.map(item => (
+                <button key={item.key} onClick={() => setTab(item.key)}
+                  className={`text-sm font-bold whitespace-nowrap transition-colors ${
+                    tab === item.key ? 'text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5' : 'text-white/70 hover:text-white'
+                  }`}>{item.label}</button>
+              ))}
+              <ProfileAvatar size={32} className="ml-2" />
+              <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                <LogOut className="w-4 h-4 text-white/60" />
               </button>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-white/10">
-          <div className="flex items-center gap-3 px-4 py-3">
-            <ProfileAvatar size={32} />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user?.nombres} {user?.apellidos}</p>
-              <p className="text-xs text-white/50 truncate">{user?.email}</p>
-            </div>
-            <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors" title="Cerrar sesión">
+            </nav>
+          </div>
+          {/* Mobile nav */}
+          <nav className="md:hidden flex items-center gap-2 pb-2 overflow-x-auto">
+            {navItems.map(item => (
+              <button key={item.key} onClick={() => setTab(item.key)}
+                className={`text-xs font-bold whitespace-nowrap px-2 py-1 rounded transition-colors ${
+                  tab === item.key ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 'text-white/70 hover:text-white'
+                }`}>{item.label}</button>
+            ))}
+            <ProfileAvatar size={28} />
+            <button onClick={logout} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
               <LogOut className="w-4 h-4 text-white/60" />
             </button>
-          </div>
+          </nav>
         </div>
-      </aside>
+      </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main>
         {tab === 'dashboard' && <DashboardView />}
         {tab === 'contratos' && <ContratosView />}
         {tab === 'postulaciones' && <PostulacionesView />}
@@ -151,7 +146,7 @@ function AdminMessages() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] p-4 sm:p-6 lg:p-8 gap-6">
+    <div className="flex h-[calc(100vh-4rem)] p-4 sm:p-6 lg:p-8 gap-6">
       {/* Lista conversaciones */}
       <div className="w-72 flex-shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-y-auto">
         <div className="p-4 border-b border-gray-100">
