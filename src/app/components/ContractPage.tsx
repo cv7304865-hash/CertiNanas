@@ -31,6 +31,17 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
     return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
+  const statusLabel: Record<string, string> = {
+    Pendiente: 'Pendiente', Confirmada: 'Confirmada', 'En curso': 'En curso',
+    Finalizada: 'Pagado', Completada: 'Pagado', Pagada: 'Pagado', Cancelada: 'Cancelada',
+  };
+  const badgeClass: Record<string, string> = {
+    Pendiente: 'bg-[#f6a5c0] text-white', Confirmada: 'bg-[#cc8db3] text-white',
+    'En curso': 'bg-[#9d85b6] text-white',
+    Finalizada: 'bg-emerald-500 text-white', Completada: 'bg-emerald-500 text-white',
+    Pagada: 'bg-emerald-500 text-white', Cancelada: 'bg-[#cc8db3] text-white',
+  };
+
   const nroContrato = data ? `CTN-2026-${String(data.Id).padStart(4, '0')}` : '---';
 
   return (
@@ -71,7 +82,14 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
           <div className="p-6 sm:p-8">
             <div className="flex items-center gap-3 mb-1">
               <FileSignature className="w-6 h-6 text-[#f6a5c0]" />
-              <h1 className="text-xl font-bold text-white/90">Contrato de Servicio N° {nroContrato}</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl font-bold text-white/90">Contrato de Servicio N° {nroContrato}</h1>
+                {data && (
+                  <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${badgeClass[data.Estado] || 'bg-[#f6a5c0] text-white'}`}>
+                    {statusLabel[data.Estado] || data.Estado}
+                  </span>
+                )}
+              </div>
             </div>
             <p className="text-sm text-white/60 ml-9">Generado automáticamente por CERTINANAS</p>
           </div>
@@ -147,19 +165,25 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
 
           {/* Botón */}
           <div className="px-6 sm:px-8 pb-8">
-            <motion.button
-              whileHover={accepted ? { scale: 1.01 } : {}}
-              whileTap={accepted ? { scale: 0.99 } : {}}
-              disabled={!accepted}
-              onClick={onProceedToPayment}
-              className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all shadow-md ${
-                accepted
-                  ? 'bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] text-white hover:shadow-lg cursor-pointer'
-                  : 'bg-white/20 text-white/40 cursor-not-allowed'
-              }`}
-            >
-              Firmar y proceder al pago
-            </motion.button>
+            {data && (data.Estado === 'Pagada' || data.Estado === 'Completada' || data.Estado === 'Finalizada') ? (
+              <div className="text-center py-3 bg-emerald-500/20 backdrop-blur-sm border border-emerald-500/30 rounded-xl">
+                <p className="text-sm font-semibold text-emerald-300">✓ Servicio pagado</p>
+              </div>
+            ) : (
+              <motion.button
+                whileHover={accepted ? { scale: 1.01 } : {}}
+                whileTap={accepted ? { scale: 0.99 } : {}}
+                disabled={!accepted}
+                onClick={onProceedToPayment}
+                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all shadow-md ${
+                  accepted
+                    ? 'bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] text-white hover:shadow-lg cursor-pointer'
+                    : 'bg-white/20 text-white/40 cursor-not-allowed'
+                }`}
+              >
+                Firmar y proceder al pago
+              </motion.button>
+            )}
           </div>
         </motion.div>
       </div>
