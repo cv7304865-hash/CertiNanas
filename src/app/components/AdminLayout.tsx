@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
-import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, ChevronLeft, CheckCircle, XCircle, Eye, Search, ArrowUpDown, FileSignature, TrendingUp, DollarSign, PieChart as PieIcon, Download, MessageSquare, Send } from 'lucide-react';
+import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, MessageSquare, Send, CheckCircle, XCircle, Eye, Search, Download, TrendingUp, DollarSign } from 'lucide-react';
 import { BarChart, Bar, PieChart, Pie, LineChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
@@ -17,15 +17,15 @@ type Documento = {
 
 type Tab = 'dashboard' | 'postulaciones' | 'perfiles' | 'incidencias' | 'usuarios' | 'reportes' | 'contratos' | 'mensajes';
 
-const navItems: { key: Tab; label: string }[] = [
-  { key: 'dashboard', label: 'Dashboard' },
-  { key: 'contratos', label: 'Contratos' },
-  { key: 'postulaciones', label: 'Postulaciones' },
-  { key: 'perfiles', label: 'Perfiles' },
-  { key: 'incidencias', label: 'Incidencias' },
-  { key: 'mensajes', label: 'Mensajes' },
-  { key: 'usuarios', label: 'Usuarios' },
-  { key: 'reportes', label: 'Reportes' },
+const navItems: { key: Tab; label: string; icon: any }[] = [
+  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { key: 'contratos', label: 'Contratos', icon: FileText },
+  { key: 'postulaciones', label: 'Postulaciones', icon: UserCheck },
+  { key: 'perfiles', label: 'Perfiles Validados', icon: Users },
+  { key: 'incidencias', label: 'Incidencias', icon: AlertTriangle },
+  { key: 'mensajes', label: 'Mensajes', icon: MessageSquare },
+  { key: 'usuarios', label: 'Usuarios', icon: Users },
+  { key: 'reportes', label: 'Reportes', icon: BarChart3 },
 ];
 
 export function AdminLayout() {
@@ -33,48 +33,57 @@ export function AdminLayout() {
   const [tab, setTab] = useState<Tab>('dashboard');
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
-      <header className="bg-[#1E293B] text-white sticky top-0 z-40 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-[#F59E0B]" />
-                <span className="text-lg font-extrabold text-[#F59E0B] tracking-tight">ADMIN</span>
-              </div>
-              <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
-              <span className="text-white/60 text-sm hidden sm:inline">Panel de control</span>
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
+      <aside className="w-64 bg-[#1E293B] text-white flex flex-col flex-shrink-0">
+        <div className="p-6 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/20 flex items-center justify-center">
+              <Shield className="w-5 h-5 text-[#F59E0B]" />
             </div>
-            <nav className="hidden md:flex items-center gap-3">
-              {navItems.map(item => (
-                <button key={item.key} onClick={() => setTab(item.key)}
-                  className={`text-xs font-bold whitespace-nowrap transition-colors ${
-                    tab === item.key ? 'text-[#F59E0B] border-b-2 border-[#F59E0B] pb-0.5' : 'text-white/70 hover:text-white'
-                  }`}>{item.label}</button>
-              ))}
-            </nav>
-            <div className="flex items-center gap-3">
-              <ProfileAvatar size={32} />
-              <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <LogOut className="w-4 h-4 text-white/60" />
-              </button>
+            <div>
+              <h1 className="text-lg font-bold tracking-tight">Admin</h1>
+              <p className="text-xs text-white/50">Panel de control</p>
             </div>
           </div>
-          {/* Mobile nav */}
-          <nav className="md:hidden flex items-center gap-2 pb-2 overflow-x-auto">
-            {navItems.map(item => (
-              <button key={item.key} onClick={() => setTab(item.key)}
-                className={`text-xs font-bold whitespace-nowrap px-2 py-1 rounded transition-colors ${
-                  tab === item.key ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 'text-white/70 hover:text-white'
-                }`}>{item.label}</button>
-            ))}
-          </nav>
         </div>
-      </header>
+
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          {navItems.map(item => {
+            const active = tab === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => setTab(item.key)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  active
+                    ? 'bg-[#F59E0B]/10 text-[#F59E0B] border-l-2 border-[#F59E0B]'
+                    : 'text-white/60 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <item.icon className={`w-5 h-5 ${active ? 'text-[#F59E0B]' : ''}`} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="p-4 border-t border-white/10">
+          <div className="flex items-center gap-3 px-4 py-3">
+            <ProfileAvatar size={32} />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{user?.nombres} {user?.apellidos}</p>
+              <p className="text-xs text-white/50 truncate">{user?.email}</p>
+            </div>
+            <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors" title="Cerrar sesión">
+              <LogOut className="w-4 h-4 text-white/60" />
+            </button>
+          </div>
+        </div>
+      </aside>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto">
+      <main className="flex-1 overflow-y-auto">
         {tab === 'dashboard' && <DashboardView />}
         {tab === 'contratos' && <ContratosView />}
         {tab === 'postulaciones' && <PostulacionesView />}
