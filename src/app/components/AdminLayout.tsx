@@ -176,25 +176,21 @@ function DashboardView() {
               </tr>
             </thead>
             <tbody>
-              {data.incidencias.map((inc, i) => (
-                <tr key={inc.IdCita} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                  <td className="py-3 px-6 font-bold text-gray-900 font-mono">#SOL-{String(inc.IdCita).padStart(3, '0')}</td>
+              {data.incidencias.map((inc) => {
+                const tipoCls = inc.Tipo === 'Grave' ? 'bg-red-50 text-red-700 border-red-200' : inc.Tipo === 'Moderada' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                const estCls = inc.Estado === 'Abierta' ? 'bg-amber-50 text-amber-700 border-amber-200' : inc.Estado === 'En revision' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-200';
+                return (
+                <tr key={inc.Id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <td className="py-3 px-6 font-bold text-gray-900 font-mono">#SOL-{String(inc.IdCita || inc.Id).padStart(3, '0')}</td>
                   <td className="py-3 px-6">
-                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${
-                      i === 0 ? 'bg-red-50 text-red-700 border-red-200' : i === 1 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    }`}>
-                      {i === 0 ? 'Grave' : i === 1 ? 'Moderada' : 'Leve'}
-                    </span>
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${tipoCls}`}>{inc.Tipo}</span>
                   </td>
                   <td className="py-3 px-6">
-                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${
-                      i < 2 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-blue-700 border-blue-200'
-                    }`}>
-                      {i < 2 ? 'Abierta' : 'En revisión'}
-                    </span>
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${estCls}`}>{inc.Estado === 'En revision' ? 'En revisión' : inc.Estado}</span>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
               {data.incidencias.length === 0 && (
                 <tr><td colSpan={3} className="py-8 text-center text-gray-400 text-sm">No hay incidencias abiertas</td></tr>
               )}
@@ -586,6 +582,17 @@ function IncidenciasView() {
     fetch('/api/admin/incidencias', { headers }).then(r => r.json()).then(setIncidencias).catch(() => {});
   }, []);
 
+  const badgeTipo = (t: string) => {
+    if (t === 'Grave') return 'bg-red-50 text-red-700 border-red-200';
+    if (t === 'Moderada') return 'bg-amber-50 text-amber-700 border-amber-200';
+    return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+  };
+  const badgeEst = (e: string) => {
+    if (e === 'Abierta') return 'bg-amber-50 text-amber-700 border-amber-200';
+    if (e === 'En revision') return 'bg-blue-50 text-blue-700 border-blue-200';
+    return 'bg-gray-50 text-gray-600 border-gray-200';
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-8">Incidencias</h1>
@@ -594,22 +601,22 @@ function IncidenciasView() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Tipo</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Usuario</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Fecha</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Estado</th>
+                <th className="text-left py-3 px-6 font-semibold text-gray-600">Servicio</th>
+                <th className="text-left py-3 px-6 font-semibold text-gray-600">Tipo</th>
+                <th className="text-left py-3 px-6 font-semibold text-gray-600">Descripción</th>
+                <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
               </tr>
             </thead>
             <tbody>
-              {incidencias.map((inc, i) => (
-                <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-3 px-4">
-                    <span className="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700">{inc.Tipo}</span>
+              {incidencias.map((inc) => (
+                <tr key={inc.Id} className="border-b border-gray-50 hover:bg-gray-50">
+                  <td className="py-3 px-6 font-bold text-gray-900 font-mono">{inc.Servicio}</td>
+                  <td className="py-3 px-6">
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeTipo(inc.Tipo)}`}>{inc.Tipo}</span>
                   </td>
-                  <td className="py-3 px-4 text-gray-800">{inc.Usuario}</td>
-                  <td className="py-3 px-4 text-gray-500">{inc.Fecha}</td>
-                  <td className="py-3 px-4">
-                    <span className="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-red-50 text-red-700">{inc.Estado}</span>
+                  <td className="py-3 px-6 text-gray-600 text-xs max-w-xs truncate">{inc.Descripcion || '—'}</td>
+                  <td className="py-3 px-6">
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeEst(inc.Estado)}`}>{inc.Estado === 'En revision' ? 'En revisión' : inc.Estado}</span>
                   </td>
                 </tr>
               ))}

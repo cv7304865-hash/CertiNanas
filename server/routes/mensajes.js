@@ -67,12 +67,10 @@ router.post('/reportar-incidencia', (req, res) => {
   const { idConversacion, motivo } = req.body;
   if (!idConversacion) return res.status(400).json({ error: 'idConversacion requerido' });
 
-  // Crear un registro de incidencia como Cita cancelada
   const conv = db.prepare('SELECT IdCuidadora, IdUsuarioFamilia FROM Conversaciones WHERE Id = ?').get(idConversacion);
   if (!conv) return res.status(404).json({ error: 'Conversación no encontrada' });
 
-  db.prepare(`INSERT INTO Citas (IdCuidadora, IdUsuarioFamilia, FechaCita, HoraCita, DuracionMinutos, Modalidad, Estado, FechaCreacion)
-    VALUES (?, ?, date('now'), time('now'), 15, 'Virtual', 'Cancelada', datetime('now'))`).run(conv.IdCuidadora, conv.IdUsuarioFamilia);
+  db.prepare('INSERT INTO Incidencias (IdCita, Tipo, Estado, Descripcion) VALUES (NULL, ?, ?, ?)').run('Moderada', 'Abierta', motivo || 'Reporte desde conversación');
 
   res.json({ success: true });
 });

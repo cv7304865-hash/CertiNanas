@@ -105,11 +105,13 @@ const comentariosResenaMala = [
 export function seed(db) {
   const hasOldData = db.prepare("SELECT COUNT(*) AS c FROM Usuarios WHERE Email LIKE '%cuidadora%' OR Email LIKE '%familia%'").get().c > 1;
 
+  const ALL_TABLES = ['Incidencias', 'Notificaciones', 'DocumentosPostulacion', 'Postulaciones', 'Pagos', 'Menores', 'Ordenes', 'Mensajes', 'Conversaciones', 'Citas', 'Favoritos', 'Resenas', 'CuidadoraCertificaciones', 'CuidadoraFormacion', 'CuidadoraDocumentos', 'CuidadoraAreas', 'CuidadoraEspecialidades', 'Cuidadoras', 'Usuarios'];
+
   if (hasOldData) {
     console.log('🗑️  Detectados datos con formato antiguo. Limpiando y regenerando...');
     db.exec('PRAGMA foreign_keys = OFF');
-    const tables = ['Notificaciones', 'DocumentosPostulacion', 'Postulaciones', 'Pagos', 'Menores', 'Ordenes', 'Mensajes', 'Conversaciones', 'Citas', 'Favoritos', 'Resenas', 'CuidadoraCertificaciones', 'CuidadoraFormacion', 'CuidadoraDocumentos', 'CuidadoraAreas', 'CuidadoraEspecialidades', 'Cuidadoras', 'Usuarios'];
-    for (const t of tables) db.exec(`DELETE FROM ${t}`);
+    for (const t of ALL_TABLES) db.exec(`DELETE FROM ${t}`);
+    for (const t of ALL_TABLES) db.exec(`DELETE FROM sqlite_sequence WHERE name='${t}'`);
     db.exec('PRAGMA foreign_keys = ON');
   }
 
@@ -331,7 +333,35 @@ export function seed(db) {
     }
   }
 
-  // ========== 9. POSTULACIONES (con documentos) ==========
+  // ========== 9. INCIDENCIAS ==========
+  const descsInc = [
+    'La cuidadora llegó 45 minutos tarde sin avisar. El menor quedó solo durante ese tiempo.',
+    'La familia no entregó los materiales de terapia acordados para la sesión.',
+    'Se reportó un leve retraso de 10 minutos. Sin mayor impacto en el servicio.',
+    'El menor presentó una crisis de ansiedad durante la sesión. La cuidadora siguió el protocolo.',
+    'Hubo un malentendido con el horario acordado. Se resolvió conversando.',
+    'Desacuerdo sobre la metodología de estimulación aplicada. Se programó reunión.',
+    'La cuidadora reportó que el hogar no contaba con las condiciones mínimas de seguridad.',
+  ];
+  if (db.prepare('SELECT COUNT(*) AS c FROM Incidencias').get().c === 0) {
+    const ordenes = db.prepare('SELECT Id, IdCuidadora, IdUsuarioFamilia FROM Ordenes ORDER BY Id').all();
+    const paresInc = [
+      { ordenIdx: 9,  tipo: 'Grave',    estado: 'Abierta' },
+      { ordenIdx: 0,  tipo: 'Moderada', estado: 'Abierta' },
+      { ordenIdx: 38, tipo: 'Leve',     estado: 'En revision' },
+      { ordenIdx: 10, tipo: 'Leve',     estado: 'En revision' },
+      { ordenIdx: 17, tipo: 'Leve',     estado: 'En revision' },
+      { ordenIdx: 33, tipo: 'Leve',     estado: 'Cerrada' },
+    ];
+    for (const p of paresInc) {
+      const o = ordenes[p.ordenIdx];
+      if (!o) continue;
+      const diasAgo = rand(5, 60);
+      db.prepare('INSERT INTO Incidencias (IdOrden, Tipo, Estado, Descripcion, FechaCreacion) VALUES (?, ?, ?, ?, ?)').run(o.Id, p.tipo, p.estado, pick(descsInc), dateTimeStr(diasAgo));
+    }
+  }
+
+  // ========== 10. POSTULACIONES (con documentos) ==========
   if (db.prepare('SELECT COUNT(*) AS c FROM Postulaciones').get().c === 0) {
     const tiposDoc = [
       ['DNI', '120 KB'],
@@ -355,7 +385,7 @@ export function seed(db) {
     }
   }
 
-  // ========== 10. REPORTE ==========
+  // ========== 11. REPORTE ==========
   const stats = {
     usuarios: db.prepare('SELECT COUNT(*) AS c FROM Usuarios').get().c,
     cuidadoras: db.prepare('SELECT COUNT(*) AS c FROM Cuidadoras').get().c,
@@ -364,6 +394,7 @@ export function seed(db) {
     ordenes: db.prepare('SELECT COUNT(*) AS c FROM Ordenes').get().c,
     pagos: db.prepare('SELECT COUNT(*) AS c FROM Pagos').get().c,
     postulaciones: db.prepare('SELECT COUNT(*) AS c FROM Postulaciones').get().c,
+    incidencias: db.prepare('SELECT COUNT(*) AS c FROM Incidencias').get().c,
   };
   console.log('✅ Datos demo generados con aspecto real:');
   Object.entries(stats).forEach(([k, v]) => console.log(`   ${k}: ${v}`));

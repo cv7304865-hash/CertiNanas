@@ -20,7 +20,7 @@ router.get('/stats', isAdmin, (req, res) => {
   const totalAdmins = db.prepare('SELECT COUNT(*) AS c FROM Usuarios WHERE IdRol = 1').get().c;
   const postulacionesPendientes = db.prepare("SELECT COUNT(*) AS c FROM Postulaciones WHERE Estado = 'Pendiente'").get().c;
   const serviciosCompletados = db.prepare("SELECT COUNT(*) AS c FROM Ordenes WHERE Estado IN ('Finalizada', 'Completada', 'Pagada')").get().c;
-  const incidenciasAbiertas = db.prepare("SELECT COUNT(*) AS c FROM Citas WHERE Estado = 'Cancelada'").get().c;
+  const incidenciasAbiertas = db.prepare("SELECT COUNT(*) AS c FROM Incidencias WHERE Estado != 'Cerrada'").get().c;
   res.json({ totalUsers, totalCuidadoras, totalFamilias, totalAdmins, postulacionesPendientes, serviciosCompletados, incidenciasAbiertas });
 });
 
@@ -35,17 +35,11 @@ router.get('/dashboard', isAdmin, (req, res) => {
     ORDER BY p.FechaPostulacion DESC
     LIMIT 6
   `).all();
-  // Incidencias abiertas (citas canceladas)
+  // Incidencias abiertas
   const incidencias = db.prepare(`
-    SELECT c.Id AS IdCita, c.FechaCita, c.Estado,
-           u.Nombres AS CuidadoraNombres, u.Apellidos AS CuidadoraApellidos,
-           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos
-    FROM Citas c
-    INNER JOIN Cuidadoras cu ON cu.Id = c.IdCuidadora
-    INNER JOIN Usuarios u ON u.Id = cu.IdUsuario
-    INNER JOIN Usuarios uf ON uf.Id = c.IdUsuarioFamilia
-    WHERE c.Estado = 'Cancelada'
-    ORDER BY c.FechaCreacion DESC
+    SELECT i.Id, i.IdOrden AS IdCita, i.Tipo, i.Estado, i.FechaCreacion
+    FROM Incidencias i
+    ORDER BY i.FechaCreacion DESC
     LIMIT 6
   `).all();
   res.json({ postulacionesRecientes, incidencias });
@@ -113,21 +107,15 @@ router.get('/perfiles-validados', isAdmin, (req, res) => {
 router.get('/incidencias', isAdmin, (req, res) => {
   const db = getDb();
   const incidencias = db.prepare(`
-    SELECT 'Cita cancelada' AS Tipo, c.Id AS ReferenciaId,
-           CONCAT(u.Nombres, ' ', u.Apellidos) AS Usuario,
-           c.FechaCreacion AS Fecha, c.Estado
-    FROM Citas c INNER JOIN Usuarios u ON u.Id = c.IdUsuarioFamilia
-    WHERE c.Estado = 'Cancelada'
-    UNION ALL
-    SELECT 'Postulacion rechazada' AS Tipo, p.Id,
-           CONCAT(u.Nombres, ' ', u.Apellidos),
-           p.FechaCreacion, p.Estado
-    FROM Postulaciones p INNER JOIN Usuarios u ON u.Id = p.IdUsuario
-    WHERE p.Estado = 'Rechazada'
-    ORDER BY Fecha DESC
+    SELECT i.Id, i.IdOrden, i.Tipo, i.Estado, i.Descripcion, i.FechaCreacion
+    FROM Incidencias i
+    ORDER BY i.FechaCreacion DESC
     LIMIT 20
   `).all();
-  res.json(incidencias);
+  res.json(incidencias.map(i => ({
+    ...i,
+    Servicio: `#SOL-${String(i.IdOrden || i.Id).padStart(3, '0')}`,
+  })));
 });
 
 router.get('/reportes', isAdmin, (req, res) => {
