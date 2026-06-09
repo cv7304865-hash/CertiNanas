@@ -108,7 +108,7 @@ export function AdminLayout() {
       </aside>
 
       {/* ======= MAIN CONTENT ======= */}
-      <main className="ml-64 mt-16 p-8 min-h-[calc(100vh-4rem)] overflow-y-auto">
+      <main className="ml-64 mt-16 p-8 h-[calc(100vh-4rem)] overflow-y-auto">
         {tab === 'dashboard' && <DashboardView />}
         {tab === 'contratos' && <ContratosView />}
         {tab === 'postulaciones' && <PostulacionesView />}
@@ -176,7 +176,7 @@ function AdminMessages() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] p-6 gap-6">
+    <div className="flex h-full p-6 gap-6">
       <div className="w-72 flex-shrink-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-y-auto">
         <div className="p-4 border-b border-gray-100">
           <h2 className="font-bold text-gray-900">Conversaciones</h2>
