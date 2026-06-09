@@ -6,6 +6,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<string | null>;
   register: (data: { email: string; password: string; nombres: string; apellidos: string; rol: 'familia' | 'cuidadora' }) => Promise<string | null>;
   logout: () => void;
+  updateFotoPerfil: (fotoPerfil: string) => void;
   loading: boolean;
 }
 
@@ -49,8 +50,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const updateFotoPerfil = (fotoPerfil: string) => {
+    setUser(prev => prev ? { ...prev, fotoPerfil } : null);
+    const session = authService.getSession();
+    if (session) {
+      session.fotoPerfil = fotoPerfil;
+      sessionStorage.setItem('certinanas_session', JSON.stringify(session));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateFotoPerfil, loading }}>
       {children}
     </AuthContext.Provider>
   );

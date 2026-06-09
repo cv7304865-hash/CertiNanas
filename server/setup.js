@@ -248,6 +248,7 @@ db.exec(`
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN IdMenor INTEGER REFERENCES Menores(Id)`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN HoraInicio TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN HoraFin TEXT`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Usuarios ADD COLUMN FotoPerfil TEXT`).run(); } catch(e) {}
 
 console.log('Tablas creadas y datos de semilla insertados.');
 }

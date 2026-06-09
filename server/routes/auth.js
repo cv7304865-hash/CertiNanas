@@ -12,7 +12,7 @@ router.post('/login', (req, res) => {
 
     const db = getDb();
     const user = db.prepare(`
-      SELECT u.Id, u.Email, u.Nombres, u.Apellidos, r.Nombre AS Rol
+      SELECT u.Id, u.Email, u.Nombres, u.Apellidos, u.FotoPerfil, r.Nombre AS Rol
       FROM Usuarios u
       INNER JOIN Roles r ON r.Id = u.IdRol
       WHERE u.Email = ? AND u.PasswordHash = ? AND u.Activo = 1
@@ -27,11 +27,30 @@ router.post('/login', (req, res) => {
       email: user.Email,
       nombres: user.Nombres,
       apellidos: user.Apellidos,
+      fotoPerfil: user.FotoPerfil,
       rol: user.Rol.toLowerCase(),
     });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Error del servidor.' });
+  }
+});
+
+router.post('/foto-perfil', (req, res) => {
+  try {
+    const userId = Number(req.headers['x-user-id']);
+    if (!userId) return res.status(401).json({ error: 'No autenticado' });
+    const db = getDb();
+    const user = db.prepare('SELECT Id FROM Usuarios WHERE Id = ?').get(userId);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const { nombreArchivo } = req.body;
+    if (!nombreArchivo) return res.status(400).json({ error: 'nombreArchivo requerido' });
+
+    db.prepare('UPDATE Usuarios SET FotoPerfil = ? WHERE Id = ?').run(nombreArchivo, userId);
+    res.json({ success: true, fotoPerfil: nombreArchivo });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -60,6 +79,7 @@ router.post('/register', (req, res) => {
       email,
       nombres,
       apellidos,
+      fotoPerfil: null,
       rol,
     });
   } catch (err) {

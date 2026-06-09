@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { Star, MessageSquare, Briefcase, LogOut, CheckCircle, ChevronRight, Clock, User, DollarSign, Calendar, Upload, File, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { ProfileAvatar } from './ProfileAvatar';
 
 type Servicio = {
   Id: number;
@@ -117,9 +118,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 onClick={() => onNavigate?.('messages')}
                 className="text-sm text-white/70 hover:text-white transition-colors"
               >Mensajes</button>
-              <div className="w-9 h-9 rounded-full bg-[#F59E0B]/20 flex items-center justify-center text-sm font-bold text-[#F59E0B] ml-2">
-                {user?.nombres?.charAt(0) || 'C'}
-              </div>
+              <ProfileAvatar size={36} className="ml-2" />
               <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
                 <LogOut className="w-4 h-4 text-white/60" />
               </button>
@@ -133,9 +132,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
         {perfil && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
             <div className="flex items-start gap-6">
-              <div className="w-20 h-20 rounded-full bg-orange-500 flex items-center justify-center text-white text-3xl font-bold flex-shrink-0">
-                {perfil.user.Nombres?.charAt(0)}
-              </div>
+              <ProfileAvatar size={80} />
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-gray-900">{perfil.user.Nombres} {perfil.user.Apellidos}</h1>
                 <div className="flex items-center gap-3 mt-1">

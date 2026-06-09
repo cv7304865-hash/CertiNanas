@@ -3,6 +3,7 @@ export interface User {
   email: string;
   nombres: string;
   apellidos: string;
+  fotoPerfil?: string | null;
   rol: 'admin' | 'familia' | 'cuidadora';
 }
 

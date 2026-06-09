@@ -68,6 +68,22 @@ app.post('/api/cuidadora/documentos', upload.single('archivo'), (req, res) => {
   }
 });
 
+// Endpoint para subir foto de perfil (cualquier usuario autenticado)
+app.post('/api/usuarios/foto-perfil', upload.single('archivo'), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No se envió ningún archivo' });
+    const userId = Number(req.headers['x-user-id']);
+    if (!userId) return res.status(401).json({ error: 'No autenticado' });
+    const db = getDb();
+    const user = db.prepare('SELECT Id FROM Usuarios WHERE Id = ?').get(userId);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    db.prepare('UPDATE Usuarios SET FotoPerfil = ? WHERE Id = ?').run(req.file.filename, userId);
+    res.json({ success: true, fotoPerfil: req.file.filename });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   try {
     const db = getDb();

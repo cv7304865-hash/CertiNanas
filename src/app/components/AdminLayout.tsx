@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, ChevronLeft, CheckCircle, XCircle, Eye, Search, ArrowUpDown, FileSignature, TrendingUp, DollarSign, PieChart as PieIcon, Download } from 'lucide-react';
 import { BarChart, Bar, PieChart, Pie, LineChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
+import { ProfileAvatar } from './ProfileAvatar';
 
 type Postulacion = {
   Id: number; IdUsuario: number; FechaPostulacion: string; Estado: string;
@@ -68,9 +69,7 @@ export function AdminLayout() {
 
         <div className="p-4 border-t border-white/10">
           <div className="flex items-center gap-3 px-4 py-3">
-            <div className="w-8 h-8 rounded-full bg-[#F59E0B]/20 flex items-center justify-center text-xs font-bold text-[#F59E0B]">
-              {user?.nombres?.charAt(0) || 'A'}
-            </div>
+            <ProfileAvatar size={32} />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{user?.nombres} {user?.apellidos}</p>
               <p className="text-xs text-white/50 truncate">{user?.email}</p>
