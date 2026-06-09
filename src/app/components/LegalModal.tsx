@@ -15,7 +15,7 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
       title: 'Política de Privacidad',
       icon: <ShieldCheck className="w-6 h-6 text-[#cc8db3]" />,
       text: (
-        <div className="space-y-4 text-[#250e2c]/70 leading-relaxed">
+        <div className="space-y-4 text-[#F5D5E0] leading-relaxed">
           <p>
             En <strong>CERTINANAS</strong>, la seguridad de su familia es nuestra prioridad. En cumplimiento con la <strong>Ley N° 29733 (Ley de Protección de Datos Personales de Perú)</strong>, informamos que los datos sobre diagnósticos de menores (TEA, TDAH, Síndrome de Down, etc.) y los antecedentes policiales y médicos de las cuidadoras son tratados como Datos Sensibles.
           </p>
@@ -30,20 +30,20 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
     },
     terms: {
       title: 'Términos de Servicio',
-      icon: <FileText className="w-6 h-6 text-[#250e2c]" />,
+      icon: <FileText className="w-6 h-6 text-white" />,
       text: (
-        <div className="space-y-4 text-[#250e2c]/70 leading-relaxed">
+        <div className="space-y-4 text-[#F5D5E0] leading-relaxed">
           <p>
             Al utilizar esta plataforma, usted acepta que <strong>CERTINANAS</strong> actúa como un intermediario tecnológico de confianza.
           </p>
           <p>
-            <strong className="text-[#250e2c]">Sistema de Pagos:</strong> Todos los pagos se realizan mediante un mecanismo de Retención Segura (Escrow). El dinero se carga al inicio del acuerdo, pero solo se libera a la cuidadora una vez que la familia confirme la finalización satisfactoria del servicio.
+            <strong className="text-white">Sistema de Pagos:</strong> Todos los pagos se realizan mediante un mecanismo de Retención Segura (Escrow). El dinero se carga al inicio del acuerdo, pero solo se libera a la cuidadora una vez que la familia confirme la finalización satisfactoria del servicio.
           </p>
           <p>
-            <strong className="text-[#250e2c]">Verificación:</strong> Aunque realizamos filtros rigurosos de antecedentes penales, policiales y certificaciones profesionales, la selección final y contratación es responsabilidad exclusiva de la familia tras la respectiva 'Cita de Conocimiento' virtual.
+            <strong className="text-white">Verificación:</strong> Aunque realizamos filtros rigurosos de antecedentes penales, policiales y certificaciones profesionales, la selección final y contratación es responsabilidad exclusiva de la familia tras la respectiva 'Cita de Conocimiento' virtual.
           </p>
           <p>
-            <strong className="text-[#250e2c]">Uso del Servicio:</strong> Queda estrictamente prohibido el intercambio de datos de contacto externos (teléfonos, correos personales) antes de la confirmación del pago en la plataforma. Esta medida se implementa para garantizar la seguridad financiera y física de ambas partes.
+            <strong className="text-white">Uso del Servicio:</strong> Queda estrictamente prohibido el intercambio de datos de contacto externos (teléfonos, correos personales) antes de la confirmación del pago en la plataforma. Esta medida se implementa para garantizar la seguridad financiera y física de ambas partes.
           </p>
         </div>
       )
@@ -58,7 +58,7 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-[#210635]/50 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
@@ -66,19 +66,19 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-white/30 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[85vh]"
+          className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-3xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[85vh]"
         >
           {/* Header */}
-          <div className="p-6 border-b border-white/20 flex justify-between items-center bg-white/10 shrink-0">
+          <div className="p-6 border-b border-[rgba(255,255,255,0.1)] flex justify-between items-center bg-[rgba(33,6,53,0.4)] shrink-0">
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-xl ${type === 'privacy' ? 'bg-[#f6a5c0]/30' : 'bg-[#9d85b6]/30'}`}>
                 {icon}
               </div>
-              <h2 className="text-2xl font-bold text-[#250e2c]">{title}</h2>
+              <h2 className="text-2xl font-bold text-white">{title}</h2>
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-[#250e2c]/50 hover:text-[#250e2c]/70 hover:bg-white/30 rounded-full transition-colors"
+              className="p-2 text-[#6667AB] hover:text-white hover:bg-[rgba(33,6,53,0.4)] rounded-full transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -90,10 +90,10 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-white/20 bg-white/10 shrink-0">
+          <div className="p-6 border-t border-[rgba(255,255,255,0.1)] bg-[rgba(33,6,53,0.4)] shrink-0">
             <button
               onClick={onClose}
-              className="w-full py-3.5 bg-[#250e2c] text-white rounded-xl font-bold hover:bg-[#1e40af] transition-all shadow-lg shadow-blue-900/20"
+              className="w-full py-3.5 bg-[#CC8DB3] text-[#210635] rounded-xl font-bold hover:bg-[#b07a9a] transition-all shadow-lg shadow-black/30"
             >
               Entendido y Cerrar
             </button>
@@ -103,6 +103,3 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
     </AnimatePresence>
   );
 }
-
-
-

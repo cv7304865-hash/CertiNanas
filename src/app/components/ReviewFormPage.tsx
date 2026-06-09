@@ -48,8 +48,8 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
-        <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40 shadow-lg">
+      <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
+        <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] text-white sticky top-0 z-40 shadow-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-2">
@@ -60,12 +60,12 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
           </div>
         </header>
         <div className="max-w-md mx-auto px-4 py-20 text-center">
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-20 h-20 rounded-full bg-[#9d85b6]/30 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-[#250e2c]" />
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-20 h-20 rounded-full bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-10 h-10 text-[#F5D5E0]" />
           </motion.div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Gracias por tu evaluación!</h2>
-          <p className="text-gray-500 text-sm mb-8">Tu opinión ayuda a otras familias a encontrar la cuidadora ideal.</p>
-          <button onClick={onBack} className="px-8 py-3 bg-[#cc8db3] hover:bg-[#b07a9a] text-white font-bold rounded-xl transition-all shadow-md">
+          <h2 className="text-2xl font-bold text-white mb-2">¡Gracias por tu evaluación!</h2>
+          <p className="text-[#6667AB] text-sm mb-8">Tu opinión ayuda a otras familias a encontrar la cuidadora ideal.</p>
+          <button onClick={onBack} className="px-8 py-3 bg-[#F6A5C0] text-[#210635] font-bold rounded-xl transition-all shadow-md">
             Volver a mis servicios
           </button>
         </div>
@@ -74,8 +74,8 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
-      <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40 shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
+      <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -84,7 +84,7 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
                 <span className="text-lg font-extrabold text-[#f6a5c0] tracking-tight">CERTINANAS</span>
               </div>
               <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
-              <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
+              <span className="text-[#6667AB] text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
               <button onClick={() => onBack?.()} className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
@@ -100,31 +100,31 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
       </header>
 
       <div className="max-w-lg mx-auto px-4 py-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg shadow-black/5 overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] rounded-2xl shadow-lg shadow-black/30 overflow-hidden">
           <div className="p-6 sm:p-8">
             <div className="flex items-center gap-3 mb-1">
-              <Star className="w-6 h-6 text-[#cc8db3]" />
-              <h1 className="text-xl font-bold text-gray-900">Evaluar servicio</h1>
+              <Star className="w-6 h-6 text-[#CC8DB3]" />
+              <h1 className="text-xl font-bold text-white">Evaluar servicio</h1>
             </div>
-            <p className="text-sm text-gray-400 ml-9">Tu opinión ayuda a otras familias</p>
+            <p className="text-sm text-[#6667AB] ml-9">Tu opinión ayuda a otras familias</p>
           </div>
 
           {!data ? (
             <div className="px-6 sm:px-8 pb-8 animate-pulse space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-4 bg-[rgba(33,6,53,0.4)] rounded w-3/4"></div>
+              <div className="h-4 bg-[rgba(33,6,53,0.4)] rounded w-1/2"></div>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
               <div className="px-6 sm:px-8 space-y-6">
                 {/* Tarjeta del servicio */}
-                <div className="bg-white/30 backdrop-blur-sm border border-white/30 rounded-xl p-4 flex items-center gap-4">
+                <div className="bg-[rgba(33,6,53,0.5)] backdrop-blur-sm border border-[rgba(255,255,255,0.2)] rounded-xl p-4 flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-[#cc8db3] flex items-center justify-center text-white font-bold flex-shrink-0">
                     {getIniciales(data.CuidadoraNombres, data.CuidadoraApellidos)}
                   </div>
                   <div>
-                    <p className="font-bold text-gray-900">{data.CuidadoraNombres} {data.CuidadoraApellidos}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="font-bold text-white">{data.CuidadoraNombres} {data.CuidadoraApellidos}</p>
+                    <p className="text-xs text-[#6667AB] mt-0.5">
                       Servicio del {formatFecha(data.FechaServicio)}{data.MenorNombre ? ` · ${data.MenorNombre}${data.MenorDiagnostico ? ` (${data.MenorDiagnostico})` : ''}` : ''}
                     </p>
                   </div>
@@ -132,7 +132,7 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
 
                 {/* Estrellas */}
                 <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-3">Calificación</p>
+                  <p className="text-sm text-[#6667AB] mb-3">Calificación</p>
                   <div className="flex justify-center gap-1.5">
                     {[1, 2, 3, 4, 5].map(i => (
                       <button key={i} type="button"
@@ -141,22 +141,22 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
                         onMouseLeave={() => setHovered(0)}
                         className="transition-transform hover:scale-110"
                       >
-                        <Star className={`w-8 h-8 ${i <= (hovered || rating) ? 'text-[#cc8db3] fill-[#cc8db3]' : 'text-gray-200'}`} />
+                        <Star className={`w-8 h-8 ${i <= (hovered || rating) ? 'text-[#CC8DB3] fill-[#CC8DB3]' : 'text-[#6667AB]'}`} />
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-gray-400 mt-2">{rating > 0 ? `${rating} de 5 estrellas` : 'Selecciona una puntuación'}</p>
+                  <p className="text-xs text-[#6667AB] mt-2">{rating > 0 ? `${rating} de 5 estrellas` : 'Selecciona una puntuación'}</p>
                 </div>
 
                 {/* Comentario */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Comentario</label>
+                  <label className="block text-sm font-semibold text-[#F5D5E0] mb-1.5">Comentario</label>
                   <textarea
                     value={comentario}
                     onChange={e => setComentario(e.target.value)}
                     placeholder="Cuenta tu experiencia con esta cuidadora..."
                     rows={5}
-                    className="w-full px-4 py-3 rounded-xl bg-white/30 border border-white/40 backdrop-blur-sm text-[#250e2c] text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/40 focus:bg-white/50 resize-none"
+                    className="w-full px-4 py-3 rounded-xl bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,225,0.3)] text-white placeholder:text-[#6667AB] text-sm focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] resize-none"
                   />
                 </div>
               </div>
@@ -169,8 +169,8 @@ export function ReviewFormPage({ orderId, onBack }: { orderId?: number; onBack?:
                   disabled={rating === 0}
                   className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all shadow-md ${
                     rating > 0
-                      ? 'bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] text-white hover:shadow-lg cursor-pointer'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      ? 'bg-[#F6A5C0] text-[#210635] hover:shadow-lg cursor-pointer'
+                      : 'bg-[rgba(33,6,53,0.5)] text-[#6667AB] cursor-not-allowed'
                   }`}
                 >
                   Publicar evaluación

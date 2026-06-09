@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
-import { LogOut, Send, AlertTriangle, Bell, X, FileSignature } from 'lucide-react';
+import { LogOut, Send, AlertTriangle, Bell, FileSignature } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 
@@ -73,15 +73,15 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
 
   const badgeEstado: Record<string, string> = {
     Pendiente: 'bg-amber-50 text-amber-700 border-amber-200',
-    Confirmada: 'bg-[#f6a5c0]/20 text-[#250e2c] border-[#f6a5c0]',
-    'En curso': 'bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]',
-    Finalizada: 'bg-[#cc8db3]/20 text-[#250e2c] border-[#cc8db3]',
+    Confirmada: 'bg-[#f6a5c0]/20 text-[#F5D5E0] border-[#f6a5c0]',
+    'En curso': 'bg-[#9d85b6]/20 text-[#F5D5E0] border-[#9d85b6]',
+    Finalizada: 'bg-[#cc8db3]/20 text-[#F5D5E0] border-[#cc8db3]',
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E] flex flex-col">
       {/* Navbar */}
-      <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -109,42 +109,42 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
       <div className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
         <div className="flex gap-6 h-[calc(100vh-13rem)]">
           {/* Columna izquierda: Lista de conversaciones */}
-          <div className="w-72 flex-shrink-0 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg shadow-black/5 overflow-hidden flex flex-col">
-            <div className="p-4 border-b border-white/20">
-              <h2 className="font-bold text-gray-900">Conversaciones</h2>
+          <div className="w-72 flex-shrink-0 bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] rounded-2xl shadow-lg shadow-black/30 overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-[rgba(255,255,255,0.2)]">
+              <h2 className="font-bold text-white">Conversaciones</h2>
             </div>
             <div className="flex-1 overflow-y-auto">
               {conversaciones.map(c => (
                 <button
                   key={c.Id}
                   onClick={() => setSelectedChat(c)}
-                  className={`w-full text-left px-4 py-3.5 border-b border-white/10 transition-colors relative ${
-                    selectedChat?.Id === c.Id ? 'bg-[#f6a5c0]/20 backdrop-blur-sm' : 'hover:bg-white/10'
+                  className={`w-full text-left px-4 py-3.5 border-b border-[rgba(255,255,255,0.1)] transition-colors relative ${
+                    selectedChat?.Id === c.Id ? 'bg-[rgba(246,165,192,0.15)]' : 'hover:bg-[rgba(33,6,53,0.3)]'
                   }`}
                 >
                   {selectedChat?.Id === c.Id && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#f6a5c0]" />}
-                  <p className="font-semibold text-sm text-gray-900">{c.Nombres} {c.Apellidos?.charAt(0)}.</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="font-semibold text-sm text-white">{c.Nombres} {c.Apellidos?.charAt(0)}.</p>
+                  <p className="text-xs text-[#6667AB] mt-0.5">
                     {c.OrdenEstado === 'En curso' ? `Servicio activo ${c.MenorNombre ? '· ' + c.MenorNombre : ''}` : 'Servicio pendiente'}
                   </p>
                 </button>
               ))}
               {conversaciones.length === 0 && (
-                <p className="text-sm text-gray-400 p-4 text-center">No hay conversaciones</p>
+                <p className="text-sm text-[#6667AB] p-4 text-center">No hay conversaciones</p>
               )}
             </div>
           </div>
 
           {/* Columna derecha: Chat */}
-          <div className="flex-1 bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg shadow-black/5 overflow-hidden flex flex-col">
+          <div className="flex-1 bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] rounded-2xl shadow-lg shadow-black/30 overflow-hidden flex flex-col">
             {selectedChat ? (
               <>
                 {/* Encabezado del chat */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-white/20">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(255,255,255,0.2)]">
                   <div className="flex items-center gap-3">
-                    <h3 className="font-bold text-gray-900">{selectedChat.Nombres} {selectedChat.Apellidos}</h3>
+                    <h3 className="font-bold text-white">{selectedChat.Nombres} {selectedChat.Apellidos}</h3>
                     {selectedChat.OrdenEstado && (
-                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${badgeEstado[selectedChat.OrdenEstado] || 'bg-white/20 text-[#250e2c]/60 border-white/30'}`}>
+                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${badgeEstado[selectedChat.OrdenEstado] || 'bg-white/20 text-[#6667AB] border-[rgba(255,255,255,0.3)]'}`}>
                         {selectedChat.OrdenEstado}
                       </span>
                     )}
@@ -181,11 +181,11 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                     return (
                       <div key={m.Id} className={`flex flex-col ${esMio ? 'items-end' : 'items-start'}`}>
                         <div className={`max-w-[70%] px-4 py-2.5 rounded-2xl ${
-                          esMio ? 'bg-[#f6a5c0] text-white rounded-br-md' : 'bg-white/20 backdrop-blur-sm border border-white/30 text-[#250e2c] rounded-bl-md'
+                          esMio ? 'bg-[#F6A5C0] text-[#210635] rounded-br-md' : 'bg-[rgba(123,51,126,0.5)] backdrop-blur-sm text-white rounded-bl-md'
                         }`}>
                           <p className="text-sm">{m.Contenido}</p>
                         </div>
-                        <span className="text-[10px] text-gray-400 mt-1 px-1">
+                        <span className="text-[10px] text-[#6667AB] mt-1 px-1">
                           {esMio ? 'Tú' : selectedChat.Nombres.split(' ')[0]} · {formatHora(m.FechaEnvio)}
                         </span>
                       </div>
@@ -195,7 +195,7 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                 </div>
 
                 {/* Input */}
-                <div className="bg-white/20 backdrop-blur-sm border-t border-white/20 px-6 py-4">
+                <div className="bg-[rgba(33,6,53,0.5)] backdrop-blur-sm border-t border-[rgba(255,255,255,0.2)] px-6 py-4">
                   <div className="flex gap-3">
                     <input
                       type="text"
@@ -203,13 +203,13 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                       onChange={e => setTexto(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && enviar()}
                       placeholder="Escribe un mensaje..."
-                      className="flex-1 px-4 py-2.5 rounded-xl bg-white/30 border border-white/40 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/40 focus:bg-white/50"
+                      className="flex-1 px-4 py-2.5 rounded-xl bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,225,0.3)] text-white placeholder:text-[#6667AB] text-sm focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E]"
                     />
                     <button
                       onClick={enviar}
                       disabled={!texto.trim()}
                       className={`px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${
-                        texto.trim() ? 'bg-[#cc8db3] hover:bg-[#b07a9a] text-white shadow-md' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        texto.trim() ? 'bg-[#CC8DB3] text-[#210635] shadow-md' : 'bg-[rgba(33,6,53,0.5)] text-[#6667AB] cursor-not-allowed'
                       }`}
                     >
                       <Send className="w-4 h-4" /> Enviar
@@ -218,7 +218,7 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
+              <div className="flex-1 flex items-center justify-center text-[#6667AB] text-sm">
                 Selecciona una conversación
               </div>
             )}
@@ -228,8 +228,8 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
 
       {/* Barra inferior de notificaciones */}
       <div className="max-w-6xl mx-auto w-full px-4 pb-6">
-        <div className="bg-white/30 backdrop-blur-xl border border-white/30 rounded-2xl shadow-lg shadow-black/5 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-[#250e2c]/70">
+        <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] rounded-2xl shadow-lg shadow-black/30 px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-[#6667AB]">
             <Bell className="w-4 h-4 text-[#f6a5c0]" />
             Notificaciones: <strong>2</strong> nuevas
           </div>
@@ -237,7 +237,7 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
               Bitácora pendiente
             </span>
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#9d85b6]/20 text-[#250e2c] border border-[#9d85b6]">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#9d85b6]/20 text-[#F5D5E0] border border-[#9d85b6]">
               Servicio en curso
             </span>
           </div>
@@ -250,18 +250,18 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={() => setShowReportModal(false)}>
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl max-w-sm w-full shadow-2xl p-6" onClick={e => e.stopPropagation()}>
+            className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] rounded-2xl max-w-sm w-full shadow-lg shadow-black/30 p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-red-600" />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900">Reportar incidencia</h3>
-                <p className="text-sm text-gray-500">¿Estás seguro de reportar esta conversación?</p>
+                <h3 className="font-bold text-white">Reportar incidencia</h3>
+                <p className="text-sm text-[#6667AB]">¿Estás seguro de reportar esta conversación?</p>
               </div>
             </div>
             <div className="flex gap-3">
-              <button onClick={() => setShowReportModal(false)} className="flex-1 py-2.5 rounded-xl border border-white/30 text-sm font-semibold text-[#250e2c]/70 hover:bg-white/10 transition-colors">
+              <button onClick={() => setShowReportModal(false)} className="flex-1 py-2.5 rounded-xl border border-[rgba(255,255,255,0.2)] text-sm font-semibold text-[#6667AB] hover:bg-[rgba(33,6,53,0.3)] transition-colors">
                 Cancelar
               </button>
               <button onClick={reportarIncidencia} className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-colors shadow-md">
@@ -274,4 +274,3 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
     </div>
   );
 }
-

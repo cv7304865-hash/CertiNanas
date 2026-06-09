@@ -39,54 +39,54 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-        <h1 className="text-4xl font-bold text-[#250e2c] tracking-tight">Hola, {user?.nombres || 'Familia'} 👋</h1>
-        <p className="text-gray-500 mt-2 text-lg">Este es el resumen de tu actividad en CERTINANAS.</p>
+        <h1 className="text-4xl font-bold text-white tracking-tight">Hola, {user?.nombres || 'Familia'} 👋</h1>
+        <p className="text-[#6667AB] mt-2 text-lg">Este es el resumen de tu actividad en CERTINANAS.</p>
       </motion.div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         {[
-          { label: 'Próximas Citas', value: '2', icon: Calendar, color: 'blue', bg: 'bg-[#f6a5c0]/20', text: 'text-[#250e2c]' },
-          { label: 'Pagos en Escrow', value: 'S/ 240', icon: CreditCard, color: 'emerald', bg: 'bg-[#f6a5c0]/20', text: 'text-[#cc8db3]' },
-          { label: 'Favoritas', value: '3', icon: Heart, color: 'rose', bg: 'bg-rose-50', text: 'text-rose-500' },
+          { label: 'Próximas Citas', value: '2', icon: Calendar, color: 'blue', bg: 'bg-[#F6A5C0]/20', text: 'text-white' },
+          { label: 'Pagos en Escrow', value: 'S/ 240', icon: CreditCard, color: 'emerald', bg: 'bg-[#F6A5C0]/20', text: 'text-[#CC8DB3]' },
+          { label: 'Favoritas', value: '3', icon: Heart, color: 'rose', bg: 'bg-[rgba(33,6,53,0.4)]', text: 'text-[#F6A5C0]' },
         ].map((s, i) => (
           <motion.div
             key={s.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
-            className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6 hover:shadow-md transition-shadow"
+            className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center justify-between mb-4">
               <div className={`w-12 h-12 rounded-xl ${s.bg} flex items-center justify-center`}>
                 <s.icon className={`w-6 h-6 ${s.text}`} />
               </div>
             </div>
-            <p className="text-sm text-gray-500 font-medium">{s.label}</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">{s.value}</p>
+            <p className="text-sm text-[#6667AB] font-medium">{s.label}</p>
+            <p className="text-3xl font-bold text-white mt-1">{s.value}</p>
           </motion.div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Upcoming Appointments */}
-        <div className="lg:col-span-2 bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
+        <div className="lg:col-span-2 bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-[#250e2c]">Próximas Citas Agendadas</h2>
-            <button className="text-sm font-semibold text-[#cc8db3] hover:underline">Ver todas</button>
+            <h2 className="text-xl font-bold text-white">Próximas Citas Agendadas</h2>
+            <button className="text-sm font-semibold text-[#CC8DB3] hover:underline">Ver todas</button>
           </div>
           <div className="space-y-4">
             {appointments.map((apt) => (
-              <div key={apt.id} className="flex items-center gap-4 p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm hover:border-white/60 hover:bg-white/30 transition-all">
-                <img src={apt.photo} alt={apt.nana} className="w-14 h-14 rounded-full object-cover ring-2 ring-white shadow-sm" />
+              <div key={apt.id} className="flex items-center gap-4 p-4 rounded-xl border border-[rgba(255,255,255,0.2)] bg-[rgba(33,6,53,0.5)] backdrop-blur-sm hover:border-[rgba(255,255,255,0.4)] hover:bg-[rgba(33,6,53,0.5)] transition-all">
+                <img src={apt.photo} alt={apt.nana} className="w-14 h-14 rounded-full object-cover ring-2 ring-[rgba(255,255,255,0.2)] shadow-sm" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-bold text-gray-900">{apt.nana}</h3>
+                    <h3 className="font-bold text-white">{apt.nana}</h3>
                     <span
                       className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                         apt.status === 'Confirmada'
-                          ? 'bg-[#f6a5c0] text-white'
-                          : 'bg-[#cc8db3] text-white'
+                          ? 'bg-[#F6A5C0] text-[#210635]'
+                          : 'bg-[#CC8DB3] text-[#210635]'
                       }`}
                     >
                       {apt.status === 'Confirmada' ? (
@@ -96,8 +96,8 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
                       )}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 mt-0.5">{apt.type}</p>
-                  <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-600">
+                  <p className="text-sm text-[#6667AB] mt-0.5">{apt.type}</p>
+                  <div className="flex items-center gap-3 mt-1.5 text-xs text-[#F5D5E0]">
                     <span className="inline-flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{apt.date}</span>
                     <span className="inline-flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{apt.time}</span>
                   </div>
@@ -105,14 +105,14 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={onOpenMessages}
-                    className="px-3 py-2 text-xs font-bold text-white bg-[#cc8db3] hover:bg-[#b07a9a] rounded-lg transition-colors inline-flex items-center gap-1"
+                    className="px-3 py-2 text-xs font-bold text-[#210635] bg-[#CC8DB3] hover:bg-[#b07a9a] rounded-lg transition-colors inline-flex items-center gap-1"
                   >
                     <MessageSquare className="w-3.5 h-3.5" /> Mensajes
                   </button>
                   {apt.status !== 'Confirmada' && (
                     <button
                       onClick={onOpenCheckout}
-                      className="px-3 py-2 text-xs font-bold text-white bg-[#cc8db3] hover:bg-[#b07a9a] rounded-lg transition-colors"
+                      className="px-3 py-2 text-xs font-bold text-[#210635] bg-[#CC8DB3] hover:bg-[#b07a9a] rounded-lg transition-colors"
                     >
                       Pagar
                     </button>
@@ -124,25 +124,25 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
         </div>
 
         {/* Payment status */}
-        <div className="bg-gradient-to-br from-[#250e2c] to-[#837ab6] rounded-2xl p-6 text-white shadow-sm">
+        <div className="bg-gradient-to-br from-[#210635] to-[#7B337E] rounded-2xl p-6 text-white shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <CreditCard className="w-5 h-5" />
             <h2 className="font-bold">Estado de Pagos</h2>
           </div>
-          <p className="text-blue-100 text-sm mb-6">Resumen de fondos retenidos en Escrow.</p>
+          <p className="text-[#F5D5E0] text-sm mb-6">Resumen de fondos retenidos en Escrow.</p>
           <div className="space-y-4">
-            <div className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10">
-              <p className="text-xs text-[#9d85b6]">Retenido (Escrow)</p>
+            <div className="bg-[rgba(33,6,53,0.5)] backdrop-blur rounded-xl p-4 border border-[rgba(255,255,255,0.2)]">
+              <p className="text-xs text-[#6667AB]">Retenido (Escrow)</p>
               <p className="text-2xl font-bold mt-1">S/ 240.00</p>
-              <p className="text-[11px] text-[#9d85b6] mt-1">Se liberará al completar el servicio</p>
+              <p className="text-[11px] text-[#6667AB] mt-1">Se liberará al completar el servicio</p>
             </div>
-            <div className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10">
-              <p className="text-xs text-[#9d85b6]">Pagado este mes</p>
+            <div className="bg-[rgba(33,6,53,0.5)] backdrop-blur rounded-xl p-4 border border-[rgba(255,255,255,0.2)]">
+              <p className="text-xs text-[#6667AB]">Pagado este mes</p>
               <p className="text-2xl font-bold mt-1">S/ 580.00</p>
             </div>
             <button
               onClick={onOpenCheckout}
-              className="w-full py-2.5 bg-[#cc8db3] hover:bg-[#b07a9a] rounded-xl text-sm font-bold transition-colors inline-flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-[#CC8DB3] text-[#210635] hover:bg-[#b07a9a] rounded-xl text-sm font-bold transition-colors inline-flex items-center justify-center gap-2"
             >
               Realizar Pago Pendiente <ChevronRight className="w-4 h-4" />
             </button>
@@ -151,24 +151,24 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
       </div>
 
       {/* Favorites */}
-      <div className="mt-10 bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
+      <div className="mt-10 bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-[#250e2c]">Cuidadoras Favoritas</h2>
-          <button className="text-sm font-semibold text-[#cc8db3] hover:underline">Gestionar</button>
+          <h2 className="text-xl font-bold text-white">Cuidadoras Favoritas</h2>
+          <button className="text-sm font-semibold text-[#CC8DB3] hover:underline">Gestionar</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {favorites.map((f) => (
-            <div key={f.id} className="flex items-center gap-4 p-4 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm hover:shadow-md transition-shadow">
+            <div key={f.id} className="flex items-center gap-4 p-4 rounded-xl border border-[rgba(255,255,255,0.2)] bg-[rgba(33,6,53,0.5)] backdrop-blur-sm hover:shadow-md transition-shadow">
               <img src={f.photo} alt={f.name} className="w-14 h-14 rounded-full object-cover" />
               <div className="flex-1">
-                <h3 className="font-bold text-gray-900">{f.name}</h3>
-                <p className="text-xs text-gray-500">{f.specialty}</p>
+                <h3 className="font-bold text-white">{f.name}</h3>
+                <p className="text-xs text-[#6667AB]">{f.specialty}</p>
                 <div className="flex items-center gap-1 mt-1">
-                  <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                  <span className="text-xs font-bold text-gray-700">{f.rating}</span>
+                  <Star className="w-3.5 h-3.5 text-[#CC8DB3] fill-[#CC8DB3]" />
+                  <span className="text-xs font-bold text-[#F5D5E0]">{f.rating}</span>
                 </div>
               </div>
-              <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />
+              <Heart className="w-5 h-5 text-[#F6A5C0] fill-[#F6A5C0]" />
             </div>
           ))}
         </div>

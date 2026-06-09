@@ -96,7 +96,7 @@ export function FloatingSupport() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-40 p-4 bg-[#cc8db3] text-white rounded-full shadow-2xl hover:bg-[#b07a9a] transition-colors shadow-[#cc8db3]/30"
+        className="fixed bottom-6 right-6 z-40 p-4 bg-[#F6A5C0] text-white rounded-full shadow-2xl hover:bg-[#e08ea8] transition-colors shadow-[#F6A5C0]/30"
         aria-label="Abrir chat de soporte"
       >
         <MessageCircle className="w-7 h-7" />
@@ -112,16 +112,16 @@ export function FloatingSupport() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className="fixed bottom-24 right-6 z-50 w-[350px] bg-white/30 backdrop-blur-xl border border-white/30 rounded-3xl shadow-xl shadow-black/10 overflow-hidden flex flex-col h-[500px]"
+            className="fixed bottom-24 right-6 z-50 w-[350px] bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] rounded-3xl shadow-lg shadow-black/30 overflow-hidden flex flex-col h-[500px]"
           >
             {/* Header */}
-            <div className="bg-[#250e2c]/80 backdrop-blur-xl p-4 text-white flex justify-between items-center shadow-md z-10">
+            <div className="bg-[#210635] p-4 text-white flex justify-between items-center shadow-md z-10">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="bg-white/20 p-2 rounded-full">
+                  <div className="bg-[rgba(33,6,53,0.4)] p-2 rounded-full">
                     <Bot className="w-5 h-5" />
                   </div>
-                  <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#250e2c] rounded-full"></div>
+                  <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 border-2 border-[#210635] rounded-full"></div>
                 </div>
                 <div>
                   <span className="font-bold text-sm block">Asistente CERTINANAS</span>
@@ -145,14 +145,14 @@ export function FloatingSupport() {
                   <div className={`flex items-end gap-2 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                     {msg.sender === 'bot' && (
                       <div className="w-6 h-6 rounded-full bg-[#9d85b6]/30 flex items-center justify-center shrink-0 mb-1">
-                        <Bot className="w-3.5 h-3.5 text-[#250e2c]" />
+                        <Bot className="w-3.5 h-3.5 text-white" />
                       </div>
                     )}
 
                     <div className={`p-3.5 text-sm whitespace-pre-wrap leading-relaxed shadow-sm ${
                       msg.sender === 'user'
-                        ? 'bg-[#250e2c] text-white rounded-2xl rounded-tr-sm'
-                        : 'bg-white/30 backdrop-blur-sm border border-white/30 text-[#250e2c] rounded-2xl rounded-tl-sm'
+                        ? 'bg-[#F6A5C0] text-[#210635] rounded-2xl rounded-tr-sm'
+                        : 'bg-[rgba(123,51,126,0.5)] backdrop-blur-sm text-white rounded-2xl rounded-tl-sm'
                     }`}>
                       {msg.text}
                     </div>
@@ -165,7 +165,7 @@ export function FloatingSupport() {
                         <button
                           key={idx}
                           onClick={() => handleSend(option)}
-                          className="text-left text-xs bg-white/20 backdrop-blur-sm text-[#250e2c] border border-white/30 hover:bg-[#250e2c] hover:text-white py-2.5 px-4 rounded-xl transition-colors font-medium shadow-sm"
+                          className="text-left text-xs bg-[rgba(33,6,53,0.5)] backdrop-blur-sm text-[#F5D5E0] border border-[rgba(255,255,255,0.2)] hover:bg-[rgba(246,165,192,0.15)] hover:text-white py-2.5 px-4 rounded-xl transition-colors font-medium shadow-sm"
                         >
                           {option}
                         </button>
@@ -178,12 +178,12 @@ export function FloatingSupport() {
               {isTyping && (
                 <div className="flex items-end gap-2 max-w-[85%]">
                   <div className="w-6 h-6 rounded-full bg-[#9d85b6]/30 flex items-center justify-center shrink-0 mb-1">
-                    <Bot className="w-3.5 h-3.5 text-[#250e2c]" />
+                    <Bot className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <div className="bg-white/30 backdrop-blur-sm p-4 rounded-2xl rounded-tl-sm border border-white/30 shadow-sm flex items-center gap-1.5">
-                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"></div>
+                  <div className="bg-[rgba(123,51,126,0.5)] backdrop-blur-sm p-4 rounded-2xl rounded-tl-sm border border-[rgba(255,255,255,0.2)] shadow-sm flex items-center gap-1.5">
+                    <div className="w-2 h-2 bg-[#6667AB] rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    <div className="w-2 h-2 bg-[#6667AB] rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                    <div className="w-2 h-2 bg-[#6667AB] rounded-full animate-bounce"></div>
                   </div>
                 </div>
               )}
@@ -192,7 +192,7 @@ export function FloatingSupport() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-white/20 backdrop-blur-sm border-t border-white/20 shrink-0">
+            <div className="p-4 bg-[rgba(33,6,53,0.5)] backdrop-blur-sm border-t border-[rgba(255,255,255,0.2)] shrink-0">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -205,18 +205,18 @@ export function FloatingSupport() {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Escriba su consulta aquí..."
-                  className="flex-1 bg-white/30 border border-white/40 backdrop-blur-sm rounded-full pl-5 pr-12 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#cc8db3]/50 transition-all text-[#250e2c]"
+                  className="flex-1 bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,225,0.3)] backdrop-blur-sm rounded-full pl-5 pr-12 py-3.5 text-sm text-white placeholder:text-[#6667AB] focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all"
                 />
                 <button
                   type="submit"
                   disabled={!inputText.trim() || isTyping}
-                  className="absolute right-2 p-2 bg-[#cc8db3] text-white rounded-full hover:bg-[#b07a9a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
+                  className="absolute right-2 p-2 bg-[#CC8DB3] text-[#210635] rounded-full hover:bg-[#b07a9a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
                 >
                   <Send className="w-4 h-4 ml-0.5" />
                 </button>
               </form>
               <div className="text-center mt-2">
-                <span className="text-[10px] text-gray-400 font-medium">Asistente Virtual IA • CERTINANAS</span>
+                <span className="text-[10px] text-[#6667AB] font-medium">Asistente Virtual IA • CERTINANAS</span>
               </div>
             </div>
           </motion.div>

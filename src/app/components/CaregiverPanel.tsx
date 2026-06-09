@@ -84,15 +84,14 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
   };
 
   const getColorForEspecialidad = (e: string) => {
-    if (['TEA', 'TDAH'].includes(e)) return 'bg-[#f6a5c0] text-white border-0';
-    if (e === 'Primeros Auxilios') return 'bg-[#9d85b6] text-white border-0';
-    return 'bg-[#cc8db3] text-white border-0';
+    if (['TEA', 'TDAH'].includes(e)) return 'bg-[#F6A5C0] text-[#210635] border-0';
+    if (e === 'Primeros Auxilios') return 'bg-[#CC8DB3] text-[#210635] border-0';
+    return 'bg-[#CC8DB3] text-[#210635] border-0';
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
-      {/* Navbar Oscura */}
-      <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40">
+    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
+      <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] text-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -100,27 +99,27 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 <div className="w-8 h-8 overflow-hidden rounded">
                   <img src="/logo.png" alt="" className="w-full h-full object-cover" />
                 </div>
-                <span className="text-lg font-extrabold text-[#f6a5c0] tracking-tight">CERTINANAS</span>
+                <span className="text-lg font-extrabold text-[#F6A5C0] tracking-tight">CERTINANAS</span>
               </div>
-              <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
-              <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
+              <span className="text-[#6667AB] text-xl font-light hidden sm:inline">|</span>
+              <span className="text-[#6667AB] text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
               <button
                 onClick={() => setTab('perfil')}
-                className={`text-sm pb-0.5 ${tab === 'perfil' ? 'font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0]' : 'text-white/70 hover:text-white transition-colors'}`}
+                className={`text-sm pb-0.5 ${tab === 'perfil' ? 'font-bold text-[#F6A5C0] border-b-2 border-[#F6A5C0]' : 'text-[#F5D5E0]/70 hover:text-white transition-colors'}`}
               >Mi Perfil</button>
               <button
                 onClick={() => setTab('servicios')}
-                className={`text-sm pb-0.5 ${tab === 'servicios' ? 'font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0]' : 'text-white/70 hover:text-white transition-colors'}`}
+                className={`text-sm pb-0.5 ${tab === 'servicios' ? 'font-bold text-[#F6A5C0] border-b-2 border-[#F6A5C0]' : 'text-[#F5D5E0]/70 hover:text-white transition-colors'}`}
               >Servicios</button>
               <button
                 onClick={() => onNavigate?.('messages')}
-                className="text-sm text-white/70 hover:text-white transition-colors"
+                className="text-sm text-[#F5D5E0]/70 hover:text-white transition-colors"
               >Mensajes</button>
               <ProfileAvatar size={36} className="ml-2" />
-              <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <LogOut className="w-4 h-4 text-white/60" />
+              <button onClick={logout} className="p-2 hover:bg-[rgba(33,6,53,0.4)] rounded-lg transition-colors">
+                <LogOut className="w-4 h-4 text-[#6667AB]" />
               </button>
             </nav>
           </div>
@@ -128,24 +127,23 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* Tarjeta de Resumen */}
         {perfil && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-8">
             <div className="flex items-start gap-6">
               <ProfileAvatar size={80} />
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-gray-900">{perfil.user.Nombres} {perfil.user.Apellidos}</h1>
+                <h1 className="text-2xl font-bold text-white">{perfil.user.Nombres} {perfil.user.Apellidos}</h1>
                 <div className="flex items-center gap-3 mt-1">
-                  <span className="text-gray-500">Cuidadora Especializada</span>
-                  <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#f6a5c0] text-white text-xs font-bold">
+                  <span className="text-[#6667AB]">Cuidadora Especializada</span>
+                  <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[rgba(16,185,129,0.2)] text-[#6EE7B7] text-xs font-bold">
                     <CheckCircle className="w-3 h-3" /> Perfil Verificado
                   </span>
                 </div>
                 <div className="flex items-center gap-1 mt-3">
                   {[1, 2, 3, 4, 5].map(i => (
-                    <Star key={i} className={`w-4 h-4 ${i <= Math.round(perfil.stats.CalificacionPromedio) ? 'text-[#cc8db3] fill-[#cc8db3]' : 'text-gray-200'}`} />
+                    <Star key={i} className={`w-4 h-4 ${i <= Math.round(perfil.stats.CalificacionPromedio) ? 'text-[#CC8DB3] fill-[#CC8DB3]' : 'text-[#6667AB]'}`} />
                   ))}
-                  <span className="text-sm text-gray-500 ml-2">
+                  <span className="text-sm text-[#6667AB] ml-2">
                     ({perfil.stats.CalificacionPromedio} · {perfil.stats.TotalResenas} reseñas)
                   </span>
                 </div>
@@ -155,49 +153,45 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
         )}
 
         {tab === 'perfil' && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Editar Perfil Profesional</h2>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-8">
+          <h2 className="text-xl font-bold text-white mb-6">Editar Perfil Profesional</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Biografía */}
             <div className="md:col-span-3">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Biografía</label>
+              <label className="block text-sm font-semibold text-[#F5D5E0] mb-2">Biografía</label>
               <textarea
                 value={bio}
                 onChange={e => setBio(e.target.value)}
                 rows={4}
-                className="w-full rounded-xl border border-white/40 bg-white/30 backdrop-blur-sm px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50 focus:border-transparent resize-none"
+                className="w-full rounded-xl bg-[rgba(33,6,53,0.5)] border-[rgba(255,255,255,0.3)] px-4 py-3 text-sm text-white placeholder:text-[#6667AB] focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] resize-none"
                 placeholder="Especialista en TEA y TDAH con 5 años de experiencia..."
               />
             </div>
-            {/* Tarifa */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Tarifa por hora (S/)</label>
+              <label className="block text-sm font-semibold text-[#F5D5E0] mb-2">Tarifa por hora (S/)</label>
               <input
                 type="number"
                 step="0.01"
                 value={tarifa}
                 onChange={e => setTarifa(e.target.value)}
-                className="w-full rounded-xl border border-white/40 bg-white/30 backdrop-blur-sm px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50 focus:border-transparent"
+                className="w-full rounded-xl bg-[rgba(33,6,53,0.5)] border-[rgba(255,255,255,0.3)] px-4 py-3 text-sm text-white placeholder:text-[#6667AB] focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E]"
                 placeholder="35.00"
               />
             </div>
-            {/* Experiencia */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Años de experiencia</label>
+              <label className="block text-sm font-semibold text-[#F5D5E0] mb-2">Años de experiencia</label>
               <input
                 type="number"
                 value={experiencia}
                 onChange={e => setExperiencia(e.target.value)}
-                className="w-full rounded-xl border border-white/40 bg-white/30 backdrop-blur-sm px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50 focus:border-transparent"
+                className="w-full rounded-xl bg-[rgba(33,6,53,0.5)] border-[rgba(255,255,255,0.3)] px-4 py-3 text-sm text-white placeholder:text-[#6667AB] focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E]"
                 placeholder="5"
               />
             </div>
           </div>
 
-          {/* Especialidades */}
           {perfil && perfil.especialidades.length > 0 && (
             <div className="mt-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Especialidades</label>
+              <label className="block text-sm font-semibold text-[#F5D5E0] mb-3">Especialidades</label>
               <div className="flex flex-wrap gap-2">
                 {perfil.especialidades.map(e => (
                   <span key={e} className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium ${getColorForEspecialidad(e)}`}>
@@ -205,7 +199,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                   </span>
                 ))}
                 {perfil.areas.map(a => (
-                  <span key={a} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-[#cc8db3] text-white">
+                  <span key={a} className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-[#CC8DB3] text-[#210635]">
                     {a}
                   </span>
                 ))}
@@ -213,21 +207,20 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
             </div>
           )}
 
-          {/* Documentos cargados / Subir documentos */}
           {perfil && (
             <div className="mt-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
+              <label className="block text-sm font-semibold text-[#F5D5E0] mb-3">
                 {perfil.postulacion?.Estado === 'Aprobada' ? 'Documentos aprobados' : 'Documentos de postulación'}
               </label>
               {perfil.documentos.length > 0 && (
                 <div className="flex flex-wrap gap-3 mb-4">
                   {perfil.documentos.map((d, i) => (
-                    <div key={i} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-white/30 bg-white/20 backdrop-blur-sm text-sm">
-                      <File className="w-4 h-4 text-gray-500" />
-                      <span className="text-gray-700 font-medium">{d.TipoRequisito}</span>
-                      <span className="text-gray-400 text-xs">({d.Peso})</span>
+                    <div key={i} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[rgba(255,255,255,0.2)] bg-[rgba(33,6,53,0.5)] backdrop-blur-sm text-sm">
+                      <File className="w-4 h-4 text-[#6667AB]" />
+                      <span className="text-[#F5D5E0] font-medium">{d.TipoRequisito}</span>
+                      <span className="text-[#6667AB] text-xs">({d.Peso})</span>
                       {d.Estado === 'Aprobado' ? (
-                        <CheckCircle className="w-4 h-4 text-emerald-500" />
+                        <CheckCircle className="w-4 h-4 text-[#6EE7B7]" />
                       ) : d.Estado === 'Rechazado' ? (
                         <span className="text-xs text-red-600 font-medium">Rechazado</span>
                       ) : (
@@ -243,14 +236,13 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
             </div>
           )}
 
-          {/* Botón Guardar */}
           <div className="flex justify-end mt-8">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={guardar}
               disabled={saving}
-              className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#837ab6] via-[#9d85b6] to-[#f6a5c0] text-white rounded-xl text-sm font-bold transition-colors shadow-lg disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-[#F6A5C0] text-[#210635] rounded-xl text-sm font-bold transition-colors shadow-lg disabled:opacity-50"
             >
               {saving ? 'Guardando...' : saved ? (
                 <><CheckCircle className="w-4 h-4" /> Guardado</>
@@ -262,36 +254,35 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
         </motion.div>
       )}
 
-      {/* Lista de Servicios */}
       {tab === 'servicios' && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-          <h2 className="text-xl font-bold text-gray-900">Mis Servicios</h2>
+          <h2 className="text-xl font-bold text-white">Mis Servicios</h2>
           {servicios.length === 0 ? (
-            <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-12 text-center">
-              <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 font-medium">No tienes servicios asignados aún</p>
-              <p className="text-gray-400 text-sm mt-1">Los servicios aparecerán aquí cuando una familia te contrate</p>
+            <div className="bg-[rgba(33,6,53,0.5)] backdrop-blur-sm border border-[rgba(255,255,255,0.2)] rounded-2xl p-12 text-center">
+              <Briefcase className="w-12 h-12 text-[#6667AB] mx-auto mb-4" />
+              <p className="text-[#F5D5E0] font-medium">No tienes servicios asignados aún</p>
+              <p className="text-[#6667AB] text-sm mt-1">Los servicios aparecerán aquí cuando una familia te contrate</p>
             </div>
           ) : (
             <div className="space-y-3">
               {servicios.map(s => {
                 const badgeColor: Record<string, string> = {
-                  Pendiente: 'bg-[#f6a5c0] text-white',
-                  Confirmada: 'bg-[#9d85b6] text-white',
-                  Completado: 'bg-[#cc8db3] text-white',
+                  Pendiente: 'bg-[#F6A5C0] text-[#210635]',
+                  Confirmada: 'bg-[#CC8DB3] text-[#210635]',
+                  Completado: 'bg-[#CC8DB3] text-[#210635]',
                   Rechazado: 'bg-red-500/80 text-white',
                 };
                 return (
-                  <div key={s.Id} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
+                  <div key={s.Id} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">
                         <div className="flex items-center gap-3">
-                          <span className="text-lg font-bold text-gray-900">{s.FamiliaNombres} {s.FamiliaApellidos}</span>
-                          <span className={`px-3 py-0.5 rounded-full text-xs font-bold ${badgeColor[s.Estado] || 'bg-white/20 backdrop-blur-sm text-gray-700'}`}>
+                          <span className="text-lg font-bold text-white">{s.FamiliaNombres} {s.FamiliaApellidos}</span>
+                          <span className={`px-3 py-0.5 rounded-full text-xs font-bold ${badgeColor[s.Estado] || 'bg-[rgba(33,6,53,0.5)] backdrop-blur-sm text-[#F5D5E0]'}`}>
                             {s.Estado}
                           </span>
                         </div>
-                        <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                        <div className="flex flex-wrap gap-4 text-sm text-[#6667AB]">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3.5 h-3.5" /> {s.FechaServicio}
                           </span>
@@ -306,7 +297,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                           </span>
                         </div>
                         {s.MenorDiagnostico && (
-                          <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-medium bg-[#cc8db3] text-white">
+                          <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-medium bg-[#CC8DB3] text-[#210635]">
                             {s.MenorDiagnostico}
                           </span>
                         )}
@@ -347,25 +338,25 @@ function UploadDocs({ postulacionId, tiposRequeridos, headers }: { postulacionId
   };
 
   return (
-    <div className="border border-dashed border-white/50 bg-white/10 rounded-xl p-4">
-      <p className="text-sm font-semibold text-gray-700 mb-3">Subir documento</p>
+    <div className="border-2 border-dashed border-[rgba(255,255,255,0.3)] bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+      <p className="text-sm font-semibold text-[#F5D5E0] mb-3">Subir documento</p>
       <div className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Tipo</label>
-          <select value={tipo} onChange={e => setTipo(e.target.value)} className="rounded-lg border border-white/40 bg-white/30 backdrop-blur-sm px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#cc8db3] focus:bg-white/50">
+          <label className="block text-xs text-[#6667AB] mb-1">Tipo</label>
+          <select value={tipo} onChange={e => setTipo(e.target.value)} className="rounded-lg bg-[rgba(33,6,53,0.5)] border-[rgba(255,255,255,0.3)] px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E]">
             {tiposRequeridos.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Archivo (PDF, máx 10MB)</label>
-          <input type="file" accept=".pdf,.jpg,.png" onChange={e => setFile(e.target.files?.[0] || null)} className="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-white/30 file:text-white hover:file:bg-white/40" />
+          <label className="block text-xs text-[#6667AB] mb-1">Archivo (PDF, máx 10MB)</label>
+          <input type="file" accept=".pdf,.jpg,.png" onChange={e => setFile(e.target.files?.[0] || null)} className="text-sm text-[#F5D5E0] file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[rgba(33,6,53,0.5)] file:text-[#F5D5E0] hover:file:bg-[rgba(33,6,53,0.4)]" />
         </div>
-        <button onClick={subir} disabled={uploading || !file} className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#cc8db3] text-white rounded-lg text-sm font-bold hover:bg-[#b87a9f] transition-colors disabled:opacity-50">
+        <button onClick={subir} disabled={uploading || !file} className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#CC8DB3] text-[#210635] rounded-lg text-sm font-bold hover:bg-[#b07a9a] transition-colors disabled:opacity-50">
           {uploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
           {uploading ? 'Subiendo...' : 'Subir'}
         </button>
       </div>
-      {msg && <p className={`text-xs mt-2 ${msg.includes('correctamente') ? 'text-emerald-600' : 'text-red-600'}`}>{msg}</p>}
+      {msg && <p className={`text-xs mt-2 ${msg.includes('correctamente') ? 'text-[#6EE7B7]' : 'text-red-600'}`}>{msg}</p>}
     </div>
   );
 }

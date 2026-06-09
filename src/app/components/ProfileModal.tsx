@@ -40,7 +40,7 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm overflow-y-auto"
+        className="fixed inset-0 z-[120] flex items-center justify-center p-4 sm:p-6 bg-[#210635]/50 backdrop-blur-sm overflow-y-auto"
         onClick={onClose}
       >
         <motion.div
@@ -49,19 +49,19 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
           exit={{ scale: 0.95, opacity: 0, y: 30 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-white/30 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] my-auto relative"
+          className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-3xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] my-auto relative"
         >
           {/* Close Button (Floating) */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2.5 bg-white/80 backdrop-blur-md text-gray-600 hover:text-gray-900 hover:bg-white rounded-full transition-all shadow-sm"
+            className="absolute top-4 right-4 z-10 p-2.5 bg-[rgba(33,6,53,0.5)] backdrop-blur-md text-[#6667AB] hover:text-white hover:bg-[rgba(33,6,53,0.4)] rounded-full transition-all shadow-sm"
           >
             <X className="w-5 h-5" />
           </button>
 
           {/* Header Section */}
-          <div className="bg-[#250e2c] text-white px-8 pt-12 pb-8 relative shrink-0 overflow-hidden">
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-[#f6a5c0]/200/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="bg-[rgba(33,6,53,0.4)] text-white px-8 pt-12 pb-8 relative shrink-0 overflow-hidden">
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-[#f6a5c0]/20 rounded-full blur-3xl pointer-events-none"></div>
             
             <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start relative z-10">
               <div className="relative">
@@ -78,7 +78,7 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
                 
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 mb-4 text-blue-100">
                   <div className="flex items-center bg-white/10 px-3 py-1 rounded-full backdrop-blur-sm">
-                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 mr-1.5" />
+                    <Star className="w-4 h-4 text-[#CC8DB3] fill-[#CC8DB3] mr-1.5" />
                     <span className="font-semibold text-white">{nana.rating}</span>
                     <span className="text-sm ml-1">({nana.reviews} reseñas)</span>
                   </div>
@@ -86,7 +86,7 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
                     <Briefcase className="w-4 h-4 mr-1.5 opacity-80" />
                     {nana.experienceText}
                   </div>
-                  <div className="flex items-center text-sm font-semibold bg-[#cc8db3] text-white px-3 py-1 rounded-full">
+                  <div className="flex items-center text-sm font-semibold bg-[#F5D5E0] text-[#210635] px-3 py-1 rounded-full">
                     S/ {nana.rate} / hora
                   </div>
                 </div>
@@ -103,44 +103,44 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
           </div>
 
           {/* Scrollable Body */}
-          <div className="p-8 overflow-y-auto custom-scrollbar bg-white/10 backdrop-blur-sm flex-1">
+          <div className="p-8 overflow-y-auto custom-scrollbar bg-[rgba(33,6,53,0.4)] backdrop-blur-sm flex-1">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               
               {/* Left Column (Main Info) */}
               <div className="lg:col-span-2 space-y-8">
                 {/* About Me */}
-                <section className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-6">
-                  <h3 className="text-xl font-bold text-[#250e2c] mb-4 flex items-center gap-2">
+                <section className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border border-[rgba(255,255,255,0.15)] rounded-2xl p-6">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                     <Heart className="w-5 h-5 text-[#cc8db3]" /> Sobre Mí
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-[#6667AB] leading-relaxed">
                     {nana.longDescription}
                   </p>
                 </section>
 
                 {/* Education & Certs */}
                 <section className="grid sm:grid-cols-2 gap-6">
-                  <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-6">
-                    <h3 className="text-lg font-bold text-[#250e2c] mb-4 flex items-center gap-2">
+                  <div className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border border-[rgba(255,255,255,0.15)] rounded-2xl p-6">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                       <GraduationCap className="w-5 h-5 text-[#cc8db3]" /> Formación
                     </h3>
                     <ul className="space-y-3">
                       {nana.education.map((edu, i) => (
-                        <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#250e2c] mt-1.5 shrink-0" />
+                        <li key={i} className="text-sm text-[#6667AB] flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#CC8DB3] mt-1.5 shrink-0" />
                           <span className="leading-tight">{edu}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-6">
-                    <h3 className="text-lg font-bold text-[#250e2c] mb-4 flex items-center gap-2">
+                  <div className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border border-[rgba(255,255,255,0.15)] rounded-2xl p-6">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                       <Award className="w-5 h-5 text-[#cc8db3]" /> Certificaciones
                     </h3>
                     <ul className="space-y-3">
                       {nana.certifications.map((cert, i) => (
-                        <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                        <li key={i} className="text-sm text-[#6667AB] flex items-start gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#cc8db3] mt-1.5 shrink-0" />
                           <span className="leading-tight">{cert}</span>
                         </li>
@@ -150,23 +150,23 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
                 </section>
 
                 {/* Reviews */}
-                <section className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-6">
-                  <h3 className="text-xl font-bold text-[#250e2c] mb-6 flex items-center gap-2">
+                <section className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border border-[rgba(255,255,255,0.15)] rounded-2xl p-6">
+                  <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                     <MessageSquare className="w-5 h-5 text-[#cc8db3]" /> Reseñas de Familias
                   </h3>
                   <div className="space-y-4">
                     {nana.reviewsList.map((review, i) => (
-                      <div key={i} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                      <div key={i} className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border border-[rgba(255,255,255,0.15)] rounded-xl p-4">
                         <div className="flex justify-between items-start mb-2">
-                          <span className="font-bold text-gray-800">{review.author}</span>
-                          <span className="text-xs text-gray-500 font-medium">{review.date}</span>
+                          <span className="font-bold text-[#F5D5E0]">{review.author}</span>
+                          <span className="text-xs text-[#6667AB] font-medium">{review.date}</span>
                         </div>
                         <div className="flex mb-2">
                           {[...Array(5)].map((_, j) => (
-                            <Star key={j} className={`w-3.5 h-3.5 ${j < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
+                            <Star key={j} className={`w-3.5 h-3.5 ${j < review.rating ? 'text-[#CC8DB3] fill-[#CC8DB3]' : 'text-[#6667AB]'}`} />
                           ))}
                         </div>
-                        <p className="text-sm text-gray-600 italic">"{review.text}"</p>
+                        <p className="text-sm text-[#6667AB] italic">"{review.text}"</p>
                       </div>
                     ))}
                   </div>
@@ -175,11 +175,11 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
 
               {/* Right Column (Sidebar Summary) */}
               <div className="space-y-6">
-                <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-6 sticky top-0">
-                  <h4 className="font-bold text-gray-800 mb-4 border-b border-gray-100 pb-3">Áreas de Dedicación</h4>
+                <div className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border border-[rgba(255,255,255,0.15)] rounded-2xl p-6 sticky top-0">
+                  <h4 className="font-bold text-[#F5D5E0] mb-4 border-b border-[rgba(255,255,255,0.1)] pb-3">Áreas de Dedicación</h4>
                   <div className="flex flex-col gap-3 mb-8">
                     {nana.areas.map((area, i) => (
-                      <div key={i} className="flex items-center gap-2 text-sm text-gray-600 font-medium">
+                      <div key={i} className="flex items-center gap-2 text-sm text-[#6667AB] font-medium">
                         <CheckCircleIcon className="w-4 h-4 text-[#cc8db3]" />
                         {area}
                       </div>
@@ -191,12 +191,12 @@ export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: Prof
                       onClose();
                       onRequestInterview(nana.name);
                     }}
-                    className="w-full py-4 bg-[#cc8db3] text-white rounded-xl font-bold hover:bg-[#b07a9a] transition-all shadow-lg shadow-[#cc8db3]/25 flex items-center justify-center gap-2 group"
+                    className="w-full py-4 bg-[#CC8DB3] text-[#210635] rounded-xl font-bold hover:bg-[#b07a9a] transition-all shadow-lg shadow-black/30 flex items-center justify-center gap-2 group"
                   >
                     <Calendar className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                     Agendar Entrevista
                   </button>
-                  <p className="text-center text-xs text-gray-400 mt-3 font-medium">
+                  <p className="text-center text-xs text-[#6667AB] mt-3 font-medium">
                     15 min de videollamada sin costo
                   </p>
                 </div>

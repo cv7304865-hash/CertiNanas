@@ -34,9 +34,9 @@ export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20 font-['Inter',system-ui,sans-serif]">
+    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E] font-['Inter',system-ui,sans-serif]">
       {/* ======= HEADER ======= */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 z-50 flex items-center px-6 shadow-lg">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] z-50 flex items-center px-6 shadow-lg shadow-black/30">
         {/* Logo */}
         <div className="flex items-center gap-3">
           <svg viewBox="0 0 40 40" className="w-9 h-9 flex-shrink-0">
@@ -45,7 +45,7 @@ export function AdminLayout() {
           </svg>
           <div className="flex flex-col leading-tight">
             <span className="text-white font-extrabold text-lg tracking-tight">CertiNanas</span>
-            <span className="text-[10px] font-bold tracking-[0.2em] text-gray-400">CUIDADO SEGURO</span>
+            <span className="text-[10px] font-bold tracking-[0.2em] text-[#6667AB]">CUIDADO SEGURO</span>
           </div>
         </div>
 
@@ -55,7 +55,7 @@ export function AdminLayout() {
         {/* Right icons */}
         <div className="flex items-center gap-4">
           {/* Notification bell */}
-          <button className="relative text-gray-300 hover:text-white transition-colors">
+          <button className="relative text-[#6667AB] hover:text-white transition-colors">
             <Bell className="w-5 h-5" />
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#cc8db3] rounded-full flex items-center justify-center text-white text-[10px] font-bold">3</span>
           </button>
@@ -68,21 +68,21 @@ export function AdminLayout() {
           <div className="w-8 h-8 rounded-full bg-[#f6a5c0] flex items-center justify-center text-white text-sm font-bold">A</div>
 
           {/* Profile icon */}
-          <button className="text-gray-300 hover:text-white transition-colors">
+          <button className="text-[#6667AB] hover:text-white transition-colors">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
             </svg>
           </button>
 
           {/* Logout */}
-          <button onClick={logout} className="text-gray-300 hover:text-white transition-colors">
+          <button onClick={logout} className="text-[#6667AB] hover:text-white transition-colors">
             <LogOut className="w-5 h-5" />
           </button>
         </div>
       </header>
 
       {/* ======= SIDEBAR ======= */}
-      <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] bg-[#250e2c]/70 backdrop-blur-xl border-r border-white/10 z-40 overflow-y-auto">
+      <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] bg-[#210635]/90 backdrop-blur-[20px] border-r border-[rgba(255,255,255,0.1)] z-40 overflow-y-auto">
         <nav className="py-4">
           {navItems.map(item => {
             const isActive = tab === item.key;
@@ -92,14 +92,14 @@ export function AdminLayout() {
                 onClick={() => setTab(item.key)}
                 className={`w-full flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all relative ${
                   isActive
-                    ? 'text-[#f6a5c0] bg-white/5'
-                    : 'text-gray-300 hover:text-white hover:bg-white/5'
+                    ? 'bg-[#F6A5C0] text-[#210635]'
+                    : 'text-[#6667AB] hover:text-white hover:bg-[rgba(33,6,53,0.4)]'
                 }`}
               >
                 {isActive && (
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-[#f6a5c0] rounded-r-full" />
                 )}
-                <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-[#f6a5c0]' : 'text-gray-400'}`} />
+                <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-[#210635]' : 'text-[#6667AB]'}`} />
                 <span>{item.label}</span>
               </button>
             );
@@ -177,28 +177,28 @@ function AdminMessages() {
 
   return (
     <div className="flex h-[calc(100vh-8rem)] p-6 gap-6">
-      <div className="w-72 flex-shrink-0 bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-y-auto">
-        <div className="p-4 border-b border-white/20">
-          <h2 className="font-bold text-gray-900">Conversaciones</h2>
-          <p className="text-xs text-gray-400 mt-0.5">{conversaciones.length} en total</p>
+      <div className="w-72 flex-shrink-0 bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-y-auto">
+        <div className="p-4 border-b border-[rgba(255,255,255,0.15)]">
+          <h2 className="font-bold text-white">Conversaciones</h2>
+          <p className="text-xs text-[#6667AB] mt-0.5">{conversaciones.length} en total</p>
         </div>
         {conversaciones.map(c => (
           <button key={c.Id} onClick={() => setSelectedChat(c)}
-            className={`w-full text-left px-4 py-3 border-b border-white/10 hover:bg-white/10 transition-colors ${selectedChat?.Id === c.Id ? 'bg-[#f6a5c0]/20 backdrop-blur-sm' : ''}`}>
-            <p className="text-sm font-semibold text-gray-900 truncate">{c.Nombres} {c.Apellidos?.charAt(0)}. ↔ {c.FamiliaNombres} {c.FamiliaApellidos?.charAt(0)}.</p>
-            <p className="text-xs text-gray-400 truncate mt-0.5">{c.MenorNombre || 'Sin menor'}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{formatFecha(c.FechaUltimoMensaje || c.FechaCreacion)}</p>
+            className={`w-full text-left px-4 py-3 border-b border-[rgba(255,255,255,0.1)] hover:bg-[rgba(33,6,53,0.3)] transition-colors ${selectedChat?.Id === c.Id ? 'bg-[#f6a5c0]/20 backdrop-blur-sm' : ''}`}>
+            <p className="text-sm font-semibold text-white truncate">{c.Nombres} {c.Apellidos?.charAt(0)}. ↔ {c.FamiliaNombres} {c.FamiliaApellidos?.charAt(0)}.</p>
+            <p className="text-xs text-[#6667AB] truncate mt-0.5">{c.MenorNombre || 'Sin menor'}</p>
+            <p className="text-xs text-[#6667AB] mt-0.5">{formatFecha(c.FechaUltimoMensaje || c.FechaCreacion)}</p>
           </button>
         ))}
-        {conversaciones.length === 0 && <p className="text-sm text-gray-400 text-center py-8">Sin conversaciones</p>}
+        {conversaciones.length === 0 && <p className="text-sm text-[#6667AB] text-center py-8">Sin conversaciones</p>}
       </div>
 
-      <div className="flex-1 bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl flex flex-col">
+      <div className="flex-1 bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl flex flex-col">
         {selectedChat ? (
           <>
-            <div className="p-4 border-b border-white/20">
-              <h3 className="font-bold text-gray-900">{selectedChat.Nombres} {selectedChat.Apellidos} — {selectedChat.FamiliaNombres} {selectedChat.FamiliaApellidos}</h3>
-              <p className="text-xs text-gray-400">{selectedChat.MenorNombre || 'Conversación general'}</p>
+            <div className="p-4 border-b border-[rgba(255,255,255,0.15)]">
+              <h3 className="font-bold text-white">{selectedChat.Nombres} {selectedChat.Apellidos} — {selectedChat.FamiliaNombres} {selectedChat.FamiliaApellidos}</h3>
+              <p className="text-xs text-[#6667AB]">{selectedChat.MenorNombre || 'Conversación general'}</p>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {mensajes.map(m => {
@@ -206,28 +206,28 @@ function AdminMessages() {
                 return (
                   <div key={m.Id} className={`flex ${esAdmin ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[70%] px-4 py-2 rounded-2xl text-sm ${
-                      esAdmin ? 'bg-[#f6a5c0] text-white rounded-br-md' : 'bg-[#9d85b6]/30 text-gray-800 rounded-bl-md'
+                      esAdmin ? 'bg-[#F6A5C0] text-[#210635] rounded-br-md' : 'bg-[rgba(123,51,126,0.5)] backdrop-blur-sm text-white rounded-bl-md'
                     }`}>
                       <p>{m.Contenido}</p>
-                      <p className={`text-xs mt-1 ${esAdmin ? 'text-white/70' : 'text-gray-400'}`}>{formatHora(m.FechaEnvio)}</p>
+                      <p className={`text-xs mt-1 ${esAdmin ? 'text-white/70' : 'text-[#6667AB]'}`}>{formatHora(m.FechaEnvio)}</p>
                     </div>
                   </div>
                 );
               })}
               <div ref={chatEndRef} />
             </div>
-            <div className="p-4 border-t border-white/20">
+            <div className="p-4 border-t border-[rgba(255,255,255,0.15)]">
               <div className="flex gap-2">
                 <input value={texto} onChange={e => setTexto(e.target.value)} onKeyDown={e => e.key === 'Enter' && enviar()}
-                  placeholder="Escribir mensaje..." className="flex-1 px-4 py-2.5 rounded-xl bg-white/30 border-white/40 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#f6a5c0]/40 focus:bg-white/50" />
-                <button onClick={enviar} className="p-2.5 bg-[#f6a5c0] hover:bg-[#f6a5c0]/80 text-white rounded-xl transition-colors">
+                  placeholder="Escribir mensaje..." className="flex-1 px-4 py-2.5 rounded-xl bg-[rgba(33,6,53,0.5)] border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] text-sm focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E]" />
+                <button onClick={enviar} className="p-2.5 bg-[#F6A5C0] hover:bg-[#F6A5C0]/80 text-[#210635] rounded-xl transition-colors">
                   <Send className="w-5 h-5" />
                 </button>
               </div>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Selecciona una conversación</div>
+          <div className="flex-1 flex items-center justify-center text-[#6667AB] text-sm">Selecciona una conversación</div>
         )}
       </div>
     </div>
@@ -254,55 +254,55 @@ function DashboardView() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-8">
-      <h1 className="text-2xl font-extrabold text-gray-900">Dashboard</h1>
+      <h1 className="text-2xl font-extrabold text-white">Dashboard</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpis.map(k => (
-          <div key={k.label} className="bg-white/40 backdrop-blur-xl border border-white/30 rounded-2xl p-6 text-center">
+          <div key={k.label} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6 text-center">
             <p className={`text-4xl font-extrabold ${k.color}`}>{k.value}</p>
-            <p className="text-sm text-gray-600 mt-2 font-medium">{k.label}</p>
+            <p className="text-sm text-[#6667AB] mt-2 font-medium">{k.label}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/20 flex items-center gap-2">
+      <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-[rgba(255,255,255,0.15)] flex items-center gap-2">
           <FileText className="w-5 h-5 text-[#f6a5c0]" />
-          <h2 className="font-bold text-gray-900">Postulaciones recientes</h2>
+          <h2 className="font-bold text-white">Postulaciones recientes</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-white/20 backdrop-blur-sm border-b border-white/20">
-                <th className="text-left py-3 px-6 font-semibold text-gray-600">Nombre</th>
-                <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
+              <tr className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border-b border-[rgba(255,255,255,0.1)]">
+                <th className="text-left py-3 px-6 font-semibold text-[#6667AB]">Nombre</th>
+                <th className="text-left py-3 px-6 font-semibold text-[#6667AB]">Estado</th>
               </tr>
             </thead>
             <tbody>
               {data.postulacionesRecientes.length > 0 ? data.postulacionesRecientes.map((p, i) => (
-                <tr key={p.Id || i} className={`border-b border-white/10 ${i % 2 === 0 ? 'bg-white/10' : 'bg-white/5'} hover:bg-white/20 transition-colors`}>
-                  <td className="py-3 px-6 font-semibold text-gray-900">{p.Nombres} {p.Apellidos?.charAt(0)}.</td>
+                <tr key={p.Id || i} className={`border-b border-[rgba(255,255,255,0.1)] ${i % 2 === 0 ? 'bg-[rgba(33,6,53,0.3)]' : 'bg-[rgba(33,6,53,0.15)]'} hover:bg-[rgba(33,6,53,0.3)] transition-colors`}>
+                  <td className="py-3 px-6 font-semibold text-[#F5D5E0]">{p.Nombres} {p.Apellidos?.charAt(0)}.</td>
                   <td className="py-3 px-6">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${
                       p.Estado === 'Aprobada' ? 'bg-[#cc8db3]/20 text-[#cc8db3] border-[#cc8db3]/40' :
                       p.Estado === 'Pendiente' ? 'bg-[#f6a5c0]/20 text-[#f6a5c0] border-[#f6a5c0]/40' :
-                      'bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]/30'
+                      'bg-[#9d85b6]/20 text-[#210635] border-[#9d85b6]/30'
                     }`}>{p.Estado}</span>
                   </td>
                 </tr>
               )) : (
                 <>
-                  <tr className="border-b border-white/10 bg-white/10 hover:bg-white/20 transition-colors">
-                    <td className="py-3 px-6 font-semibold text-gray-900">Milagros del Carmen T.</td>
+                  <tr className="border-b border-[rgba(255,255,255,0.1)] bg-[rgba(33,6,53,0.3)] hover:bg-[rgba(33,6,53,0.3)] transition-colors">
+                    <td className="py-3 px-6 font-semibold text-[#F5D5E0]">Milagros del Carmen T.</td>
                     <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-[#f6a5c0]/20 text-[#f6a5c0] border-[#f6a5c0]/40">Pendiente</span></td>
                   </tr>
-                  <tr className="border-b border-white/10 bg-white/5 hover:bg-white/20 transition-colors">
-                    <td className="py-3 px-6 font-semibold text-gray-900">Diana Carolina R.</td>
+                  <tr className="border-b border-[rgba(255,255,255,0.1)] bg-[rgba(33,6,53,0.15)] hover:bg-[rgba(33,6,53,0.3)] transition-colors">
+                    <td className="py-3 px-6 font-semibold text-[#F5D5E0]">Diana Carolina R.</td>
                     <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-[#cc8db3]/20 text-[#cc8db3] border-[#cc8db3]/40">Aprobada</span></td>
                   </tr>
-                  <tr className="border-b border-white/10 bg-white/10 hover:bg-white/20 transition-colors">
-                    <td className="py-3 px-6 font-semibold text-gray-900">Ana Lucía M.</td>
-                    <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]/30">Rechazada</span></td>
+                  <tr className="border-b border-[rgba(255,255,255,0.1)] bg-[rgba(33,6,53,0.3)] hover:bg-[rgba(33,6,53,0.3)] transition-colors">
+                    <td className="py-3 px-6 font-semibold text-[#F5D5E0]">Ana Lucía M.</td>
+                    <td className="py-3 px-6"><span className="inline-flex px-3 py-1 rounded-full text-xs font-bold border bg-[#9d85b6]/20 text-[#210635] border-[#9d85b6]/30">Rechazada</span></td>
                   </tr>
                 </>
               )}
@@ -343,45 +343,45 @@ function ContratosView() {
   const badgeEstado: Record<string, string> = {
     Pendiente: 'bg-[#f6a5c0]/20 text-[#f6a5c0] border-[#f6a5c0]/40',
     Confirmada: 'bg-[#cc8db3]/20 text-[#cc8db3] border-[#cc8db3]/40',
-    'En curso': 'bg-blue-50 text-[#cc8db3] border-blue-200',
-    Finalizada: 'bg-teal-50 text-teal-700 border-teal-200',
-    Cancelada: 'bg-[#9d85b6]/20 text-[#250e2c] border-[#9d85b6]/30',
+    'En curso': 'bg-[rgba(33,6,53,0.4)] text-[#cc8db3] border-[rgba(255,255,255,0.15)]',
+    Finalizada: 'bg-[rgba(33,6,53,0.4)] text-[#F5D5E0] border-[rgba(255,255,255,0.15)]',
+    Cancelada: 'bg-[#9d85b6]/20 text-[#210635] border-[#9d85b6]/30',
   };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <h1 className="text-2xl font-extrabold text-gray-900">Contratos</h1>
-      <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
+      <h1 className="text-2xl font-extrabold text-white">Contratos</h1>
+      <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-white/20 backdrop-blur-sm border-b border-white/20">
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">#</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Familia</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Cuidadora</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Menor</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Servicio</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Total</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Estado</th>
-                <th className="text-center py-3 px-4 font-semibold text-gray-600">Acción</th>
+              <tr className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border-b border-[rgba(255,255,255,0.1)]">
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">#</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Familia</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Cuidadora</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Menor</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Servicio</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Total</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Estado</th>
+                <th className="text-center py-3 px-4 font-semibold text-[#6667AB]">Acción</th>
               </tr>
             </thead>
             <tbody>
               {contratos.map((c, i) => (
-                <tr key={c.Id} className={`border-b border-white/10 ${i % 2 === 0 ? 'bg-white/10' : 'bg-white/5'} hover:bg-white/20 transition-colors`}>
-                  <td className="py-3 px-4 font-mono font-bold text-gray-900">CTN-{String(c.Id).padStart(4, '0')}</td>
-                  <td className="py-3 px-4 font-semibold text-gray-900">{c.FamiliaNombres} {c.FamiliaApellidos?.charAt(0)}.</td>
-                  <td className="py-3 px-4 text-gray-700">{c.CuidadoraNombres} {c.CuidadoraApellidos?.charAt(0)}.</td>
-                  <td className="py-3 px-4 text-gray-600">
+                <tr key={c.Id} className={`border-b border-[rgba(255,255,255,0.1)] ${i % 2 === 0 ? 'bg-[rgba(33,6,53,0.3)]' : 'bg-[rgba(33,6,53,0.15)]'} hover:bg-[rgba(33,6,53,0.3)] transition-colors`}>
+                  <td className="py-3 px-4 font-mono font-bold text-[#F5D5E0]">CTN-{String(c.Id).padStart(4, '0')}</td>
+                  <td className="py-3 px-4 font-semibold text-[#F5D5E0]">{c.FamiliaNombres} {c.FamiliaApellidos?.charAt(0)}.</td>
+                  <td className="py-3 px-4 text-[#F5D5E0]">{c.CuidadoraNombres} {c.CuidadoraApellidos?.charAt(0)}.</td>
+                  <td className="py-3 px-4 text-[#F5D5E0]">
                     {c.MenorNombre || '—'}
-                    {c.MenorDiagnostico && <span className="text-gray-400"> ({c.MenorDiagnostico})</span>}
+                    {c.MenorDiagnostico && <span className="text-[#6667AB]"> ({c.MenorDiagnostico})</span>}
                   </td>
-                  <td className="py-3 px-4 text-gray-600 text-xs">
+                  <td className="py-3 px-4 text-[#F5D5E0] text-xs">
                     {formatFecha(c.FechaServicio)} · {c.HoraInicio || '--'}-{c.HoraFin || '--'}
                   </td>
-                  <td className="py-3 px-4 font-semibold text-gray-900">S/ {c.Total.toFixed(2)}</td>
+                  <td className="py-3 px-4 font-semibold text-[#F5D5E0]">S/ {c.Total.toFixed(2)}</td>
                   <td className="py-3 px-4">
-                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeEstado[c.Estado] || 'bg-white/20 text-[#250e2c]/60 border-white/30'}`}>
+                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeEstado[c.Estado] || 'bg-[rgba(33,6,53,0.4)] text-[#6667AB] border-[rgba(255,255,255,0.2)]'}`}>
                       {c.Estado}
                     </span>
                   </td>
@@ -398,13 +398,13 @@ function ContratosView() {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-xs text-gray-400">—</span>
+                      <span className="text-xs text-[#6667AB]">—</span>
                     )}
                   </td>
                 </tr>
               ))}
               {contratos.length === 0 && (
-                <tr><td colSpan={8} className="py-8 text-center text-gray-400 text-sm">No hay contratos registrados</td></tr>
+                <tr><td colSpan={8} className="py-8 text-center text-[#6667AB] text-sm">No hay contratos registrados</td></tr>
               )}
             </tbody>
           </table>
@@ -425,37 +425,37 @@ function UsuariosView() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <h1 className="text-2xl font-extrabold text-gray-900 mb-8">Usuarios</h1>
-      <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
+      <h1 className="text-2xl font-extrabold text-white mb-8">Usuarios</h1>
+      <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-white/20 backdrop-blur-sm border-b border-white/20">
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">ID</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Nombre</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Email</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Rol</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Activo</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Creado</th>
+              <tr className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border-b border-[rgba(255,255,255,0.1)]">
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">ID</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Nombre</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Email</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Rol</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Activo</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Creado</th>
               </tr>
             </thead>
             <tbody>
               {usuarios.map((u, i) => (
-                <tr key={u.Id} className={`border-b border-white/10 ${i % 2 === 0 ? 'bg-white/10' : 'bg-white/5'} hover:bg-white/20 transition-colors`}>
-                  <td className="py-3 px-4 text-gray-800 font-mono">{u.Id}</td>
-                  <td className="py-3 px-4 text-gray-800 font-medium">{u.Nombres} {u.Apellidos}</td>
-                  <td className="py-3 px-4 text-gray-600">{u.Email}</td>
+                <tr key={u.Id} className={`border-b border-[rgba(255,255,255,0.1)] ${i % 2 === 0 ? 'bg-[rgba(33,6,53,0.3)]' : 'bg-[rgba(33,6,53,0.15)]'} hover:bg-[rgba(33,6,53,0.3)] transition-colors`}>
+                  <td className="py-3 px-4 text-[#F5D5E0] font-mono">{u.Id}</td>
+                  <td className="py-3 px-4 text-[#F5D5E0] font-medium">{u.Nombres} {u.Apellidos}</td>
+                  <td className="py-3 px-4 text-[#F5D5E0]">{u.Email}</td>
                   <td className="py-3 px-4">
                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                       u.Rol === 'Admin' ? 'bg-[#f6a5c0]/20 text-[#f6a5c0]' :
                       u.Rol === 'Cuidadora' ? 'bg-[#cc8db3]/20 text-[#cc8db3]' :
-                      'bg-blue-50 text-[#cc8db3]'
+                      'bg-[rgba(33,6,53,0.4)] text-[#cc8db3]'
                     }`}>{u.Rol}</span>
                   </td>
                   <td className="py-3 px-4">
                     <span className={`inline-block w-2 h-2 rounded-full ${u.Activo ? 'bg-[#cc8db3]' : 'bg-[#cc8db3]'}`} />
                   </td>
-                  <td className="py-3 px-4 text-gray-400 text-xs">{u.FechaCreacion}</td>
+                  <td className="py-3 px-4 text-[#6667AB] text-xs">{u.FechaCreacion}</td>
                 </tr>
               ))}
             </tbody>
@@ -511,47 +511,47 @@ function PostulacionesView() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-extrabold text-gray-900">Postulaciones</h1>
+        <h1 className="text-2xl font-extrabold text-white">Postulaciones</h1>
         <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6667AB]" />
           <input
             type="text"
             placeholder="Buscar postulante..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/30 border-white/40 backdrop-blur-sm text-sm focus:outline-none focus:ring-2 focus:ring-[#f6a5c0]/30 focus:border-[#f6a5c0] focus:bg-white/50"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[rgba(33,6,53,0.5)] border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] text-sm focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E]"
           />
         </div>
       </div>
 
-      <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden mb-8">
+      <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden mb-8">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-white/20 backdrop-blur-sm border-b border-white/20">
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Postulante</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Fecha</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Documentos</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Estado</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Acciones</th>
+              <tr className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border-b border-[rgba(255,255,255,0.1)]">
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Postulante</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Fecha</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Documentos</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Estado</th>
+                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((p, i) => (
                 <tr
                   key={p.Id}
-                  className={`border-b border-white/10 transition-colors cursor-pointer ${
-                    p.Estado === 'Aprobada' ? 'bg-[#cc8db3]/20' : i % 2 === 0 ? 'bg-white/10' : 'bg-white/5'
-                  } hover:bg-white/20 ${selectedPost?.Id === p.Id ? 'bg-[#cc8db3]/30 backdrop-blur-sm' : ''}`}
+                  className={`border-b border-[rgba(255,255,255,0.1)] transition-colors cursor-pointer ${
+                    p.Estado === 'Aprobada' ? 'bg-[#cc8db3]/20' : i % 2 === 0 ? 'bg-[rgba(33,6,53,0.3)]' : 'bg-[rgba(33,6,53,0.15)]'
+                  } hover:bg-[rgba(33,6,53,0.3)] ${selectedPost?.Id === p.Id ? 'bg-[#cc8db3]/30 backdrop-blur-sm' : ''}`}
                   onClick={() => selectPostulacion(p)}
                 >
                   <td className="py-3 px-4">
-                    <p className="font-semibold text-gray-800">{p.Nombres} {p.Apellidos}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{p.Email}</p>
+                    <p className="font-semibold text-[#F5D5E0]">{p.Nombres} {p.Apellidos}</p>
+                    <p className="text-xs text-[#6667AB] mt-0.5">{p.Email}</p>
                   </td>
-                  <td className="py-3 px-4 text-gray-600">{formatDate(p.FechaPostulacion)}</td>
+                  <td className="py-3 px-4 text-[#F5D5E0]">{formatDate(p.FechaPostulacion)}</td>
                   <td className="py-3 px-4">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-[#cc8db3] text-xs font-medium">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.4)] text-[#cc8db3] text-xs font-medium">
                       <Eye className="w-3.5 h-3.5" />
                       {p.TotalDocumentos} archivos
                     </span>
@@ -560,7 +560,7 @@ function PostulacionesView() {
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
                       p.Estado === 'Pendiente' ? 'bg-[#f6a5c0]/20 text-[#f6a5c0]' :
                       p.Estado === 'Aprobada' ? 'bg-[#cc8db3]/20 text-[#cc8db3]' :
-                      'bg-[#9d85b6]/20 text-[#250e2c]'
+                      'bg-[#9d85b6]/20 text-[#210635]'
                     }`}>{p.Estado}</span>
                   </td>
                   <td className="py-3 px-4">
@@ -588,7 +588,7 @@ function PostulacionesView() {
                 </tr>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={5} className="py-12 text-center text-gray-400">No hay postulaciones</td></tr>
+                <tr><td colSpan={5} className="py-12 text-center text-[#6667AB]">No hay postulaciones</td></tr>
               )}
             </tbody>
           </table>
@@ -599,35 +599,35 @@ function PostulacionesView() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6"
+          className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
         >
-          <h2 className="text-lg font-bold text-gray-800 mb-6">
+          <h2 className="text-lg font-bold text-white mb-6">
             Documentos de <span className="text-[#f6a5c0]">{selectedPost.Nombres} {selectedPost.Apellidos}</span>
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {documentos.map(doc => (
-              <div key={doc.Id} className="border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
+              <div key={doc.Id} className="border border-[rgba(255,255,255,0.1)] rounded-xl p-4 hover:shadow-lg hover:shadow-black/30 transition-shadow">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-5 h-5 text-gray-500" />
+                  <div className="w-10 h-10 rounded-lg bg-[rgba(33,6,53,0.4)] flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-5 h-5 text-[#6667AB]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-800 text-sm">{doc.TipoRequisito}</p>
-                    <p className="text-xs text-gray-400 mt-1 truncate">{doc.Peso}</p>
+                    <p className="font-medium text-[#F5D5E0] text-sm">{doc.TipoRequisito}</p>
+                    <p className="text-xs text-[#6667AB] mt-1 truncate">{doc.Peso}</p>
                     <span className={`inline-block mt-2 px-2 py-0.5 rounded text-xs font-medium ${
                       doc.Estado === 'Pendiente' ? 'bg-[#f6a5c0]/20 text-[#f6a5c0]' :
                       doc.Estado === 'Aprobado' ? 'bg-[#cc8db3]/20 text-[#cc8db3]' :
-                      'bg-[#9d85b6]/20 text-[#250e2c]'
+                      'bg-[#9d85b6]/20 text-[#210635]'
                     }`}>{doc.Estado}</span>
                   </div>
                   <a
                     href={`/uploads/${doc.NombreArchivo}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors flex-shrink-0"
+                    className="w-8 h-8 rounded-lg bg-[rgba(33,6,53,0.4)] flex items-center justify-center hover:bg-[rgba(33,6,53,0.3)] transition-colors flex-shrink-0"
                     title="Descargar"
                   >
-                    <Download className="w-4 h-4 text-gray-500" />
+                    <Download className="w-4 h-4 text-[#6667AB]" />
                   </a>
                 </div>
               </div>
@@ -650,33 +650,33 @@ function PerfilesView() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <h1 className="text-2xl font-extrabold text-gray-900 mb-8">Perfiles Validados</h1>
+      <h1 className="text-2xl font-extrabold text-white mb-8">Perfiles Validados</h1>
       <div className="space-y-4">
         {perfiles.map(p => (
-          <div key={p.Id} className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-5 flex items-center gap-5">
+          <div key={p.Id} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-5 flex items-center gap-5">
             <div className="w-12 h-12 rounded-full bg-[#cc8db3]/20 flex items-center justify-center text-[#cc8db3] font-bold text-lg">
               {p.Nombres?.charAt(0)}{p.Apellidos?.charAt(0)}
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-gray-800">{p.Nombres} {p.Apellidos}</p>
-              <p className="text-sm text-gray-500">{p.Email}</p>
+              <p className="font-semibold text-[#F5D5E0]">{p.Nombres} {p.Apellidos}</p>
+              <p className="text-sm text-[#6667AB]">{p.Email}</p>
             </div>
-            <div className="text-sm text-gray-600 text-center">
+            <div className="text-sm text-[#F5D5E0] text-center">
               <p className="font-bold">{p.AniosExperiencia}</p>
-              <p className="text-xs text-gray-400">años exp.</p>
+              <p className="text-xs text-[#6667AB]">años exp.</p>
             </div>
-            <div className="text-sm text-gray-600 text-center">
+            <div className="text-sm text-[#F5D5E0] text-center">
               <p className="font-bold">S/ {p.TarifaHora?.toFixed(2)}</p>
-              <p className="text-xs text-gray-400">tarifa/hora</p>
+              <p className="text-xs text-[#6667AB]">tarifa/hora</p>
             </div>
-            <div className="text-sm text-gray-600 text-center">
+            <div className="text-sm text-[#F5D5E0] text-center">
               <p className="font-bold text-[#f6a5c0]">{p.CalificacionPromedio}</p>
-              <p className="text-xs text-gray-400">({p.TotalResenas} reseñas)</p>
+              <p className="text-xs text-[#6667AB]">({p.TotalResenas} reseñas)</p>
             </div>
             <span className="px-3 py-1 rounded-full bg-[#cc8db3]/20 text-[#cc8db3] text-xs font-bold">Validado</span>
           </div>
         ))}
-        {perfiles.length === 0 && <p className="text-center text-gray-400 py-12">No hay perfiles validados</p>}
+        {perfiles.length === 0 && <p className="text-center text-[#6667AB] py-12">No hay perfiles validados</p>}
       </div>
     </div>
   );
@@ -692,14 +692,14 @@ function IncidenciasView() {
   }, []);
 
   const badgeTipo = (t: string) => {
-    if (t === 'Grave') return 'bg-red-50 text-[#cc8db3] border-red-200';
-    if (t === 'Moderada') return 'bg-orange-50 text-[#f6a5c0] border-orange-200';
-    return 'bg-emerald-50 text-[#cc8db3] border-emerald-200';
+    if (t === 'Grave') return 'bg-[rgba(33,6,53,0.4)] text-[#cc8db3] border-[rgba(255,255,255,0.15)]';
+    if (t === 'Moderada') return 'bg-[rgba(33,6,53,0.4)] text-[#f6a5c0] border-[rgba(255,255,255,0.15)]';
+    return 'bg-[rgba(33,6,53,0.4)] text-[#cc8db3] border-[rgba(255,255,255,0.15)]';
   };
   const badgeEst = (e: string) => {
     if (e === 'Abierta') return 'bg-[#f6a5c0]/20 text-[#f6a5c0] border-[#f6a5c0]/40';
-    if (e === 'En revisión') return 'bg-blue-50 text-[#cc8db3] border-blue-200';
-    return 'bg-white/20 text-[#250e2c]/60 border-white/30';
+    if (e === 'En revisión') return 'bg-[rgba(33,6,53,0.4)] text-[#cc8db3] border-[rgba(255,255,255,0.15)]';
+    return 'bg-[rgba(33,6,53,0.4)] text-[#6667AB] border-[rgba(255,255,255,0.2)]';
   };
 
   const resolver = (id: number) => {
@@ -710,22 +710,22 @@ function IncidenciasView() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <h1 className="text-2xl font-extrabold text-gray-900 mb-8">Incidencias</h1>
-      <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
+      <h1 className="text-2xl font-extrabold text-white mb-8">Incidencias</h1>
+      <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-white/20 backdrop-blur-sm border-b border-white/20">
-                <th className="text-left py-3 px-6 font-semibold text-gray-600">Servicio</th>
-                <th className="text-left py-3 px-6 font-semibold text-gray-600">Tipo</th>
-                <th className="text-left py-3 px-6 font-semibold text-gray-600">Estado</th>
-                <th className="text-right py-3 px-6 font-semibold text-gray-600">Acción</th>
+              <tr className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border-b border-[rgba(255,255,255,0.1)]">
+                <th className="text-left py-3 px-6 font-semibold text-[#6667AB]">Servicio</th>
+                <th className="text-left py-3 px-6 font-semibold text-[#6667AB]">Tipo</th>
+                <th className="text-left py-3 px-6 font-semibold text-[#6667AB]">Estado</th>
+                <th className="text-right py-3 px-6 font-semibold text-[#6667AB]">Acción</th>
               </tr>
             </thead>
             <tbody>
               {incidencias.map((inc, i) => (
-                <tr key={inc.Id} className={`border-b border-white/10 ${i % 2 === 0 ? 'bg-white/10' : 'bg-white/5'} hover:bg-white/20`}>
-                  <td className="py-3 px-6 font-medium text-gray-900">{inc.Servicio}</td>
+                <tr key={inc.Id} className={`border-b border-[rgba(255,255,255,0.1)] ${i % 2 === 0 ? 'bg-[rgba(33,6,53,0.3)]' : 'bg-[rgba(33,6,53,0.15)]'} hover:bg-[rgba(33,6,53,0.3)]`}>
+                  <td className="py-3 px-6 font-medium text-[#F5D5E0]">{inc.Servicio}</td>
                   <td className="py-3 px-6">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold border ${badgeTipo(inc.Tipo)}`}>{inc.Tipo}</span>
                   </td>
@@ -740,7 +740,7 @@ function IncidenciasView() {
                   </td>
                 </tr>
               ))}
-              {incidencias.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-gray-400">Sin incidencias</td></tr>}
+              {incidencias.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-[#6667AB]">Sin incidencias</td></tr>}
             </tbody>
           </table>
         </div>
@@ -762,7 +762,7 @@ function ReportesView() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      <h1 className="text-2xl font-extrabold text-gray-900">Reportes</h1>
+      <h1 className="text-2xl font-extrabold text-white">Reportes</h1>
       {reportes && (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4">
@@ -775,27 +775,27 @@ function ReportesView() {
               { label: 'Citas', value: reportes.citasCompletadas, color: 'text-teal-600', icon: CheckCircle },
               { label: 'Reseñas', value: reportes.resenasPromedio, color: 'text-orange-600', icon: BarChart3 },
             ].map(({ label, value, color, icon: Icon }) => (
-              <div key={label} className="bg-white/40 backdrop-blur-xl border border-white/30 rounded-2xl p-4 flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${color.replace('text-', 'bg-').replace('600', '100')}`}>
+              <div key={label} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[rgba(33,6,53,0.4)] flex items-center justify-center">
                   <Icon className={`w-5 h-5 ${color}`} />
                 </div>
                 <div>
                   <p className={`text-xl font-bold ${color}`}>{value}</p>
-                  <p className="text-xs text-gray-500">{label}</p>
+                  <p className="text-xs text-[#6667AB]">{label}</p>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Órdenes por Estado</h3>
+            <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
+              <h3 className="font-bold text-white mb-4">Órdenes por Estado</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={reportes.ordenesPorEstado}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="Estado" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="Estado" tick={{ fontSize: 12, fill: '#6667AB' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#6667AB' }} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(33,6,53,0.65)', backdropFilter: 'blur(20px)', color: '#F5D5E0' }} />
                   <Bar dataKey="count" name="Cantidad" radius={[6, 6, 0, 0]}>
                     {reportes.ordenesPorEstado.map((_: any, i: number) => (
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
@@ -805,8 +805,8 @@ function ReportesView() {
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Distribución de Pagos</h3>
+            <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
+              <h3 className="font-bold text-white mb-4">Distribución de Pagos</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie
@@ -815,51 +815,52 @@ function ReportesView() {
                     nameKey="Estado"
                     cx="50%" cy="50%" outerRadius={100}
                     label={({ Estado, count }) => `${Estado} (${count})`}
+                    fill="#F5D5E0"
                   >
                     {reportes.pagosPorEstado.map((_: any, i: number) => (
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(33,6,53,0.65)', backdropFilter: 'blur(20px)', color: '#F5D5E0' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Órdenes por Mes</h3>
+            <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
+              <h3 className="font-bold text-white mb-4">Órdenes por Mes</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={reportes.ordenesPorMes}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="mes" tick={{ fontSize: 11, fill: '#6667AB' }} />
+                  <YAxis tick={{ fontSize: 11, fill: '#6667AB' }} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(33,6,53,0.65)', backdropFilter: 'blur(20px)', color: '#F5D5E0' }} />
                   <Line type="monotone" dataKey="count" name="Órdenes" stroke="#cc8db3" strokeWidth={2} dot={{ fill: '#cc8db3', r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Ingresos por Mes</h3>
+            <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
+              <h3 className="font-bold text-white mb-4">Ingresos por Mes</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={reportes.ingresosPorMes}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} formatter={(v: number) => [`S/ ${v.toFixed(2)}`, 'Ingresos']} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="mes" tick={{ fontSize: 11, fill: '#6667AB' }} />
+                  <YAxis tick={{ fontSize: 11, fill: '#6667AB' }} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(33,6,53,0.65)', backdropFilter: 'blur(20px)', color: '#F5D5E0' }} formatter={(v: number) => [`S/ ${v.toFixed(2)}`, 'Ingresos']} />
                   <Bar dataKey="total" name="Ingresos" radius={[6, 6, 0, 0]} fill="#cc8db3" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="bg-white/40 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl p-6">
-            <h3 className="font-bold text-gray-900 mb-4">Top 5 Cuidadoras con más servicios</h3>
+          <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
+            <h3 className="font-bold text-white mb-4">Top 5 Cuidadoras con más servicios</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={reportes.topCuidadoras} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis type="number" tick={{ fontSize: 12 }} />
-                <YAxis type="category" dataKey="nombre" tick={{ fontSize: 12 }} width={160} />
-                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis type="number" tick={{ fontSize: 12, fill: '#6667AB' }} />
+                <YAxis type="category" dataKey="nombre" tick={{ fontSize: 12, fill: '#6667AB' }} width={160} />
+                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid rgba(255,255,255,0.2)', backgroundColor: 'rgba(33,6,53,0.65)', backdropFilter: 'blur(20px)', color: '#F5D5E0' }} />
                 <Bar dataKey="total" name="Servicios" radius={[0, 6, 6, 0]} fill="#9d85b6" />
               </BarChart>
             </ResponsiveContainer>
@@ -869,4 +870,3 @@ function ReportesView() {
     </div>
   );
 }
-

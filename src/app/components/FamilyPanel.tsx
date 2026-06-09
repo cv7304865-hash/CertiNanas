@@ -49,9 +49,9 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F7C2CA] via-[#9D85B6]/40 to-[#837AB6]/20">
+    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
       {/* Navbar */}
-      <header className="bg-[#250e2c]/80 backdrop-blur-xl border-b border-white/10 text-white sticky top-0 z-40 shadow-lg">
+      <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] text-white sticky top-0 z-40 shadow-lg shadow-black/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -62,15 +62,15 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                 <span className="text-lg font-extrabold text-[#f6a5c0] tracking-tight">CERTINANAS</span>
               </div>
               <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
-              <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
+              <span className="text-[#6667AB] text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
-              <button onClick={() => onNavigate?.('search')} className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
+              <button onClick={() => onNavigate?.('search')} className="text-sm text-[#F5D5E0]/70 hover:text-white transition-colors">Inicio</button>
               <button onClick={() => onNavigate?.('familia')} className="text-sm font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0] pb-0.5">Mis Servicios</button>
-              <button onClick={() => onNavigate?.('messages')} className="text-sm text-white/70 hover:text-white transition-colors">Mensajes</button>
+              <button onClick={() => onNavigate?.('messages')} className="text-sm text-[#F5D5E0]/70 hover:text-white transition-colors">Mensajes</button>
               <ProfileAvatar size={36} className="ml-2" />
-              <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <LogOut className="w-4 h-4 text-white/60" />
+              <button onClick={logout} className="p-2 hover:bg-[rgba(33,6,53,0.4)] rounded-lg transition-colors">
+                <LogOut className="w-4 h-4 text-[#6667AB]" />
               </button>
             </nav>
           </div>
@@ -78,28 +78,28 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
       </header>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-white/90 mb-6">Mis solicitudes de servicio</h1>
+        <h1 className="text-2xl font-bold text-white mb-6">Mis solicitudes de servicio</h1>
 
         {loading ? (
-          <p className="text-white/60 text-sm">Cargando...</p>
+          <p className="text-[#6667AB] text-sm">Cargando...</p>
         ) : solicitudes.length === 0 ? (
           <div className="text-center py-16">
-            <Search className="w-12 h-12 text-white/30 mx-auto mb-3" />
-            <p className="text-white/60">No tienes solicitudes de servicio aún.</p>
+            <Search className="w-12 h-12 text-[#6667AB] mx-auto mb-3" />
+            <p className="text-[#6667AB]">No tienes solicitudes de servicio aún.</p>
           </div>
         ) : (
-          <div className="bg-white/30 backdrop-blur-xl border border-white/30 shadow-lg shadow-black/5 rounded-2xl overflow-hidden">
+          <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/20 backdrop-blur-sm">
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Cuidadora</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Menor</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Fecha</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Horario</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Monto</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Estado</th>
-                    <th className="text-right px-6 py-4 text-xs font-semibold text-white/70 uppercase tracking-wider">Acción</th>
+                  <tr className="bg-[rgba(33,6,53,0.4)] border-b border-[rgba(255,255,255,0.1)]">
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Cuidadora</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Menor</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Fecha</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Horario</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Monto</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Estado</th>
+                    <th className="text-right px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Acción</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -108,17 +108,17 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                       key={s.Id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="border-b border-white/10 transition-colors hover:bg-white/10"
+                      className="border-b border-[rgba(255,255,255,0.1)] transition-colors hover:bg-[rgba(33,6,53,0.3)]"
                     >
                       <td className="px-6 py-4">
-                        <span className="font-semibold text-white/90">{s.CuidadoraNombres} {s.CuidadoraApellidos?.charAt(0)}.</span>
+                        <span className="font-semibold text-white">{s.CuidadoraNombres} {s.CuidadoraApellidos?.charAt(0)}.</span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-white/70">
+                      <td className="px-6 py-4 text-sm text-[#F5D5E0]/70">
                         {s.MenorNombre}
-                        {s.MenorDiagnostico && <span className="text-white/50"> ({s.MenorDiagnostico})</span>}
+                        {s.MenorDiagnostico && <span className="text-[#6667AB]"> ({s.MenorDiagnostico})</span>}
                       </td>
-                      <td className="px-6 py-4 text-sm text-white/70">{formatFecha(s.FechaServicio)}</td>
-                      <td className="px-6 py-4 text-sm text-white/70 font-mono">{s.HoraInicio || '--'}-{s.HoraFin || '--'}</td>
+                      <td className="px-6 py-4 text-sm text-[#F5D5E0]/70">{formatFecha(s.FechaServicio)}</td>
+                      <td className="px-6 py-4 text-sm text-[#F5D5E0]/70 font-mono">{s.HoraInicio || '--'}-{s.HoraFin || '--'}</td>
                       <td className="px-6 py-4 text-sm font-semibold text-white">S/ {s.Total.toFixed(2)}</td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${badgeClass[s.Estado] || 'bg-[#f6a5c0] text-white'}`}>
@@ -129,12 +129,12 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                         <div className="flex items-center justify-end gap-2">
                           {s.Estado === 'Finalizada' && (
                             <button onClick={() => onReview?.(s.Id)}
-                              className="text-xs font-semibold text-white/70 hover:text-white transition-colors">
+                              className="text-xs font-semibold text-[#F5D5E0]/70 hover:text-white transition-colors">
                               Evaluar
                             </button>
                           )}
                           <button onClick={() => onViewContract?.(s.Id)}
-                            className="text-xs font-semibold text-[#f6a5c0] hover:text-[#cc8db3] transition-colors">
+                            className="text-xs font-semibold text-[#F6A5C0] hover:text-[#CC8DB3] transition-colors">
                             Ver contrato
                           </button>
                         </div>
