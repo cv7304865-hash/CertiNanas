@@ -315,9 +315,6 @@ function AppContent() {
       {view === 'cuidadora' && user?.rol === 'cuidadora' && (
         <CaregiverPanel onNavigate={setView} />
       )}
-      {view === 'messages' && user?.rol === 'cuidadora' && (
-        <MessagesPage onNavigate={setView} />
-      )}
 
       {view === 'search' && (
         <SearchPage onNavigate={setView} />
