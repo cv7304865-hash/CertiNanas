@@ -768,7 +768,8 @@ function AppContent() {
       </main>
       </>)}
 
-      {/* Footer */}
+      {/* Footer - oculto en admin */}
+      {view !== 'admin' && (
       <footer className="bg-gray-900 text-white py-16 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
@@ -817,6 +818,7 @@ function AppContent() {
           </div>
         </div>
       </footer>
+      )}
 
       {/* Modals & Support */}
       <AuthModal 
@@ -845,7 +847,7 @@ function AppContent() {
         onClose={() => setLegalModalConfig({ ...legalModalConfig, isOpen: false })}
       />
 
-      <FloatingSupport />
+      {view !== 'admin' && <FloatingSupport />}
     </div>
   );
 }
