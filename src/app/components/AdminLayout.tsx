@@ -108,7 +108,7 @@ export function AdminLayout() {
       </aside>
 
       {/* ======= MAIN CONTENT ======= */}
-      <main className="ml-64 mt-16 p-8 min-h-screen">
+      <main className="ml-64 mt-16 p-8 min-h-[calc(100vh-4rem)] overflow-y-auto">
         {tab === 'dashboard' && <DashboardView />}
         {tab === 'contratos' && <ContratosView />}
         {tab === 'postulaciones' && <PostulacionesView />}
