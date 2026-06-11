@@ -135,9 +135,15 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 <h1 className="text-2xl font-bold text-white">{perfil.user.Nombres} {perfil.user.Apellidos}</h1>
                 <div className="flex items-center gap-3 mt-1">
                   <span className="text-[#6667AB]">Cuidadora Especializada</span>
-                  <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[rgba(16,185,129,0.2)] text-[#6EE7B7] text-xs font-bold">
-                    <CheckCircle className="w-3 h-3" /> Perfil Verificado
-                  </span>
+                  {perfil.postulacion?.Estado === 'Aprobada' ? (
+                    <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[rgba(16,185,129,0.2)] text-[#6EE7B7] text-xs font-bold">
+                      <CheckCircle className="w-3 h-3" /> Perfil Verificado
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[rgba(234,179,8,0.2)] text-[#FACC15] text-xs font-bold">
+                      Pendiente de verificación
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1 mt-3">
                   {[1, 2, 3, 4, 5].map(i => (
