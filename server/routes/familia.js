@@ -117,4 +117,26 @@ router.post('/orden/:id/confirmar-finalizacion', (req, res) => {
   res.json({ success: true });
 });
 
+// Agendar entrevista virtual con cuidadora
+router.post('/agendar-entrevista', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+
+  const { idCuidadora, fecha, hora, plataforma } = req.body;
+  if (!idCuidadora || !fecha || !hora) {
+    return res.status(400).json({ error: 'idCuidadora, fecha y hora son requeridos' });
+  }
+
+  const cuidadora = db.prepare('SELECT Id FROM Cuidadoras WHERE Id = ?').get(idCuidadora);
+  if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
+
+  db.prepare(`
+    INSERT INTO Citas (IdCuidadora, IdUsuarioFamilia, FechaCita, HoraCita, Modalidad, DuracionMinutos)
+    VALUES (?, ?, ?, ?, ?, 30)
+  `).run(idCuidadora, userId, fecha, hora, plataforma === 'zoom' ? 'Zoom' : 'Google Meet');
+
+  res.json({ success: true, message: 'Entrevista agendada correctamente' });
+});
+
 export default router;

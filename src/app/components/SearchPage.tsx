@@ -435,7 +435,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
 
       <AnimatePresence>
         {showSchedule && (
-          <ScheduleInterviewModal cuidadora={showSchedule} onClose={() => setShowSchedule(null)} />
+          <ScheduleInterviewModal cuidadora={showSchedule} userId={user!.id} onClose={() => setShowSchedule(null)} />
         )}
       </AnimatePresence>
     </div>
