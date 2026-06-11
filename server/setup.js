@@ -178,6 +178,28 @@ db.exec(`
     FechaPago TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS Escrow (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL UNIQUE REFERENCES Ordenes(Id),
+    MontoTotal REAL NOT NULL,
+    MontoCuidadora REAL NOT NULL,
+    MontoPlataforma REAL NOT NULL,
+    Estado TEXT NOT NULL DEFAULT 'Retenido' CHECK (Estado IN ('Retenido', 'Liberado', 'Reembolsado')),
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now')),
+    FechaLiberacion TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS Contratos (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL UNIQUE REFERENCES Ordenes(Id),
+    Terminos TEXT NOT NULL,
+    AceptadoFamilia INTEGER NOT NULL DEFAULT 0,
+    AceptadoCuidadora INTEGER NOT NULL DEFAULT 0,
+    FechaAceptacionFamilia TEXT,
+    FechaAceptacionCuidadora TEXT,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS Casos (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     Titulo TEXT NOT NULL,
@@ -251,7 +273,14 @@ db.exec(`
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN IdMenor INTEGER REFERENCES Menores(Id)`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN HoraInicio TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN HoraFin TEXT`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN FechaFinalizacion TEXT`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN IdEscrow INTEGER REFERENCES Escrow(Id)`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN ConfirmadaFamilia INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN ConfirmadaCuidadora INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN FinalizadaFamilia INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN FinalizadaCuidadora INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Usuarios ADD COLUMN FotoPerfil TEXT`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Usuarios ADD COLUMN Suspendido INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
 
 console.log('Tablas creadas y datos de semilla insertados.');
 }

@@ -204,6 +204,36 @@ router.put('/contratos/:id/rechazar', isAdmin, (req, res) => {
   res.json({ success: true });
 });
 
+// Suspender/activar usuario (RN-19)
+router.put('/usuarios/:id/suspender', isAdmin, (req, res) => {
+  const db = getDb();
+  const usuario = db.prepare('SELECT Id, Suspendido FROM Usuarios WHERE Id = ?').get(Number(req.params.id));
+  if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+  const nuevoEstado = usuario.Suspendido ? 0 : 1;
+  db.prepare('UPDATE Usuarios SET Suspendido = ?, Activo = ? WHERE Id = ?').run(nuevoEstado, nuevoEstado ? 0 : 1, usuario.Id);
+  if (nuevoEstado) {
+    db.prepare("UPDATE Ordenes SET Estado = 'Cancelada' WHERE IdCuidadora IN (SELECT Id FROM Cuidadoras WHERE IdUsuario = ?) AND Estado = 'Pendiente'").run(usuario.Id);
+  }
+  res.json({ success: true, suspendido: !!nuevoEstado });
+});
+
+// Obtener historial de quejas de un usuario (RN-19)
+router.get('/usuarios/:id/quejas', isAdmin, (req, res) => {
+  const db = getDb();
+  const userId = Number(req.params.id);
+  const quejas = db.prepare(`
+    SELECT i.Id, i.Tipo, i.Estado, i.Descripcion, i.FechaCreacion,
+           o.TipoServicio
+    FROM Incidencias i
+    LEFT JOIN Ordenes o ON o.Id = i.IdOrden
+    WHERE i.IdOrden IN (
+      SELECT Id FROM Ordenes WHERE IdCuidadora IN (SELECT Id FROM Cuidadoras WHERE IdUsuario = ?)
+    )
+    ORDER BY i.FechaCreacion DESC
+  `).all(userId);
+  res.json(quejas);
+});
+
 // Admin puede ver todas las conversaciones
 router.get('/conversaciones', isAdmin, (req, res) => {
   const db = getDb();

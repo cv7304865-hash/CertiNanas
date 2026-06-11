@@ -13,7 +13,7 @@ router.get('/search/cuidadoras', (req, res) => {
            (SELECT GROUP_CONCAT(e.Nombre, ' · ') FROM CuidadoraEspecialidades ce INNER JOIN Especialidades e ON e.Id = ce.IdEspecialidad WHERE ce.IdCuidadora = c.Id) AS Especialidades
     FROM Cuidadoras c
     INNER JOIN Usuarios u ON u.Id = c.IdUsuario
-    WHERE c.Disponible = 1
+    WHERE c.Disponible = 1 AND u.Activo = 1 AND u.Suspendido = 0
   `;
   const params = [];
 

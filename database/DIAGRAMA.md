@@ -22,6 +22,7 @@ erDiagram
         bool EmailConfirmado
         bool TerminosAceptados
         bool Activo
+        bool Suspendido
         string FotoPerfil
         datetime FechaCreacion
     }
@@ -167,7 +168,35 @@ erDiagram
         int IdMenor FK
         time HoraInicio
         time HoraFin
+        datetime FechaFinalizacion
+        int IdEscrow FK
+        bool ConfirmadaFamilia
+        bool ConfirmadaCuidadora
+        bool FinalizadaFamilia
+        bool FinalizadaCuidadora
         string Estado
+        datetime FechaCreacion
+    }
+
+    Escrow {
+        int Id PK
+        int IdOrden FK, UK
+        real MontoTotal
+        real MontoCuidadora
+        real MontoPlataforma
+        string Estado
+        datetime FechaCreacion
+        datetime FechaLiberacion
+    }
+
+    Contratos {
+        int Id PK
+        int IdOrden FK, UK
+        string Terminos
+        bool AceptadoFamilia
+        bool AceptadoCuidadora
+        datetime FechaAceptacionFamilia
+        datetime FechaAceptacionCuidadora
         datetime FechaCreacion
     }
 
@@ -270,7 +299,10 @@ erDiagram
     Ordenes ||--o{ Casos : "IdOrden"
 ```
 
-## Resumen de Tablas (20)
+    Ordenes ||--o| Escrow : "IdEscrow"
+    Ordenes ||--o| Contratos : "IdOrden"
+
+## Resumen de Tablas (22)
 
 | Tabla | Tipo | Descripción |
 |-------|------|-------------|
@@ -296,4 +328,6 @@ erDiagram
 | **DocumentosPostulacion** | Detalle | Documentos de postulación |
 | **Notificaciones** | Transaccional | Notificaciones push/in-app |
 | **Incidencias** | Transaccional | Reportes de incidencias |
+| **Escrow** | Transaccional | Fondos retenidos durante el servicio, liberados al completarse |
+| **Contratos** | Transaccional | Contrato digital del servicio, aceptado por ambas partes |
     | **Casos** | Transaccional | Casos de éxito / no acuerdo unificados con Tipo |
