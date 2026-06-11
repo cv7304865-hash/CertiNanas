@@ -161,14 +161,34 @@ router.post('/agendar-entrevista', (req, res) => {
   const cuidadora = db.prepare('SELECT Id FROM Cuidadoras WHERE Id = ?').get(idCuidadora);
   if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
 
-  const result = db.prepare(`
-    INSERT INTO Citas (IdCuidadora, IdUsuarioFamilia, FechaCita, HoraCita, Modalidad, DuracionMinutos)
-    VALUES (?, ?, ?, ?, ?, 30)
-  `).run(idCuidadora, userId, fecha, hora, plataforma === 'zoom' ? 'Zoom' : 'Google Meet');
+  db.transaction(() => {
+    const result = db.prepare(`
+      INSERT INTO Citas (IdCuidadora, IdUsuarioFamilia, FechaCita, HoraCita, Modalidad, DuracionMinutos)
+      VALUES (?, ?, ?, ?, ?, 30)
+    `).run(idCuidadora, userId, fecha, hora, plataforma === 'zoom' ? 'Zoom' : 'Google Meet');
 
-  audit(userId, 'agendar_entrevista', 'Citas', result.lastInsertRowid, `Cuidadora #${idCuidadora}, ${fecha} ${hora}`);
+    // Buscar o crear conversacion entre familia y cuidadora
+    let conversacion = db.prepare('SELECT Id FROM Conversaciones WHERE IdCuidadora = ? AND IdUsuarioFamilia = ?').get(idCuidadora, userId);
+    if (!conversacion) {
+      const convResult = db.prepare('INSERT INTO Conversaciones (IdCuidadora, IdUsuarioFamilia) VALUES (?, ?)').run(idCuidadora, userId);
+      conversacion = { Id: convResult.lastInsertRowid };
+    }
 
-  res.json({ success: true, message: 'Entrevista agendada correctamente' });
+    // Generar enlace de videollamada simulado
+    const linkId = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    const enlace = plataforma === 'zoom'
+      ? `https://zoom.us/j/${linkId}`
+      : `https://meet.google.com/${linkId}`;
+
+    const contenido = `ENTREVISTA VIRTUAL AGENDADA\n\nFecha: ${fecha}\nHora: ${hora}\nPlataforma: ${plataforma === 'zoom' ? 'Zoom' : 'Google Meet'}\nEnlace: ${enlace}\n\nPresiona el enlace el dia y hora de la entrevista para conectarte.`;
+
+    db.prepare('INSERT INTO Mensajes (IdConversacion, IdRemitente, Contenido) VALUES (?, ?, ?)').run(conversacion.Id, userId, contenido);
+    db.prepare("UPDATE Conversaciones SET FechaUltimoMensaje = datetime('now') WHERE Id = ?").run(conversacion.Id);
+
+    audit(userId, 'agendar_entrevista', 'Citas', result.lastInsertRowid, `Cuidadora #${idCuidadora}, ${fecha} ${hora}`);
+  })();
+
+  res.json({ success: true, message: 'Entrevista agendada correctamente. El enlace se ha enviado a los mensajes.' });
 });
 
 export default router;
