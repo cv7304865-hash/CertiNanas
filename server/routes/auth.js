@@ -74,8 +74,16 @@ router.post('/register', (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?, 1)
     `).run(email, password, nombres, apellidos, numeroDocumento || null, rolId);
 
+    const userId = result.lastInsertRowid;
+
+    // Si es cuidadora, crear automáticamente registro en Cuidadoras y Postulacion
+    if (rol === 'cuidadora') {
+      db.prepare(`INSERT INTO Cuidadoras (IdUsuario, TarifaHora) VALUES (?, 0)`).run(userId);
+      db.prepare(`INSERT INTO Postulaciones (IdUsuario, Estado) VALUES (?, 'Pendiente')`).run(userId);
+    }
+
     res.status(201).json({
-      id: result.lastInsertRowid,
+      id: userId,
       email,
       nombres,
       apellidos,
