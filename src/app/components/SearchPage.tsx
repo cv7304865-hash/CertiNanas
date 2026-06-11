@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { Search, Star, LogOut, X, CheckCircle, Heart, Quote } from 'lucide-react';
+import { Search, Star, LogOut, X, CheckCircle, Heart, Quote, MapPin, Award, BookOpen, FileText, Briefcase, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 import { ScheduleInterviewModal } from './ScheduleInterviewModal';
@@ -33,6 +33,8 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
   const [experiencia, setExperiencia] = useState('0+ años');
   const [tarifaMax, setTarifaMax] = useState('100');
   const [selectedNana, setSelectedNana] = useState<CuidadoraCard | null>(null);
+  const [perfilCompleto, setPerfilCompleto] = useState<any>(null);
+  const [cargandoPerfil, setCargandoPerfil] = useState(false);
   const [showSchedule, setShowSchedule] = useState<CuidadoraCard | null>(null);
   const [exitos, setExitos] = useState<CasoExito[]>([]);
 
@@ -57,6 +59,18 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
   useEffect(() => {
     fetch('/api/casos/exito').then(r => r.json()).then(setExitos).catch(() => {});
   }, []);
+
+  const abrirPerfil = async (c: CuidadoraCard) => {
+    setSelectedNana(c);
+    setCargandoPerfil(true);
+    setPerfilCompleto(null);
+    try {
+      const r = await fetch(`/api/search/cuidadora/${c.Id}/perfil`);
+      const data = await r.json();
+      setPerfilCompleto(data);
+    } catch { setPerfilCompleto(null); }
+    setCargandoPerfil(false);
+  };
 
   const getIniciales = (n: string, a: string) => {
     const names = n?.split(' ');
@@ -154,7 +168,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                   <p className="text-lg font-bold text-[#F6A5C0] mt-2">S/ {c.TarifaHora}/h</p>
                 </div>
                 <div className="self-end sm:self-center flex-shrink-0">
-                  <button onClick={() => setSelectedNana(c)} className="px-6 py-2.5 bg-[#F6A5C0] hover:bg-[#CC8DB3] text-[#210635] font-bold rounded-full transition-all shadow-md hover:shadow-lg text-sm">
+                  <button onClick={() => abrirPerfil(c)} className="px-6 py-2.5 bg-[#F6A5C0] hover:bg-[#CC8DB3] text-[#210635] font-bold rounded-full transition-all shadow-md hover:shadow-lg text-sm">
                     Ver perfil
                   </button>
                 </div>
@@ -164,55 +178,215 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
         </div>
       </div>
 
-      {/* Modal de perfil */}
+      {/* Modal de perfil completo */}
       <AnimatePresence>
         {selectedNana && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setSelectedNana(null)}>
+            onClick={() => { setSelectedNana(null); setPerfilCompleto(null); }}>
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl max-w-lg w-full overflow-hidden" onClick={e => e.stopPropagation()}>
+              className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+
+              {/* Header */}
               <div className="h-1.5 bg-[#f6a5c0]"></div>
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
+              <div className="p-6 sm:p-8">
+                <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center gap-4">
-                    <div className={`w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center text-white text-xl font-bold`}>
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#CC8DB3] to-[#F6A5C0] flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
                       {getIniciales(selectedNana.Nombres, selectedNana.Apellidos)}
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-white">{selectedNana.Nombres} {selectedNana.Apellidos?.charAt(0)}.</h3>
-                      <p className="text-sm text-[#6667AB]">{selectedNana.Especialidades || 'Cuidado general'}</p>
-                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[#F5D5E0] text-[#210635] text-xs font-bold mt-1">
-                        <CheckCircle className="w-3 h-3" /> Perfil Verificado
-                      </span>
+                      <h3 className="text-xl font-bold text-white">{selectedNana.Nombres} {selectedNana.Apellidos}</h3>
+                      <p className="text-sm text-[#6667AB]">{perfilCompleto?.especialidades?.map((e: any) => e.Nombre).join(' · ') || selectedNana.Especialidades || 'Cuidado general'}</p>
+                      {perfilCompleto?.verificado ? (
+                        <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[rgba(16,185,129,0.2)] text-[#6EE7B7] text-xs font-bold mt-1">
+                          <CheckCircle className="w-3 h-3" /> Perfil Verificado
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-[rgba(234,179,8,0.2)] text-[#FACC15] text-xs font-bold mt-1">
+                          Pendiente de verificación
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <button onClick={() => setSelectedNana(null)} className="p-1.5 hover:bg-[rgba(33,6,53,0.4)] rounded-lg transition-colors">
+                  <button onClick={() => { setSelectedNana(null); setPerfilCompleto(null); }} className="p-1.5 hover:bg-[rgba(33,6,53,0.4)] rounded-lg transition-colors">
                     <X className="w-5 h-5 text-[#6667AB]" />
                   </button>
                 </div>
-                <div className="space-y-3 text-sm text-[#F5D5E0] border-t border-[rgba(255,255,255,0.1)] pt-4">
-                  <div className="flex justify-between">
-                    <span>Experiencia</span>
-                    <span className="font-semibold text-white">{selectedNana.AniosExperiencia} años</span>
+
+                {cargandoPerfil ? (
+                  <p className="text-[#6667AB] text-center py-8">Cargando perfil...</p>
+                ) : perfilCompleto && (
+                  <div className="space-y-6">
+
+                    {/* Stats rápidas */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-3 text-center">
+                        <p className="text-2xl font-bold text-white">{selectedNana.AniosExperiencia}</p>
+                        <p className="text-xs text-[#6667AB]">Años exp.</p>
+                      </div>
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-3 text-center">
+                        <p className="text-2xl font-bold text-[#F6A5C0]">S/ {selectedNana.TarifaHora}</p>
+                        <p className="text-xs text-[#6667AB]">Tarifa /h</p>
+                      </div>
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-3 text-center">
+                        <p className="text-2xl font-bold text-white">{perfilCompleto.serviciosCompletados}</p>
+                        <p className="text-xs text-[#6667AB]">Servicios</p>
+                      </div>
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-3 text-center">
+                        <p className="text-2xl font-bold text-white">{selectedNana.CalificacionPromedio.toFixed(1)}</p>
+                        <p className="text-xs text-[#6667AB]">Calificación</p>
+                      </div>
+                    </div>
+
+                    {/* Biografía */}
+                    {perfilCompleto.cuidadora.DescripcionCorta && (
+                      <div>
+                        <h4 className="text-sm font-bold text-[#F5D5E0] mb-2 flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-[#CC8DB3]" /> Sobre mí
+                        </h4>
+                        <p className="text-sm text-[#6667AB] leading-relaxed">{perfilCompleto.cuidadora.DescripcionCorta}</p>
+                      </div>
+                    )}
+
+                    {/* Especialidades */}
+                    {perfilCompleto.especialidades?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-bold text-[#F5D5E0] mb-2 flex items-center gap-2">
+                          <Award className="w-4 h-4 text-[#CC8DB3]" /> Especialidades
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {perfilCompleto.especialidades.map((e: any, i: number) => (
+                            <span key={i} className="px-3 py-1 rounded-full bg-[rgba(204,141,179,0.2)] text-[#CC8DB3] text-xs font-semibold">{e.Nombre}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Áreas de cobertura */}
+                    {perfilCompleto.cuidadora.Zona && (
+                      <div>
+                        <h4 className="text-sm font-bold text-[#F5D5E0] mb-2 flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-[#CC8DB3]" /> Zona de cobertura
+                        </h4>
+                        <p className="text-sm text-white">{perfilCompleto.cuidadora.Zona}</p>
+                      </div>
+                    )}
+                    {perfilCompleto.areas?.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {perfilCompleto.areas.map((a: any, i: number) => (
+                          <span key={i} className="px-3 py-1 rounded-full bg-[rgba(33,6,53,0.4)] text-[#F5D5E0] text-xs">{a.Nombre}</span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Formación académica */}
+                    {perfilCompleto.formacion?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-bold text-[#F5D5E0] mb-3 flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-[#CC8DB3]" /> Formación académica
+                        </h4>
+                        <div className="space-y-2">
+                          {perfilCompleto.formacion.map((f: any, i: number) => (
+                            <div key={i} className="flex items-start gap-3 bg-[rgba(33,6,53,0.3)] rounded-xl p-3">
+                              <div className="w-8 h-8 rounded-full bg-[rgba(204,141,179,0.2)] flex items-center justify-center flex-shrink-0">
+                                <BookOpen className="w-4 h-4 text-[#CC8DB3]" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold text-white">{f.Titulo}</p>
+                                <p className="text-xs text-[#6667AB]">{f.Institucion} · {f.AnioObtencion}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Certificaciones */}
+                    {perfilCompleto.certificaciones?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-bold text-[#F5D5E0] mb-3 flex items-center gap-2">
+                          <Award className="w-4 h-4 text-[#CC8DB3]" /> Certificaciones
+                        </h4>
+                        <div className="space-y-2">
+                          {perfilCompleto.certificaciones.map((c: any, i: number) => (
+                            <div key={i} className="flex items-start gap-3 bg-[rgba(33,6,53,0.3)] rounded-xl p-3">
+                              <div className="w-8 h-8 rounded-full bg-[rgba(204,141,179,0.2)] flex items-center justify-center flex-shrink-0">
+                                <FileText className="w-4 h-4 text-[#CC8DB3]" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold text-white">{c.Nombre}</p>
+                                <p className="text-xs text-[#6667AB]">{c.EntidadEmisora}{c.FechaObtencion ? ` · ${c.FechaObtencion}` : ''}{c.FechaVencimiento ? ` · vence: ${c.FechaVencimiento}` : ''}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Documentos verificados */}
+                    {perfilCompleto.documentos?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-bold text-[#F5D5E0] mb-3 flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-[#CC8DB3]" /> Documentos
+                        </h4>
+                        <div className="space-y-1.5">
+                          {perfilCompleto.documentos.map((d: any, i: number) => (
+                            <div key={i} className="flex items-center justify-between bg-[rgba(33,6,53,0.3)] rounded-lg px-3 py-2">
+                              <span className="text-sm text-[#F5D5E0]">{d.TipoRequisito}</span>
+                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                                d.Estado === 'Aprobado' ? 'bg-[rgba(16,185,129,0.2)] text-[#6EE7B7]' :
+                                d.Estado === 'Rechazado' ? 'bg-[rgba(239,68,68,0.2)] text-[#FCA5A5]' :
+                                'bg-[rgba(234,179,8,0.2)] text-[#FACC15]'
+                              }`}>{d.Estado}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Reseñas */}
+                    {perfilCompleto.resenas?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-bold text-[#F5D5E0] mb-3 flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4 text-[#CC8DB3]" /> Reseñas ({perfilCompleto.resenas.length})
+                        </h4>
+                        <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                          {perfilCompleto.resenas.map((r: any, i: number) => (
+                            <div key={i} className="bg-[rgba(33,6,53,0.3)] rounded-xl p-3">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-sm font-semibold text-white">{r.Nombres} {r.Apellidos?.charAt(0)}.</span>
+                                <div className="flex items-center gap-0.5">
+                                  {[1, 2, 3, 4, 5].map(j => (
+                                    <Star key={j} className={`w-3 h-3 ${j <= r.Calificacion ? 'text-[#CC8DB3] fill-[#CC8DB3]' : 'text-[#6667AB]'}`} />
+                                  ))}
+                                </div>
+                              </div>
+                              {r.Comentario && <p className="text-xs text-[#6667AB] leading-relaxed">"{r.Comentario}"</p>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                   </div>
-                  <div className="flex justify-between">
-                    <span>Tarifa</span>
-                    <span className="font-semibold text-[#F6A5C0]">S/ {selectedNana.TarifaHora}/h</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Calificación</span>
+                )}
+
+                {/* Rating bar */}
+                {perfilCompleto && (
+                  <div className="mt-3 flex items-center gap-2 border-t border-[rgba(255,255,255,0.1)] pt-4">
                     <div className="flex items-center gap-1">
                       {[1, 2, 3, 4, 5].map(j => (
-                        <Star key={j} className={`w-4 h-4 ${j <= Math.round(selectedNana.CalificacionPromedio) ? 'text-[#CC8DB3] fill-[#CC8DB3]' : 'text-gray-200'}`} />
+                        <Star key={j} className={`w-4 h-4 ${j <= Math.round(selectedNana.CalificacionPromedio) ? 'text-[#CC8DB3] fill-[#CC8DB3]' : 'text-[#6667AB]'}`} />
                       ))}
-                      <span className="ml-1 font-semibold text-white">{selectedNana.CalificacionPromedio.toFixed(1)}</span>
                     </div>
+                    <span className="text-sm text-[#6667AB]">{selectedNana.CalificacionPromedio.toFixed(1)} · {selectedNana.TotalResenas} reseñas</span>
                   </div>
-                </div>
+                )}
+
                 <div className="mt-6">
                 <button
-                  onClick={() => { setSelectedNana(null); setTimeout(() => setShowSchedule(selectedNana), 200); }}
+                  onClick={() => { setSelectedNana(null); setPerfilCompleto(null); setTimeout(() => setShowSchedule(selectedNana), 200); }}
                   className="w-full py-3 bg-[#CC8DB3] hover:bg-[#b07a9a] text-[#210635] font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm"
                 >
                   Solicitar Servicio

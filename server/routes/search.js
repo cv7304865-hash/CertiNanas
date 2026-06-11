@@ -60,4 +60,77 @@ router.get('/casos/exito', (req, res) => {
   res.json(casos);
 });
 
+// Perfil completo de cuidadora para vista detallada
+router.get('/search/cuidadora/:id/perfil', (req, res) => {
+  const db = getDb();
+  const cuidadoraId = Number(req.params.id);
+
+  const cuidadora = db.prepare(`
+    SELECT c.*, u.Nombres, u.Apellidos, u.Email, u.Telefono
+    FROM Cuidadoras c
+    INNER JOIN Usuarios u ON u.Id = c.IdUsuario
+    WHERE c.Id = ?
+  `).get(cuidadoraId);
+  if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
+
+  const especialidades = db.prepare(`
+    SELECT e.Nombre, e.Descripcion FROM CuidadoraEspecialidades ce
+    INNER JOIN Especialidades e ON e.Id = ce.IdEspecialidad
+    WHERE ce.IdCuidadora = ?
+  `).all(cuidadoraId);
+
+  const areas = db.prepare(`
+    SELECT a.Nombre FROM CuidadoraAreas ca
+    INNER JOIN Areas a ON a.Id = ca.IdArea
+    WHERE ca.IdCuidadora = ?
+  `).all(cuidadoraId);
+
+  const formacion = db.prepare(`
+    SELECT Titulo, Institucion, AnioObtencion FROM CuidadoraFormacion
+    WHERE IdCuidadora = ? ORDER BY Orden ASC
+  `).all(cuidadoraId);
+
+  const certificaciones = db.prepare(`
+    SELECT Nombre, EntidadEmisora, FechaObtencion, FechaVencimiento FROM CuidadoraCertificaciones
+    WHERE IdCuidadora = ? ORDER BY Orden ASC
+  `).all(cuidadoraId);
+
+  const documentos = db.prepare(`
+    SELECT dp.TipoRequisito, dp.Estado, dp.NombreArchivo
+    FROM DocumentosPostulacion dp
+    INNER JOIN Postulaciones p ON p.Id = dp.IdPostulacion
+    WHERE p.IdUsuario = (SELECT IdUsuario FROM Cuidadoras WHERE Id = ?)
+    ORDER BY dp.TipoRequisito
+  `).all(cuidadoraId);
+
+  const serviciosCompletados = db.prepare(`
+    SELECT COUNT(*) AS total FROM Ordenes WHERE IdCuidadora = ? AND Estado = 'Completada'
+  `).get(cuidadoraId);
+
+  const resenas = db.prepare(`
+    SELECT r.Calificacion, r.Comentario, r.FechaResena,
+           u.Nombres, u.Apellidos
+    FROM Resenas r
+    INNER JOIN Usuarios u ON u.Id = r.IdUsuarioFamilia
+    WHERE r.IdCuidadora = ?
+    ORDER BY r.FechaCreacion DESC
+  `).all(cuidadoraId);
+
+  const postulacion = db.prepare(`
+    SELECT Estado FROM Postulaciones WHERE IdUsuario = (SELECT IdUsuario FROM Cuidadoras WHERE Id = ?)
+  `).get(cuidadoraId);
+
+  res.json({
+    cuidadora,
+    especialidades,
+    areas,
+    formacion,
+    certificaciones,
+    documentos,
+    serviciosCompletados: serviciosCompletados.total,
+    resenas,
+    verificado: postulacion?.Estado === 'Aprobada',
+  });
+});
+
 export default router;
