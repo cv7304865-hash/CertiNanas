@@ -23,3 +23,10 @@ export function getDb() {
 export function closeDb() {
   if (db) { db.close(); db = null; }
 }
+
+export function audit(userId, accion, entidad, idEntidad, detalle) {
+  try {
+    const d = getDb();
+    d.prepare('INSERT INTO Auditoria (IdUsuario, Accion, Entidad, IdEntidad, Detalle) VALUES (?, ?, ?, ?, ?)').run(userId || null, accion, entidad, idEntidad || null, detalle || null);
+  } catch (e) { console.error('Audit error:', e.message); }
+}

@@ -96,15 +96,12 @@ router.get('/search/cuidadora/:id/perfil', (req, res) => {
   `).all(cuidadoraId);
 
   const documentos = db.prepare(`
-    SELECT dp.TipoRequisito, dp.Estado, dp.NombreArchivo
+    SELECT dp.TipoRequisito, dp.Estado
     FROM DocumentosPostulacion dp
     INNER JOIN Postulaciones p ON p.Id = dp.IdPostulacion
     WHERE p.IdUsuario = (SELECT IdUsuario FROM Cuidadoras WHERE Id = ?)
     ORDER BY dp.TipoRequisito
-  `).all(cuidadoraId).map((d) => ({
-    ...d,
-    url: d.NombreArchivo ? `/uploads/${d.NombreArchivo}` : null,
-  }));
+  `).all(cuidadoraId);
 
   const serviciosCompletados = db.prepare(`
     SELECT COUNT(*) AS total FROM Ordenes WHERE IdCuidadora = ? AND Estado = 'Completada'

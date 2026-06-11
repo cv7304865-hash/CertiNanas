@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getDb } from '../db.js';
+import { getDb, audit } from '../db.js';
 
 const router = Router();
 
@@ -81,15 +81,52 @@ router.post('/orden/:id/aceptar', isCaregiver, (req, res) => {
   if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
   if (orden.ConfirmadaCuidadora) return res.status(400).json({ error: 'Ya aceptaste el contrato' });
 
+  // RN-23: validar que no tenga otro servicio en el mismo horario
+  if (orden.HoraInicio && orden.HoraFin) {
+    const solapado = db.prepare(`
+      SELECT COUNT(*) AS c FROM Ordenes
+      WHERE IdCuidadora = ? AND Id != ? AND Estado NOT IN ('Cancelada', 'Pendiente')
+      AND FechaServicio = ? AND HoraInicio < ? AND HoraFin > ?
+    `).get(cuidadora.Id, orden.Id, orden.FechaServicio, orden.HoraFin, orden.HoraInicio);
+    /* solapado si existe orden con HoraInicio < nueva.HoraFin AND HoraFin > nueva.HoraInicio */
+    if (solapado.c > 0) return res.status(409).json({ error: 'Ya tienes un servicio agendado en ese horario' });
+  }
+
   db.transaction(() => {
     let contrato = db.prepare('SELECT Id FROM Contratos WHERE IdOrden = ?').get(orden.Id);
     if (!contrato) {
-      const terminos = `Servicio de cuidado especializado. Fecha: ${orden.FechaServicio}, Horas: ${orden.TotalHoras}, Tarifa: S/ ${orden.TarifaHora}/h, Total: S/ ${orden.Total}.`;
+      const horario = orden.HoraInicio && orden.HoraFin ? `${orden.HoraInicio} a ${orden.HoraFin}` : `${orden.TotalHoras} horas`;
+      const terminos = [
+        `CONTRATO DE SERVICIO - CERTINANAS`,
+        `Fecha de servicio: ${orden.FechaServicio}`,
+        `Horario: ${horario}`,
+        `Tarifa: S/ ${orden.TarifaHora}/hora`,
+        `Total horas: ${orden.TotalHoras}`,
+        `Subtotal cuidadora: S/ ${orden.Subtotal}`,
+        `Comisión plataforma (8%): S/ ${orden.TarifaPlataforma}`,
+        `Total pagado: S/ ${orden.Total}`,
+        `Tipo de servicio: ${orden.TipoServicio || 'Cuidado especializado'}`,
+        ``,
+        `RESPONSABILIDADES DE LA CUIDADORA:`,
+        `- Brindar cuidado especializado al menor asignado`,
+        `- Cumplir con el horario acordado`,
+        `- Reportar cualquier incidencia durante el servicio`,
+        `- Mantener confidencialidad sobre información familiar`,
+        ``,
+        `RESPONSABILIDADES DE LA FAMILIA:`,
+        `- Proporcionar un entorno seguro para el servicio`,
+        `- Pagar el servicio según lo acordado`,
+        `- Comunicar cualquier cambio con anticipación`,
+        ``,
+        `El pago queda retenido en Escrow hasta que ambas partes confirmen la finalización del servicio.`,
+        `Al aceptar, ambas partes aceptan los términos y condiciones de CERTINANAS.`,
+      ].join('\n');
       const r = db.prepare('INSERT INTO Contratos (IdOrden, Terminos) VALUES (?, ?)').run(orden.Id, terminos);
       contrato = { Id: r.lastInsertRowid };
     }
     db.prepare("UPDATE Contratos SET AceptadoCuidadora = 1, FechaAceptacionCuidadora = datetime('now') WHERE Id = ?").run(contrato.Id);
     db.prepare('UPDATE Ordenes SET ConfirmadaCuidadora = 1 WHERE Id = ?').run(orden.Id);
+    audit(userId, 'aceptar_contrato_cuidadora', 'Contratos', contrato.Id, `Orden #${orden.Id}`);
   })();
 
   res.json({ success: true });
@@ -108,6 +145,7 @@ router.post('/orden/:id/rechazar', isCaregiver, (req, res) => {
   if (orden.Estado === 'Cancelada') return res.status(400).json({ error: 'Servicio ya cancelado' });
 
   db.prepare("UPDATE Ordenes SET Estado = 'Cancelada' WHERE Id = ?").run(orden.Id);
+  audit(userId, 'rechazar_servicio', 'Ordenes', orden.Id, null);
   res.json({ success: true, message: 'Servicio rechazado' });
 });
 
@@ -126,10 +164,13 @@ router.post('/orden/:id/confirmar-finalizacion', isCaregiver, (req, res) => {
   db.transaction(() => {
     db.prepare("UPDATE Ordenes SET FinalizadaCuidadora = 1 WHERE Id = ?").run(orden.Id);
     const ordenActualizada = db.prepare('SELECT * FROM Ordenes WHERE Id = ?').get(orden.Id);
+    let liberado = false;
     if (ordenActualizada.FinalizadaFamilia && ordenActualizada.FinalizadaCuidadora) {
       db.prepare("UPDATE Escrow SET Estado = 'Liberado', FechaLiberacion = datetime('now') WHERE IdOrden = ?").run(orden.Id);
       db.prepare("UPDATE Ordenes SET Estado = 'Completada' WHERE Id = ?").run(orden.Id);
+      liberado = true;
     }
+    audit(userId, liberado ? 'confirmar_finalizacion_cuidadora_liberar_escrow' : 'confirmar_finalizacion_cuidadora', 'Ordenes', orden.Id, null);
   })();
 
   res.json({ success: true });

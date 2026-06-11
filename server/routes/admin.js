@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getDb } from '../db.js';
+import { getDb, audit } from '../db.js';
 
 const router = Router();
 
@@ -84,7 +84,10 @@ router.post('/postulaciones/:id/aprobar', isAdmin, (req, res) => {
   db.prepare("UPDATE Postulaciones SET Estado = 'Aprobada' WHERE Id = ?").run(req.params.id);
   db.prepare("UPDATE DocumentosPostulacion SET Estado = 'Aprobado' WHERE IdPostulacion = ?").run(req.params.id);
   const post = db.prepare('SELECT IdUsuario FROM Postulaciones WHERE Id = ?').get(req.params.id);
-  if (post) db.prepare("UPDATE Usuarios SET Activo = 1 WHERE Id = ?").run(post.IdUsuario);
+  if (post) {
+    db.prepare("UPDATE Usuarios SET Activo = 1 WHERE Id = ?").run(post.IdUsuario);
+    audit(req.headers['x-admin-user'], 'aprobar_postulacion', 'Postulaciones', Number(req.params.id), `Usuario #${post.IdUsuario}`);
+  }
   res.json({ success: true });
 });
 
@@ -214,6 +217,7 @@ router.put('/usuarios/:id/suspender', isAdmin, (req, res) => {
   if (nuevoEstado) {
     db.prepare("UPDATE Ordenes SET Estado = 'Cancelada' WHERE IdCuidadora IN (SELECT Id FROM Cuidadoras WHERE IdUsuario = ?) AND Estado = 'Pendiente'").run(usuario.Id);
   }
+  audit(Number(req.headers['x-admin-user']), nuevoEstado ? 'suspender_usuario' : 'activar_usuario', 'Usuarios', usuario.Id, null);
   res.json({ success: true, suspendido: !!nuevoEstado });
 });
 

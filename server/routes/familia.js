@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getDb } from '../db.js';
+import { getDb, audit } from '../db.js';
 
 const router = Router();
 
@@ -58,12 +58,38 @@ router.post('/orden/:id/aceptar', (req, res) => {
   db.transaction(() => {
     let contrato = db.prepare('SELECT Id FROM Contratos WHERE IdOrden = ?').get(orden.Id);
     if (!contrato) {
-      const terminos = `Servicio de cuidado especializado. Fecha: ${orden.FechaServicio}, Horas: ${orden.TotalHoras}, Tarifa: S/ ${orden.TarifaHora}/h, Total: S/ ${orden.Total}.`;
+      const horario = orden.HoraInicio && orden.HoraFin ? `${orden.HoraInicio} a ${orden.HoraFin}` : `${orden.TotalHoras} horas`;
+      const terminos = [
+        `CONTRATO DE SERVICIO - CERTINANAS`,
+        `Fecha de servicio: ${orden.FechaServicio}`,
+        `Horario: ${horario}`,
+        `Tarifa: S/ ${orden.TarifaHora}/hora`,
+        `Total horas: ${orden.TotalHoras}`,
+        `Subtotal cuidadora: S/ ${orden.Subtotal}`,
+        `Comisión plataforma (8%): S/ ${orden.TarifaPlataforma}`,
+        `Total pagado: S/ ${orden.Total}`,
+        `Tipo de servicio: ${orden.TipoServicio || 'Cuidado especializado'}`,
+        ``,
+        `RESPONSABILIDADES DE LA CUIDADORA:`,
+        `- Brindar cuidado especializado al menor asignado`,
+        `- Cumplir con el horario acordado`,
+        `- Reportar cualquier incidencia durante el servicio`,
+        `- Mantener confidencialidad sobre información familiar`,
+        ``,
+        `RESPONSABILIDADES DE LA FAMILIA:`,
+        `- Proporcionar un entorno seguro para el servicio`,
+        `- Pagar el servicio según lo acordado`,
+        `- Comunicar cualquier cambio con anticipación`,
+        ``,
+        `El pago queda retenido en Escrow hasta que ambas partes confirmen la finalización del servicio.`,
+        `Al aceptar, ambas partes aceptan los términos y condiciones de CERTINANAS.`,
+      ].join('\n');
       const r = db.prepare('INSERT INTO Contratos (IdOrden, Terminos) VALUES (?, ?)').run(orden.Id, terminos);
       contrato = { Id: r.lastInsertRowid };
     }
     db.prepare("UPDATE Contratos SET AceptadoFamilia = 1, FechaAceptacionFamilia = datetime('now') WHERE Id = ?").run(contrato.Id);
     db.prepare('UPDATE Ordenes SET ConfirmadaFamilia = 1 WHERE Id = ?').run(orden.Id);
+    audit(userId, 'aceptar_contrato', 'Contratos', contrato.Id, `Orden #${orden.Id}`);
   })();
 
   res.json({ success: true });
@@ -88,6 +114,7 @@ router.post('/pagar/:id', (req, res) => {
     const montoPlataforma = orden.TarifaPlataforma;
     const escrowResult = db.prepare("INSERT INTO Escrow (IdOrden, MontoTotal, MontoCuidadora, MontoPlataforma, Estado) VALUES (?, ?, ?, ?, 'Retenido')").run(orden.Id, orden.Total, montoCuidadora, montoPlataforma);
     db.prepare('UPDATE Ordenes SET IdEscrow = ? WHERE Id = ?').run(escrowResult.lastInsertRowid, orden.Id);
+    audit(userId, 'pagar_orden', 'Ordenes', orden.Id, `Monto: S/ ${orden.Total}, Escrow #${escrowResult.lastInsertRowid}`);
   })();
 
   res.json({ success: true });
@@ -108,10 +135,13 @@ router.post('/orden/:id/confirmar-finalizacion', (req, res) => {
     db.prepare("UPDATE Ordenes SET FinalizadaFamilia = 1, FechaFinalizacion = datetime('now') WHERE Id = ?").run(orden.Id);
     // Si ambas partes confirmaron, liberar Escrow
     const ordenActualizada = db.prepare('SELECT * FROM Ordenes WHERE Id = ?').get(orden.Id);
+    let liberado = false;
     if (ordenActualizada.FinalizadaFamilia && ordenActualizada.FinalizadaCuidadora) {
       db.prepare("UPDATE Escrow SET Estado = 'Liberado', FechaLiberacion = datetime('now') WHERE IdOrden = ?").run(orden.Id);
       db.prepare("UPDATE Ordenes SET Estado = 'Completada' WHERE Id = ?").run(orden.Id);
+      liberado = true;
     }
+    audit(userId, liberado ? 'confirmar_finalizacion_liberar_escrow' : 'confirmar_finalizacion', 'Ordenes', orden.Id, null);
   })();
 
   res.json({ success: true });
@@ -131,10 +161,12 @@ router.post('/agendar-entrevista', (req, res) => {
   const cuidadora = db.prepare('SELECT Id FROM Cuidadoras WHERE Id = ?').get(idCuidadora);
   if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
 
-  db.prepare(`
+  const result = db.prepare(`
     INSERT INTO Citas (IdCuidadora, IdUsuarioFamilia, FechaCita, HoraCita, Modalidad, DuracionMinutos)
     VALUES (?, ?, ?, ?, ?, 30)
   `).run(idCuidadora, userId, fecha, hora, plataforma === 'zoom' ? 'Zoom' : 'Google Meet');
+
+  audit(userId, 'agendar_entrevista', 'Citas', result.lastInsertRowid, `Cuidadora #${idCuidadora}, ${fecha} ${hora}`);
 
   res.json({ success: true, message: 'Entrevista agendada correctamente' });
 });

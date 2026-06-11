@@ -249,6 +249,16 @@ db.exec(`
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS Auditoria (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdUsuario INTEGER REFERENCES Usuarios(Id),
+    Accion TEXT NOT NULL,
+    Entidad TEXT NOT NULL,
+    IdEntidad INTEGER,
+    Detalle TEXT,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
 `);
 
   // Seed data

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getDb } from '../db.js';
+import { getDb, audit } from '../db.js';
 
 const router = Router();
 
@@ -82,6 +82,7 @@ router.post('/register', (req, res) => {
       db.prepare(`INSERT INTO Postulaciones (IdUsuario, Estado) VALUES (?, 'Pendiente')`).run(userId);
     }
 
+    audit(userId, 'registro', 'Usuarios', userId, `Rol: ${rol}`);
     res.status(201).json({
       id: userId,
       email,
@@ -112,6 +113,7 @@ router.post('/resena', (req, res) => {
   const avg = db.prepare('SELECT AVG(Calificacion) AS prom, COUNT(*) AS tot FROM Resenas WHERE IdCuidadora = ?').get(orden.IdCuidadora);
   if (avg.prom) db.prepare('UPDATE Cuidadoras SET CalificacionPromedio = ?, TotalResenas = ? WHERE Id = ?').run(+avg.prom.toFixed(1), avg.tot, orden.IdCuidadora);
 
+  audit(userId, 'crear_resena', 'Resenas', null, `Orden #${idOrden}, Calif: ${calificacion}`);
   res.json({ success: true });
 });
 

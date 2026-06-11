@@ -247,6 +247,16 @@ erDiagram
         datetime FechaCreacion
     }
 
+    Auditoria {
+        int Id PK
+        int IdUsuario FK
+        string Accion
+        string Entidad
+        int IdEntidad
+        string Detalle
+        datetime FechaCreacion
+    }
+
     Casos {
         int Id PK
         string Titulo
@@ -302,7 +312,7 @@ erDiagram
     Ordenes ||--o| Escrow : "IdEscrow"
     Ordenes ||--o| Contratos : "IdOrden"
 
-## Resumen de Tablas (22)
+## Resumen de Tablas (23)
 
 | Tabla | Tipo | Descripción |
 |-------|------|-------------|
@@ -328,6 +338,7 @@ erDiagram
 | **DocumentosPostulacion** | Detalle | Documentos de postulación |
 | **Notificaciones** | Transaccional | Notificaciones push/in-app |
 | **Incidencias** | Transaccional | Reportes de incidencias |
+| **Auditoria** | Transaccional | Registro de trazabilidad de todas las acciones del sistema |
 | **Escrow** | Transaccional | Fondos retenidos durante el servicio, liberados al completarse |
 | **Contratos** | Transaccional | Contrato digital del servicio, aceptado por ambas partes |
     | **Casos** | Transaccional | Casos de éxito / no acuerdo unificados con Tipo |

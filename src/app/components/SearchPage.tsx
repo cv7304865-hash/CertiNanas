@@ -333,16 +333,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                         <div className="space-y-1.5">
                           {perfilCompleto.documentos.map((d: any, i: number) => (
                             <div key={i} className="flex items-center justify-between bg-[rgba(33,6,53,0.3)] rounded-lg px-3 py-2">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <span className="text-sm text-[#F5D5E0] truncate">{d.TipoRequisito}</span>
-                                {d.url && (
-                                  <a href={d.url} target="_blank" rel="noopener noreferrer"
-                                    className="text-xs text-[#CC8DB3] hover:text-[#F6A5C0] underline underline-offset-2 flex-shrink-0"
-                                    onClick={e => e.stopPropagation()}>
-                                    Ver archivo
-                                  </a>
-                                )}
-                              </div>
+                              <span className="text-sm text-[#F5D5E0]">{d.TipoRequisito}</span>
                               <span className={`text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
                                 d.Estado === 'Aprobado' ? 'bg-[rgba(16,185,129,0.2)] text-[#6EE7B7]' :
                                 d.Estado === 'Rechazado' ? 'bg-[rgba(239,68,68,0.2)] text-[#FCA5A5]' :
