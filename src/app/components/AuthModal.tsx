@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Mail, Lock, User, Users, Shield, AlertCircle, KeyRound, ChevronRight, Check, ShieldCheck, House, BookHeart, Heart, TreePine } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { RoleSelection } from './RoleSelection';
+import { RegistrationForm } from './RegistrationForm';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -134,16 +136,14 @@ function RecaptchaCheckbox({ verified, onStartVerification }: { verified: boolea
 }
 
 export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: AuthModalProps) {
-  const { login, register } = useAuth();
+  const { login } = useAuth();
   const [currentMode, setCurrentMode] = useState<'login' | 'register'>(initialMode);
   const [registerRole, setRegisterRole] = useState<'familia' | 'cuidadora'>('familia');
+  const [registerView, setRegisterView] = useState<'select-role' | 'form'>('select-role');
   const [error, setError] = useState('');
 
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  const [nombre, setNombre] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
   const [captchaVerified, setCaptchaVerified] = useState(false);
   const [showChallenge, setShowChallenge] = useState(false);
@@ -156,12 +156,10 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
     if (!isOpen) {
       const timer = setTimeout(() => {
         setRegisterRole('familia');
+        setRegisterView('select-role');
         setError('');
         setLoginEmail('');
         setLoginPassword('');
-        setNombre('');
-        setEmail('');
-        setPassword('');
         setCaptchaVerified(false);
         setShowChallenge(false);
       }, 300);
@@ -174,25 +172,17 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
     setShowChallenge(false);
   }, []);
 
+  const handleRoleSelect = (role: 'familia' | 'cuidadora') => {
+    setRegisterRole(role);
+    setRegisterView('form');
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!loginEmail || !loginPassword) { setError('Todos los campos son obligatorios.'); return; }
     if (!captchaVerified) { setError('Por favor, completa la verificación de seguridad.'); return; }
     const err = await login(loginEmail, loginPassword);
-    if (err) setError(err); else onClose();
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    if (!nombre || !email || !password) { setError('Todos los campos son obligatorios.'); return; }
-    if (!captchaVerified) { setError('Por favor, completa la verificación de seguridad.'); return; }
-    const parts = nombre.trim().split(' ');
-    const nombres = parts[0] || '';
-    const apellidos = parts.slice(1).join(' ') || '';
-    if (!apellidos) { setError('Ingresa nombre y apellido completo.'); return; }
-    const err = await register({ email, password, nombres, apellidos, rol: registerRole });
     if (err) setError(err); else onClose();
   };
 
@@ -237,7 +227,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                 Iniciar sesión
               </button>
               <button
-                onClick={() => { setCurrentMode('register'); setCaptchaVerified(false); setShowChallenge(false); }}
+                onClick={() => { setCurrentMode('register'); setRegisterView('select-role'); setCaptchaVerified(false); setShowChallenge(false); }}
                 className={`py-1.5 px-4 text-xs font-bold transition-all rounded-full ${
                   currentMode === 'register' ? 'bg-[#F6A5C0] text-[#210635] shadow-sm' : 'text-[#6667AB] hover:text-white'
                 }`}
@@ -318,85 +308,20 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                   </button>
                 </div>
               </form>
-            ) : (
-              <form className="space-y-3" onSubmit={handleRegister}>
-                <div className="flex items-center gap-2.5 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-[rgba(33,6,53,0.5)] backdrop-blur-sm flex items-center justify-center border border-[rgba(255,255,255,0.1)]">
-                    <User className="w-4 h-4 text-[#F5D5E0]" />
-                  </div>
-                  <h2 className="text-base font-bold text-white">Registrarme</h2>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[#F5D5E0] mb-1.5">Nombre completo *</label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6667AB]" />
-                    <input type="text" placeholder="Ej: María Pérez" value={nombre} onChange={e => setNombre(e.target.value)}
-                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[#F5D5E0] mb-1.5">Correo electrónico *</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6667AB]" />
-                    <input type="email" placeholder="ejemplo@correo.com" value={email} onChange={e => setEmail(e.target.value)}
-                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[#F5D5E0] mb-1.5">Contraseña *</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6667AB]" />
-                    <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[#F5D5E0] mb-1.5">Tipo de cuenta</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button type="button" onClick={() => setRegisterRole('familia')}
-                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 transition-all ${
-                        registerRole === 'familia'
-                          ? 'bg-[#CC8DB3]/20 backdrop-blur-sm border-[#CC8DB3]'
-                          : 'bg-[rgba(33,6,53,0.4)] border-[rgba(255,255,255,0.2)] text-[#6667AB] hover:border-[rgba(255,255,255,0.4)]'
-                      }`}>
-                      <Users className={`w-4 h-4 ${registerRole === 'familia' ? 'text-[#CC8DB3]' : 'text-[#6667AB]'}`} />
-                      <span className={`text-xs font-semibold ${registerRole === 'familia' ? 'text-white' : 'text-[#6667AB]'}`}>Familia</span>
-                    </button>
-                    <button type="button" onClick={() => setRegisterRole('cuidadora')}
-                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 transition-all ${
-                        registerRole === 'cuidadora'
-                          ? 'bg-[#CC8DB3]/20 backdrop-blur-sm border-[#CC8DB3]'
-                          : 'bg-[rgba(33,6,53,0.4)] border-[rgba(255,255,255,0.2)] text-[#6667AB] hover:border-[rgba(255,255,255,0.4)]'
-                      }`}>
-                      <Shield className={`w-4 h-4 ${registerRole === 'cuidadora' ? 'text-[#CC8DB3]' : 'text-[#6667AB]'}`} />
-                      <span className={`text-xs font-semibold ${registerRole === 'cuidadora' ? 'text-white' : 'text-[#6667AB]'}`}>Cuidadora</span>
-                    </button>
-                  </div>
-                </div>
-
-                <RecaptchaCheckbox verified={captchaVerified} onStartVerification={() => setShowChallenge(true)} />
-
-                <div className="flex items-center justify-between gap-2 pt-1">
-                  <button type="button" onClick={onClose} className="px-3 py-2 text-xs font-semibold text-[#F5D5E0] hover:text-white transition-colors">
-                    Cancelar
-                  </button>
-                  <button type="submit" className="flex-1 py-2.5 bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:opacity-90 text-xs flex items-center justify-center gap-1.5">
-                    Crear cuenta <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <p className="text-center text-[10px] text-[#6667AB] pt-1">
-                  Al registrarte aceptas nuestros{' '}
-                  <button type="button" onClick={() => onOpenLegal('terms')} className="font-bold hover:underline text-[#CC8DB3]">Términos</button>
-                  {' '}y{' '}
-                  <button type="button" onClick={() => onOpenLegal('privacy')} className="font-bold hover:underline text-[#CC8DB3]">Política de Privacidad</button>
-                </p>
-              </form>
-            )}
+            ) : currentMode === 'register' ? (
+              registerView === 'select-role' ? (
+                <RoleSelection onSelect={handleRoleSelect} onLogin={() => setCurrentMode('login')} />
+              ) : (
+                <RegistrationForm
+                  role={registerRole}
+                  onChangeRole={() => setRegisterView('select-role')}
+                  onClose={onClose}
+                  onOpenLegal={onOpenLegal}
+                  captchaVerified={captchaVerified}
+                  onStartCaptcha={() => setShowChallenge(true)}
+                />
+              )
+            ) : null}
           </div>
         </motion.div>
       </motion.div>
