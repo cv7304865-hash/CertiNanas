@@ -36,61 +36,68 @@ function CaptchaChallenge({ onSuccess, onClose }: { onSuccess: () => void; onClo
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.2 }}
-      className="bg-[rgba(33,6,53,0.85)] backdrop-blur-[20px] backdrop-saturate-[1.4] border border-[rgba(255,255,255,0.2)] rounded-2xl p-6 shadow-xl"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="absolute inset-0 z-30 flex items-center justify-center bg-[#210635]/70 backdrop-blur-sm rounded-3xl p-6"
       onClick={e => e.stopPropagation()}
     >
-      <div className="flex items-center justify-center gap-2 mb-1">
-        <ShieldCheck className="w-4 h-4 text-[#6667AB]" />
-        <span className="text-xs font-semibold text-[#6667AB] uppercase tracking-wide">Verificación de seguridad</span>
-      </div>
-      <p className="text-lg font-bold text-white text-center mt-2 mb-5">
-        Selecciona el <span className="text-[#CC8DB3]">corazón</span> <span className="inline-block">🤍</span>
-      </p>
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="bg-[rgba(33,6,53,0.9)] backdrop-blur-[20px] backdrop-saturate-[1.4] border border-[rgba(255,255,255,0.2)] rounded-2xl p-6 shadow-xl w-full max-w-xs"
+      >
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <ShieldCheck className="w-4 h-4 text-[#6667AB]" />
+          <span className="text-xs font-semibold text-[#6667AB] uppercase tracking-wide">Verificación de seguridad</span>
+        </div>
+        <p className="text-lg font-bold text-white text-center mt-2 mb-5">
+          Selecciona el <span className="text-[#CC8DB3]">corazón</span> <span className="inline-block">🤍</span>
+        </p>
 
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        {CAPTCHA_OPTIONS.map((opt) => {
-          const Icon = opt.icon;
-          const isSelected = selectedId === opt.id;
-          const isWrong = error && isSelected;
-          const isCorrect = isSelected && opt.id === TARGET_ID;
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {CAPTCHA_OPTIONS.map((opt) => {
+            const Icon = opt.icon;
+            const isSelected = selectedId === opt.id;
+            const isWrong = error && isSelected;
+            const isCorrect = isSelected && opt.id === TARGET_ID;
 
-          return (
-            <motion.button
-              key={opt.id}
-              type="button"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => handleSelect(opt.id)}
-              className={`flex flex-col items-center justify-center gap-2 p-5 rounded-xl border-2 transition-all cursor-pointer ${
-                isCorrect
-                  ? 'border-emerald-400 bg-emerald-400/10'
-                  : isWrong
-                    ? 'border-red-400 bg-red-400/10'
-                    : 'bg-[rgba(255,255,255,0.1)] border-[rgba(255,255,255,0.15)] hover:border-[#F6A5C0] hover:bg-[rgba(255,255,255,0.15)]'
-              }`}
-            >
-              <Icon className={`w-8 h-8 ${isCorrect ? 'text-emerald-300' : isWrong ? 'text-red-300' : 'text-[#CC8DB3]'}`} />
-              <span className={`text-xs font-semibold ${isCorrect ? 'text-emerald-300' : isWrong ? 'text-red-300' : 'text-white/70'}`}>
-                {opt.label}
-              </span>
-            </motion.button>
-          );
-        })}
-      </div>
+            return (
+              <motion.button
+                key={opt.id}
+                type="button"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleSelect(opt.id)}
+                className={`flex flex-col items-center justify-center gap-2 p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                  isCorrect
+                    ? 'border-emerald-400 bg-emerald-400/10'
+                    : isWrong
+                      ? 'border-red-400 bg-red-400/10'
+                      : 'bg-[rgba(255,255,255,0.1)] border-[rgba(255,255,255,0.15)] hover:border-[#F6A5C0] hover:bg-[rgba(255,255,255,0.15)]'
+                }`}
+              >
+                <Icon className={`w-8 h-8 ${isCorrect ? 'text-emerald-300' : isWrong ? 'text-red-300' : 'text-[#CC8DB3]'}`} />
+                <span className={`text-xs font-semibold ${isCorrect ? 'text-emerald-300' : isWrong ? 'text-red-300' : 'text-white/70'}`}>
+                  {opt.label}
+                </span>
+              </motion.button>
+            );
+          })}
+        </div>
 
-      {error && (
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-300 text-xs text-center mb-2">
-          Incorrecto. Intenta de nuevo.
-        </motion.p>
-      )}
+        {error && (
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-300 text-xs text-center mb-2">
+            Incorrecto. Intenta de nuevo.
+          </motion.p>
+        )}
 
-      <button type="button" onClick={onClose} className="w-full text-xs text-[#6667AB] hover:text-[#F5D5E0] transition-colors pt-1">
-        Cancelar
-      </button>
+        <button type="button" onClick={onClose} className="w-full text-xs text-[#6667AB] hover:text-[#F5D5E0] transition-colors pt-1">
+          Cancelar
+        </button>
+      </motion.div>
     </motion.div>
   );
 }
@@ -212,7 +219,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
             <X className="w-5 h-5" />
           </button>
 
-          <div className="p-8">
+          <div className="p-8 relative">
             {error && (
               <div className="mb-4 p-3 bg-[rgba(255,0,0,0.15)] border border-[rgba(255,0,0,0.3)] backdrop-blur-sm rounded-xl flex items-start gap-2 text-sm text-[#FF9999]">
                 <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />{error}
@@ -238,6 +245,16 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                 Registrarme
               </button>
             </div>
+
+            {/* Captcha Challenge Overlay */}
+            <AnimatePresence>
+              {showChallenge && (
+                <CaptchaChallenge
+                  onSuccess={handleCaptchaSuccess}
+                  onClose={() => setShowChallenge(false)}
+                />
+              )}
+            </AnimatePresence>
 
             {currentMode === 'login' ? (
               <form className="space-y-5" onSubmit={handleLogin}>
@@ -267,24 +284,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                 </div>
 
                 {/* reCAPTCHA */}
-                <div className="relative">
-                  <RecaptchaCheckbox verified={captchaVerified} onStartVerification={() => setShowChallenge(true)} />
-                  <AnimatePresence>
-                    {showChallenge && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute bottom-full mb-3 left-0 right-0 z-20"
-                      >
-                        <CaptchaChallenge
-                          onSuccess={handleCaptchaSuccess}
-                          onClose={() => setShowChallenge(false)}
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                <RecaptchaCheckbox verified={captchaVerified} onStartVerification={() => setShowChallenge(true)} />
 
                 {/* Demo Accounts */}
                 <div className="bg-[rgba(66,13,75,0.4)] backdrop-blur-sm rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
@@ -385,24 +385,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                 </div>
 
                 {/* reCAPTCHA */}
-                <div className="relative">
-                  <RecaptchaCheckbox verified={captchaVerified} onStartVerification={() => setShowChallenge(true)} />
-                  <AnimatePresence>
-                    {showChallenge && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute bottom-full mb-3 left-0 right-0 z-20"
-                      >
-                        <CaptchaChallenge
-                          onSuccess={handleCaptchaSuccess}
-                          onClose={() => setShowChallenge(false)}
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                <RecaptchaCheckbox verified={captchaVerified} onStartVerification={() => setShowChallenge(true)} />
 
                 {/* Footer Buttons */}
                 <div className="flex items-center justify-between gap-3 pt-2">
