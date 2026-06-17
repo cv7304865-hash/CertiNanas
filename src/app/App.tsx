@@ -35,6 +35,15 @@ function AppContent() {
     mode: 'login',
   });
 
+  // Auto-abrir modal si no hay sesion (modo auth-only)
+  useEffect(() => {
+    if (!loading && !user) {
+      setAuthModalConfig({ isOpen: true, mode: 'login' });
+    }
+  }, [loading, user]);
+
+  // No mostrar header/main/footer si el modal auth esta abierto sin sesion
+  const authOnly = authModalConfig.isOpen && !user;
 
   // Redirigir al panel correspondiente según el rol al iniciar sesión
   useEffect(() => {
@@ -197,8 +206,16 @@ function AppContent() {
     visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
   };
 
+  const handleCloseAuth = () => {
+    if (authOnly) return; // no cerrar si estamos en modo auth-only
+    setAuthModalConfig({ ...authModalConfig, isOpen: false });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E] font-['Inter',system-ui,sans-serif] selection:bg-[#CC8DB3] selection:text-white overflow-x-hidden">
+      {/* En modo auth-only no se renderiza header, main ni footer, solo el modal */}
+      {!authOnly && (
+      <>
       {/* Header - oculto cuando la cuidadora, familia usan su propio panel o el modal auth esta abierto */}
       {!authModalConfig.isOpen && view !== 'admin' && view !== 'cuidadora' && view !== 'familia' && view !== 'search' && view !== 'messages' && view !== 'contract' && view !== 'payment' && (
       <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] sticky top-0 z-40 transition-all duration-300 shadow-lg shadow-black/30">
@@ -821,8 +838,9 @@ function AppContent() {
       <AuthModal 
         isOpen={authModalConfig.isOpen}
         mode={authModalConfig.mode}
-        onClose={() => setAuthModalConfig({ ...authModalConfig, isOpen: false })}
+        onClose={handleCloseAuth}
         onOpenLegal={handleOpenLegal}
+        hideClose={authOnly}
       />
       
       <InterviewModal
@@ -845,6 +863,8 @@ function AppContent() {
       />
 
       {view !== 'admin' && <FloatingSupport />}
+    </>
+    )}
     </div>
   );
 }
