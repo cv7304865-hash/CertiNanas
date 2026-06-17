@@ -11,21 +11,60 @@ interface AuthModalProps {
 }
 
 function RecaptchaCheckbox({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleClick = () => {
+    if (checked) { onChange(); return; }
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      onChange();
+    }, 900);
+  };
+
   return (
     <div
-      onClick={onChange}
-      className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[rgba(33,6,53,0.4)] border border-[rgba(255,255,255,0.15)] cursor-pointer select-none transition-all hover:border-[#6667AB] group"
+      onClick={handleClick}
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer select-none transition-all group ${
+        loading
+          ? 'bg-[rgba(33,6,53,0.5)] border-[#6667AB]'
+          : checked
+            ? 'bg-[rgba(18,80,50,0.2)] border-emerald-500/40'
+            : 'bg-[rgba(33,6,53,0.4)] border-[rgba(255,255,255,0.15)] hover:border-[#6667AB]'
+      }`}
     >
       <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${
-        checked
-          ? 'bg-[#F6A5C0] border-[#F6A5C0]'
-          : 'border-[#6667AB] group-hover:border-[#F5D5E0]'
+        loading
+          ? 'border-[#6667AB]'
+          : checked
+            ? 'bg-emerald-500 border-emerald-500'
+            : 'border-[#6667AB] group-hover:border-[#F5D5E0]'
       }`}>
-        {checked && <Check className="w-4 h-4 text-[#210635]" strokeWidth={3} />}
+        {loading ? (
+          <svg className="w-4 h-4 text-[#F5D5E0] animate-spin" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        ) : checked ? (
+          <Check className="w-4 h-4 text-white" strokeWidth={3} />
+        ) : null}
       </div>
       <div className="flex items-center gap-2 flex-1">
-        <span className="text-sm font-medium text-[#F5D5E0]">No soy un robot</span>
-        <ShieldCheck className="w-4 h-4 text-[#6667AB] ml-auto" />
+        <span className={`text-sm font-medium transition-colors ${
+          loading ? 'text-[#6667AB]' : checked ? 'text-emerald-300' : 'text-[#F5D5E0]'
+        }`}>
+          {loading ? 'Verificando...' : checked ? 'Verificado' : 'No soy un robot'}
+        </span>
+        {loading ? (
+          <svg className="w-4 h-4 text-[#6667AB] ml-auto animate-spin" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        ) : checked ? (
+          <ShieldCheck className="w-4 h-4 text-emerald-400 ml-auto" />
+        ) : (
+          <ShieldCheck className="w-4 h-4 text-[#6667AB] ml-auto" />
+        )}
       </div>
     </div>
   );
