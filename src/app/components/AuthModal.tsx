@@ -8,7 +8,6 @@ interface AuthModalProps {
   onClose: () => void;
   mode: 'login' | 'register';
   onOpenLegal: (type: 'terms' | 'privacy') => void;
-  hideClose?: boolean;
 }
 
 const CAPTCHA_OPTIONS = [
@@ -134,7 +133,7 @@ function RecaptchaCheckbox({ verified, onStartVerification }: { verified: boolea
   );
 }
 
-export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal, hideClose }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: AuthModalProps) {
   const { login, register } = useAuth();
   const [currentMode, setCurrentMode] = useState<'login' | 'register'>(initialMode);
   const [registerRole, setRegisterRole] = useState<'familia' | 'cuidadora'>('familia');
@@ -216,11 +215,9 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal, hid
           onClick={e => e.stopPropagation()}
           className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] backdrop-saturate-[1.4] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-3xl w-full max-w-md overflow-hidden relative my-8"
         >
-          {!hideClose && (
           <button onClick={onClose} className="absolute top-4 right-4 p-2 text-[#6667AB] hover:text-white hover:bg-[rgba(33,6,53,0.4)] rounded-full transition-colors z-10">
             <X className="w-5 h-5" />
           </button>
-          )}
 
           <div className="p-8 relative">
             {error && (

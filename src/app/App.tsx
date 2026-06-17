@@ -42,9 +42,6 @@ function AppContent() {
     }
   }, [loading, user]);
 
-  // No mostrar header/main/footer si el modal auth esta abierto sin sesion
-  const authOnly = authModalConfig.isOpen && !user;
-
   // Redirigir al panel correspondiente según el rol al iniciar sesión
   useEffect(() => {
     if (loading) return;
@@ -207,16 +204,12 @@ function AppContent() {
   };
 
   const handleCloseAuth = () => {
-    if (authOnly) return; // no cerrar si estamos en modo auth-only
     setAuthModalConfig({ ...authModalConfig, isOpen: false });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E] font-['Inter',system-ui,sans-serif] selection:bg-[#CC8DB3] selection:text-white overflow-x-hidden">
-      {/* En modo auth-only no se renderiza header, main ni footer, solo el modal */}
-      {!authOnly && (
-      <>
-      {/* Header - oculto cuando la cuidadora, familia usan su propio panel o el modal auth esta abierto */}
+      {/* Header - oculto cuando la cuidadora, familia usan su propio panel */}
       {!authModalConfig.isOpen && view !== 'admin' && view !== 'cuidadora' && view !== 'familia' && view !== 'search' && view !== 'messages' && view !== 'contract' && view !== 'payment' && (
       <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] sticky top-0 z-40 transition-all duration-300 shadow-lg shadow-black/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -840,7 +833,6 @@ function AppContent() {
         mode={authModalConfig.mode}
         onClose={handleCloseAuth}
         onOpenLegal={handleOpenLegal}
-        hideClose={authOnly}
       />
       
       <InterviewModal
@@ -863,8 +855,6 @@ function AppContent() {
       />
 
       {view !== 'admin' && <FloatingSupport />}
-    </>
-    )}
     </div>
   );
 }
