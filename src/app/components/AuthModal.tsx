@@ -47,17 +47,17 @@ function CaptchaChallenge({ onSuccess, onClose }: { onSuccess: () => void; onClo
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="bg-[rgba(33,6,53,0.9)] backdrop-blur-[20px] backdrop-saturate-[1.4] border border-[rgba(255,255,255,0.2)] rounded-2xl p-6 shadow-xl w-full max-w-xs"
+        className="bg-[rgba(33,6,53,0.9)] backdrop-blur-[20px] backdrop-saturate-[1.4] border border-[rgba(255,255,255,0.2)] rounded-2xl p-4 shadow-xl w-full max-w-[220px]"
       >
-        <div className="flex items-center justify-center gap-2 mb-1">
-          <ShieldCheck className="w-4 h-4 text-[#6667AB]" />
-          <span className="text-xs font-semibold text-[#6667AB] uppercase tracking-wide">Verificación de seguridad</span>
+        <div className="flex items-center justify-center gap-1.5 mb-1">
+          <ShieldCheck className="w-3 h-3 text-[#6667AB]" />
+          <span className="text-[10px] font-semibold text-[#6667AB] uppercase tracking-wide">Verificación de seguridad</span>
         </div>
-        <p className="text-lg font-bold text-white text-center mt-2 mb-5">
+        <p className="text-sm font-bold text-white text-center mt-1.5 mb-3">
           Selecciona el <span className="text-[#CC8DB3]">corazón</span> <span className="inline-block">🤍</span>
         </p>
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-2 gap-2 mb-3">
           {CAPTCHA_OPTIONS.map((opt) => {
             const Icon = opt.icon;
             const isSelected = selectedId === opt.id;
@@ -71,7 +71,7 @@ function CaptchaChallenge({ onSuccess, onClose }: { onSuccess: () => void; onClo
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleSelect(opt.id)}
-                className={`flex flex-col items-center justify-center gap-2 p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl border-2 transition-all cursor-pointer ${
                   isCorrect
                     ? 'border-emerald-400 bg-emerald-400/10'
                     : isWrong
@@ -79,8 +79,8 @@ function CaptchaChallenge({ onSuccess, onClose }: { onSuccess: () => void; onClo
                       : 'bg-[rgba(255,255,255,0.1)] border-[rgba(255,255,255,0.15)] hover:border-[#F6A5C0] hover:bg-[rgba(255,255,255,0.15)]'
                 }`}
               >
-                <Icon className={`w-8 h-8 ${isCorrect ? 'text-emerald-300' : isWrong ? 'text-red-300' : 'text-[#CC8DB3]'}`} />
-                <span className={`text-xs font-semibold ${isCorrect ? 'text-emerald-300' : isWrong ? 'text-red-300' : 'text-white/70'}`}>
+                <Icon className={`w-6 h-6 ${isCorrect ? 'text-emerald-300' : isWrong ? 'text-red-300' : 'text-[#CC8DB3]'}`} />
+                <span className={`text-[10px] font-semibold ${isCorrect ? 'text-emerald-300' : isWrong ? 'text-red-300' : 'text-white/70'}`}>
                   {opt.label}
                 </span>
               </motion.button>
@@ -89,12 +89,12 @@ function CaptchaChallenge({ onSuccess, onClose }: { onSuccess: () => void; onClo
         </div>
 
         {error && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-300 text-xs text-center mb-2">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-300 text-[10px] text-center mb-1.5">
             Incorrecto. Intenta de nuevo.
           </motion.p>
         )}
 
-        <button type="button" onClick={onClose} className="w-full text-xs text-[#6667AB] hover:text-[#F5D5E0] transition-colors pt-1">
+        <button type="button" onClick={onClose} className="w-full text-[10px] text-[#6667AB] hover:text-[#F5D5E0] transition-colors">
           Cancelar
         </button>
       </motion.div>
@@ -106,27 +106,27 @@ function RecaptchaCheckbox({ verified, onStartVerification }: { verified: boolea
   return (
     <div
       onClick={verified ? undefined : onStartVerification}
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer select-none transition-all group ${
+      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border cursor-pointer select-none transition-all group ${
         verified
           ? 'bg-[rgba(18,80,50,0.2)] border-emerald-500/40'
           : 'bg-[rgba(33,6,53,0.4)] border-[rgba(255,255,255,0.15)] hover:border-[#6667AB]'
       }`}
     >
-      <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${
+      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${
         verified
           ? 'bg-emerald-500 border-emerald-500'
           : 'border-[#6667AB] group-hover:border-[#F5D5E0]'
       }`}>
-        {verified && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
+        {verified && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
       </div>
-      <div className="flex items-center gap-2 flex-1">
-        <span className={`text-sm font-medium transition-colors ${verified ? 'text-emerald-300' : 'text-[#F5D5E0]'}`}>
+      <div className="flex items-center gap-1.5 flex-1">
+        <span className={`text-xs font-medium transition-colors ${verified ? 'text-emerald-300' : 'text-[#F5D5E0]'}`}>
           {verified ? 'Verificado' : 'No soy un robot'}
         </span>
         {verified ? (
-          <ShieldCheck className="w-4 h-4 text-emerald-400 ml-auto" />
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 ml-auto" />
         ) : (
-          <ShieldCheck className="w-4 h-4 text-[#6667AB] ml-auto" />
+          <ShieldCheck className="w-3.5 h-3.5 text-[#6667AB] ml-auto" />
         )}
       </div>
     </div>
@@ -213,13 +213,13 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
           exit={{ scale: 0.95, opacity: 0, y: 30 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           onClick={e => e.stopPropagation()}
-          className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] backdrop-saturate-[1.4] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-3xl w-full max-w-md overflow-hidden relative my-8"
+          className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] backdrop-saturate-[1.4] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-3xl w-full max-w-sm overflow-hidden relative my-4"
         >
-          <button onClick={onClose} className="absolute top-4 right-4 p-2 text-[#6667AB] hover:text-white hover:bg-[rgba(33,6,53,0.4)] rounded-full transition-colors z-10">
-            <X className="w-5 h-5" />
+          <button onClick={onClose} className="absolute top-3 right-3 p-1.5 text-[#6667AB] hover:text-white hover:bg-[rgba(33,6,53,0.4)] rounded-full transition-colors z-10">
+            <X className="w-4 h-4" />
           </button>
 
-          <div className="p-8 relative">
+          <div className="p-5 relative">
             {error && (
               <div className="mb-4 p-3 bg-[rgba(255,0,0,0.15)] border border-[rgba(255,0,0,0.3)] backdrop-blur-sm rounded-xl flex items-start gap-2 text-sm text-[#FF9999]">
                 <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />{error}
@@ -227,10 +227,10 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
             )}
 
             {/* Tabs */}
-            <div className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm rounded-full p-1 inline-flex mb-8">
+            <div className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm rounded-full p-0.5 inline-flex mb-5">
               <button
                 onClick={() => { setCurrentMode('login'); setCaptchaVerified(false); setShowChallenge(false); }}
-                className={`py-2 px-5 text-sm font-bold transition-all rounded-full ${
+                className={`py-1.5 px-4 text-xs font-bold transition-all rounded-full ${
                   currentMode === 'login' ? 'bg-[#F6A5C0] text-[#210635] shadow-sm' : 'text-[#6667AB] hover:text-white'
                 }`}
               >
@@ -238,7 +238,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
               </button>
               <button
                 onClick={() => { setCurrentMode('register'); setCaptchaVerified(false); setShowChallenge(false); }}
-                className={`py-2 px-5 text-sm font-bold transition-all rounded-full ${
+                className={`py-1.5 px-4 text-xs font-bold transition-all rounded-full ${
                   currentMode === 'register' ? 'bg-[#F6A5C0] text-[#210635] shadow-sm' : 'text-[#6667AB] hover:text-white'
                 }`}
               >
@@ -257,147 +257,139 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
             </AnimatePresence>
 
             {currentMode === 'login' ? (
-              <form className="space-y-5" onSubmit={handleLogin}>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-[rgba(33,6,53,0.5)] backdrop-blur-sm flex items-center justify-center border border-[rgba(255,255,255,0.1)]">
-                    <KeyRound className="w-5 h-5 text-[#F5D5E0]" />
+              <form className="space-y-3" onSubmit={handleLogin}>
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-[rgba(33,6,53,0.5)] backdrop-blur-sm flex items-center justify-center border border-[rgba(255,255,255,0.1)]">
+                    <KeyRound className="w-4 h-4 text-[#F5D5E0]" />
                   </div>
-                  <h2 className="text-xl font-bold text-white">Iniciar sesión</h2>
+                  <h2 className="text-base font-bold text-white">Iniciar sesión</h2>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-[#F5D5E0] mb-2">Correo electrónico *</label>
+                  <label className="block text-xs font-semibold text-[#F5D5E0] mb-1.5">Correo electrónico *</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6667AB]" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6667AB]" />
                     <input type="email" placeholder="ejemplo@correo.com" value={loginEmail} onChange={e => setLoginEmail(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3.5 bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
+                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-[#F5D5E0] mb-2">Contraseña *</label>
+                  <label className="block text-xs font-semibold text-[#F5D5E0] mb-1.5">Contraseña *</label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6667AB]" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6667AB]" />
                     <input type="password" placeholder="••••••••" value={loginPassword} onChange={e => setLoginPassword(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3.5 bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
+                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
                   </div>
                 </div>
 
-                {/* reCAPTCHA */}
                 <RecaptchaCheckbox verified={captchaVerified} onStartVerification={() => setShowChallenge(true)} />
 
-                {/* Demo Accounts */}
-                <div className="bg-[rgba(66,13,75,0.4)] backdrop-blur-sm rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
-                  <p className="text-xs font-semibold text-[#F5D5E0] mb-3 uppercase tracking-wide">Cuentas de prueba</p>
-                  <div className="space-y-2">
+                <div className="bg-[rgba(66,13,75,0.4)] backdrop-blur-sm rounded-xl p-3 border border-[rgba(255,255,255,0.08)]">
+                  <p className="text-[10px] font-semibold text-[#F5D5E0] mb-2 uppercase tracking-wide">Cuentas de prueba</p>
+                  <div className="space-y-1.5">
                     {[
                       { label: 'Admin', email: 'admin@certinanas.pe', pass: '123456' },
                       { label: 'Familia', email: 'familia@test.com', pass: '123456' },
                       { label: 'Cuidadora', email: 'cuidadora@test.com', pass: '123456' },
                     ].map((acc) => (
-                      <button
-                        key={acc.label}
-                        type="button"
+                      <button key={acc.label} type="button"
                         onClick={() => { setLoginEmail(acc.email); setLoginPassword(acc.pass); }}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.3)] hover:bg-[rgba(33,6,53,0.5)] transition-colors text-left"
+                        className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[rgba(33,6,53,0.3)] hover:bg-[rgba(33,6,53,0.5)] transition-colors text-left"
                       >
-                        <div className="flex items-center gap-2">
-                          {acc.label === 'Admin' ? <Shield className="w-3.5 h-3.5 text-[#F5D5E0]" /> :
-                           acc.label === 'Familia' ? <Users className="w-3.5 h-3.5 text-[#F5D5E0]" /> :
-                           <User className="w-3.5 h-3.5 text-[#F5D5E0]" />}
-                          <span className="text-sm font-semibold text-[#F5D5E0]">{acc.label}</span>
+                        <div className="flex items-center gap-1.5">
+                          {acc.label === 'Admin' ? <Shield className="w-3 h-3 text-[#F5D5E0]" /> :
+                           acc.label === 'Familia' ? <Users className="w-3 h-3 text-[#F5D5E0]" /> :
+                           <User className="w-3 h-3 text-[#F5D5E0]" />}
+                          <span className="text-xs font-semibold text-[#F5D5E0]">{acc.label}</span>
                         </div>
-                        <span className="text-xs text-[#6667AB] font-mono">{acc.email}</span>
+                        <span className="text-[10px] text-[#6667AB] font-mono">{acc.email}</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Footer Buttons */}
-                <div className="flex items-center justify-between gap-3 pt-2">
-                  <button type="button" onClick={onClose} className="px-4 py-2.5 text-sm font-semibold text-[#F5D5E0] hover:text-white transition-colors">
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <button type="button" onClick={onClose} className="px-3 py-2 text-xs font-semibold text-[#F5D5E0] hover:text-white transition-colors">
                     Cancelar
                   </button>
-                  <button type="submit" className="flex-1 py-3 bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:opacity-90 text-sm flex items-center justify-center gap-2">
-                    Ingresar <ChevronRight className="w-4 h-4" />
+                  <button type="submit" className="flex-1 py-2.5 bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:opacity-90 text-xs flex items-center justify-center gap-1.5">
+                    Ingresar <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </form>
             ) : (
-              <form className="space-y-5" onSubmit={handleRegister}>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-[rgba(33,6,53,0.5)] backdrop-blur-sm flex items-center justify-center border border-[rgba(255,255,255,0.1)]">
-                    <User className="w-5 h-5 text-[#F5D5E0]" />
+              <form className="space-y-3" onSubmit={handleRegister}>
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-[rgba(33,6,53,0.5)] backdrop-blur-sm flex items-center justify-center border border-[rgba(255,255,255,0.1)]">
+                    <User className="w-4 h-4 text-[#F5D5E0]" />
                   </div>
-                  <h2 className="text-xl font-bold text-white">Registrarme</h2>
+                  <h2 className="text-base font-bold text-white">Registrarme</h2>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-[#F5D5E0] mb-2">Nombre completo *</label>
+                  <label className="block text-xs font-semibold text-[#F5D5E0] mb-1.5">Nombre completo *</label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6667AB]" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6667AB]" />
                     <input type="text" placeholder="Ej: María Pérez" value={nombre} onChange={e => setNombre(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3.5 bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
+                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-[#F5D5E0] mb-2">Correo electrónico *</label>
+                  <label className="block text-xs font-semibold text-[#F5D5E0] mb-1.5">Correo electrónico *</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6667AB]" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6667AB]" />
                     <input type="email" placeholder="ejemplo@correo.com" value={email} onChange={e => setEmail(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3.5 bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
+                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-[#F5D5E0] mb-2">Contraseña *</label>
+                  <label className="block text-xs font-semibold text-[#F5D5E0] mb-1.5">Contraseña *</label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6667AB]" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6667AB]" />
                     <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3.5 bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
+                      className="w-full pl-10 pr-3.5 py-2.5 text-sm bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
                   </div>
                 </div>
 
-                {/* Selector de tipo de cuenta */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#F5D5E0] mb-2">Tipo de cuenta</label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <label className="block text-xs font-semibold text-[#F5D5E0] mb-1.5">Tipo de cuenta</label>
+                  <div className="grid grid-cols-2 gap-2">
                     <button type="button" onClick={() => setRegisterRole('familia')}
-                      className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 transition-all ${
+                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 transition-all ${
                         registerRole === 'familia'
                           ? 'bg-[#CC8DB3]/20 backdrop-blur-sm border-[#CC8DB3]'
                           : 'bg-[rgba(33,6,53,0.4)] border-[rgba(255,255,255,0.2)] text-[#6667AB] hover:border-[rgba(255,255,255,0.4)]'
                       }`}>
-                      <Users className={`w-5 h-5 ${registerRole === 'familia' ? 'text-[#CC8DB3]' : 'text-[#6667AB]'}`} />
-                      <span className={`text-sm font-semibold ${registerRole === 'familia' ? 'text-white' : 'text-[#6667AB]'}`}>Familia</span>
+                      <Users className={`w-4 h-4 ${registerRole === 'familia' ? 'text-[#CC8DB3]' : 'text-[#6667AB]'}`} />
+                      <span className={`text-xs font-semibold ${registerRole === 'familia' ? 'text-white' : 'text-[#6667AB]'}`}>Familia</span>
                     </button>
                     <button type="button" onClick={() => setRegisterRole('cuidadora')}
-                      className={`flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 transition-all ${
+                      className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 transition-all ${
                         registerRole === 'cuidadora'
                           ? 'bg-[#CC8DB3]/20 backdrop-blur-sm border-[#CC8DB3]'
                           : 'bg-[rgba(33,6,53,0.4)] border-[rgba(255,255,255,0.2)] text-[#6667AB] hover:border-[rgba(255,255,255,0.4)]'
                       }`}>
-                      <Shield className={`w-5 h-5 ${registerRole === 'cuidadora' ? 'text-[#CC8DB3]' : 'text-[#6667AB]'}`} />
-                      <span className={`text-sm font-semibold ${registerRole === 'cuidadora' ? 'text-white' : 'text-[#6667AB]'}`}>Cuidadora</span>
+                      <Shield className={`w-4 h-4 ${registerRole === 'cuidadora' ? 'text-[#CC8DB3]' : 'text-[#6667AB]'}`} />
+                      <span className={`text-xs font-semibold ${registerRole === 'cuidadora' ? 'text-white' : 'text-[#6667AB]'}`}>Cuidadora</span>
                     </button>
                   </div>
                 </div>
 
-                {/* reCAPTCHA */}
                 <RecaptchaCheckbox verified={captchaVerified} onStartVerification={() => setShowChallenge(true)} />
 
-                {/* Footer Buttons */}
-                <div className="flex items-center justify-between gap-3 pt-2">
-                  <button type="button" onClick={onClose} className="px-4 py-2.5 text-sm font-semibold text-[#F5D5E0] hover:text-white transition-colors">
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <button type="button" onClick={onClose} className="px-3 py-2 text-xs font-semibold text-[#F5D5E0] hover:text-white transition-colors">
                     Cancelar
                   </button>
-                  <button type="submit" className="flex-1 py-3 bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:opacity-90 text-sm flex items-center justify-center gap-2">
-                    Crear cuenta <ChevronRight className="w-4 h-4" />
+                  <button type="submit" className="flex-1 py-2.5 bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:opacity-90 text-xs flex items-center justify-center gap-1.5">
+                    Crear cuenta <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
-                <p className="text-center text-xs text-[#6667AB] pt-2">
+                <p className="text-center text-[10px] text-[#6667AB] pt-1">
                   Al registrarte aceptas nuestros{' '}
                   <button type="button" onClick={() => onOpenLegal('terms')} className="font-bold hover:underline text-[#CC8DB3]">Términos</button>
                   {' '}y{' '}
