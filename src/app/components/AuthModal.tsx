@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Mail, Lock, User, Users, Shield, AlertCircle, KeyRound, ChevronRight, Check, ShieldCheck } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { X, Mail, Lock, User, Users, Shield, AlertCircle, KeyRound, ChevronRight, Check, ShieldCheck, House, BookHeart, Heart, TreePine } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 interface AuthModalProps {
@@ -10,57 +10,113 @@ interface AuthModalProps {
   onOpenLegal: (type: 'terms' | 'privacy') => void;
 }
 
-function RecaptchaCheckbox({ checked, onChange }: { checked: boolean; onChange: () => void }) {
-  const [loading, setLoading] = useState(false);
+const CAPTCHA_OPTIONS = [
+  { id: 'house', icon: House, label: 'Casa' },
+  { id: 'books', icon: BookHeart, label: 'Libros' },
+  { id: 'heart', icon: Heart, label: 'Corazón' },
+  { id: 'tree', icon: TreePine, label: 'Árbol' },
+];
 
-  const handleClick = () => {
-    if (checked) { onChange(); return; }
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      onChange();
-    }, 900);
+const TARGET_ID = 'heart';
+
+function CaptchaChallenge({ onSuccess, onClose }: { onSuccess: () => void; onClose: () => void }) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+
+  const handleSelect = (id: string) => {
+    setSelectedId(id);
+    setError(false);
+    if (id === TARGET_ID) {
+      setTimeout(() => onSuccess(), 300);
+    } else {
+      setError(true);
+      setTimeout(() => setSelectedId(null), 600);
+    }
   };
 
   return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+      className="bg-[rgba(33,6,53,0.85)] backdrop-blur-[20px] backdrop-saturate-[1.4] border border-[rgba(255,255,255,0.2)] rounded-2xl p-6 shadow-xl"
+      onClick={e => e.stopPropagation()}
+    >
+      <div className="flex items-center justify-center gap-2 mb-1">
+        <ShieldCheck className="w-4 h-4 text-[#6667AB]" />
+        <span className="text-xs font-semibold text-[#6667AB] uppercase tracking-wide">Verificación de seguridad</span>
+      </div>
+      <p className="text-lg font-bold text-white text-center mt-2 mb-5">
+        Selecciona el <span className="text-[#CC8DB3]">corazón</span> <span className="inline-block">🤍</span>
+      </p>
+
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        {CAPTCHA_OPTIONS.map((opt) => {
+          const Icon = opt.icon;
+          const isSelected = selectedId === opt.id;
+          const isWrong = error && isSelected;
+          const isCorrect = isSelected && opt.id === TARGET_ID;
+
+          return (
+            <motion.button
+              key={opt.id}
+              type="button"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => handleSelect(opt.id)}
+              className={`flex flex-col items-center justify-center gap-2 p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                isCorrect
+                  ? 'border-emerald-400 bg-emerald-400/10'
+                  : isWrong
+                    ? 'border-red-400 bg-red-400/10'
+                    : 'bg-[rgba(255,255,255,0.1)] border-[rgba(255,255,255,0.15)] hover:border-[#F6A5C0] hover:bg-[rgba(255,255,255,0.15)]'
+              }`}
+            >
+              <Icon className={`w-8 h-8 ${isCorrect ? 'text-emerald-300' : isWrong ? 'text-red-300' : 'text-[#CC8DB3]'}`} />
+              <span className={`text-xs font-semibold ${isCorrect ? 'text-emerald-300' : isWrong ? 'text-red-300' : 'text-white/70'}`}>
+                {opt.label}
+              </span>
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {error && (
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-300 text-xs text-center mb-2">
+          Incorrecto. Intenta de nuevo.
+        </motion.p>
+      )}
+
+      <button type="button" onClick={onClose} className="w-full text-xs text-[#6667AB] hover:text-[#F5D5E0] transition-colors pt-1">
+        Cancelar
+      </button>
+    </motion.div>
+  );
+}
+
+function RecaptchaCheckbox({ verified, onStartVerification }: { verified: boolean; onStartVerification: () => void }) {
+  return (
     <div
-      onClick={handleClick}
+      onClick={verified ? undefined : onStartVerification}
       className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer select-none transition-all group ${
-        loading
-          ? 'bg-[rgba(33,6,53,0.5)] border-[#6667AB]'
-          : checked
-            ? 'bg-[rgba(18,80,50,0.2)] border-emerald-500/40'
-            : 'bg-[rgba(33,6,53,0.4)] border-[rgba(255,255,255,0.15)] hover:border-[#6667AB]'
+        verified
+          ? 'bg-[rgba(18,80,50,0.2)] border-emerald-500/40'
+          : 'bg-[rgba(33,6,53,0.4)] border-[rgba(255,255,255,0.15)] hover:border-[#6667AB]'
       }`}
     >
       <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${
-        loading
-          ? 'border-[#6667AB]'
-          : checked
-            ? 'bg-emerald-500 border-emerald-500'
-            : 'border-[#6667AB] group-hover:border-[#F5D5E0]'
+        verified
+          ? 'bg-emerald-500 border-emerald-500'
+          : 'border-[#6667AB] group-hover:border-[#F5D5E0]'
       }`}>
-        {loading ? (
-          <svg className="w-4 h-4 text-[#F5D5E0] animate-spin" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-        ) : checked ? (
-          <Check className="w-4 h-4 text-white" strokeWidth={3} />
-        ) : null}
+        {verified && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
       </div>
       <div className="flex items-center gap-2 flex-1">
-        <span className={`text-sm font-medium transition-colors ${
-          loading ? 'text-[#6667AB]' : checked ? 'text-emerald-300' : 'text-[#F5D5E0]'
-        }`}>
-          {loading ? 'Verificando...' : checked ? 'Verificado' : 'No soy un robot'}
+        <span className={`text-sm font-medium transition-colors ${verified ? 'text-emerald-300' : 'text-[#F5D5E0]'}`}>
+          {verified ? 'Verificado' : 'No soy un robot'}
         </span>
-        {loading ? (
-          <svg className="w-4 h-4 text-[#6667AB] ml-auto animate-spin" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-        ) : checked ? (
+        {verified ? (
           <ShieldCheck className="w-4 h-4 text-emerald-400 ml-auto" />
         ) : (
           <ShieldCheck className="w-4 h-4 text-[#6667AB] ml-auto" />
@@ -82,7 +138,8 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const [captchaPassed, setCaptchaPassed] = useState(false);
+  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [showChallenge, setShowChallenge] = useState(false);
 
   useEffect(() => {
     setCurrentMode(initialMode);
@@ -98,17 +155,23 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
         setNombre('');
         setEmail('');
         setPassword('');
-        setCaptchaPassed(false);
+        setCaptchaVerified(false);
+        setShowChallenge(false);
       }, 300);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
+  const handleCaptchaSuccess = useCallback(() => {
+    setCaptchaVerified(true);
+    setShowChallenge(false);
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!loginEmail || !loginPassword) { setError('Todos los campos son obligatorios.'); return; }
-    if (!captchaPassed) { setError('Por favor, confirma que no eres un robot.'); return; }
+    if (!captchaVerified) { setError('Por favor, completa la verificación de seguridad.'); return; }
     const err = await login(loginEmail, loginPassword);
     if (err) setError(err); else onClose();
   };
@@ -117,7 +180,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
     e.preventDefault();
     setError('');
     if (!nombre || !email || !password) { setError('Todos los campos son obligatorios.'); return; }
-    if (!captchaPassed) { setError('Por favor, confirma que no eres un robot.'); return; }
+    if (!captchaVerified) { setError('Por favor, completa la verificación de seguridad.'); return; }
     const parts = nombre.trim().split(' ');
     const nombres = parts[0] || '';
     const apellidos = parts.slice(1).join(' ') || '';
@@ -159,7 +222,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
             {/* Tabs */}
             <div className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm rounded-full p-1 inline-flex mb-8">
               <button
-                onClick={() => { setCurrentMode('login'); setCaptchaPassed(false); }}
+                onClick={() => { setCurrentMode('login'); setCaptchaVerified(false); setShowChallenge(false); }}
                 className={`py-2 px-5 text-sm font-bold transition-all rounded-full ${
                   currentMode === 'login' ? 'bg-[#F6A5C0] text-[#210635] shadow-sm' : 'text-[#6667AB] hover:text-white'
                 }`}
@@ -167,7 +230,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                 Iniciar sesión
               </button>
               <button
-                onClick={() => { setCurrentMode('register'); setCaptchaPassed(false); }}
+                onClick={() => { setCurrentMode('register'); setCaptchaVerified(false); setShowChallenge(false); }}
                 className={`py-2 px-5 text-sm font-bold transition-all rounded-full ${
                   currentMode === 'register' ? 'bg-[#F6A5C0] text-[#210635] shadow-sm' : 'text-[#6667AB] hover:text-white'
                 }`}
@@ -204,7 +267,24 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                 </div>
 
                 {/* reCAPTCHA */}
-                <RecaptchaCheckbox checked={captchaPassed} onChange={() => setCaptchaPassed(!captchaPassed)} />
+                <div className="relative">
+                  <RecaptchaCheckbox verified={captchaVerified} onStartVerification={() => setShowChallenge(true)} />
+                  <AnimatePresence>
+                    {showChallenge && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute bottom-full mb-3 left-0 right-0 z-20"
+                      >
+                        <CaptchaChallenge
+                          onSuccess={handleCaptchaSuccess}
+                          onClose={() => setShowChallenge(false)}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
 
                 {/* Demo Accounts */}
                 <div className="bg-[rgba(66,13,75,0.4)] backdrop-blur-sm rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
@@ -305,7 +385,24 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                 </div>
 
                 {/* reCAPTCHA */}
-                <RecaptchaCheckbox checked={captchaPassed} onChange={() => setCaptchaPassed(!captchaPassed)} />
+                <div className="relative">
+                  <RecaptchaCheckbox verified={captchaVerified} onStartVerification={() => setShowChallenge(true)} />
+                  <AnimatePresence>
+                    {showChallenge && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute bottom-full mb-3 left-0 right-0 z-20"
+                      >
+                        <CaptchaChallenge
+                          onSuccess={handleCaptchaSuccess}
+                          onClose={() => setShowChallenge(false)}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
 
                 {/* Footer Buttons */}
                 <div className="flex items-center justify-between gap-3 pt-2">
