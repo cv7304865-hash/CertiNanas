@@ -764,7 +764,6 @@ function AppContent() {
           </div>
         </section>
       </main>
-      </>)}
 
       {/* Footer - oculto en admin */}
       {view !== 'admin' && (
