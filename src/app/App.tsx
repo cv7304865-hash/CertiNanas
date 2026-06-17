@@ -476,8 +476,8 @@ function AppContent() {
       </section>
       )}
 
-      {/* Main Content Area - solo con sesion o en vistas internas */}
-      {showFullContent && (
+      {/* Main Content Area - solo en home con sesion */}
+      {showFullContent && view === 'home' && (
       <main className="relative z-20 pb-20 pt-16">
         
         {/* Search/Filter Section */}
