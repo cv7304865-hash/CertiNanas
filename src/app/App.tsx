@@ -203,14 +203,17 @@ function AppContent() {
     visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
   };
 
+  // Mostrar contenido completo solo si hay sesion o no estamos en home
+  const showFullContent = user || view !== 'home';
+
   const handleCloseAuth = () => {
     setAuthModalConfig({ ...authModalConfig, isOpen: false });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E] font-['Inter',system-ui,sans-serif] selection:bg-[#CC8DB3] selection:text-white overflow-x-hidden">
-      {/* Header - oculto cuando la cuidadora, familia usan su propio panel */}
-      {!authModalConfig.isOpen && view !== 'admin' && view !== 'cuidadora' && view !== 'familia' && view !== 'search' && view !== 'messages' && view !== 'contract' && view !== 'payment' && (
+      {/* Header - solo cuando hay contenido completo y modal cerrado */}
+      {showFullContent && !authModalConfig.isOpen && view !== 'admin' && view !== 'cuidadora' && view !== 'familia' && view !== 'search' && view !== 'messages' && view !== 'contract' && view !== 'payment' && (
       <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] sticky top-0 z-40 transition-all duration-300 shadow-lg shadow-black/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -480,7 +483,8 @@ function AppContent() {
       </section>
       )}
 
-      {/* Main Content Area */}
+      {/* Main Content Area - solo con sesion o en vistas internas */}
+      {showFullContent && (
       <main className="relative z-20 pb-20 pt-16">
         
         {/* Search/Filter Section */}
@@ -774,9 +778,10 @@ function AppContent() {
           </div>
         </section>
       </main>
+      )}
 
-      {/* Footer - oculto en admin */}
-      {view !== 'admin' && (
+      {/* Footer - solo en contenido completo y no admin */}
+      {showFullContent && view !== 'admin' && (
       <footer className="bg-[rgba(33,6,53,0.85)] backdrop-blur-[20px] text-white py-16 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
@@ -854,7 +859,7 @@ function AppContent() {
         onClose={() => setLegalModalConfig({ ...legalModalConfig, isOpen: false })}
       />
 
-      {view !== 'admin' && <FloatingSupport />}
+      {showFullContent && view !== 'admin' && <FloatingSupport />}
     </div>
   );
 }
