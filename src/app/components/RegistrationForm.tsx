@@ -172,7 +172,7 @@ export function RegistrationForm({
         <div className="space-y-3">
           <Field label="Nombre completo" icon={User} placeholder="Ej. María Fernández"
             value={nombreCompleto} onChange={e => setNombreCompleto(e.target.value)} />
-          <Field label="Teléfono (recibirás SMS)" icon={Phone} type="tel" placeholder="999 888 777"
+          <Field label="Teléfono" icon={Phone} type="tel" placeholder="999 888 777"
             value={form.telefono} onChange={set('telefono')} />
           <Field label="Correo electrónico" icon={Mail} type="email" placeholder="tu@email.com"
             value={form.email} onChange={set('email')} />

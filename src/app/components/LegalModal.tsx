@@ -29,22 +29,34 @@ export function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
       )
     },
     terms: {
-      title: 'Términos de Servicio',
+      title: 'Términos del Servicio',
       icon: <FileText className="w-6 h-6 text-white" />,
       text: (
         <div className="space-y-4 text-[#F5D5E0] leading-relaxed">
-          <p>
-            Al utilizar esta plataforma, usted acepta que <strong>CERTINANAS</strong> actúa como un intermediario tecnológico de confianza.
-          </p>
-          <p>
-            <strong className="text-white">Sistema de Pagos:</strong> Todos los pagos se realizan mediante un mecanismo de Retención Segura (Escrow). El dinero se carga al inicio del acuerdo, pero solo se libera a la cuidadora una vez que la familia confirme la finalización satisfactoria del servicio.
-          </p>
-          <p>
-            <strong className="text-white">Verificación:</strong> Aunque realizamos filtros rigurosos de antecedentes penales, policiales y certificaciones profesionales, la selección final y contratación es responsabilidad exclusiva de la familia tras la respectiva 'Cita de Conocimiento' virtual.
-          </p>
-          <p>
-            <strong className="text-white">Uso del Servicio:</strong> Queda estrictamente prohibido el intercambio de datos de contacto externos (teléfonos, correos personales) antes de la confirmación del pago en la plataforma. Esta medida se implementa para garantizar la seguridad financiera y física de ambas partes.
-          </p>
+          <div>
+            <h3 className="text-white font-bold text-sm mb-1">1. Aceptación</h3>
+            <p>
+              Al usar CERTINANAS aceptas estos términos. La plataforma actúa como intermediaria entre familias y cuidadoras especializadas.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-white font-bold text-sm mb-1">2. Verificación</h3>
+            <p>
+              Todas las cuidadoras pasan por un proceso de validación documental (DNI, antecedentes penales, certificaciones de salud y educación) antes de ser aprobadas.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-white font-bold text-sm mb-1">3. Sistema Escrow</h3>
+            <p>
+              Los pagos se retienen en una cuenta Escrow y solo se liberan cuando el servicio es confirmado por la familia. La plataforma retiene el 8% de comisión.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-white font-bold text-sm mb-1">4. Tarifa de consulta</h3>
+            <p>
+              Para agendar una entrevista virtual se cobra una tarifa de S/ 25 por adelantado. Si la familia contrata el servicio, este monto se descuenta del primer pago.
+            </p>
+          </div>
         </div>
       )
     }
