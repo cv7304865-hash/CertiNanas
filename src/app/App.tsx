@@ -18,7 +18,7 @@ import { ReviewFormPage } from './components/ReviewFormPage';
 import { Messages } from './components/Messages';
 import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
-import { HeroLanding } from './components/HeroLanding';
+import { WelcomePage } from './components/WelcomePage';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 
 type View = 'home' | 'dashboard' | 'messages' | 'checkout' | 'admin' | 'cuidadora';
@@ -35,11 +35,7 @@ function AppContent() {
     mode: 'login',
   });
 
-  useEffect(() => {
-    if (!loading && !user) {
-      setAuthModalConfig({ isOpen: true, mode: 'login' });
-    }
-  }, [loading, user]);
+
   // Redirigir al panel correspondiente según el rol al iniciar sesión
   useEffect(() => {
     if (loading) return;
@@ -337,12 +333,14 @@ function AppContent() {
       )}
       {view === 'checkout' && <Checkout onBack={() => setView('dashboard')} />}
 
-      {view === 'home' && (<>
-      <HeroLanding
-        onRegisterFamily={() => setAuthModalConfig({ isOpen: true, mode: 'register' })}
-        onRegisterCaregiver={() => setAuthModalConfig({ isOpen: true, mode: 'register' })}
-        onScrollCatalog={() => scrollToSection('catalogo')}
+      {view === 'home' && (
+      <WelcomePage
+        onRegister={() => setAuthModalConfig({ isOpen: true, mode: 'register' })}
+        onLogin={() => setAuthModalConfig({ isOpen: true, mode: 'login' })}
       />
+      )}
+
+      {/* Hidden old sections kept for reference */}
       {false && (
       <section id="inicio-old" className="hidden">
         {/* Soft Decorative Background */}
