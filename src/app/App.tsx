@@ -35,13 +35,6 @@ function AppContent() {
     mode: 'login',
   });
 
-  // Auto-abrir modal si no hay sesion (modo auth-only)
-  useEffect(() => {
-    if (!loading && !user) {
-      setAuthModalConfig({ isOpen: true, mode: 'login' });
-    }
-  }, [loading, user]);
-
   // Redirigir al panel correspondiente según el rol al iniciar sesión
   useEffect(() => {
     if (loading) return;
