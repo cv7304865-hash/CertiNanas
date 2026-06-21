@@ -19,6 +19,7 @@ const DniTemplate = () => (
         </div>
         <div className="flex-1">
           <p className="text-white text-[9px] font-bold tracking-[0.12em] leading-tight">REPÚBLICA DEL PERÚ</p>
+          <p className="text-[#8BA4C7] text-[5px] font-semibold tracking-wider">RENIEC — REGISTRO NACIONAL DE IDENTIFICACIÓN</p>
         </div>
         <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.12)] rounded px-1.5 py-0.5">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" className="text-[#C4A747]"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M8 10h8M8 14h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
@@ -46,7 +47,7 @@ const DniTemplate = () => (
           </div>
           <div className="border-b border-gray-200 pb-0.5 flex items-end justify-between">
             <div>
-              <span className="text-[6px] text-gray-400 font-semibold tracking-wide">DNI</span>
+              <span className="text-[6px] text-gray-400 font-semibold tracking-wide">DNI / CUI</span>
               <p className="text-[12px] font-extrabold text-[#1a1a2e] tracking-widest">48 765 321</p>
             </div>
             <div className="w-[30px] h-[18px] bg-gradient-to-br from-[#C4A747] to-[#A08830] rounded-[2px] flex items-center justify-center">
@@ -69,6 +70,16 @@ const DniTemplate = () => (
             <div>
               <span className="text-[6px] text-gray-400 font-semibold tracking-wide">GRUPO SANG.</span>
               <p className="text-[8px] font-bold text-gray-700">O+</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 pt-1 border-t border-gray-200">
+            <div>
+              <span className="text-[6px] text-gray-400 font-semibold tracking-wide">FECHA EMISIÓN</span>
+              <p className="text-[7px] font-bold text-gray-600">15/06/2018</p>
+            </div>
+            <div>
+              <span className="text-[6px] text-gray-400 font-semibold tracking-wide">FECHA CADUCIDAD</span>
+              <p className="text-[7px] font-bold text-[#D14242]">15/06/2030</p>
             </div>
           </div>
         </div>

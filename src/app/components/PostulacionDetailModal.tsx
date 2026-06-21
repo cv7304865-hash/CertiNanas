@@ -55,6 +55,16 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
   const data = postulante || defaultPostulante;
   const progressPct = Math.min((data.horasTranscurridas / data.horasMaximas) * 100, 100);
   const [previewDoc, setPreviewDoc] = useState<string | null>(null);
+  const [documentosState, setDocumentosState] = useState<DocumentoVerificacion[]>(data.documentos);
+  const allVerified = documentosState.every(d => d.estado === 'verificado');
+
+  const handleDocVerificar = (docName: string) => {
+    setDocumentosState(prev => prev.map(d => d.nombre === docName ? { ...d, estado: 'verificado' as const } : d));
+  };
+
+  const handleDocMarcarInvalido = (docName: string) => {
+    setDocumentosState(prev => prev.map(d => d.nombre === docName ? { ...d, estado: 'rechazado' as const } : d));
+  };
 
   return (
     <AnimatePresence>
@@ -70,7 +80,7 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[rgba(33,6,53,0.92)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.2)] shadow-2xl shadow-black/50 rounded-3xl p-0"
+            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[rgba(20,5,35,0.85)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.2)] shadow-2xl shadow-black/50 rounded-3xl p-0"
           >
             {/* Close button */}
             <button
@@ -132,7 +142,7 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
               <div>
                 <h3 className="text-base font-bold text-white mb-3">Documentos a verificar</h3>
                 <div className="space-y-2">
-                  {data.documentos.map((doc) => (
+                  {documentosState.map((doc) => (
                     <div
                       key={doc.id}
                       className="flex items-center gap-3 bg-[rgba(255,255,255,0.04)] backdrop-blur-sm rounded-xl px-4 py-3 border border-[rgba(255,255,255,0.06)]"
@@ -162,15 +172,16 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
               </div>
 
               {/* External verification info */}
-              <div className="bg-[rgba(66,13,75,0.5)] backdrop-blur-sm rounded-2xl p-4 border border-[rgba(255,255,255,0.06)]">
-                <div className="flex items-start gap-3">
+              <div className="bg-[rgba(66,13,75,0.5)] backdrop-blur-sm rounded-2xl p-4 border border-[rgba(255,255,255,0.06)] relative overflow-hidden">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#F6A5C0] rounded-l" />
+                <div className="flex items-start gap-3 pl-2">
                   <div className="w-8 h-8 rounded-lg bg-[rgba(33,6,53,0.4)] flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Shield className="w-4 h-4 text-[#CC8DB3]" />
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-[#F5D5E0] mb-1">Sistema externo de verificación</h4>
                     <p className="text-xs text-[#F5D5E0] leading-relaxed opacity-80">
-                      Al aprobar, el sistema valida automáticamente los documentos contra las bases de datos de la PNP (Policía Nacional del Perú) y MINEDU (Ministerio de Educación) para confirmar la autenticidad de antecedentes penales, certificados y títulos profesionales.
+                      Al aprobar, el sistema valida automáticamente con la API de la PNP (antecedentes penales), MINEDU (títulos profesionales) y colegios profesionales. Tras la decisión, la cuidadora recibe una notificación SMS automatizada en su teléfono.
                     </p>
                   </div>
                 </div>
@@ -192,7 +203,12 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
                 </button>
                 <button
                   onClick={() => onAprobar(data.id)}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] hover:from-[#7B337E]/90 hover:to-[#F6A5C0]/90 text-white text-sm font-bold transition-all shadow-lg shadow-[#7B337E]/30"
+                  disabled={!allVerified}
+                  className={`px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg ${
+                    allVerified
+                      ? 'bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] hover:from-[#7B337E]/90 hover:to-[#F6A5C0]/90 shadow-[#7B337E]/30 text-white'
+                      : 'bg-[rgba(255,255,255,0.08)] text-[#6667AB] cursor-not-allowed'
+                  }`}
                 >
                   Aprobar
                 </button>
@@ -208,12 +224,8 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
         onClose={() => setPreviewDoc(null)}
         documentName={previewDoc || ''}
         postulanteName={`${data.nombres} ${data.apellidos}`}
-        onVerificar={(docName) => {
-          // Could update document status here
-        }}
-        onMarcarInvalido={(docName) => {
-          // Could update document status here
-        }}
+        onVerificar={handleDocVerificar}
+        onMarcarInvalido={handleDocMarcarInvalido}
       />
     </AnimatePresence>
   );

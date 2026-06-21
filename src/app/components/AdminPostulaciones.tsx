@@ -179,7 +179,7 @@ export function AdminPostulaciones() {
               onClick={() => setActiveTab(tab.key)}
               className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
                 isActive
-                  ? 'bg-[rgba(255,255,255,0.12)] text-white shadow-sm'
+                  ? 'bg-[rgba(255,255,255,0.08)] backdrop-blur-[10px] border border-[rgba(255,255,255,0.1)] text-white'
                   : 'text-[#6667AB] hover:text-white hover:bg-[rgba(255,255,255,0.05)]'
               }`}
             >
@@ -196,7 +196,7 @@ export function AdminPostulaciones() {
       </div>
 
       {/* Pending postulations list */}
-      <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.15)] shadow-lg shadow-black/30 rounded-3xl overflow-hidden">
+      <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.05)] shadow-2xl shadow-black/30 rounded-3xl overflow-hidden" style={{ boxShadow: '0 8px 32px 0 rgba(0,0,0,0.37)' }}>
         {/* Section header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
           <div className="flex items-center gap-2">
