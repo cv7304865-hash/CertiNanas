@@ -343,6 +343,7 @@ export function AdminPostulaciones() {
 
       {/* Detail Modal */}
       <PostulacionDetailModal
+        key={selectedPost?.Id ?? 'none'}
         isOpen={showDetailModal}
         onClose={() => setShowDetailModal(false)}
         postulante={selectedPost ? {
