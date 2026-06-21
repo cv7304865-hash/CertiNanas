@@ -15,6 +15,7 @@ function randomDays() {
 }
 
 const familiasData = [
+  { nombres: 'Familia Demo',  apellidos: 'Test',                 email: 'familia@test.com' },
   { nombres: 'María Elena',   apellidos: 'González Torres',      email: 'mariagonzalez79@gmail.com' },
   { nombres: 'Carlos Alberto',apellidos: 'López Ramírez',       email: 'carlos.lopez@outlook.com' },
   { nombres: 'Ana Lucía',     apellidos: 'Martínez Ríos',        email: 'anamlr@yahoo.com' },
@@ -33,6 +34,7 @@ const familiasData = [
 ];
 
 const cuidadorasData = [
+  { nombres: 'Cuidadora Demo',   apellidos: 'Test',                  email: 'cuidadora@test.com' },
   { nombres: 'Lucía Fernanda',   apellidos: 'Martínez Ríos',         email: 'luciamartinez.cuidadora@gmail.com' },
   { nombres: 'Carmen Rosa',      apellidos: 'Rodríguez Paredes',    email: 'carmen.rodriguez@outlook.com' },
   { nombres: 'Katherine Lizeth', apellidos: 'García Huamán',        email: 'katherine.garcia@yahoo.com' },

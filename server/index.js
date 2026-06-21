@@ -104,8 +104,8 @@ try {
   setupDatabase(db);
   const adminCount = db.prepare("SELECT COUNT(*) AS c FROM Usuarios WHERE IdRol = 1").get();
   if (adminCount.c === 0) {
-    db.prepare(`INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, IdRol, TerminosAceptados) VALUES (?, ?, ?, ?, 1, 1)`).run('admin@certinanas.com', 'admin123', 'Admin', 'CertiNanas');
-    console.log('Usuario admin de seed creado (admin@certinanas.com / admin123).');
+    db.prepare(`INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, IdRol, TerminosAceptados) VALUES (?, ?, ?, ?, 1, 1)`).run('admin@certinanas.pe', '123456', 'Admin', 'CertiNanas');
+    console.log('Usuario admin de seed creado (admin@certinanas.pe / 123456).');
   }
   // Seed datos demo si no hay familias ni cuidadoras
   const usuariosNoAdmin = db.prepare('SELECT COUNT(*) AS c FROM Usuarios WHERE IdRol IN (2, 3)').get().c;
