@@ -65,11 +65,22 @@ router.get('/postulaciones', isAdmin, (req, res) => {
   const postulaciones = db.prepare(`
      SELECT p.Id, p.IdUsuario, p.FechaPostulacion, p.Estado, p.MotivoRechazo,
             u.Nombres, u.Apellidos, u.Email,
-            (SELECT COUNT(*) FROM DocumentosPostulacion WHERE IdPostulacion = p.Id) AS TotalDocumentos
+            (SELECT COUNT(*) FROM DocumentosPostulacion WHERE IdPostulacion = p.Id) AS TotalDocumentos,
+            (SELECT json_group_array(json_object('nombre', dp.TipoRequisito, 'motivo', dp.MotivoRechazo))
+             FROM DocumentosPostulacion dp
+             WHERE dp.IdPostulacion = p.Id AND dp.Estado = 'Rechazado' AND dp.MotivoRechazo IS NOT NULL
+            ) AS DocumentosRechazados
     FROM Postulaciones p
     INNER JOIN Usuarios u ON u.Id = p.IdUsuario
     ORDER BY p.FechaPostulacion DESC
   `).all();
+  for (const p of postulaciones) {
+    if (p.DocumentosRechazados) {
+      try { p.DocumentosRechazados = JSON.parse(p.DocumentosRechazados); } catch(e) { p.DocumentosRechazados = []; }
+    } else {
+      p.DocumentosRechazados = [];
+    }
+  }
   res.json(postulaciones);
 });
 
@@ -93,9 +104,17 @@ router.post('/postulaciones/:id/aprobar', isAdmin, (req, res) => {
 
 router.post('/postulaciones/:id/rechazar', isAdmin, (req, res) => {
   const db = getDb();
-  const { motivo, listaNegra } = req.body || {};
+  const { motivo, listaNegra, documentos } = req.body || {};
   db.prepare("UPDATE Postulaciones SET Estado = 'Rechazada', MotivoRechazo = ? WHERE Id = ?").run(motivo || null, req.params.id);
   db.prepare("UPDATE DocumentosPostulacion SET Estado = 'Rechazado' WHERE IdPostulacion = ?").run(req.params.id);
+  if (Array.isArray(documentos)) {
+    const stmt = db.prepare("UPDATE DocumentosPostulacion SET MotivoRechazo = ? WHERE IdPostulacion = ? AND TipoRequisito = ?");
+    for (const doc of documentos) {
+      if (doc.motivo) {
+        stmt.run(doc.motivo, req.params.id, doc.nombre);
+      }
+    }
+  }
   if (listaNegra) {
     const post = db.prepare("SELECT IdUsuario FROM Postulaciones WHERE Id = ?").get(req.params.id);
     if (post) {

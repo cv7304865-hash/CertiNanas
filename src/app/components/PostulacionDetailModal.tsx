@@ -33,7 +33,7 @@ type PostulacionDetailModalProps = {
   onClose: () => void;
   postulante: PostulanteData | null;
   onAprobar: (id: number) => void;
-  onRechazar: (id: number, motivo: string, listaNegra: boolean) => void;
+  onRechazar: (id: number, motivo: string, listaNegra: boolean, documentos?: { nombre: string; motivo: string }[]) => void;
 };
 
 const defaultPostulante: PostulanteData = {
@@ -266,7 +266,7 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
                       Cancelar
                     </button>
                     <button
-                      onClick={() => { onRechazar(data.id, motivoRechazoInput, listaNegra); setShowRechazoForm(false); setMotivoRechazoInput(''); setListaNegra(false); }}
+                      onClick={() => { onRechazar(data.id, motivoRechazoInput, listaNegra, documentosState.filter(d => d.motivoRechazo).map(d => ({ nombre: d.nombre, motivo: d.motivoRechazo! }))); setShowRechazoForm(false); setMotivoRechazoInput(''); setListaNegra(false); }}
                       disabled={!motivoRechazoInput.trim()}
                       className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                         motivoRechazoInput.trim()

@@ -155,11 +155,11 @@ export function AdminPostulaciones() {
     }
   };
 
-  const handleRechazar = async (id: number, motivo: string, listaNegra: boolean) => {
+  const handleRechazar = async (id: number, motivo: string, listaNegra: boolean, documentos?: { nombre: string; motivo: string }[]) => {
     const r = await fetch(`/api/admin/postulaciones/${id}/rechazar`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ motivo, listaNegra }),
+      body: JSON.stringify({ motivo, listaNegra, documentos }),
     });
     if (r.ok) {
       setPostulaciones(prev => prev.map(p => p.Id === id ? { ...p, Estado: 'Rechazada', MotivoRechazo: motivo } : p));

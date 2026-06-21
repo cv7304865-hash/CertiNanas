@@ -227,6 +227,7 @@ db.exec(`
     NombreArchivo TEXT NOT NULL,
     Peso TEXT,
     Estado TEXT NOT NULL DEFAULT 'Pendiente' CHECK (Estado IN ('Pendiente', 'Aprobado', 'Rechazado')),
+    MotivoRechazo TEXT,
     FechaSubida TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -293,6 +294,7 @@ db.exec(`
   try { db.prepare(`ALTER TABLE Usuarios ADD COLUMN FotoPerfil TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Usuarios ADD COLUMN Suspendido INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Postulaciones ADD COLUMN MotivoRechazo TEXT`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE DocumentosPostulacion ADD COLUMN MotivoRechazo TEXT`).run(); } catch(e) {}
 
 console.log('Tablas creadas y datos de semilla insertados.');
 }
