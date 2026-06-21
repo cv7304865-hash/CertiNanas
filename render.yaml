@@ -1,21 +1,9 @@
 services:
   - type: web
-    name: certinanas
-    env: docker
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
+    name: certinanas-api
+    env: node
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: node server/index.js
     envVars:
-      - key: APP_ENV
-        value: production
-      - key: DB_HOST
-        sync: false
-      - key: DB_NAME
-        value: certinanas
-      - key: DB_USER
-        sync: false
-      - key: DB_PASS
-        sync: false
-    disk:
-      name: certinanas-data
-      mountPath: /app/backend/uploads
-      sizeGB: 1
+      - key: NODE_VERSION
+        value: "22"
