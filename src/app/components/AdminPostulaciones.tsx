@@ -113,7 +113,15 @@ export function AdminPostulaciones() {
             for (const apiItem of enriched) {
               const idx = merged.findIndex(m => m.Id === apiItem.Id);
               if (idx >= 0) {
-                merged[idx] = { ...merged[idx], ...apiItem, MotivoRechazo: merged[idx].MotivoRechazo || apiItem.MotivoRechazo, DocumentosRechazados: merged[idx].DocumentosRechazados || apiItem.DocumentosRechazados };
+                const mock = merged[idx];
+                const preserveRejection = mock.Estado === 'Rechazada' && mock.MotivoRechazo && !apiItem.MotivoRechazo;
+                merged[idx] = {
+                  ...mock,
+                  ...apiItem,
+                  ...(preserveRejection
+                    ? { Estado: 'Rechazada', MotivoRechazo: mock.MotivoRechazo, DocumentosRechazados: mock.DocumentosRechazados }
+                    : {}),
+                };
               } else {
                 merged.push(apiItem);
               }

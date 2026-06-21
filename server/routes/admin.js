@@ -63,9 +63,9 @@ router.get('/casos', isAdmin, (req, res) => {
 router.get('/postulaciones', isAdmin, (req, res) => {
   const db = getDb();
   const postulaciones = db.prepare(`
-    SELECT p.Id, p.IdUsuario, p.FechaPostulacion, p.Estado,
-           u.Nombres, u.Apellidos, u.Email,
-           (SELECT COUNT(*) FROM DocumentosPostulacion WHERE IdPostulacion = p.Id) AS TotalDocumentos
+     SELECT p.Id, p.IdUsuario, p.FechaPostulacion, p.Estado, p.MotivoRechazo,
+            u.Nombres, u.Apellidos, u.Email,
+            (SELECT COUNT(*) FROM DocumentosPostulacion WHERE IdPostulacion = p.Id) AS TotalDocumentos
     FROM Postulaciones p
     INNER JOIN Usuarios u ON u.Id = p.IdUsuario
     ORDER BY p.FechaPostulacion DESC
@@ -93,8 +93,16 @@ router.post('/postulaciones/:id/aprobar', isAdmin, (req, res) => {
 
 router.post('/postulaciones/:id/rechazar', isAdmin, (req, res) => {
   const db = getDb();
-  db.prepare("UPDATE Postulaciones SET Estado = 'Rechazada' WHERE Id = ?").run(req.params.id);
+  const { motivo, listaNegra } = req.body || {};
+  db.prepare("UPDATE Postulaciones SET Estado = 'Rechazada', MotivoRechazo = ? WHERE Id = ?").run(motivo || null, req.params.id);
   db.prepare("UPDATE DocumentosPostulacion SET Estado = 'Rechazado' WHERE IdPostulacion = ?").run(req.params.id);
+  if (listaNegra) {
+    const post = db.prepare("SELECT IdUsuario FROM Postulaciones WHERE Id = ?").get(req.params.id);
+    if (post) {
+      db.prepare("UPDATE Usuarios SET Activo = 0 WHERE Id = ?").run(post.IdUsuario);
+      audit(Number(req.headers['x-admin-user']), 'lista_negra', 'Usuarios', post.IdUsuario, 'Agregado a lista negra por rechazo de postulación');
+    }
+  }
   res.json({ success: true });
 });
 
