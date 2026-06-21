@@ -7,3 +7,7 @@ server/data/
 .vite/
 *.local
 .DS_Store
+server_test.log
+server_test2.log
+server_test2_err.log
+server_test_err.log
