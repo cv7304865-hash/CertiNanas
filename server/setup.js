@@ -216,6 +216,7 @@ db.exec(`
     IdUsuario INTEGER NOT NULL REFERENCES Usuarios(Id),
     FechaPostulacion TEXT NOT NULL DEFAULT (datetime('now')),
     Estado TEXT NOT NULL DEFAULT 'Pendiente' CHECK (Estado IN ('Pendiente', 'Aprobada', 'Rechazada')),
+    MotivoRechazo TEXT,
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -291,6 +292,7 @@ db.exec(`
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN FinalizadaCuidadora INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Usuarios ADD COLUMN FotoPerfil TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Usuarios ADD COLUMN Suspendido INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Postulaciones ADD COLUMN MotivoRechazo TEXT`).run(); } catch(e) {}
 
 console.log('Tablas creadas y datos de semilla insertados.');
 }
