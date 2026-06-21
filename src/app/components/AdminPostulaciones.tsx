@@ -18,6 +18,7 @@ type PostulacionRich = {
   TotalDocumentos: number;
   HorasTranscurridas: number;
   MotivoRechazo?: string;
+  DocumentosRechazados?: { nombre: string; motivo: string }[];
 };
 
 type DocumentoBackend = {
@@ -65,6 +66,9 @@ const mockPostulaciones: PostulacionRich[] = [
     Estado: 'Rechazada', TotalDocumentos: 3,
     HorasTranscurridas: 20,
     MotivoRechazo: 'Documentos incompletos: falta certificado de antecedentes penales vigente.',
+    DocumentosRechazados: [
+      { nombre: 'Antecedentes penales', motivo: 'Documento vencido — data PNP no coincide con el archivo subido.' },
+    ],
   },
   {
     Id: 4, IdUsuario: 14,
@@ -76,6 +80,10 @@ const mockPostulaciones: PostulacionRich[] = [
     Estado: 'Rechazada', TotalDocumentos: 4,
     HorasTranscurridas: 22,
     MotivoRechazo: 'No cumple con el mínimo de 3 años de experiencia requerido.',
+    DocumentosRechazados: [
+      { nombre: 'Título profesional', motivo: 'El título no corresponde a una institución reconocida por MINEDU.' },
+      { nombre: 'Certificado de salud', motivo: 'Certificado tiene más de 6 meses de antigüedad.' },
+    ],
   },
 ];
 
@@ -260,13 +268,28 @@ export function AdminPostulaciones() {
                       </div>
                     )}
 
-                    {/* Rejection reason */}
-                    {p.Estado === 'Rechazada' && p.MotivoRechazo && (
-                      <div className="pt-1">
-                        <div className="flex items-start gap-1.5">
-                          <XCircle className="w-3.5 h-3.5 text-[#D14242] mt-0.5 flex-shrink-0" />
-                          <p className="text-xs text-[#D14242] leading-relaxed">{p.MotivoRechazo}</p>
-                        </div>
+                    {/* Rejection reason & documents */}
+                    {p.Estado === 'Rechazada' && (
+                      <div className="pt-1 space-y-1.5">
+                        {p.MotivoRechazo && (
+                          <div className="flex items-start gap-1.5">
+                            <XCircle className="w-3.5 h-3.5 text-[#D14242] mt-0.5 flex-shrink-0" />
+                            <p className="text-xs text-[#D14242] leading-relaxed">{p.MotivoRechazo}</p>
+                          </div>
+                        )}
+                        {p.DocumentosRechazados && p.DocumentosRechazados.length > 0 && (
+                          <div className="ml-5 space-y-1">
+                            {p.DocumentosRechazados.map((doc, idx) => (
+                              <div key={idx} className="flex items-start gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#D14242] mt-1.5 flex-shrink-0" />
+                                <div>
+                                  <span className="text-xs font-bold text-[#D14242]">{doc.nombre}:</span>{' '}
+                                  <span className="text-xs text-[#F5D5E0]/70">{doc.motivo}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
