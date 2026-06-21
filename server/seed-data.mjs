@@ -372,17 +372,31 @@ export function seed(db) {
       ['Certificado Estudios', '180 KB'],
       ['Carta Presentacion', '95 KB'],
     ];
-    const estadosPos = ['Pendiente', 'Pendiente', 'Aprobada', 'Aprobada', 'Rechazada'];
+    const estadosPos = ['Pendiente', 'Pendiente', 'Rechazada', 'Rechazada', 'Aprobada', 'Aprobada', 'Pendiente', 'Aprobada', 'Aprobada', 'Rechazada', 'Pendiente'];
+    const motivosRechazo = [
+      'Documentos incompletos: falta certificado de antecedentes penales vigente.',
+      'No cumple con el mínimo de 3 años de experiencia requerido.',
+      'Antecedentes penales no verificables con la PNP.',
+    ];
+    const docsMotivoRechazo = {
+      'DNI': 'Documento ilegible, no se puede confirmar identidad.',
+      'Antecedentes PNP': 'Certificado vencido, no coincide con la consulta en línea.',
+      'Certificado Salud': 'Certificado tiene más de 6 meses de antigüedad.',
+      'Certificado Estudios': 'Título no corresponde a institución reconocida por MINEDU.',
+      'Carta Presentacion': 'Carta no está firmada ni tiene datos de contacto verificables.',
+    };
     for (let j = 0; j < cuidadorasUsers.length; j++) {
       const u = cuidadorasUsers[j];
-      const estado = estadosPos[j % estadosPos.length];
+      const estado = estadosPos[j];
       const diasAgo = rand(10, 180);
-      const r = db.prepare(`INSERT INTO Postulaciones (IdUsuario, Estado, FechaPostulacion) VALUES (?, ?, datetime('now', '-${diasAgo} days'))`).run(u.Id, estado);
+      const motivoRechazo = estado === 'Rechazada' ? motivosRechazo[j % motivosRechazo.length] : null;
+      const r = db.prepare(`INSERT INTO Postulaciones (IdUsuario, Estado, MotivoRechazo, FechaPostulacion) VALUES (?, ?, ?, datetime('now', '-${diasAgo} days'))`).run(u.Id, estado, motivoRechazo);
       const docs = [...tiposDoc].sort(() => Math.random() - 0.5).slice(0, rand(2, 5));
       for (const [tipo, peso] of docs) {
         const docEstado = estado === 'Aprobada' ? 'Aprobado' : estado === 'Rechazada' ? 'Rechazado' : 'Pendiente';
+        const docMotivo = estado === 'Rechazada' ? (docsMotivoRechazo[tipo] || 'Documento no cumple con los requisitos.') : null;
         const nombreArchivo = `${tipo.toLowerCase().replace(/[\sáéíóú]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '')}_${u.Nombres.split(' ')[0].toLowerCase()}_${u.Apellidos.toLowerCase()}.pdf`;
-        db.prepare('INSERT INTO DocumentosPostulacion (IdPostulacion, TipoRequisito, NombreArchivo, Peso, Estado) VALUES (?, ?, ?, ?, ?)').run(r.lastInsertRowid, tipo, nombreArchivo, peso, docEstado);
+        db.prepare('INSERT INTO DocumentosPostulacion (IdPostulacion, TipoRequisito, NombreArchivo, Peso, Estado, MotivoRechazo) VALUES (?, ?, ?, ?, ?, ?)').run(r.lastInsertRowid, tipo, nombreArchivo, peso, docEstado, docMotivo);
       }
     }
   }
