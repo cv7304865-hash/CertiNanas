@@ -11,7 +11,8 @@ type Propuesta = {
 };
 
 type NegociacionAdmin = {
-  OrdenId: number; FechaServicio: string; TipoServicio: string;
+  OrdenId: number; IdUsuarioFamilia: number; CuidadoraId: number;
+  FechaServicio: string; TipoServicio: string;
   EstadoNegociacion: string; TarifaHora: number; TotalHoras: number;
   HoraInicio: string | null; HoraFin: string | null;
   FamiliaNombres: string; FamiliaApellidos: string;
@@ -28,7 +29,7 @@ export function AdminNegociaciones() {
   const [message, setMessage] = useState<{ type: 'success' | 'warning' | 'danger'; text: string } | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
   const [suggestForm, setSuggestForm] = useState<{ ordenId: number; tarifaHora: number; totalHoras: number; mensaje: string } | null>(null);
-  const [videoModal, setVideoModal] = useState<{ open: boolean; ordenId: number; cuidadoraId: number }>({ open: false, ordenId: 0, cuidadoraId: 0 });
+  const [videoModal, setVideoModal] = useState<{ open: boolean; ordenId: number; cuidadoraId: number; idFamilia: number }>({ open: false, ordenId: 0, cuidadoraId: 0, idFamilia: 0 });
   const [videoForm, setVideoForm] = useState({ fecha: '', hora: '10:00', plataforma: 'google-meet' });
 
   const load = async () => {
@@ -64,13 +65,13 @@ export function AdminNegociaciones() {
 
   const programarVideo = async () => {
     if (!videoForm.fecha || !videoForm.hora) return;
-    const r = await fetch('/api/familia/agendar-entrevista', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) },
-      body: JSON.stringify({ idCuidadora: videoModal.cuidadoraId, fecha: videoForm.fecha, hora: videoForm.hora, plataforma: videoForm.plataforma }),
+    const r = await fetch('/api/admin/agendar-mediacion', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-user': String(user?.id) },
+      body: JSON.stringify({ idCuidadora: videoModal.cuidadoraId, idFamilia: videoModal.idFamilia, fecha: videoForm.fecha, hora: videoForm.hora, plataforma: videoForm.plataforma }),
     });
     if (r.ok) {
       setMessage({ type: 'success', text: 'Videollamada programada correctamente' });
-      setVideoModal({ open: false, ordenId: 0, cuidadoraId: 0 });
+      setVideoModal({ open: false, ordenId: 0, cuidadoraId: 0, idFamilia: 0 });
     } else {
       const e = await r.json();
       setMessage({ type: 'danger', text: e.error || 'Error' });
@@ -208,7 +209,7 @@ export function AdminNegociaciones() {
                   <button onClick={() => setSuggestForm(suggestForm?.ordenId === n.OrdenId ? null : { ordenId: n.OrdenId, tarifaHora: n.TarifaHora, totalHoras: n.TotalHoras, mensaje: '' })}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-amber-400 text-amber-300 text-xs font-bold hover:bg-[rgba(251,191,36,0.1)] transition-all"
                   ><MessageSquare className="w-3.5 h-3.5" />Solicitar cambios</button>
-                  <button onClick={() => setVideoModal({ open: true, ordenId: n.OrdenId, cuidadoraId: 0 })}
+                  <button onClick={() => setVideoModal({ open: true, ordenId: n.OrdenId, cuidadoraId: n.CuidadoraId, idFamilia: n.IdUsuarioFamilia })}
                     className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full border text-xs font-bold transition-all ${
                       videoModal.open && videoModal.ordenId === n.OrdenId
                         ? 'border-[#F6A5C0] bg-[rgba(246,165,192,0.1)] text-[#F6A5C0]'

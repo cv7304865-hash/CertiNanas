@@ -317,4 +317,32 @@ router.get('/escrows', isAdmin, (req, res) => {
   res.json(rows);
 });
 
+// ── ADMIN: agendar videollamada de mediación ──
+router.post('/agendar-mediacion', isAdmin, (req, res) => {
+  const db = getDb();
+  const { idCuidadora, idFamilia, fecha, hora, plataforma } = req.body;
+  if (!idCuidadora || !idFamilia || !fecha || !hora) {
+    return res.status(400).json({ error: 'idCuidadora, idFamilia, fecha y hora son requeridos' });
+  }
+  const cuidadora = db.prepare('SELECT Id FROM Cuidadoras WHERE Id = ?').get(idCuidadora);
+  if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
+
+  db.transaction(() => {
+    db.prepare('INSERT INTO Citas (IdCuidadora, IdUsuarioFamilia, FechaCita, HoraCita, Modalidad, DuracionMinutos) VALUES (?, ?, ?, ?, ?, 30)')
+      .run(idCuidadora, idFamilia, fecha, hora, plataforma === 'zoom' ? 'Zoom' : 'Google Meet');
+    let conv = db.prepare('SELECT Id FROM Conversaciones WHERE IdCuidadora = ? AND IdUsuarioFamilia = ?').get(idCuidadora, idFamilia);
+    if (!conv) {
+      const cr = db.prepare('INSERT INTO Conversaciones (IdCuidadora, IdUsuarioFamilia) VALUES (?, ?)').run(idCuidadora, idFamilia);
+      conv = { Id: cr.lastInsertRowid };
+    }
+    const linkId = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    const enlace = plataforma === 'zoom'
+      ? `https://zoom.us/j/${linkId}` : `https://meet.google.com/${linkId}`;
+    db.prepare('INSERT INTO Mensajes (IdConversacion, IdRemitente, Contenido) VALUES (?, ?, ?)').run(conv.Id, idFamilia,
+      `MEDIACIÓN - VIDEOCONFERENCIA\n\nFecha: ${fecha}\nHora: ${hora}\nPlataforma: ${plataforma === 'zoom' ? 'Zoom' : 'Google Meet'}\nEnlace: ${enlace}\n\nEl administrador ha programado esta reunión de mediación.`);
+    db.prepare("UPDATE Conversaciones SET FechaUltimoMensaje = datetime('now') WHERE Id = ?").run(conv.Id);
+  })();
+  res.json({ success: true });
+});
+
 export default router;

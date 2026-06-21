@@ -201,7 +201,7 @@ router.get('/admin/negociaciones', (req, res) => {
   if (getUserRole(adminId) !== 1) return res.status(403).json({ error: 'Acceso denegado' });
 
   const rows = db.prepare(`
-    SELECT o.Id AS OrdenId, o.FechaServicio, o.TipoServicio, o.EstadoNegociacion, o.TarifaHora, o.TotalHoras, o.HoraInicio, o.HoraFin,
+    SELECT o.Id AS OrdenId, o.IdUsuarioFamilia, c.Id AS CuidadoraId, o.FechaServicio, o.TipoServicio, o.EstadoNegociacion, o.TarifaHora, o.TotalHoras, o.HoraInicio, o.HoraFin,
            uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos,
            uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
            m.Nombre AS MenorNombre,
@@ -318,6 +318,26 @@ router.get('/cuidadora/orden/:id/propuestas', (req, res) => {
   if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
 
   const orden = db.prepare('SELECT * FROM Ordenes WHERE Id = ? AND IdCuidadora = ?').get(Number(req.params.id), cuidadora.Id);
+  if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+
+  const props = db.prepare(`
+    SELECT n.*, u.Nombres AS PropuestoPorNombres, u.Apellidos AS PropuestoPorApellidos
+    FROM Negociaciones n
+    INNER JOIN Usuarios u ON u.Id = n.IdPropuestoPor
+    WHERE n.IdOrden = ?
+    ORDER BY n.FechaCreacion DESC
+  `).all(orden.Id);
+
+  res.json(props);
+});
+
+// ── FAMILY: ver historial de negociaciones de una orden ──
+router.get('/familia/orden/:id/propuestas', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'No autenticado' });
+
+  const orden = db.prepare('SELECT * FROM Ordenes WHERE Id = ? AND IdUsuarioFamilia = ?').get(Number(req.params.id), userId);
   if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
 
   const props = db.prepare(`

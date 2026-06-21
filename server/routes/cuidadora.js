@@ -36,7 +36,7 @@ router.get('/perfil', isCaregiver, (req, res) => {
     SELECT CalificacionPromedio, TotalResenas FROM Cuidadoras WHERE Id = ?
   `).get(cuidadora.Id);
   const postulacion = db.prepare('SELECT Id, Estado FROM Postulaciones WHERE IdUsuario = ?').get(userId);
-  const tiposRequeridos = ['DNI', 'Antecedentes PNP', 'Certificado Salud', 'Certificado Estudios', 'Carta Presentacion'];
+  const tiposRequeridos = ['DNI', 'Antecedentes penales', 'Certificado de salud', 'Titulo profesional', 'Carta de presentacion'];
   res.json({ user, cuidadora, especialidades, areas, documentos, stats, postulacion, tiposRequeridos });
 });
 
@@ -103,7 +103,7 @@ router.post('/orden/:id/aceptar', isCaregiver, (req, res) => {
         `Tarifa: S/ ${orden.TarifaHora}/hora`,
         `Total horas: ${orden.TotalHoras}`,
         `Subtotal cuidadora: S/ ${orden.Subtotal}`,
-        `Comisión plataforma (8%): S/ ${orden.TarifaPlataforma}`,
+        `Comisión plataforma (15%): S/ ${orden.TarifaPlataforma}`,
         `Total pagado: S/ ${orden.Total}`,
         `Tipo de servicio: ${orden.TipoServicio || 'Cuidado especializado'}`,
         ``,

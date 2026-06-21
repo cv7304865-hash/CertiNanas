@@ -105,7 +105,8 @@ router.post('/resena', (req, res) => {
 
   const orden = db.prepare('SELECT IdCuidadora, IdUsuarioFamilia, Estado FROM Ordenes WHERE Id = ?').get(idOrden);
   if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
-  if (orden.Estado !== 'Completada') return res.status(400).json({ error: 'Solo puedes calificar después de que el servicio haya sido completado' });
+  if (Number(orden.IdUsuarioFamilia) !== Number(userId)) return res.status(403).json({ error: 'No eres el dueño de esta orden' });
+  if (orden.Estado !== 'Completada' && orden.Estado !== 'Finalizada') return res.status(400).json({ error: 'Solo puedes calificar después de que el servicio haya sido completado' });
 
   db.prepare(`INSERT INTO Resenas (IdCuidadora, IdUsuarioFamilia, Calificacion, Comentario, FechaResena, FechaCreacion)
     VALUES (?, ?, ?, ?, date('now'), datetime('now'))`).run(orden.IdCuidadora, orden.IdUsuarioFamilia, calificacion, comentario || '');

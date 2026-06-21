@@ -48,7 +48,6 @@ router.get('/solicitudes/:id', (req, res) => {
   if (!row) return res.status(404).json({ error: 'Solicitud no encontrada' });
   row.TareaIds = JSON.parse(row.TareaIds);
 
-  if (!row) return res.status(404).json({ error: 'Solicitud no encontrada' });
   res.json(row);
 });
 
@@ -73,7 +72,7 @@ router.post('/orden/:id/aceptar', (req, res) => {
         `Tarifa: S/ ${orden.TarifaHora}/hora`,
         `Total horas: ${orden.TotalHoras}`,
         `Subtotal cuidadora: S/ ${orden.Subtotal}`,
-        `Comisión plataforma (8%): S/ ${orden.TarifaPlataforma}`,
+        `Comisión plataforma (15%): S/ ${orden.TarifaPlataforma}`,
         `Total pagado: S/ ${orden.Total}`,
         `Tipo de servicio: ${orden.TipoServicio || 'Cuidado especializado'}`,
         ``,
@@ -112,11 +111,13 @@ router.post('/pagar/:id', (req, res) => {
   if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
   if (orden.Estado === 'Pagada' || orden.Estado === 'Completada') return res.status(400).json({ error: 'Orden ya pagada' });
   if (!orden.ConfirmadaFamilia) return res.status(400).json({ error: 'Debes aceptar el contrato primero' });
+  if (!orden.ConfirmadaCuidadora) return res.status(400).json({ error: 'La cuidadora aún no ha aceptado el contrato' });
 
   db.transaction(() => {
     db.prepare("UPDATE Ordenes SET Estado = 'Pagada' WHERE Id = ?").run(orden.Id);
-    db.prepare("INSERT INTO Pagos (IdOrden, Monto, MetodoPago, Estado) VALUES (?, ?, 'Tarjeta', 'Completado')").run(orden.Id, orden.Total);
-    // Crear registro Escrow: el 92% va a la cuidadora, 8% retenido por la plataforma
+    const metodo = (req.body.metodoPago || 'Tarjeta').replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    db.prepare("INSERT INTO Pagos (IdOrden, Monto, MetodoPago, Estado) VALUES (?, ?, ?, 'Completado')").run(orden.Id, orden.Total, metodo);
+    // Crear registro Escrow: el subtotal va a la cuidadora, la tarifa plataforma es retenida
     const montoCuidadora = orden.Subtotal;
     const montoPlataforma = orden.TarifaPlataforma;
     const escrowResult = db.prepare("INSERT INTO Escrow (IdOrden, MontoTotal, MontoCuidadora, MontoPlataforma, Estado) VALUES (?, ?, ?, ?, 'Retenido')").run(orden.Id, orden.Total, montoCuidadora, montoPlataforma);

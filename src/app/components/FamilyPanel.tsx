@@ -85,7 +85,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
   }, []);
 
   const loadPropuestas = async (ordenId: number) => {
-    const r = await fetch(`/api/cuidadora/orden/${ordenId}/propuestas`, { headers });
+    const r = await fetch(`/api/familia/orden/${ordenId}/propuestas`, { headers });
     if (r.ok) setPropuestas(await r.json());
   };
 
@@ -252,7 +252,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                               Confirmar finalización
                             </button>
                           )}
-                          {s.Estado === 'Finalizada' && (
+                          {(s.Estado === 'Finalizada' || s.Estado === 'Completada') && (
                               <button onClick={() => onReview?.(s.Id)}
                                 className="text-xs font-semibold text-[#F5D5E0]/70 hover:text-white transition-colors">
                                 Evaluar

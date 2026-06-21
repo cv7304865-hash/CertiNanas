@@ -35,6 +35,13 @@ router.get('/conversaciones/:id/mensajes', (req, res) => {
   const userId = req.headers['x-user-id'];
   if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
 
+  const conv = db.prepare('SELECT IdCuidadora, IdUsuarioFamilia FROM Conversaciones WHERE Id = ?').get(Number(req.params.id));
+  if (!conv) return res.status(404).json({ error: 'Conversación no encontrada' });
+  const c = db.prepare('SELECT Id FROM Cuidadoras WHERE IdUsuario = ?').get(userId);
+  if (Number(conv.IdUsuarioFamilia) !== Number(userId) && (!c || Number(c.Id) !== Number(conv.IdCuidadora))) {
+    return res.status(403).json({ error: 'No tienes acceso a esta conversación' });
+  }
+
   const rows = db.prepare(`
     SELECT m.Id, m.IdRemitente, m.Contenido, m.Leido, m.FechaEnvio
     FROM Mensajes m
@@ -59,7 +66,7 @@ router.post('/conversaciones/:id/mensajes', (req, res) => {
   res.json({ id: result.lastInsertRowid });
 });
 
-// Reportar incidencia (crear cita cancelada como incidencia)
+// Reportar incidencia desde conversación
 router.post('/reportar-incidencia', (req, res) => {
   const db = getDb();
   const userId = req.headers['x-user-id'];
@@ -69,8 +76,14 @@ router.post('/reportar-incidencia', (req, res) => {
 
   const conv = db.prepare('SELECT IdCuidadora, IdUsuarioFamilia FROM Conversaciones WHERE Id = ?').get(idConversacion);
   if (!conv) return res.status(404).json({ error: 'Conversación no encontrada' });
+  if (Number(conv.IdUsuarioFamilia) !== Number(userId)) {
+    const c = db.prepare('SELECT Id FROM Cuidadoras WHERE IdUsuario = ?').get(userId);
+    if (!c || Number(c.Id) !== Number(conv.IdCuidadora)) return res.status(403).json({ error: 'No perteneces a esta conversación' });
+  }
 
-  db.prepare('INSERT INTO Incidencias (IdCita, Tipo, Estado, Descripcion) VALUES (NULL, ?, ?, ?)').run('Moderada', 'Abierta', motivo || 'Reporte desde conversación');
+  const orden = db.prepare('SELECT Id FROM Ordenes WHERE IdCuidadora = ? AND IdUsuarioFamilia = ? ORDER BY FechaCreacion DESC LIMIT 1').get(conv.IdCuidadora, conv.IdUsuarioFamilia);
+
+  db.prepare('INSERT INTO Incidencias (IdOrden, Tipo, Estado, Descripcion) VALUES (?, ?, ?, ?)').run(orden?.Id || null, 'Moderada', 'Abierta', motivo || 'Reporte desde conversación');
 
   res.json({ success: true });
 });
@@ -85,6 +98,7 @@ router.post('/solicitar-contrato', (req, res) => {
 
   const conv = db.prepare('SELECT IdCuidadora, IdUsuarioFamilia FROM Conversaciones WHERE Id = ?').get(idConversacion);
   if (!conv) return res.status(404).json({ error: 'Conversación no encontrada' });
+  if (Number(conv.IdUsuarioFamilia) !== Number(userId)) return res.status(403).json({ error: 'Solo la familia puede solicitar contratos' });
 
   const cuidadora = db.prepare('SELECT TarifaHora FROM Cuidadoras WHERE Id = ?').get(conv.IdCuidadora);
   if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });

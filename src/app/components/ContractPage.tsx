@@ -19,6 +19,18 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
   const { user, logout } = useAuth();
   const [data, setData] = useState<ContratoData | null>(null);
   const [accepted, setAccepted] = useState(false);
+  const [accepting, setAccepting] = useState(false);
+
+  const handleProceed = async () => {
+    if (!accepted || !data || accepting) return;
+    setAccepting(true);
+    try {
+      const r = await fetch(`/api/familia/orden/${data.Id}/aceptar`, {
+        method: 'POST', headers: { 'x-user-id': String(user?.id) },
+      });
+      if (r.ok) onProceedToPayment?.();
+    } finally { setAccepting(false); }
+  };
 
   useEffect(() => {
     if (!orderId) return;
@@ -176,10 +188,10 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
               </div>
             ) : (
               <motion.button
-                whileHover={accepted ? { scale: 1.01 } : {}}
-                whileTap={accepted ? { scale: 0.99 } : {}}
-                disabled={!accepted}
-                onClick={onProceedToPayment}
+                whileHover={accepted && !accepting ? { scale: 1.01 } : {}}
+                whileTap={accepted && !accepting ? { scale: 0.99 } : {}}
+                disabled={!accepted || accepting}
+                onClick={handleProceed}
                 className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all shadow-md ${
                   accepted
                     ? 'bg-[#F6A5C0] text-[#210635] hover:shadow-lg cursor-pointer'
