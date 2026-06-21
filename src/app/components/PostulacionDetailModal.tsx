@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Eye, Clock, FileText, Shield, AlertTriangle } from 'lucide-react';
 import { DocumentPreviewModal } from './DocumentPreviewModal';
 
@@ -65,6 +65,11 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
   const [motivoRechazoInput, setMotivoRechazoInput] = useState('');
   const [listaNegra, setListaNegra] = useState(false);
   const allVerified = documentosState.every(d => d.estado === 'verificado');
+  const palabrasGraves = ['fals', 'fraude', 'suplant', 'maltrat', 'delito', 'penal', 'agres', 'robo', 'violent', 'abus', 'estaf'];
+  const esMotivoGrave = palabrasGraves.some(p => motivoRechazoInput.toLowerCase().includes(p));
+  useEffect(() => {
+    if (esMotivoGrave) setListaNegra(true);
+  }, [esMotivoGrave]);
 
   const handleDocVerificar = (docName: string) => {
     setDocumentosState(prev => prev.map(d => d.nombre === docName ? { ...d, estado: 'verificado' as const } : d));
@@ -236,6 +241,12 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
                     placeholder="Ej: No se encuentra capacitada, documentos vencidos, no cumple con los requisitos..."
                     className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] rounded-xl px-3 py-2 text-sm text-white placeholder-[#6667AB] resize-none focus:outline-none focus:border-[#D14242] transition-colors min-h-[70px]"
                   />
+                  {esMotivoGrave && (
+                    <div className="flex items-start gap-2 bg-[rgba(209,66,66,0.2)] border border-[#D14242]/40 rounded-lg px-3 py-2">
+                      <AlertTriangle className="w-4 h-4 text-[#D14242] mt-0.5 flex-shrink-0" />
+                      <p className="text-xs text-[#D14242] leading-relaxed">Razón grave detectada. Se agregará automáticamente a la lista negra.</p>
+                    </div>
+                  )}
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -243,7 +254,9 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
                       onChange={e => setListaNegra(e.target.checked)}
                       className="w-4 h-4 rounded border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.06)] accent-[#D14242]"
                     />
-                    <span className="text-sm text-[#F5D5E0]">Agregar a lista negra (no podrá volver a postular)</span>
+                    <span className={`text-sm ${esMotivoGrave ? 'text-[#D14242] font-bold' : 'text-[#F5D5E0]'}`}>
+                      Agregar a lista negra{esMotivoGrave ? ' (obligatorio)' : ' (no podrá volver a postular)'}
+                    </span>
                   </label>
                   <div className="flex items-center gap-2 pt-1">
                     <button
