@@ -337,6 +337,8 @@ export function AdminPostulaciones() {
           avatarLetras: selectedPost.Nombres.charAt(0) + selectedPost.Apellidos.charAt(0),
           horasTranscurridas: selectedPost.HorasTranscurridas,
           horasMaximas: 24,
+          motivoRechazo: selectedPost.MotivoRechazo,
+          documentosRechazados: selectedPost.DocumentosRechazados,
           documentos: [
             { id: 1, nombre: 'DNI', estado: 'por verificar' },
             { id: 2, nombre: 'Antecedentes penales', estado: 'por verificar' },
