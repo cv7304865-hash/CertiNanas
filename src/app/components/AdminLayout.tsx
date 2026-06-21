@@ -1,19 +1,10 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
-import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, MessageSquare, Send, CheckCircle, XCircle, Eye, Search, Download, TrendingUp, DollarSign, Bell, ChevronDown } from 'lucide-react';
+import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, MessageSquare, Send, CheckCircle, XCircle, Eye, Search, Download, TrendingUp, DollarSign, Bell } from 'lucide-react';
+import { AdminPostulaciones } from './AdminPostulaciones';
 import { BarChart, Bar, PieChart, Pie, LineChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
-
-type Postulacion = {
-  Id: number; IdUsuario: number; FechaPostulacion: string; Estado: string;
-  Nombres: string; Apellidos: string; Email: string; TotalDocumentos: number;
-};
-
-type Documento = {
-  Id: number; IdPostulacion: number; TipoRequisito: string;
-  NombreArchivo: string; Peso: string; Estado: string;
-};
 
 type Tab = 'dashboard' | 'postulaciones' | 'perfiles' | 'incidencias' | 'usuarios' | 'reportes' | 'contratos' | 'mensajes';
 
@@ -111,7 +102,7 @@ export function AdminLayout() {
       <main className="ml-64 mt-16 p-8 pb-16 min-h-[calc(100vh-4rem)]">
         {tab === 'dashboard' && <DashboardView />}
         {tab === 'contratos' && <ContratosView />}
-        {tab === 'postulaciones' && <PostulacionesView />}
+        {tab === 'postulaciones' && <AdminPostulaciones />}
         {tab === 'perfiles' && <PerfilesView />}
         {tab === 'incidencias' && <IncidenciasView />}
         {tab === 'mensajes' && <AdminMessages />}
@@ -466,178 +457,7 @@ function UsuariosView() {
   );
 }
 
-/* ======== POSTULACIONES ======== */
-function PostulacionesView() {
-  const { user } = useAuth();
-  const headers = { 'Content-Type': 'application/json', 'x-admin-user': String(user?.id) };
-  const [postulaciones, setPostulaciones] = useState<Postulacion[]>([]);
-  const [selectedPost, setSelectedPost] = useState<Postulacion | null>(null);
-  const [documentos, setDocumentos] = useState<Documento[]>([]);
-  const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    fetch('/api/admin/postulaciones', { headers }).then(r => r.json()).then(setPostulaciones).catch(() => {});
-  }, []);
-
-  const selectPostulacion = (p: Postulacion) => {
-    setSelectedPost(p);
-    fetch(`/api/admin/postulaciones/${p.Id}/documentos`, { headers })
-      .then(r => r.json()).then(setDocumentos).catch(() => {});
-  };
-
-  const aprobar = (id: number) => {
-    fetch(`/api/admin/postulaciones/${id}/aprobar`, { method: 'POST', headers }).then(r => r.json()).then(() => {
-      setPostulaciones(prev => prev.map(p => p.Id === id ? { ...p, Estado: 'Aprobada' } : p));
-      setDocumentos(prev => prev.map(d => ({ ...d, Estado: 'Aprobado' })));
-    }).catch(() => {});
-  };
-
-  const rechazar = (id: number) => {
-    fetch(`/api/admin/postulaciones/${id}/rechazar`, { method: 'POST', headers }).then(r => r.json()).then(() => {
-      setPostulaciones(prev => prev.map(p => p.Id === id ? { ...p, Estado: 'Rechazada' } : p));
-    }).catch(() => {});
-  };
-
-  const filtered = postulaciones.filter(p =>
-    `${p.Nombres} ${p.Apellidos} ${p.Email}`.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const formatDate = (d: string) => {
-    if (!d) return '';
-    const date = new Date(d);
-    return date.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  };
-
-  return (
-    <div className="max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-extrabold text-white">Postulaciones</h1>
-        <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6667AB]" />
-          <input
-            type="text"
-            placeholder="Buscar postulante..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[rgba(33,6,53,0.5)] border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] text-sm focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E]"
-          />
-        </div>
-      </div>
-
-      <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden mb-8">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-[rgba(33,6,53,0.4)] backdrop-blur-sm border-b border-[rgba(255,255,255,0.1)]">
-                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Postulante</th>
-                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Fecha</th>
-                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Documentos</th>
-                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Estado</th>
-                <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((p, i) => (
-                <tr
-                  key={p.Id}
-                  className={`border-b border-[rgba(255,255,255,0.1)] transition-colors cursor-pointer ${
-                    p.Estado === 'Aprobada' ? 'bg-[#cc8db3]/20' : i % 2 === 0 ? 'bg-[rgba(33,6,53,0.3)]' : 'bg-[rgba(33,6,53,0.15)]'
-                  } hover:bg-[rgba(33,6,53,0.3)] ${selectedPost?.Id === p.Id ? 'bg-[#cc8db3]/30 backdrop-blur-sm' : ''}`}
-                  onClick={() => selectPostulacion(p)}
-                >
-                  <td className="py-3 px-4">
-                    <p className="font-semibold text-[#F5D5E0]">{p.Nombres} {p.Apellidos}</p>
-                    <p className="text-xs text-[#6667AB] mt-0.5">{p.Email}</p>
-                  </td>
-                  <td className="py-3 px-4 text-[#F5D5E0]">{formatDate(p.FechaPostulacion)}</td>
-                  <td className="py-3 px-4">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.4)] text-[#cc8db3] text-xs font-medium">
-                      <Eye className="w-3.5 h-3.5" />
-                      {p.TotalDocumentos} archivos
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
-                      p.Estado === 'Pendiente' ? 'bg-[#f6a5c0]/20 text-[#f6a5c0]' :
-                      p.Estado === 'Aprobada' ? 'bg-[#cc8db3]/20 text-[#cc8db3]' :
-                      'bg-[#9d85b6]/20 text-[#210635]'
-                    }`}>{p.Estado}</span>
-                  </td>
-                  <td className="py-3 px-4">
-                    {p.Estado === 'Pendiente' ? (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={e => { e.stopPropagation(); aprobar(p.Id); }}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#cc8db3]/20 text-[#cc8db3] text-xs font-bold hover:bg-[#cc8db3]/30 transition-colors"
-                        >
-                          <CheckCircle className="w-3.5 h-3.5" /> Aprobar
-                        </button>
-                        <button
-                          onClick={e => { e.stopPropagation(); rechazar(p.Id); }}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#f6a5c0]/20 text-[#f6a5c0] text-xs font-bold hover:bg-[#f6a5c0]/30 transition-colors"
-                        >
-                          <XCircle className="w-3.5 h-3.5" /> Rechazar
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-[#cc8db3] text-xs font-bold flex items-center gap-1">
-                        <CheckCircle className="w-3.5 h-3.5" /> Validada
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr><td colSpan={5} className="py-12 text-center text-[#6667AB]">No hay postulaciones</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {selectedPost && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
-        >
-          <h2 className="text-lg font-bold text-white mb-6">
-            Documentos de <span className="text-[#f6a5c0]">{selectedPost.Nombres} {selectedPost.Apellidos}</span>
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {documentos.map(doc => (
-              <div key={doc.Id} className="border border-[rgba(255,255,255,0.1)] rounded-xl p-4 hover:shadow-lg hover:shadow-black/30 transition-shadow">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[rgba(33,6,53,0.4)] flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-5 h-5 text-[#6667AB]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-[#F5D5E0] text-sm">{doc.TipoRequisito}</p>
-                    <p className="text-xs text-[#6667AB] mt-1 truncate">{doc.Peso}</p>
-                    <span className={`inline-block mt-2 px-2 py-0.5 rounded text-xs font-medium ${
-                      doc.Estado === 'Pendiente' ? 'bg-[#f6a5c0]/20 text-[#f6a5c0]' :
-                      doc.Estado === 'Aprobado' ? 'bg-[#cc8db3]/20 text-[#cc8db3]' :
-                      'bg-[#9d85b6]/20 text-[#210635]'
-                    }`}>{doc.Estado}</span>
-                  </div>
-                  <a
-                    href={`/uploads/${doc.NombreArchivo}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-[rgba(33,6,53,0.4)] flex items-center justify-center hover:bg-[rgba(33,6,53,0.3)] transition-colors flex-shrink-0"
-                    title="Descargar"
-                  >
-                    <Download className="w-4 h-4 text-[#6667AB]" />
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      )}
-    </div>
-  );
-}
 
 /* ======== PERFILES VALIDADOS ======== */
 function PerfilesView() {
