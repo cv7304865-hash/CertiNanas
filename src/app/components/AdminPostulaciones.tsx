@@ -294,23 +294,23 @@ export function AdminPostulaciones() {
                     )}
                   </div>
 
-                  {/* Actions — only for pending */}
-                  {p.Estado === 'Pendiente' && (
-                    <div className="flex flex-col gap-2 flex-shrink-0 pt-1">
-                      <button
-                        onClick={() => handleVerDetalle(p)}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F5D5E0] text-[#F5D5E0] text-xs font-semibold hover:bg-[rgba(245,213,224,0.1)] transition-colors"
-                      >
-                        <Eye className="w-3.5 h-3.5" /> Ver detalle
-                      </button>
+                  {/* Actions */}
+                  <div className="flex flex-col gap-2 flex-shrink-0 pt-1">
+                    <button
+                      onClick={() => handleVerDetalle(p)}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F5D5E0] text-[#F5D5E0] text-xs font-semibold hover:bg-[rgba(245,213,224,0.1)] transition-colors"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> Ver detalle
+                    </button>
+                    {p.Estado === 'Pendiente' && (
                       <button
                         onClick={() => handleAprobar(p.Id)}
                         className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#10B981] hover:bg-[#10B981]/80 text-white text-xs font-bold transition-all shadow-lg shadow-black/20"
                       >
                         <CheckCircle className="w-3.5 h-3.5" /> Validar
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ))}
