@@ -45,10 +45,10 @@ router.get('/search/cuidadoras', (req, res) => {
     const ids = tareaIds.split(',').map(Number).filter(n => !isNaN(n));
     if (ids.length > 0) {
       // Mapear categorías de tareas a nombres de especialidades
-      const catToEsp: Record<number, string> = {
+      const catToEsp = {
         1: 'TEA', 2: 'TDAH', 3: 'Sindrome de Down', 4: 'Primeros Auxilios',
       };
-      const espRequeridas = new Set<string>();
+      const espRequeridas = new Set();
       const rows = db.prepare(
         `SELECT DISTINCT IdCategoria FROM Tareas WHERE Id IN (${ids.map(() => '?').join(',')})`
       ).all(...ids);
