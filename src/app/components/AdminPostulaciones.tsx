@@ -108,7 +108,18 @@ export function AdminPostulaciones() {
             Especialidades: p.Especialidades || ['TDAH', 'Primeros Auxilios'].slice(0, (i % 2) + 1),
             HorasTranscurridas: Math.round((Date.now() - new Date(p.FechaPostulacion).getTime()) / 3600000 * 10) / 10,
           }));
-          setPostulaciones(enriched);
+          setPostulaciones(prev => {
+            const merged = [...prev];
+            for (const apiItem of enriched) {
+              const idx = merged.findIndex(m => m.Id === apiItem.Id);
+              if (idx >= 0) {
+                merged[idx] = { ...merged[idx], ...apiItem, MotivoRechazo: merged[idx].MotivoRechazo || apiItem.MotivoRechazo, DocumentosRechazados: merged[idx].DocumentosRechazados || apiItem.DocumentosRechazados };
+              } else {
+                merged.push(apiItem);
+              }
+            }
+            return merged;
+          });
         }
       })
       .catch(() => {});
