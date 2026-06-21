@@ -298,6 +298,11 @@ db.exec(`
   // Asignar MotivoRechazo por defecto a postulaciones Rechazadas existentes sin motivo
   try { db.prepare("UPDATE Postulaciones SET MotivoRechazo = 'No cumple con los requisitos mínimos establecidos.' WHERE Estado = 'Rechazada' AND (MotivoRechazo IS NULL OR MotivoRechazo = '')").run(); } catch(e) {}
   try { db.prepare("UPDATE DocumentosPostulacion SET MotivoRechazo = 'Documento no cumple con los requisitos.' WHERE Estado = 'Rechazado' AND (MotivoRechazo IS NULL OR MotivoRechazo = '')").run(); } catch(e) {}
+  // Renombrar tipos de documento a nombres legibles para el frontend
+  try { db.prepare("UPDATE DocumentosPostulacion SET TipoRequisito = 'Antecedentes penales' WHERE TipoRequisito = 'Antecedentes PNP'").run(); } catch(e) {}
+  try { db.prepare("UPDATE DocumentosPostulacion SET TipoRequisito = 'Certificado de salud' WHERE TipoRequisito = 'Certificado Salud'").run(); } catch(e) {}
+  try { db.prepare("UPDATE DocumentosPostulacion SET TipoRequisito = 'Titulo profesional' WHERE TipoRequisito = 'Certificado Estudios'").run(); } catch(e) {}
+  try { db.prepare("UPDATE DocumentosPostulacion SET TipoRequisito = 'Carta de presentacion' WHERE TipoRequisito = 'Carta Presentacion'").run(); } catch(e) {}
 
 console.log('Tablas creadas y datos de semilla insertados.');
 }

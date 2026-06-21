@@ -367,10 +367,10 @@ export function seed(db) {
   if (db.prepare('SELECT COUNT(*) AS c FROM Postulaciones').get().c === 0) {
     const tiposDoc = [
       ['DNI', '120 KB'],
-      ['Antecedentes PNP', '340 KB'],
-      ['Certificado Salud', '210 KB'],
-      ['Certificado Estudios', '180 KB'],
-      ['Carta Presentacion', '95 KB'],
+      ['Antecedentes penales', '340 KB'],
+      ['Certificado de salud', '210 KB'],
+      ['Titulo profesional', '180 KB'],
+      ['Carta de presentacion', '95 KB'],
     ];
     const estadosPos = ['Pendiente', 'Pendiente', 'Rechazada', 'Rechazada', 'Aprobada', 'Aprobada', 'Pendiente', 'Aprobada', 'Aprobada', 'Rechazada', 'Pendiente'];
     const motivosRechazo = [
@@ -380,10 +380,10 @@ export function seed(db) {
     ];
     const docsMotivoRechazo = {
       'DNI': 'Documento ilegible, no se puede confirmar identidad.',
-      'Antecedentes PNP': 'Certificado vencido, no coincide con la consulta en línea.',
-      'Certificado Salud': 'Certificado tiene más de 6 meses de antigüedad.',
-      'Certificado Estudios': 'Título no corresponde a institución reconocida por MINEDU.',
-      'Carta Presentacion': 'Carta no está firmada ni tiene datos de contacto verificables.',
+      'Antecedentes penales': 'Certificado vencido, no coincide con la consulta en línea.',
+      'Certificado de salud': 'Certificado tiene más de 6 meses de antigüedad.',
+      'Titulo profesional': 'Título no corresponde a institución reconocida por MINEDU.',
+      'Carta de presentacion': 'Carta no está firmada ni tiene datos de contacto verificables.',
     };
     for (let j = 0; j < cuidadorasUsers.length; j++) {
       const u = cuidadorasUsers[j];
