@@ -187,6 +187,39 @@ router.delete('/menores/:id', (req, res) => {
   res.json({ success: true });
 });
 
+router.put('/menores/:id', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+  const menor = db.prepare('SELECT * FROM Menores WHERE Id = ? AND IdUsuarioFamilia = ?').get(Number(req.params.id), userId);
+  if (!menor) return res.status(404).json({ error: 'Menor no encontrado' });
+  const { nombre, diagnostico, fechaNacimiento } = req.body;
+  if (nombre !== undefined) db.prepare('UPDATE Menores SET Nombre = ? WHERE Id = ?').run(nombre.trim(), menor.Id);
+  if (diagnostico !== undefined) db.prepare('UPDATE Menores SET Diagnostico = ? WHERE Id = ?').run(diagnostico || null, menor.Id);
+  if (fechaNacimiento !== undefined) db.prepare('UPDATE Menores SET FechaNacimiento = ? WHERE Id = ?').run(fechaNacimiento || null, menor.Id);
+  audit(userId, 'editar_menor', 'Menores', menor.Id, nombre?.trim() || menor.Nombre);
+  res.json({ success: true });
+});
+
+// Obtener citas/entrevistas agendadas por la familia
+router.get('/citas', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+
+  const rows = db.prepare(`
+    SELECT c.Id, c.FechaCita, c.HoraCita, c.Modalidad, c.Estado, c.DuracionMinutos,
+           cu.Id AS CuidadoraId, u.Nombres AS CuidadoraNombres, u.Apellidos AS CuidadoraApellidos
+    FROM Citas c
+    INNER JOIN Cuidadoras cu ON cu.Id = c.IdCuidadora
+    INNER JOIN Usuarios u ON u.Id = cu.IdUsuario
+    WHERE c.IdUsuarioFamilia = ?
+    ORDER BY c.FechaCita DESC
+  `).all(userId);
+
+  res.json(rows);
+});
+
 // Agendar entrevista virtual con cuidadora
 router.post('/agendar-entrevista', (req, res) => {
   const db = getDb();
