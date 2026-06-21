@@ -368,10 +368,11 @@ export function AdminPostulaciones() {
             ];
             if (selectedPost.Estado === 'Aprobada') {
               docs.forEach(d => { d.estado = 'verificado'; });
-            } else if (selectedPost.Estado === 'Rechazada' && selectedPost.DocumentosRechazados?.length) {
+            } else if (selectedPost.Estado === 'Rechazada') {
               docs.forEach(d => {
-                const match = selectedPost.DocumentosRechazados!.find(r => r.nombre === d.nombre);
+                const match = selectedPost.DocumentosRechazados?.find(r => r.nombre === d.nombre);
                 if (match) { d.estado = 'rechazado'; d.motivoRechazo = match.motivo; }
+                else { d.estado = 'verificado'; }
               });
             }
             return docs;
