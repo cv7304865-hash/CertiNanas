@@ -136,10 +136,14 @@ export function AdminPostulaciones() {
     }
   };
 
-  const handleRechazar = async (id: number) => {
-    const r = await fetch(`/api/admin/postulaciones/${id}/rechazar`, { method: 'POST', headers });
+  const handleRechazar = async (id: number, motivo: string, listaNegra: boolean) => {
+    const r = await fetch(`/api/admin/postulaciones/${id}/rechazar`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ motivo, listaNegra }),
+    });
     if (r.ok) {
-      setPostulaciones(prev => prev.map(p => p.Id === id ? { ...p, Estado: 'Rechazada' } : p));
+      setPostulaciones(prev => prev.map(p => p.Id === id ? { ...p, Estado: 'Rechazada', MotivoRechazo: motivo } : p));
       setShowDetailModal(false);
     }
   };

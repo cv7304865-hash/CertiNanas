@@ -8,6 +8,7 @@ type DocumentoVerificacion = {
   nombre: string;
   estado: 'por verificar' | 'verificado' | 'rechazado';
   archivo?: string;
+  motivoRechazo?: string;
 };
 
 type PostulanteData = {
@@ -29,7 +30,7 @@ type PostulacionDetailModalProps = {
   onClose: () => void;
   postulante: PostulanteData | null;
   onAprobar: (id: number) => void;
-  onRechazar: (id: number) => void;
+  onRechazar: (id: number, motivo: string, listaNegra: boolean) => void;
 };
 
 const defaultPostulante: PostulanteData = {
@@ -56,14 +57,17 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
   const progressPct = Math.min((data.horasTranscurridas / data.horasMaximas) * 100, 100);
   const [previewDoc, setPreviewDoc] = useState<string | null>(null);
   const [documentosState, setDocumentosState] = useState<DocumentoVerificacion[]>(data.documentos);
+  const [showRechazoForm, setShowRechazoForm] = useState(false);
+  const [motivoRechazoInput, setMotivoRechazoInput] = useState('');
+  const [listaNegra, setListaNegra] = useState(false);
   const allVerified = documentosState.every(d => d.estado === 'verificado');
 
   const handleDocVerificar = (docName: string) => {
     setDocumentosState(prev => prev.map(d => d.nombre === docName ? { ...d, estado: 'verificado' as const } : d));
   };
 
-  const handleDocMarcarInvalido = (docName: string) => {
-    setDocumentosState(prev => prev.map(d => d.nombre === docName ? { ...d, estado: 'rechazado' as const } : d));
+  const handleDocMarcarInvalido = (docName: string, motivo: string) => {
+    setDocumentosState(prev => prev.map(d => d.nombre === docName ? { ...d, estado: 'rechazado' as const, motivoRechazo: motivo } : d));
   };
 
   return (
@@ -151,15 +155,20 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
                         <FileText className="w-4 h-4 text-[#6667AB]" />
                       </div>
                       <span className="flex-1 text-sm font-medium text-[#F5D5E0]">{doc.nombre}</span>
-                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                        doc.estado === 'por verificar'
-                          ? 'bg-[#F5D5E0] text-[#210635]'
-                          : doc.estado === 'verificado'
-                          ? 'bg-[#cc8db3]/20 text-[#cc8db3]'
-                          : 'bg-[#D14242]/20 text-[#D14242]'
-                      }`}>
-                        {doc.estado === 'por verificar' ? 'Por verificar' : doc.estado === 'verificado' ? 'Verificado' : 'Rechazado'}
-                      </span>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          doc.estado === 'por verificar'
+                            ? 'bg-[#F5D5E0] text-[#210635]'
+                            : doc.estado === 'verificado'
+                            ? 'bg-[#cc8db3]/20 text-[#cc8db3]'
+                            : 'bg-[#D14242]/20 text-[#D14242]'
+                        }`}>
+                          {doc.estado === 'por verificar' ? 'Por verificar' : doc.estado === 'verificado' ? 'Verificado' : 'Rechazado'}
+                        </span>
+                        {doc.estado === 'rechazado' && doc.motivoRechazo && (
+                          <span className="text-[9px] text-[#D14242]/80 text-right max-w-[140px] leading-tight">{doc.motivoRechazo}</span>
+                        )}
+                      </div>
                       <button
                         onClick={() => setPreviewDoc(doc.nombre)}
                         className="px-3 py-1 rounded-full bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.18)] text-white text-xs font-medium transition-colors flex items-center gap-1"
@@ -187,6 +196,49 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
                 </div>
               </div>
 
+              {/* Rejection reason form */}
+              {showRechazoForm && (
+                <div className="bg-[rgba(209,66,66,0.1)] border border-[#D14242]/30 rounded-2xl p-4 space-y-3">
+                  <h4 className="text-sm font-bold text-[#D14242] flex items-center gap-1.5">
+                    <AlertTriangle className="w-4 h-4" /> Motivo de rechazo
+                  </h4>
+                  <textarea
+                    value={motivoRechazoInput}
+                    onChange={e => setMotivoRechazoInput(e.target.value)}
+                    placeholder="Ej: No se encuentra capacitada, documentos vencidos, no cumple con los requisitos..."
+                    className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.1)] rounded-xl px-3 py-2 text-sm text-white placeholder-[#6667AB] resize-none focus:outline-none focus:border-[#D14242] transition-colors min-h-[70px]"
+                  />
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={listaNegra}
+                      onChange={e => setListaNegra(e.target.checked)}
+                      className="w-4 h-4 rounded border-[rgba(255,255,255,0.2)] bg-[rgba(255,255,255,0.06)] accent-[#D14242]"
+                    />
+                    <span className="text-sm text-[#F5D5E0]">Agregar a lista negra (no podrá volver a postular)</span>
+                  </label>
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      onClick={() => { setShowRechazoForm(false); setMotivoRechazoInput(''); setListaNegra(false); }}
+                      className="px-3 py-1.5 text-xs font-semibold text-[#F5D5E0]/70 hover:text-[#F5D5E0] transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={() => { onRechazar(data.id, motivoRechazoInput, listaNegra); setShowRechazoForm(false); setMotivoRechazoInput(''); setListaNegra(false); }}
+                      disabled={!motivoRechazoInput.trim()}
+                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                        motivoRechazoInput.trim()
+                          ? 'bg-[#D14242] hover:bg-[#D14242]/80 text-white'
+                          : 'bg-[rgba(255,255,255,0.08)] text-[#6667AB] cursor-not-allowed'
+                      }`}
+                    >
+                      Confirmar rechazo
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Action buttons */}
               <div className="flex items-center justify-end gap-3 pt-2 border-t border-[rgba(255,255,255,0.08)]">
                 <button
@@ -196,7 +248,7 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
                   Cancelar
                 </button>
                 <button
-                  onClick={() => onRechazar(data.id)}
+                  onClick={() => setShowRechazoForm(!showRechazoForm)}
                   className="px-5 py-2 rounded-xl bg-[#D14242] hover:bg-[#D14242]/80 text-white text-sm font-bold transition-colors"
                 >
                   Rechazar
