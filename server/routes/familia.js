@@ -147,6 +147,38 @@ router.post('/orden/:id/confirmar-finalizacion', (req, res) => {
   res.json({ success: true });
 });
 
+// CRUD de menores (hijos de la familia)
+router.get('/menores', (req, res) => {
+  const db = getDb();
+  const userId = req.headers['x-user-id'];
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+  const rows = db.prepare('SELECT * FROM Menores WHERE IdUsuarioFamilia = ? ORDER BY FechaCreacion DESC').all(Number(userId));
+  res.json(rows);
+});
+
+router.post('/menores', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+  const { nombre, diagnostico, fechaNacimiento } = req.body;
+  if (!nombre?.trim()) return res.status(400).json({ error: 'Nombre es requerido' });
+  const r = db.prepare('INSERT INTO Menores (IdUsuarioFamilia, Nombre, Diagnostico, FechaNacimiento) VALUES (?, ?, ?, ?)').run(userId, nombre.trim(), diagnostico || null, fechaNacimiento || null);
+  audit(userId, 'crear_menor', 'Menores', r.lastInsertRowid, nombre.trim());
+  const menor = db.prepare('SELECT * FROM Menores WHERE Id = ?').get(r.lastInsertRowid);
+  res.status(201).json(menor);
+});
+
+router.delete('/menores/:id', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+  const menor = db.prepare('SELECT * FROM Menores WHERE Id = ? AND IdUsuarioFamilia = ?').get(Number(req.params.id), userId);
+  if (!menor) return res.status(404).json({ error: 'Menor no encontrado' });
+  db.prepare('DELETE FROM Menores WHERE Id = ?').run(menor.Id);
+  audit(userId, 'eliminar_menor', 'Menores', menor.Id, menor.Nombre);
+  res.json({ success: true });
+});
+
 // Agendar entrevista virtual con cuidadora
 router.post('/agendar-entrevista', (req, res) => {
   const db = getDb();

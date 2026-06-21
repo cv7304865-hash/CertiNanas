@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { LogOut, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
+import { MinorsSection } from './MinorsSection';
 
 type Solicitud = {
   Id: number; FechaServicio: string; TotalHoras: number; TarifaHora: number;
@@ -77,75 +78,79 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-white mb-6">Mis solicitudes de servicio</h1>
+      <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+        <MinorsSection />
 
-        {loading ? (
-          <p className="text-[#6667AB] text-sm">Cargando...</p>
-        ) : solicitudes.length === 0 ? (
-          <div className="text-center py-16">
-            <Search className="w-12 h-12 text-[#6667AB] mx-auto mb-3" />
-            <p className="text-[#6667AB]">No tienes solicitudes de servicio aún.</p>
-          </div>
-        ) : (
-          <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-[rgba(33,6,53,0.4)] border-b border-[rgba(255,255,255,0.1)]">
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Cuidadora</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Menor</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Fecha</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Horario</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Monto</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Estado</th>
-                    <th className="text-right px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Acción</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {solicitudes.map((s, i) => (
-                    <motion.tr
-                      key={s.Id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="border-b border-[rgba(255,255,255,0.1)] transition-colors hover:bg-[rgba(33,6,53,0.3)]"
-                    >
-                      <td className="px-6 py-4">
-                        <span className="font-semibold text-white">{s.CuidadoraNombres} {s.CuidadoraApellidos?.charAt(0)}.</span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#F5D5E0]/70">
-                        {s.MenorNombre}
-                        {s.MenorDiagnostico && <span className="text-[#6667AB]"> ({s.MenorDiagnostico})</span>}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#F5D5E0]/70">{formatFecha(s.FechaServicio)}</td>
-                      <td className="px-6 py-4 text-sm text-[#F5D5E0]/70 font-mono">{s.HoraInicio || '--'}-{s.HoraFin || '--'}</td>
-                      <td className="px-6 py-4 text-sm font-semibold text-white">S/ {s.Total.toFixed(2)}</td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${badgeClass[s.Estado] || 'bg-[#f6a5c0] text-white'}`}>
-                          {statusLabel[s.Estado] || s.Estado}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {s.Estado === 'Finalizada' && (
-                            <button onClick={() => onReview?.(s.Id)}
-                              className="text-xs font-semibold text-[#F5D5E0]/70 hover:text-white transition-colors">
-                              Evaluar
-                            </button>
-                          )}
-                          <button onClick={() => onViewContract?.(s.Id)}
-                            className="text-xs font-semibold text-[#F6A5C0] hover:text-[#CC8DB3] transition-colors">
-                            Ver contrato
-                          </button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
+        <section>
+          <h1 className="text-2xl font-bold text-white mb-6">Mis solicitudes de servicio</h1>
+
+          {loading ? (
+            <p className="text-[#6667AB] text-sm">Cargando...</p>
+          ) : solicitudes.length === 0 ? (
+            <div className="text-center py-16">
+              <Search className="w-12 h-12 text-[#6667AB] mx-auto mb-3" />
+              <p className="text-[#6667AB]">No tienes solicitudes de servicio aún.</p>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-[rgba(33,6,53,0.4)] border-b border-[rgba(255,255,255,0.1)]">
+                      <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Cuidadora</th>
+                      <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Menor</th>
+                      <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Fecha</th>
+                      <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Horario</th>
+                      <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Monto</th>
+                      <th className="text-left px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Estado</th>
+                      <th className="text-right px-6 py-4 text-xs font-semibold text-[#6667AB] uppercase tracking-wider">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {solicitudes.map((s) => (
+                      <motion.tr
+                        key={s.Id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="border-b border-[rgba(255,255,255,0.1)] transition-colors hover:bg-[rgba(33,6,53,0.3)]"
+                      >
+                        <td className="px-6 py-4">
+                          <span className="font-semibold text-white">{s.CuidadoraNombres} {s.CuidadoraApellidos?.charAt(0)}.</span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#F5D5E0]/70">
+                          {s.MenorNombre}
+                          {s.MenorDiagnostico && <span className="text-[#6667AB]"> ({s.MenorDiagnostico})</span>}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#F5D5E0]/70">{formatFecha(s.FechaServicio)}</td>
+                        <td className="px-6 py-4 text-sm text-[#F5D5E0]/70 font-mono">{s.HoraInicio || '--'}-{s.HoraFin || '--'}</td>
+                        <td className="px-6 py-4 text-sm font-semibold text-white">S/ {s.Total.toFixed(2)}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${badgeClass[s.Estado] || 'bg-[#f6a5c0] text-white'}`}>
+                            {statusLabel[s.Estado] || s.Estado}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {s.Estado === 'Finalizada' && (
+                              <button onClick={() => onReview?.(s.Id)}
+                                className="text-xs font-semibold text-[#F5D5E0]/70 hover:text-white transition-colors">
+                                Evaluar
+                              </button>
+                            )}
+                            <button onClick={() => onViewContract?.(s.Id)}
+                              className="text-xs font-semibold text-[#F6A5C0] hover:text-[#CC8DB3] transition-colors">
+                              Ver contrato
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );
