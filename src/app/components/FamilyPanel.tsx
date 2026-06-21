@@ -1,10 +1,11 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { LogOut, Search, MessageSquare, CheckCircle, XCircle, DollarSign, Clock, ListTodo } from 'lucide-react';
+import { LogOut, Search, MessageSquare, CheckCircle, XCircle, DollarSign, Clock, ListTodo, Send } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 import { MinorsSection } from './MinorsSection';
 import { ChecklistTareas } from './ChecklistTareas';
+import { CrearSolicitud } from './CrearSolicitud';
 
 type Solicitud = {
   Id: number; FechaServicio: string; TotalHoras: number; TarifaHora: number;
@@ -68,6 +69,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
   const [counterForm, setCounterForm] = useState({ tarifaHora: 0, totalHoras: 0, horaInicio: '', horaFin: '', mensaje: '' });
   const [showCounter, setShowCounter] = useState(false);
   const [tareasModal, setTareasModal] = useState<{ open: boolean; ordenId: number; tareasIds: number[] }>({ open: false, ordenId: 0, tareasIds: [] });
+  const [showCreate, setShowCreate] = useState(false);
 
   const headers = { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) };
 
@@ -152,8 +154,20 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
         <MinorsSection />
 
+        {showCreate ? (
+          <CrearSolicitud onBack={() => setShowCreate(false)} onSuccess={() => {
+            setShowCreate(false);
+            fetch('/api/familia/solicitudes', { headers })
+              .then(r => r.json()).then(data => setSolicitudes(data));
+          }} />
+        ) : (
         <section>
-          <h1 className="text-2xl font-bold text-white mb-6">Mis solicitudes de servicio</h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-white">Mis solicitudes de servicio</h1>
+            <button onClick={() => setShowCreate(true)}
+              className="px-4 py-2 rounded-xl bg-[#F6A5C0] text-[#210635] text-xs font-bold hover:bg-[#F6A5C0]/80 transition-all flex items-center gap-1"
+            ><Send className="w-3.5 h-3.5" /> Nueva solicitud</button>
+          </div>
 
           {loading ? (
             <p className="text-[#6667AB] text-sm">Cargando...</p>
@@ -244,6 +258,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
             </div>
           )}
         </section>
+        )}
       </div>
 
       {/* Negotiation response dialog */}

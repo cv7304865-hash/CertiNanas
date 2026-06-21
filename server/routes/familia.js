@@ -230,4 +230,78 @@ router.post('/agendar-entrevista', (req, res) => {
   res.json({ success: true, message: 'Entrevista agendada correctamente. El enlace se ha enviado a los mensajes.' });
 });
 
+// GET /api/familia/cuidadoras-disponibles — lista de cuidadoras con quienes ya conversó (o todas las disponibles)
+router.get('/cuidadoras-disponibles', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+
+  const rows = db.prepare(`
+    SELECT DISTINCT c.Id, u.Nombres, u.Apellidos, c.TarifaHora, c.CalificacionPromedio, c.TotalResenas,
+           (SELECT GROUP_CONCAT(e.Nombre, ' · ') FROM CuidadoraEspecialidades ce INNER JOIN Especialidades e ON e.Id = ce.IdEspecialidad WHERE ce.IdCuidadora = c.Id) AS Especialidades
+    FROM Cuidadoras c
+    INNER JOIN Usuarios u ON u.Id = c.IdUsuario
+    LEFT JOIN Conversaciones cv ON cv.IdCuidadora = c.Id AND cv.IdUsuarioFamilia = ?
+    WHERE c.Disponible = 1 AND u.Activo = 1 AND u.Suspendido = 0
+    ORDER BY cv.Id IS NOT NULL DESC, c.CalificacionPromedio DESC
+  `).all(userId);
+  res.json(rows);
+});
+
+// POST /api/familia/crear-solicitud — crear orden directamente desde el panel familia
+router.post('/crear-solicitud', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+
+  const { idCuidadora, idMenor, fechaServicio, horaInicio, horaFin, totalHoras, tareaIds, observaciones } = req.body;
+  if (!idCuidadora || !fechaServicio) {
+    return res.status(400).json({ error: 'idCuidadora y fechaServicio son requeridos' });
+  }
+
+  const cuidadora = db.prepare('SELECT TarifaHora FROM Cuidadoras WHERE Id = ?').get(idCuidadora);
+  if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
+
+  const tarifa = cuidadora.TarifaHora;
+  const horas = totalHoras || 4;
+  const subtotal = +(tarifa * horas).toFixed(2);
+  const plataforma = +(subtotal * 0.15).toFixed(2);
+  const total = +(subtotal + plataforma).toFixed(2);
+  const hInicio = horaInicio || '08:00';
+  const hFin = horaFin || '12:00';
+
+  const ordenId = db.transaction(() => {
+    const r = db.prepare(`INSERT INTO Ordenes (IdCuidadora, IdUsuarioFamilia, TipoServicio, FechaServicio, TotalHoras, TarifaHora, Subtotal, TarifaPlataforma, Total, Estado, FechaCreacion, IdMenor, HoraInicio, HoraFin)
+      VALUES (?, ?, 'Cuidado domiciliario', ?, ?, ?, ?, ?, ?, 'Pendiente', datetime('now'), ?, ?, ?)`)
+      .run(idCuidadora, userId, fechaServicio, horas, tarifa, subtotal, plataforma, total, idMenor || null, hInicio, hFin);
+
+    const newId = r.lastInsertRowid;
+
+    // Guardar tareas seleccionadas
+    if (tareaIds && Array.isArray(tareaIds) && tareaIds.length > 0) {
+      const stmt = db.prepare('INSERT INTO OrdenTareas (IdOrden, IdTarea) VALUES (?, ?)');
+      for (const id of tareaIds) stmt.run(newId, id);
+    }
+
+    // Insertar observaciones como notación interna (usando campo Descripcion de Ordenes? No existe, lo guardamos como auditoria)
+    if (observaciones) {
+      audit(userId, 'observaciones_solicitud', 'Ordenes', newId, observaciones);
+    }
+
+    // Buscar o crear conversacion para notificar a la cuidadora
+    let conv = db.prepare('SELECT Id FROM Conversaciones WHERE IdCuidadora = ? AND IdUsuarioFamilia = ?').get(idCuidadora, userId);
+    if (!conv) {
+      const cr = db.prepare('INSERT INTO Conversaciones (IdCuidadora, IdUsuarioFamilia) VALUES (?, ?)').run(idCuidadora, userId);
+      conv = { Id: cr.lastInsertRowid };
+    }
+    const cuidadoraUser = db.prepare('SELECT IdUsuario FROM Cuidadoras WHERE Id = ?').get(idCuidadora);
+    db.prepare(`INSERT INTO Mensajes (IdConversacion, IdRemitente, Contenido, Leido) VALUES (?, ?, ?, 0)`)
+      .run(conv.Id, userId, `📄 Se ha generado una nueva solicitud de servicio. Revisa la sección Solicitudes para más detalles.`);
+
+    return newId;
+  })();
+
+  res.json({ success: true, ordenId });
+});
+
 export default router;
