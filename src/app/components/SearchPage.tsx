@@ -446,7 +446,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                 </div>
               </button>
 
-              <button onClick={() => { localStorage.setItem('preselectCuidadoraId', String(showOptions.Id)); setShowOptions(null); onNavigate?.('familia'); }}
+              <button onClick={() => { localStorage.setItem('preselectCuidadoraId', String(showOptions.Id)); localStorage.setItem('showCreateSolicitud', 'true'); setShowOptions(null); onNavigate?.('familia'); }}
                 className="w-full flex items-center gap-4 px-5 py-4 rounded-xl bg-[rgba(33,6,53,0.4)] border border-[rgba(255,255,255,0.08)] hover:border-[#F6A5C0]/50 hover:bg-[rgba(246,165,192,0.05)] transition-all text-left"
               >
                 <div className="w-10 h-10 rounded-full bg-[rgba(246,165,192,0.15)] flex items-center justify-center shrink-0">

@@ -78,6 +78,10 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
       .then(r => r.json())
       .then(data => { setSolicitudes(data); setLoading(false); })
       .catch(() => setLoading(false));
+    if (localStorage.getItem('showCreateSolicitud') === 'true') {
+      localStorage.removeItem('showCreateSolicitud');
+      setShowCreate(true);
+    }
   }, []);
 
   const loadPropuestas = async (ordenId: number) => {
