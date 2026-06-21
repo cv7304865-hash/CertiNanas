@@ -1,139 +1,294 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ArrowLeft, Info, CheckCircle, XCircle } from 'lucide-react';
-import { useState } from 'react';
 
-const documentTemplates: Record<string, { title: string; render: () => React.ReactNode }> = {
-  'DNI': {
-    title: 'Vista previa - DNI',
-    render: () => (
-      <div className="bg-white rounded-2xl overflow-hidden shadow-xl shadow-black/40 max-w-md mx-auto">
-        <div className="bg-gradient-to-r from-[#1a1a2e] to-[#16213e] p-3 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#C4A747] flex items-center justify-center text-[#1a1a2e] text-xs font-bold">PE</div>
-          <div>
-            <p className="text-white text-xs font-bold tracking-wider">REPÚBLICA DEL PERÚ</p>
-            <p className="text-[#C4A747] text-[10px] font-bold">Documento Nacional de Identidad</p>
-          </div>
+// ─── DNI ───────────────────────────────────────
+const DniTemplate = () => (
+  <div className="bg-white rounded-xl overflow-hidden shadow-xl shadow-black/40 max-w-sm mx-auto border border-gray-200">
+    {/* Top band */}
+    <div className="bg-gradient-to-r from-[#0B1D3A] via-[#1A3A6B] to-[#0B1D3A] px-4 py-2.5 flex items-center gap-2.5">
+      <div className="w-7 h-7 rounded-full border-2 border-[#C4A747] flex items-center justify-center">
+        <span className="text-[#C4A747] text-[9px] font-bold">RP</span>
+      </div>
+      <div className="border-l border-[rgba(255,255,255,0.2)] pl-2.5">
+        <p className="text-white text-[10px] font-bold tracking-[0.15em]">REPÚBLICA DEL PERÚ</p>
+        <p className="text-[#8BA4C7] text-[8px] font-semibold">Documento Nacional de Identidad</p>
+      </div>
+    </div>
+
+    {/* Body */}
+    <div className="p-4 flex gap-3">
+      {/* Photo */}
+      <div className="w-[88px] h-[104px] bg-[#F0F2F5] border border-gray-300 rounded flex flex-col items-center justify-center flex-shrink-0 overflow-hidden">
+        <div className="w-12 h-12 rounded-full bg-[#CC8DB3] flex items-center justify-center text-white font-bold text-lg">LR</div>
+        <p className="text-[6px] text-gray-400 mt-1">FOTO</p>
+      </div>
+
+      {/* Fields */}
+      <div className="flex-1 space-y-1.5">
+        <div className="border-b border-gray-100 pb-1">
+          <span className="text-[7px] text-gray-400 font-semibold tracking-wide">APELLIDOS</span>
+          <p className="text-[11px] font-bold text-[#1a1a2e] leading-tight">RAMIREZ GARCIA</p>
         </div>
-        <div className="p-5 space-y-3">
-          <div className="flex gap-4">
-            <div className="w-24 h-28 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-[10px]">FOTO</div>
-            <div className="flex-1 space-y-2">
-              <div><span className="text-[10px] text-gray-500 font-semibold">APELLIDOS</span><p className="text-sm font-bold text-gray-900">RAMIREZ GARCIA</p></div>
-              <div><span className="text-[10px] text-gray-500 font-semibold">NOMBRES</span><p className="text-sm font-bold text-gray-900">LUCIA FERNANDA</p></div>
-              <div><span className="text-[10px] text-gray-500 font-semibold">DNI</span><p className="text-sm font-bold text-gray-900">48 765 321</p></div>
-            </div>
+        <div className="border-b border-gray-100 pb-1">
+          <span className="text-[7px] text-gray-400 font-semibold tracking-wide">NOMBRES</span>
+          <p className="text-[11px] font-bold text-[#1a1a2e] leading-tight">LUCIA FERNANDA</p>
+        </div>
+        <div className="border-b border-gray-100 pb-1">
+          <span className="text-[7px] text-gray-400 font-semibold tracking-wide">DNI</span>
+          <p className="text-[13px] font-extrabold text-[#1a1a2e] tracking-widest">48 765 321</p>
+        </div>
+        <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 pt-0.5">
+          <div>
+            <span className="text-[7px] text-gray-400 font-semibold tracking-wide">FECHA NAC.</span>
+            <p className="text-[9px] font-bold text-gray-700">15/03/1992</p>
           </div>
-          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
-            <div><span className="text-[10px] text-gray-500 font-semibold">FECHA NAC.</span><p className="text-xs font-semibold text-gray-800">15/03/1992</p></div>
-            <div><span className="text-[10px] text-gray-500 font-semibold">SEXO</span><p className="text-xs font-semibold text-gray-800">F</p></div>
-            <div><span className="text-[10px] text-gray-500 font-semibold">EST.CIVIL</span><p className="text-xs font-semibold text-gray-800">SOLTERA</p></div>
-            <div><span className="text-[10px] text-gray-500 font-semibold">GRUPO SANG.</span><p className="text-xs font-semibold text-gray-800">O+</p></div>
-          </div>
-          <div className="pt-2 border-t border-gray-100">
-            <span className="text-[10px] text-gray-500 font-semibold">FECHA EMISIÓN</span>
-            <p className="text-xs text-gray-700">15/06/2018</p>
+          <div>
+            <span className="text-[7px] text-gray-400 font-semibold tracking-wide">SEXO</span>
+            <p className="text-[9px] font-bold text-gray-700">F</p>
           </div>
         </div>
       </div>
-    ),
-  },
-  'Antecedentes penales': {
-    title: 'Vista previa - Antecedentes penales',
-    render: () => (
-      <div className="bg-white rounded-2xl overflow-hidden shadow-xl shadow-black/40 max-w-md mx-auto">
-        <div className="bg-[#1B3A5C] p-3 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#C4A747] flex items-center justify-center text-white text-xs font-bold">PJ</div>
-          <div>
-            <p className="text-white text-xs font-bold tracking-wider">PODER JUDICIAL DEL PERÚ</p>
-            <p className="text-[#8DB4D6] text-[10px] font-medium">Registro de Antecedentes Penales</p>
-          </div>
-        </div>
-        <div className="p-5 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div><span className="text-[10px] text-gray-500 font-semibold">APELLIDOS</span><p className="text-sm font-bold text-gray-900">RAMIREZ GARCIA</p></div>
-            <div><span className="text-[10px] text-gray-500 font-semibold">NOMBRES</span><p className="text-sm font-bold text-gray-900">LUCIA FERNANDA</p></div>
-            <div><span className="text-[10px] text-gray-500 font-semibold">DNI</span><p className="text-sm font-bold text-gray-900">48 765 321</p></div>
-            <div><span className="text-[10px] text-gray-500 font-semibold">FECHA CONSULTA</span><p className="text-xs font-semibold text-gray-800">18/06/2026</p></div>
-          </div>
-          <div className="bg-[#E8F5E9] border-2 border-[#4CAF50] rounded-xl p-4 text-center">
-            <CheckCircle className="w-8 h-8 text-[#4CAF50] mx-auto mb-1" />
-            <p className="text-sm font-extrabold text-[#2E7D32] tracking-wide">NO REGISTRA ANTECEDENTES PENALES</p>
-            <p className="text-[10px] text-[#558B2F] mt-1">Certificado válido para fines legales</p>
-          </div>
-          <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
-            <div className="w-1 h-1 rounded-full bg-gray-300" />
-            <span className="text-[10px] text-gray-400">Código de verificación: RAP-2026-48-765-321</span>
-          </div>
-        </div>
-      </div>
-    ),
-  },
-  'Certificado de salud': {
-    title: 'Vista previa - Certificado de salud',
-    render: () => (
-      <div className="bg-white rounded-2xl overflow-hidden shadow-xl shadow-black/40 max-w-md mx-auto">
-        <div className="bg-[#1B6B3A] p-3 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#1B6B3A] text-xs font-bold">MS</div>
-          <div>
-            <p className="text-white text-xs font-bold tracking-wider">MINISTERIO DE SALUD - MINSA</p>
-            <p className="text-[#A5D6A7] text-[10px] font-medium">Certificado de Salud para Cuidado Infantil</p>
-          </div>
-        </div>
-        <div className="p-5 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div><span className="text-[10px] text-gray-500 font-semibold">APELLIDOS</span><p className="text-sm font-bold text-gray-900">RAMIREZ GARCIA</p></div>
-            <div><span className="text-[10px] text-gray-500 font-semibold">NOMBRES</span><p className="text-sm font-bold text-gray-900">LUCIA FERNANDA</p></div>
-            <div><span className="text-[10px] text-gray-500 font-semibold">DNI</span><p className="text-sm font-bold text-gray-900">48 765 321</p></div>
-            <div><span className="text-[10px] text-gray-500 font-semibold">FECHA EMISIÓN</span><p className="text-xs font-semibold text-gray-800">10/06/2026</p></div>
-          </div>
-          <div className="space-y-1.5 pt-2 border-t border-gray-100">
-            {['Examen físico general: ✅ Normal', 'Evaluación psicológica: ✅ Normal', 'Vacunación completa: ✅ Sí'].map((item, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs text-gray-700">
-                <CheckCircle className="w-3.5 h-3.5 text-[#4CAF50]" />
-                <span>{item}</span>
-              </div>
+    </div>
+
+    {/* Bottom row */}
+    <div className="bg-gray-50 px-4 py-2 border-t border-gray-200 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <div className="w-[52px] h-[18px] bg-[rgba(0,0,0,0.06)] rounded flex items-center justify-center">
+          <div className="flex gap-[1px]">
+            {[...Array(20)].map((_, i) => (
+              <div key={i} className="w-[1.5px] h-[10px] bg-gray-400" style={{ opacity: 0.3 + (i % 5) * 0.15 }} />
             ))}
           </div>
-          <div className="bg-[#E8F5E9] border border-[#4CAF50] rounded-xl p-3 text-center mt-2">
-            <p className="text-sm font-extrabold text-[#2E7D32] tracking-wide">APTO PARA CUIDADO INFANTIL</p>
-            <p className="text-[10px] text-[#558B2F] mt-0.5">Válido por 12 meses desde fecha de emisión</p>
+        </div>
+        <span className="text-[6px] text-gray-400 font-mono tracking-wider">IDPER-48765321</span>
+      </div>
+      <div className="flex items-center gap-1">
+        <div className="w-6 h-4 rounded bg-gradient-to-br from-[#C4A747] to-[#8B6914] opacity-60" />
+        <span className="text-[6px] text-gray-400">OCR</span>
+      </div>
+    </div>
+  </div>
+);
+
+// ─── ANTECEDENTES PENALES ──────────────────────
+const AntecedentesTemplate = () => (
+  <div className="bg-white rounded-xl overflow-hidden shadow-xl shadow-black/40 max-w-sm mx-auto border border-gray-200">
+    {/* Header */}
+    <div className="bg-[#0D2B4E] px-4 py-3 flex items-center gap-3">
+      <svg viewBox="0 0 28 28" className="w-7 h-7 flex-shrink-0"><circle cx="14" cy="14" r="13" fill="none" stroke="#C4A747" strokeWidth="1.5"/><path d="M14 6 L18 12 L14 18 L10 12Z" fill="#C4A747"/></svg>
+      <div>
+        <p className="text-white text-[11px] font-bold tracking-wider">PODER JUDICIAL DEL PERÚ</p>
+        <p className="text-[#7BA3C7] text-[8px] font-medium">Corte Suprema de Justicia — Registro Nacional</p>
+      </div>
+    </div>
+
+    {/* Content */}
+    <div className="p-4 space-y-3">
+      {/* Data grid */}
+      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 bg-gray-50 rounded-lg p-3 border border-gray-100">
+        {[
+          ['APELLIDOS', 'RAMIREZ GARCIA'],
+          ['NOMBRES', 'LUCIA FERNANDA'],
+          ['DNI', '48 765 321'],
+          ['FECHA CONSULTA', '18/06/2026'],
+          ['N° CERTIFICADO', 'RAP-2026-0487-321'],
+        ].map(([l, v]) => (
+          <div key={l}>
+            <span className="text-[7px] text-gray-400 font-semibold tracking-wide">{l}</span>
+            <p className="text-[10px] font-bold text-gray-900">{v}</p>
+          </div>
+        ))}
+        <div className="col-span-2">
+          <span className="text-[7px] text-gray-400 font-semibold tracking-wide">FINALIDAD</span>
+          <p className="text-[9px] text-gray-700">Evaluación para cuidado infantil — CertiNanas</p>
+        </div>
+      </div>
+
+      {/* Result seal */}
+      <div className="border-2 border-[#1B5E20] rounded-xl bg-gradient-to-b from-[#E8F5E9] to-[#C8E6C9] p-3 text-center relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.04]">
+          <div className="w-full h-full" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 8px, #000 8px, #000 9px)' }} />
+        </div>
+        <CheckCircle className="w-7 h-7 text-[#2E7D32] mx-auto mb-1" />
+        <p className="text-[11px] font-extrabold text-[#1B5E20] tracking-wider">NO REGISTRA ANTECEDENTES PENALES</p>
+        <p className="text-[8px] text-[#558B2F] mt-0.5">Certificado válido para fines legales y administrativos</p>
+        <div className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[rgba(27,94,32,0.12)]">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#2E7D32] animate-pulse" />
+          <span className="text-[7px] font-bold text-[#2E7D32] tracking-wider">VERIFICADO</span>
+        </div>
+      </div>
+
+      {/* Security footer */}
+      <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+        <div className="flex items-center gap-1.5">
+          <svg width="40" height="14" viewBox="0 0 40 14"><rect x="0" y="0" width="40" height="14" fill="none" stroke="#ccc" strokeWidth="0.5"/><line x1="2" y1="7" x2="38" y2="7" stroke="#ddd" strokeWidth="0.5"/><text x="20" y="10" fontSize="4" fill="#bbb" textAnchor="middle" fontFamily="monospace">RAP-2026-0487-321</text></svg>
+          <span className="text-[6px] text-gray-400 font-mono tracking-wider">VER: rap.pj.gob.pe/0487-321</span>
+        </div>
+        <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center">
+          <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
+            <div className="w-2 h-2 rounded-full bg-gray-300" />
           </div>
         </div>
       </div>
-    ),
-  },
-  'Título profesional': {
-    title: 'Vista previa - Título profesional',
-    render: () => (
-      <div className="bg-white rounded-2xl overflow-hidden shadow-xl shadow-black/40 max-w-md mx-auto">
-        <div className="bg-gradient-to-r from-[#8B4513] via-[#C4A747] to-[#8B4513] p-0.5">
-          <div className="bg-white px-4 py-2 flex items-center justify-between">
-            <div className="w-10 h-10 rounded-full bg-[#8B4513] flex items-center justify-center text-[#C4A747] text-lg font-bold">U</div>
-            <div className="text-center">
-              <p className="text-xs font-extrabold text-[#8B4513] tracking-wider">UNIVERSIDAD CÉSAR VALLEJO</p>
-              <p className="text-[9px] text-gray-500 font-medium">Licenciatura en Educación Especial</p>
+    </div>
+  </div>
+);
+
+// ─── CERTIFICADO DE SALUD ──────────────────────
+const SaludTemplate = () => (
+  <div className="bg-white rounded-xl overflow-hidden shadow-xl shadow-black/40 max-w-sm mx-auto border border-gray-200">
+    {/* Header */}
+    <div className="bg-gradient-to-r from-[#0D4F2B] to-[#1B7A42] px-4 py-3 flex items-center gap-3">
+      <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0">
+        <span className="text-[#0D4F2B] text-[8px] font-black">MS</span>
+      </div>
+      <div>
+        <p className="text-white text-[10px] font-bold tracking-wider">MINISTERIO DE SALUD - MINSA</p>
+        <p className="text-[#7CCD94] text-[8px] font-medium">Dirección General de Salud Ambiental</p>
+      </div>
+    </div>
+
+    {/* Body */}
+    <div className="p-4 space-y-3">
+      {/* Subject data */}
+      <div className="border-b border-gray-100 pb-2.5">
+        <p className="text-[8px] text-gray-400 font-medium mb-1.5">DATOS DEL EVALUADO</p>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+          {[
+            ['APELLIDOS', 'RAMIREZ GARCIA'],
+            ['NOMBRES', 'LUCIA FERNANDA'],
+            ['DNI', '48 765 321'],
+            ['EDAD', '34 años'],
+          ].map(([l, v]) => (
+            <div key={l}>
+              <span className="text-[7px] text-gray-400 font-semibold">{l}</span>
+              <p className="text-[10px] font-bold text-gray-900">{v}</p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-[#8B4513] flex items-center justify-center text-[#C4A747] text-lg font-bold">U</div>
-          </div>
-        </div>
-        <div className="p-5 space-y-3 text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#C4A747] to-[#8B4513] flex items-center justify-center text-white text-2xl font-bold mx-auto">LR</div>
-          <p className="text-lg font-bold text-gray-900">Lucia Fernanda Ramirez Garcia</p>
-          <p className="text-xs text-gray-500">DNI: 48 765 321</p>
-          <div className="border-t border-b border-[#C4A747]/30 py-2 my-2">
-            <p className="text-sm font-bold text-[#8B4513]">EDUCACIÓN ESPECIAL</p>
-            <p className="text-xs text-gray-600">Mención en Trastornos del Neurodesarrollo</p>
-          </div>
-          <p className="text-xs text-gray-500">Expedido el 15 de enero del 2020</p>
-          <p className="text-[10px] text-gray-400">Registro SUNEDU: 20-0487-EL</p>
-          <div className="pt-2 border-t border-gray-100 flex justify-center gap-4">
-            <div className="w-16 h-10 bg-gray-50 rounded border border-gray-200 flex items-center justify-center text-[8px] text-gray-400">FIRMA</div>
-            <div className="w-16 h-10 bg-gray-50 rounded border border-gray-200 flex items-center justify-center text-[8px] text-gray-400">SELLO</div>
-          </div>
+          ))}
         </div>
       </div>
-    ),
-  },
+
+      {/* Medical checks */}
+      <div>
+        <p className="text-[8px] text-gray-400 font-medium mb-1.5">RESULTADOS DE EVALUACIÓN</p>
+        <div className="space-y-1">
+          {[
+            ['Examen físico general', 'Normal', true],
+            ['Evaluación oftalmológica', 'Normal', true],
+            ['Evaluación psicológica', 'Normal', true],
+            ['Vacunación completa', 'Sí', true],
+            ['Radiografía de tórax', 'Normal', true],
+            ['Hemograma completo', 'Dentro de parámetros', true],
+          ].map(([exam, result, ok]) => (
+            <div key={exam as string} className="flex items-center justify-between text-[10px] py-0.5">
+              <span className="text-gray-600 font-medium">{exam as string}</span>
+              <span className="flex items-center gap-1 text-gray-700 font-semibold">
+                <CheckCircle className={`w-3 h-3 ${ok ? 'text-[#2E7D32]' : 'text-[#D14242]'}`} />
+                {result as string}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Conclusion */}
+      <div className="bg-gradient-to-r from-[#E8F5E9] to-[#C8E6C9] border border-[#4CAF50] rounded-lg p-3 text-center">
+        <p className="text-[12px] font-extrabold text-[#1B5E20] tracking-wide">APTO PARA CUIDADO INFANTIL</p>
+        <p className="text-[8px] text-[#558B2F]">Certificado de Salud Ocupacional — Válido 12 meses</p>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-1 border-t border-gray-100 text-[7px] text-gray-400">
+        <span>Médico: Dra. María Torres M. — CMP 45821</span>
+        <span>CSO-2026-0487</span>
+      </div>
+    </div>
+  </div>
+);
+
+// ─── TÍTULO PROFESIONAL ─────────────────────────
+const TituloTemplate = () => (
+  <div className="bg-white rounded-xl overflow-hidden shadow-xl shadow-black/40 max-w-sm mx-auto border border-gray-200">
+    {/* Ornate gold top border */}
+    <div className="h-1 bg-gradient-to-r from-[#8B6914] via-[#C4A747] to-[#8B6914]" />
+
+    {/* University crest + header */}
+    <div className="px-4 pt-3 pb-1 text-center">
+      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8B4513] to-[#5C2E0A] flex items-center justify-center mx-auto mb-1.5 shadow-md">
+        <span className="text-[#C4A747] text-lg font-serif font-bold">U</span>
+      </div>
+      <p className="text-[10px] font-extrabold text-[#8B4513] tracking-[0.2em]">UNIVERSIDAD CÉSAR VALLEJO</p>
+      <p className="text-[7px] text-gray-500 font-medium tracking-wider">LICENCIATURA EN EDUCACIÓN ESPECIAL</p>
+    </div>
+
+    {/* Decorative divider */}
+    <div className="flex items-center gap-2 px-8 py-1.5">
+      <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#C4A747] to-transparent" />
+      <div className="w-1.5 h-1.5 rotate-45 bg-[#C4A747]" />
+      <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#C4A747] to-transparent" />
+    </div>
+
+    {/* Proclamation */}
+    <div className="px-5 pb-2 text-center">
+      <p className="text-[8px] text-gray-500 italic leading-relaxed">
+        El Rector de la Universidad César Vallejo, por cuanto:
+      </p>
+      <p className="text-[8px] text-gray-600 mt-1.5 leading-relaxed">
+        Habiendo culminado satisfactoriamente los estudios y cumplido con los requisitos académicos establecidos,
+      </p>
+      <p className="text-[9px] text-gray-500 italic mt-1">Otorga el título de:</p>
+    </div>
+
+    {/* Name */}
+    <div className="px-5 py-1.5 text-center border-t border-b border-[#C4A747]/30 mx-4">
+      <p className="text-sm font-serif font-bold text-[#1a1a2e]">Lucia Fernanda Ramirez Garcia</p>
+      <p className="text-[7px] text-gray-400">DNI: 48 765 321</p>
+    </div>
+
+    {/* Degree */}
+    <div className="px-5 py-2 text-center">
+      <p className="text-[11px] font-extrabold text-[#8B4513] tracking-wider">EDUCACIÓN ESPECIAL</p>
+      <p className="text-[8px] text-gray-500 font-medium">Mención en Trastornos del Neurodesarrollo</p>
+      <p className="text-[7px] text-gray-400 mt-1">Expedido el 15 de enero del 2020</p>
+    </div>
+
+    {/* Signatures */}
+    <div className="flex justify-between items-end px-5 pb-3 pt-1 border-t border-gray-100 mx-4">
+      <div className="text-center flex-1">
+        <div className="w-20 h-8 mx-auto border-b border-gray-300 mb-0.5 flex items-center justify-center">
+          <svg width="50" height="20" viewBox="0 0 50 20" className="opacity-40"><path d="M5 15 Q15 5 25 12 Q35 18 45 8" fill="none" stroke="#333" strokeWidth="1"/></svg>
+        </div>
+        <p className="text-[6px] font-bold text-gray-600">Dra. María E. Rodríguez</p>
+        <p className="text-[5px] text-gray-400">RECTORA</p>
+      </div>
+      <div className="text-center flex-1">
+        <div className="w-14 h-14 mx-auto rounded-full border-2 border-[#C4A747]/40 flex items-center justify-center">
+          <div className="text-[6px] text-gray-400 leading-tight text-center">
+            SELLO<br />SUNEDU
+          </div>
+        </div>
+        <p className="text-[5px] text-gray-400 mt-0.5">Reg. 20-0487-EL</p>
+      </div>
+      <div className="text-center flex-1">
+        <div className="w-20 h-8 mx-auto border-b border-gray-300 mb-0.5 flex items-center justify-center">
+          <svg width="50" height="20" viewBox="0 0 50 20" className="opacity-40"><path d="M3 16 Q12 8 22 14 Q32 18 42 10" fill="none" stroke="#333" strokeWidth="1"/></svg>
+        </div>
+        <p className="text-[6px] font-bold text-gray-600">Dr. Carlos Mendoza L.</p>
+        <p className="text-[5px] text-gray-400">DECANO</p>
+      </div>
+    </div>
+
+    {/* Bottom gold border */}
+    <div className="h-1 bg-gradient-to-r from-[#8B6914] via-[#C4A747] to-[#8B6914]" />
+  </div>
+);
+
+// ─── TEMPLATE MAP ──────────────────────────────
+const documentTemplates: Record<string, { title: string; render: () => React.ReactNode }> = {
+  'DNI': { title: 'Vista previa - DNI', render: DniTemplate },
+  'Antecedentes penales': { title: 'Vista previa - Antecedentes penales', render: AntecedentesTemplate },
+  'Certificado de salud': { title: 'Vista previa - Certificado de salud', render: SaludTemplate },
+  'Título profesional': { title: 'Vista previa - Título profesional', render: TituloTemplate },
 };
 
 type DocumentPreviewModalProps = {
@@ -181,7 +336,7 @@ export function DocumentPreviewModal({
 
             {/* Document card */}
             <div className="px-6 pb-4">
-              {template.render()}
+              <template.render />
             </div>
 
             {/* Bottom action bar */}
