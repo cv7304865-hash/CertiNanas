@@ -274,6 +274,27 @@ db.exec(`
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS TareasCategoria (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Nombre TEXT NOT NULL,
+    Icono TEXT,
+    Orden INTEGER NOT NULL DEFAULT 0
+  );
+
+  CREATE TABLE IF NOT EXISTS Tareas (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdCategoria INTEGER NOT NULL REFERENCES TareasCategoria(Id),
+    Descripcion TEXT NOT NULL,
+    Orden INTEGER NOT NULL DEFAULT 0
+  );
+
+  CREATE TABLE IF NOT EXISTS OrdenTareas (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
+    IdTarea INTEGER NOT NULL REFERENCES Tareas(Id),
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
 `);
 
   // Seed data
@@ -291,6 +312,64 @@ db.exec(`
   INSERT OR IGNORE INTO Areas (Nombre, Descripcion) VALUES ('Cuidado domiciliario', 'Cuidado en el hogar de la familia');
   INSERT OR IGNORE INTO Areas (Nombre, Descripcion) VALUES ('Acompaniamiento escolar', 'Acompaniamiento y apoyo en el entorno escolar');
   INSERT OR IGNORE INTO Areas (Nombre, Descripcion) VALUES ('Terapias de estimulacion', 'Terapias de estimulacion sensorial y motriz');
+
+  INSERT OR IGNORE INTO TareasCategoria (Id, Nombre, Icono, Orden) VALUES (1, 'Apoyo para niños con TEA', 'brain', 1);
+  INSERT OR IGNORE INTO TareasCategoria (Id, Nombre, Icono, Orden) VALUES (2, 'Apoyo para niños con TDAH', 'zap', 2);
+  INSERT OR IGNORE INTO TareasCategoria (Id, Nombre, Icono, Orden) VALUES (3, 'Apoyo para niños con Síndrome de Down', 'heart', 3);
+  INSERT OR IGNORE INTO TareasCategoria (Id, Nombre, Icono, Orden) VALUES (4, 'Cuidados médicos básicos', 'stethoscope', 4);
+  INSERT OR IGNORE INTO TareasCategoria (Id, Nombre, Icono, Orden) VALUES (5, 'Actividades educativas', 'book-open', 5);
+  INSERT OR IGNORE INTO TareasCategoria (Id, Nombre, Icono, Orden) VALUES (6, 'Actividades de la vida diaria', 'home', 6);
+
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (1, 1, 'Mantener rutinas establecidas', 1);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (2, 1, 'Aplicar cronogramas visuales', 2);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (3, 1, 'Supervisar momentos de crisis sensorial', 3);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (4, 1, 'Acompañar ejercicios de regulación emocional', 4);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (5, 1, 'Realizar actividades de estimulación cognitiva', 5);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (6, 1, 'Apoyar sesiones terapéuticas en casa', 6);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (7, 1, 'Fomentar habilidades sociales', 7);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (8, 1, 'Supervisar alimentación selectiva', 8);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (9, 1, 'Evitar estímulos que generen sobrecarga sensorial', 9);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (10, 1, 'Registrar conductas observadas', 10);
+
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (11, 2, 'Supervisar cumplimiento de tareas escolares', 1);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (12, 2, 'Mantener horarios estructurados', 2);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (13, 2, 'Aplicar técnicas de concentración', 3);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (14, 2, 'Supervisar descansos programados', 4);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (15, 2, 'Acompañar actividades recreativas controladas', 5);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (16, 2, 'Monitorear impulsividad y conducta', 6);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (17, 2, 'Reforzar instrucciones paso a paso', 7);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (18, 2, 'Registrar avances diarios', 8);
+
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (19, 3, 'Estimular autonomía personal', 1);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (20, 3, 'Apoyar actividades de motricidad fina', 2);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (21, 3, 'Apoyar actividades de motricidad gruesa', 3);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (22, 3, 'Supervisar alimentación', 4);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (23, 3, 'Realizar ejercicios de lenguaje y comunicación', 5);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (24, 3, 'Acompañar actividades educativas', 6);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (25, 3, 'Supervisar higiene personal', 7);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (26, 3, 'Registrar progreso diario', 8);
+
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (27, 4, 'Administración de medicamentos autorizados', 1);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (28, 4, 'Supervisión de horarios de medicación', 2);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (29, 4, 'Control de signos de alerta indicados por la familia', 3);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (30, 4, 'Aplicación de protocolos de emergencia', 4);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (31, 4, 'Seguimiento de indicaciones médicas', 5);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (32, 4, 'Registro de incidencias médicas', 6);
+
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (33, 5, 'Ayuda con tareas escolares', 1);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (34, 5, 'Refuerzo de lectura', 2);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (35, 5, 'Refuerzo de escritura', 3);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (36, 5, 'Refuerzo matemático', 4);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (37, 5, 'Juegos educativos', 5);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (38, 5, 'Estimulación cognitiva personalizada', 6);
+
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (39, 6, 'Alimentación', 1);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (40, 6, 'Higiene personal', 2);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (41, 6, 'Cambio de ropa', 3);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (42, 6, 'Acompañamiento al baño', 4);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (43, 6, 'Supervisión durante el sueño', 5);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (44, 6, 'Preparación de refrigerios', 6);
+  INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (45, 6, 'Organización de materiales escolares', 7);
 `);
 
   // Migraciones

@@ -5,7 +5,7 @@ const router = Router();
 
 router.get('/search/cuidadoras', (req, res) => {
   const db = getDb();
-  const { especialidad, zona, experiencia, tarifa_max } = req.query;
+  const { especialidad, zona, experiencia, tarifa_max, tareaIds } = req.query;
 
   let sql = `
     SELECT DISTINCT c.Id, c.IdUsuario, c.AniosExperiencia, c.TarifaHora, c.CalificacionPromedio, c.TotalResenas,
@@ -37,6 +37,32 @@ router.get('/search/cuidadoras', (req, res) => {
     if (!isNaN(maxTarifa)) {
       sql += ` AND c.TarifaHora <= ?`;
       params.push(maxTarifa);
+    }
+  }
+
+  // Matchmaking por tareas: filtrar cuidadoras según especialidades requeridas
+  if (tareaIds) {
+    const ids = tareaIds.split(',').map(Number).filter(n => !isNaN(n));
+    if (ids.length > 0) {
+      // Mapear categorías de tareas a nombres de especialidades
+      const catToEsp: Record<number, string> = {
+        1: 'TEA', 2: 'TDAH', 3: 'Sindrome de Down', 4: 'Primeros Auxilios',
+      };
+      const espRequeridas = new Set<string>();
+      const rows = db.prepare(
+        `SELECT DISTINCT IdCategoria FROM Tareas WHERE Id IN (${ids.map(() => '?').join(',')})`
+      ).all(...ids);
+      for (const r of rows) {
+        const esp = catToEsp[r.IdCategoria];
+        if (esp) espRequeridas.add(esp);
+      }
+      if (espRequeridas.size > 0) {
+        const conditions = Array.from(espRequeridas).map(() =>
+          `c.Id IN (SELECT ce.IdCuidadora FROM CuidadoraEspecialidades ce INNER JOIN Especialidades e ON e.Id = ce.IdEspecialidad WHERE e.Nombre = ?)`
+        );
+        sql += ` AND (${conditions.join(' AND ')})`;
+        params.push(...Array.from(espRequeridas));
+      }
     }
   }
 

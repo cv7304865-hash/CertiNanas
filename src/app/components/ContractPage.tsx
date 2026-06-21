@@ -1,8 +1,9 @@
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { LogOut, FileSignature, Wallet, CheckCircle } from 'lucide-react';
+import { LogOut, FileSignature, Wallet, CheckCircle, ListTodo } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
+import { TareasResumen } from './ChecklistTareas';
 
 type ContratoData = {
   Id: number; FechaServicio: string; TotalHoras: number; TarifaHora: number;
@@ -11,6 +12,7 @@ type ContratoData = {
   CuidadoraId: number; CuidadoraNombres: string; CuidadoraApellidos: string;
   MenorNombre: string | null; MenorDiagnostico: string | null; MenorFechaNac: string | null;
   FamiliaNombres: string; FamiliaApellidos: string;
+  TareaIds?: number[];
 };
 
 export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?: number; onBack?: () => void; onProceedToPayment?: () => void }) {
@@ -125,6 +127,16 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
                   </p>
                 </div>
               </div>
+
+              {data.TareaIds && data.TareaIds.length > 0 && (
+                <div className="mx-6 sm:mx-8 mb-6 bg-[rgba(246,165,192,0.15)] backdrop-blur-sm border border-[rgba(246,165,192,0.3)] rounded-2xl p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <ListTodo className="w-4 h-4 text-[#F6A5C0]" />
+                    <span className="text-xs font-bold text-[#F5D5E0]/70 uppercase tracking-wider">Tareas seleccionadas</span>
+                  </div>
+                  <TareasResumen ids={data.TareaIds} />
+                </div>
+              )}
 
               <div className="mx-6 sm:mx-8 mb-6 bg-[rgba(246,165,192,0.15)] backdrop-blur-sm border border-[rgba(246,165,192,0.3)] rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-2">

@@ -1,15 +1,17 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { LogOut, Search, MessageSquare, CheckCircle, XCircle, DollarSign, Clock } from 'lucide-react';
+import { LogOut, Search, MessageSquare, CheckCircle, XCircle, DollarSign, Clock, ListTodo } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 import { MinorsSection } from './MinorsSection';
+import { ChecklistTareas } from './ChecklistTareas';
 
 type Solicitud = {
   Id: number; FechaServicio: string; TotalHoras: number; TarifaHora: number;
   Total: number; Estado: string; EstadoNegociacion?: string; HoraInicio: string; HoraFin: string;
   CuidadoraId: number; CuidadoraNombres: string; CuidadoraApellidos: string;
   MenorNombre: string | null; MenorDiagnostico: string | null;
+  TareaIds?: number[];
 };
 
 type PropuestaNegociacion = {
@@ -65,6 +67,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
   const [responding, setResponding] = useState(false);
   const [counterForm, setCounterForm] = useState({ tarifaHora: 0, totalHoras: 0, horaInicio: '', horaFin: '', mensaje: '' });
   const [showCounter, setShowCounter] = useState(false);
+  const [tareasModal, setTareasModal] = useState<{ open: boolean; ordenId: number; tareasIds: number[] }>({ open: false, ordenId: 0, tareasIds: [] });
 
   const headers = { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) };
 
@@ -217,6 +220,10 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                               Responder
                             </button>
                           )}
+                          <button onClick={() => setTareasModal({ open: true, ordenId: s.Id, tareasIds: s.TareaIds || [] })}
+                            className="text-xs font-semibold text-[#F5D5E0]/70 hover:text-white transition-colors flex items-center gap-1">
+                            <ListTodo className="w-3 h-3" />Tareas{s.TareaIds?.length ? ` (${s.TareaIds.length})` : ''}
+                          </button>
                           {s.Estado === 'Finalizada' && (
                               <button onClick={() => onReview?.(s.Id)}
                                 className="text-xs font-semibold text-[#F5D5E0]/70 hover:text-white transition-colors">
@@ -344,6 +351,38 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
               <button onClick={() => setNegModal({ open: false, ordenId: 0 })}
                 className="w-full mt-4 px-4 py-2 rounded-xl border border-[rgba(255,255,255,0.15)] text-[#6667AB] text-sm hover:text-white transition-colors"
               >Cerrar</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Tareas checklist modal */}
+      <AnimatePresence>
+        {tareasModal.open && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-[#210635] border border-[rgba(255,255,255,0.1)] rounded-2xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-2xl"
+            >
+              <h3 className="text-lg font-bold text-white mb-1">Tareas y necesidades del menor</h3>
+              <p className="text-xs text-[#6667AB] mb-4">Selecciona las tareas que necesita este servicio</p>
+
+              <ChecklistTareas selected={tareasModal.tareasIds} onChange={ids => setTareasModal(m => ({ ...m, tareasIds: ids }))} />
+
+              <div className="flex gap-2 mt-6">
+                <button onClick={async () => {
+                  await fetch(`/api/ordenes/${tareasModal.ordenId}/tareas`, {
+                    method: 'POST', headers, body: JSON.stringify({ tareasIds: tareasModal.tareasIds }),
+                  });
+                  setTareasModal({ open: false, ordenId: 0, tareasIds: [] });
+                  fetch('/api/familia/solicitudes', { headers })
+                    .then(r => r.json()).then(data => setSolicitudes(data));
+                }}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:bg-[#F6A5C0]/80 transition-colors"
+                >Guardar tareas</button>
+                <button onClick={() => setTareasModal({ open: false, ordenId: 0, tareasIds: [] })}
+                  className="px-4 py-2.5 rounded-xl border border-[rgba(255,255,255,0.15)] text-[#6667AB] text-sm hover:text-white transition-colors"
+                >Cancelar</button>
+              </div>
             </motion.div>
           </motion.div>
         )}

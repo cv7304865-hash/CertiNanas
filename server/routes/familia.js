@@ -11,7 +11,8 @@ router.get('/solicitudes', (req, res) => {
   const rows = db.prepare(`
     SELECT o.Id, o.FechaServicio, o.TotalHoras, o.TarifaHora, o.Total, o.Subtotal, o.TarifaPlataforma, o.Estado, o.EstadoNegociacion, o.HoraInicio, o.HoraFin,
            c.Id AS CuidadoraId, u.Nombres AS CuidadoraNombres, u.Apellidos AS CuidadoraApellidos,
-           m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico
+           m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico,
+           (SELECT COALESCE(json_group_array(IdTarea), '[]') FROM OrdenTareas WHERE IdOrden = o.Id) AS TareaIds
     FROM Ordenes o
     INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
     INNER JOIN Usuarios u ON u.Id = c.IdUsuario
@@ -19,6 +20,8 @@ router.get('/solicitudes', (req, res) => {
     WHERE o.IdUsuarioFamilia = ?
     ORDER BY o.FechaCreacion DESC
   `).all(Number(userId));
+
+  for (const r of rows) r.TareaIds = JSON.parse(r.TareaIds);
 
   res.json(rows);
 });
@@ -32,7 +35,8 @@ router.get('/solicitudes/:id', (req, res) => {
     SELECT o.Id, o.FechaServicio, o.TotalHoras, o.TarifaHora, o.Subtotal, o.TarifaPlataforma, o.Total, o.Estado, o.HoraInicio, o.HoraFin, o.TipoServicio,
            c.Id AS CuidadoraId, u.Nombres AS CuidadoraNombres, u.Apellidos AS CuidadoraApellidos,
            m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico, m.FechaNacimiento AS MenorFechaNac,
-           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos
+           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos,
+           (SELECT COALESCE(json_group_array(IdTarea), '[]') FROM OrdenTareas WHERE IdOrden = o.Id) AS TareaIds
     FROM Ordenes o
     INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
     INNER JOIN Usuarios u ON u.Id = c.IdUsuario
@@ -40,6 +44,9 @@ router.get('/solicitudes/:id', (req, res) => {
     LEFT JOIN Menores m ON m.Id = o.IdMenor
     WHERE o.Id = ? AND o.IdUsuarioFamilia = ?
   `).get(Number(req.params.id), Number(userId));
+
+  if (!row) return res.status(404).json({ error: 'Solicitud no encontrada' });
+  row.TareaIds = JSON.parse(row.TareaIds);
 
   if (!row) return res.status(404).json({ error: 'Solicitud no encontrada' });
   res.json(row);
