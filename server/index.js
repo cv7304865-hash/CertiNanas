@@ -11,6 +11,7 @@ import cuidadoraRoutes from './routes/cuidadora.js';
 import searchRoutes from './routes/search.js';
 import familiaRoutes from './routes/familia.js';
 import mensajesRoutes from './routes/mensajes.js';
+import negociacionRoutes from './routes/negociacion.js';
 import { setupDatabase } from './setup.js';
 import { seed } from './seed-data.mjs';
 
@@ -36,6 +37,7 @@ app.use('/api/cuidadora', cuidadoraRoutes);
 app.use('/api', searchRoutes);
 app.use('/api/familia', familiaRoutes);
 app.use('/api/mensajes', mensajesRoutes);
+app.use('/api', negociacionRoutes);
 
 // Servir archivos subidos
 app.use('/uploads', express.static(uploadsDir));

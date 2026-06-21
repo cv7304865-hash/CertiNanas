@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Star, MessageSquare, Briefcase, LogOut, CheckCircle, ChevronRight, Clock, User, DollarSign, Calendar, Upload, File, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
+import { CuidadoraSolicitudes } from './CuidadoraSolicitudes';
 
 type Servicio = {
   Id: number;
@@ -45,7 +46,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
   const [experiencia, setExperiencia] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [tab, setTab] = useState<'perfil' | 'servicios'>('perfil');
+  const [tab, setTab] = useState<'perfil' | 'servicios' | 'solicitudes'>('perfil');
   const [servicios, setServicios] = useState<Servicio[]>([]);
   const headers = { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) };
 
@@ -113,6 +114,10 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                 onClick={() => setTab('servicios')}
                 className={`text-sm pb-0.5 ${tab === 'servicios' ? 'font-bold text-[#F6A5C0] border-b-2 border-[#F6A5C0]' : 'text-[#F5D5E0]/70 hover:text-white transition-colors'}`}
               >Servicios</button>
+              <button
+                onClick={() => setTab('solicitudes')}
+                className={`text-sm pb-0.5 ${tab === 'solicitudes' ? 'font-bold text-[#F6A5C0] border-b-2 border-[#F6A5C0]' : 'text-[#F5D5E0]/70 hover:text-white transition-colors'}`}
+              >Solicitudes</button>
               <button
                 onClick={() => onNavigate?.('messages')}
                 className="text-sm text-[#F5D5E0]/70 hover:text-white transition-colors"
@@ -258,6 +263,10 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
             </motion.button>
           </div>
         </motion.div>
+      )}
+
+      {tab === 'solicitudes' && (
+        <CuidadoraSolicitudes />
       )}
 
       {tab === 'servicios' && (

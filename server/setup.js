@@ -160,6 +160,19 @@ db.exec(`
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  CREATE TABLE IF NOT EXISTS Negociaciones (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
+    IdPropuestoPor INTEGER NOT NULL REFERENCES Usuarios(Id),
+    TarifaHora REAL,
+    TotalHoras REAL,
+    HoraInicio TEXT,
+    HoraFin TEXT,
+    Mensaje TEXT,
+    Estado TEXT NOT NULL DEFAULT 'activa' CHECK (Estado IN ('activa','aceptada','rechazada','contrapropuesta')),
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
   CREATE TABLE IF NOT EXISTS Menores (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     IdUsuarioFamilia INTEGER NOT NULL REFERENCES Usuarios(Id),
@@ -291,6 +304,7 @@ db.exec(`
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN ConfirmadaCuidadora INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN FinalizadaFamilia INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN FinalizadaCuidadora INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN EstadoNegociacion TEXT NOT NULL DEFAULT 'Pendiente'`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Usuarios ADD COLUMN FotoPerfil TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Usuarios ADD COLUMN Suspendido INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Postulaciones ADD COLUMN MotivoRechazo TEXT`).run(); } catch(e) {}
