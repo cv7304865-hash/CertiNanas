@@ -359,12 +359,23 @@ export function AdminPostulaciones() {
           estado: selectedPost.Estado,
           motivoRechazo: selectedPost.MotivoRechazo,
           documentosRechazados: selectedPost.DocumentosRechazados,
-          documentos: [
-            { id: 1, nombre: 'DNI', estado: 'por verificar' },
-            { id: 2, nombre: 'Antecedentes penales', estado: 'por verificar' },
-            { id: 3, nombre: 'Certificado de salud', estado: 'por verificar' },
-            { id: 4, nombre: 'Título profesional', estado: 'por verificar' },
-          ],
+          documentos: (() => {
+            const docs: { id: number; nombre: string; estado: 'por verificar' | 'verificado' | 'rechazado'; motivoRechazo?: string }[] = [
+              { id: 1, nombre: 'DNI', estado: 'por verificar' },
+              { id: 2, nombre: 'Antecedentes penales', estado: 'por verificar' },
+              { id: 3, nombre: 'Certificado de salud', estado: 'por verificar' },
+              { id: 4, nombre: 'Título profesional', estado: 'por verificar' },
+            ];
+            if (selectedPost.Estado === 'Aprobada') {
+              docs.forEach(d => { d.estado = 'verificado'; });
+            } else if (selectedPost.Estado === 'Rechazada' && selectedPost.DocumentosRechazados?.length) {
+              docs.forEach(d => {
+                const match = selectedPost.DocumentosRechazados!.find(r => r.nombre === d.nombre);
+                if (match) { d.estado = 'rechazado'; d.motivoRechazo = match.motivo; }
+              });
+            }
+            return docs;
+          })(),
         } : null}
         onAprobar={handleAprobar}
         onRechazar={handleRechazar}
