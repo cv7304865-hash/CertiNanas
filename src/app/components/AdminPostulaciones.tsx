@@ -356,6 +356,7 @@ export function AdminPostulaciones() {
           avatarLetras: selectedPost.Nombres.charAt(0) + selectedPost.Apellidos.charAt(0),
           horasTranscurridas: selectedPost.HorasTranscurridas,
           horasMaximas: 24,
+          estado: selectedPost.Estado,
           motivoRechazo: selectedPost.MotivoRechazo,
           documentosRechazados: selectedPost.DocumentosRechazados,
           documentos: [

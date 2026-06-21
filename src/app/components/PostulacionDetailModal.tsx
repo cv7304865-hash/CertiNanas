@@ -22,6 +22,7 @@ type PostulanteData = {
   avatarLetras: string;
   horasTranscurridas: number;
   horasMaximas: number;
+  estado: string;
   documentos: DocumentoVerificacion[];
   motivoRechazo?: string;
   documentosRechazados?: { nombre: string; motivo: string }[];
@@ -46,6 +47,7 @@ const defaultPostulante: PostulanteData = {
   avatarLetras: 'LR',
   horasTranscurridas: 8.1,
   horasMaximas: 24,
+  estado: 'Pendiente',
   documentos: [
     { id: 1, nombre: 'DNI', estado: 'por verificar' },
     { id: 2, nombre: 'Antecedentes penales', estado: 'por verificar' },
@@ -273,7 +275,7 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
                 >
                   Cerrar
                 </button>
-                {!data.motivoRechazo && (
+                {data.estado === 'Pendiente' && (
                   <>
                     <button
                       onClick={() => setShowRechazoForm(!showRechazoForm)}
