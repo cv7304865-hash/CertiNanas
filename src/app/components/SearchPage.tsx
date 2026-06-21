@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { Search, Star, LogOut, X, CheckCircle, Heart, Quote, MapPin, Award, BookOpen, FileText, Briefcase, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Star, LogOut, X, CheckCircle, Heart, Quote, MapPin, Award, BookOpen, FileText, Briefcase, MessageSquare, ChevronDown, ChevronUp, Video, FileSignature } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 import { ScheduleInterviewModal } from './ScheduleInterviewModal';
@@ -36,6 +36,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
   const [perfilCompleto, setPerfilCompleto] = useState<any>(null);
   const [cargandoPerfil, setCargandoPerfil] = useState(false);
   const [showSchedule, setShowSchedule] = useState<CuidadoraCard | null>(null);
+  const [showOptions, setShowOptions] = useState<CuidadoraCard | null>(null);
   const [exitos, setExitos] = useState<CasoExito[]>([]);
 
   const buscar = async () => {
@@ -386,7 +387,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
 
                 <div className="mt-6">
                 <button
-                  onClick={() => { setSelectedNana(null); setPerfilCompleto(null); setTimeout(() => setShowSchedule(selectedNana), 200); }}
+                  onClick={() => { setSelectedNana(null); setPerfilCompleto(null); setTimeout(() => setShowOptions(selectedNana), 200); }}
                   className="w-full py-3 bg-[#CC8DB3] hover:bg-[#b07a9a] text-[#210635] font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-sm"
                 >
                   Solicitar Servicio
@@ -423,6 +424,47 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
           </div>
         </section>
       )}
+
+      <AnimatePresence>
+        {showOptions && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-[#210635] border border-[rgba(255,255,255,0.1)] rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+            >
+              <h3 className="text-lg font-bold text-white mb-1">¿Qué deseas hacer?</h3>
+              <p className="text-xs text-[#6667AB] mb-5">Elige cómo quieres proceder con {showOptions.Nombres} {showOptions.Apellidos}</p>
+
+              <button onClick={() => { setShowOptions(null); setTimeout(() => setShowSchedule(showOptions), 300); }}
+                className="w-full flex items-center gap-4 px-5 py-4 rounded-xl bg-[rgba(33,6,53,0.4)] border border-[rgba(255,255,255,0.08)] hover:border-[#F6A5C0]/50 hover:bg-[rgba(246,165,192,0.05)] transition-all text-left mb-3"
+              >
+                <div className="w-10 h-10 rounded-full bg-[rgba(246,165,192,0.15)] flex items-center justify-center shrink-0">
+                  <Video className="w-5 h-5 text-[#F6A5C0]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-white">Agendar entrevista virtual</p>
+                  <p className="text-[10px] text-[#6667AB] mt-0.5">Conoce a la cuidadora antes de contratar</p>
+                </div>
+              </button>
+
+              <button onClick={() => { localStorage.setItem('preselectCuidadoraId', String(showOptions.Id)); setShowOptions(null); onNavigate?.('familia'); }}
+                className="w-full flex items-center gap-4 px-5 py-4 rounded-xl bg-[rgba(33,6,53,0.4)] border border-[rgba(255,255,255,0.08)] hover:border-[#F6A5C0]/50 hover:bg-[rgba(246,165,192,0.05)] transition-all text-left"
+              >
+                <div className="w-10 h-10 rounded-full bg-[rgba(246,165,192,0.15)] flex items-center justify-center shrink-0">
+                  <FileSignature className="w-5 h-5 text-[#F6A5C0]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-white">Crear solicitud directa</p>
+                  <p className="text-[10px] text-[#6667AB] mt-0.5">Selecciona tareas, horario y envía la solicitud</p>
+                </div>
+              </button>
+
+              <button onClick={() => setShowOptions(null)}
+                className="w-full mt-4 py-2 text-xs text-[#6667AB] hover:text-white transition-colors text-center"
+              >Cancelar</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showSchedule && (

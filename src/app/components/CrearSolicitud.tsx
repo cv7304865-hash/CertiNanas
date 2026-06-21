@@ -26,12 +26,18 @@ export function CrearSolicitud({ onBack, onSuccess }: { onBack: () => void; onSu
   const [observaciones, setObservaciones] = useState('');
 
   useEffect(() => {
+    const preselectId = localStorage.getItem('preselectCuidadoraId');
     Promise.all([
       fetch('/api/familia/cuidadoras-disponibles', { headers }).then(r => r.json()),
       fetch('/api/familia/menores', { headers }).then(r => r.json()),
     ]).then(([c, m]) => {
       setCuidadoras(c);
       setMenores(m);
+      if (preselectId) {
+        const found = c.find((cuid: Cuidadora) => cuid.Id === Number(preselectId));
+        if (found) setIdCuidadora(found.Id);
+        localStorage.removeItem('preselectCuidadoraId');
+      }
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
