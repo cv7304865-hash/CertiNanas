@@ -296,4 +296,25 @@ router.post('/conversaciones/:id/mensajes', isAdmin, (req, res) => {
   res.json({ id: result.lastInsertRowid });
 });
 
+// GET /api/admin/escrows — lista de pagos protegidos con estado Escrow
+router.get('/escrows', isAdmin, (req, res) => {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT e.Id, e.MontoTotal, e.MontoCuidadora, e.MontoPlataforma, e.Estado AS EscrowEstado, e.FechaCreacion AS EscrowFecha, e.FechaLiberacion,
+           o.Id AS OrdenId, o.Estado AS OrdenEstado, o.Total, o.Subtotal, o.TarifaPlataforma, o.FechaServicio, o.HoraInicio, o.HoraFin, o.TotalHoras, o.TarifaHora,
+           o.ConfirmadaFamilia, o.ConfirmadaCuidadora, o.FinalizadaFamilia, o.FinalizadaCuidadora, o.FechaFinalizacion,
+           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos,
+           uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
+           m.Nombre AS MenorNombre
+    FROM Escrow e
+    INNER JOIN Ordenes o ON o.Id = e.IdOrden
+    INNER JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
+    INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+    INNER JOIN Usuarios uc ON uc.Id = c.IdUsuario
+    LEFT JOIN Menores m ON m.Id = o.IdMenor
+    ORDER BY e.FechaCreacion DESC
+  `).all();
+  res.json(rows);
+});
+
 export default router;

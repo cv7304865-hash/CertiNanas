@@ -242,6 +242,16 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: { onNaviga
                             className="text-xs font-semibold text-[#F5D5E0]/70 hover:text-white transition-colors flex items-center gap-1">
                             <ListTodo className="w-3 h-3" />Tareas{s.TareaIds?.length ? ` (${s.TareaIds.length})` : ''}
                           </button>
+                          {s.Estado === 'Pagada' && (
+                            <button onClick={async () => {
+                              await fetch(`/api/familia/orden/${s.Id}/confirmar-finalizacion`, { method: 'POST', headers });
+                              fetch('/api/familia/solicitudes', { headers })
+                                .then(r => r.json()).then(data => setSolicitudes(data));
+                            }}
+                              className="text-xs font-semibold text-emerald-300 hover:text-emerald-200 transition-colors">
+                              Confirmar finalización
+                            </button>
+                          )}
                           {s.Estado === 'Finalizada' && (
                               <button onClick={() => onReview?.(s.Id)}
                                 className="text-xs font-semibold text-[#F5D5E0]/70 hover:text-white transition-colors">

@@ -3,11 +3,12 @@ import { useState, useEffect, useRef } from 'react';
 import { Shield, LayoutDashboard, FileText, UserCheck, AlertTriangle, Users, BarChart3, LogOut, MessageSquare, Send, CheckCircle, XCircle, Eye, Search, Download, TrendingUp, DollarSign, Bell } from 'lucide-react';
 import { AdminPostulaciones } from './AdminPostulaciones';
 import { AdminNegociaciones } from './AdminNegociaciones';
+import { AdminPagosProtegidos } from './AdminPagosProtegidos';
 import { BarChart, Bar, PieChart, Pie, LineChart, Line, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 
-type Tab = 'dashboard' | 'postulaciones' | 'perfiles' | 'incidencias' | 'negociaciones' | 'usuarios' | 'reportes' | 'contratos' | 'mensajes';
+type Tab = 'dashboard' | 'postulaciones' | 'perfiles' | 'incidencias' | 'negociaciones' | 'usuarios' | 'reportes' | 'contratos' | 'mensajes' | 'pagos';
 
 const navItems: { key: Tab; label: string; icon: any }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -16,6 +17,7 @@ const navItems: { key: Tab; label: string; icon: any }[] = [
   { key: 'perfiles', label: 'Perfiles Validados', icon: Users },
   { key: 'incidencias', label: 'Incidencias', icon: AlertTriangle },
   { key: 'negociaciones', label: 'Mediación', icon: Shield },
+  { key: 'pagos', label: 'Pagos Protegidos', icon: DollarSign },
   { key: 'mensajes', label: 'Mensajes', icon: MessageSquare },
   { key: 'usuarios', label: 'Usuarios', icon: Users },
   { key: 'reportes', label: 'Reportes', icon: BarChart3 },
@@ -108,6 +110,7 @@ export function AdminLayout() {
         {tab === 'perfiles' && <PerfilesView />}
         {tab === 'incidencias' && <IncidenciasView />}
         {tab === 'negociaciones' && <AdminNegociaciones />}
+        {tab === 'pagos' && <AdminPagosProtegidos />}
         {tab === 'mensajes' && <AdminMessages />}
         {tab === 'reportes' && <ReportesView />}
         {tab === 'usuarios' && <UsuariosView />}

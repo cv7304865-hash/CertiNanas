@@ -162,18 +162,30 @@ export function CuidadoraSolicitudes() {
 
                 {/* Actions */}
                 <div className="flex flex-col gap-2 shrink-0">
-                  <button onClick={() => accept(s.Id)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-all">
-                    <CheckCircle className="w-3.5 h-3.5" /> Aceptar
-                  </button>
-                  <button onClick={() => { setProposing(s.Id); setPropForm({ tarifaHora: s.TarifaHora, totalHoras: s.TotalHoras, horaInicio: s.HoraInicio || '', horaFin: s.HoraFin || '', mensaje: '' }); }}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F6A5C0] text-[#F6A5C0] text-xs font-bold hover:bg-[rgba(246,165,192,0.1)] transition-all">
-                    <MessageSquare className="w-3.5 h-3.5" /> Proponer
-                  </button>
-                  <button onClick={() => reject(s.Id)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-red-400 text-red-400 text-xs font-bold hover:bg-[rgba(200,40,40,0.1)] transition-all">
-                    <XCircle className="w-3.5 h-3.5" /> Rechazar
-                  </button>
+                  {s.Estado === 'Pagada' ? (
+                    <button onClick={async () => {
+                      await fetch(`/api/cuidadora/orden/${s.Id}/confirmar-finalizacion`, { method: 'POST', headers });
+                      load();
+                    }}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-all">
+                      <CheckCircle className="w-3.5 h-3.5" /> Confirmar finalización
+                    </button>
+                  ) : (
+                    <>
+                      <button onClick={() => accept(s.Id)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-all">
+                        <CheckCircle className="w-3.5 h-3.5" /> Aceptar
+                      </button>
+                      <button onClick={() => { setProposing(s.Id); setPropForm({ tarifaHora: s.TarifaHora, totalHoras: s.TotalHoras, horaInicio: s.HoraInicio || '', horaFin: s.HoraFin || '', mensaje: '' }); }}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F6A5C0] text-[#F6A5C0] text-xs font-bold hover:bg-[rgba(246,165,192,0.1)] transition-all">
+                        <MessageSquare className="w-3.5 h-3.5" /> Proponer
+                      </button>
+                      <button onClick={() => reject(s.Id)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-red-400 text-red-400 text-xs font-bold hover:bg-[rgba(200,40,40,0.1)] transition-all">
+                        <XCircle className="w-3.5 h-3.5" /> Rechazar
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 
