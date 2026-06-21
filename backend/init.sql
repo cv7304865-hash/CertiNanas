@@ -370,6 +370,51 @@ INSERT INTO TiposRequisito (Nombre) VALUES
 ('Certificado de Estudios'),
 ('Certificado de Trabajo');
 
--- Admin por defecto (password: admin123)
+-- Cuentas de prueba (password para todas: password)
+-- Admin
 INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, IdRol, EmailConfirmado, TerminosAceptados, Activo)
 VALUES ('admin@certinanas.pe', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'CertiNanas', 1, TRUE, TRUE, TRUE);
+
+-- Familia de prueba
+INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, Telefono, Direccion, Ciudad, Distrito, IdRol, EmailConfirmado, TerminosAceptados, Activo)
+VALUES ('familia@certinanas.pe', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'María', 'Pérez López', '999888777', 'Av. Principal 123', 'Lima', 'Miraflores', 2, TRUE, TRUE, TRUE);
+
+INSERT INTO Menores (IdUsuarioFamilia, Nombre, Diagnostico, FechaNacimiento)
+VALUES (2, 'Mateo Pérez', 'TEA', '2019-05-12');
+
+INSERT INTO Menores (IdUsuarioFamilia, Nombre, Diagnostico, FechaNacimiento)
+VALUES (2, 'Valentina Pérez', 'TDAH', '2021-08-20');
+
+-- Cuidadora de prueba (activa)
+INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, Telefono, NumeroDocumento, IdRol, EmailConfirmado, TerminosAceptados, Activo)
+VALUES ('cuidadora@certinanas.pe', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Carmen', 'Rodríguez García', '987654321', '12345678', 3, TRUE, TRUE, TRUE);
+
+INSERT INTO Cuidadoras (IdUsuario, AniosExperiencia, TarifaHora, DescripcionCorta, DescripcionLarga, CalificacionPromedio, TotalResenas, Disponible, Zona)
+VALUES (3, 8, 30.00, 'Terapeuta ocupacional enfocada en autonomía y estimulación sensorial.',
+        'Con 8 años de experiencia como terapeuta ocupacional, he desarrollado programas de estimulación sensorial y motriz para niños dentro del espectro autista y con discapacidades motoras.',
+        4.8, 15, TRUE, 'Lima Moderna');
+
+INSERT INTO CuidadoraEspecialidades (IdCuidadora, IdEspecialidad) VALUES (1, 1); -- TEA
+INSERT INTO CuidadoraEspecialidades (IdCuidadora, IdEspecialidad) VALUES (1, 5); -- Disc. Motriz
+INSERT INTO CuidadoraAreas (IdCuidadora, IdArea) VALUES (1, 1); -- Cuidado domiciliario
+INSERT INTO CuidadoraAreas (IdCuidadora, IdArea) VALUES (1, 3); -- Terapias
+
+INSERT INTO CuidadoraFormacion (IdCuidadora, Titulo, Institucion, AnioObtencion, Orden)
+VALUES (1, 'Tecnología Médica en Terapia Ocupacional', 'UPCH', 2015, 1);
+INSERT INTO CuidadoraFormacion (IdCuidadora, Titulo, Institucion, AnioObtencion, Orden)
+VALUES (1, 'Especialización en Integración Sensorial', 'PUCP', 2018, 2);
+
+INSERT INTO CuidadoraCertificaciones (IdCuidadora, Nombre, EntidadEmisora, FechaObtencion, Orden)
+VALUES (1, 'Estimulación Temprana Avanzada', 'MIMP', '2022-03-10', 1);
+INSERT INTO CuidadoraCertificaciones (IdCuidadora, Nombre, EntidadEmisora, FechaObtencion, Orden)
+VALUES (1, 'Soporte Vital Básico Pediátrico', 'Cruz Roja', '2023-06-15', 2);
+
+-- Cuidadora 2 de prueba (pendiente de aprobación)
+INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, Telefono, NumeroDocumento, IdRol, EmailConfirmado, TerminosAceptados, Activo)
+VALUES ('cuidadora2@certinanas.pe', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ana', 'Torres Mendoza', '987654322', '87654321', 3, TRUE, TRUE, FALSE);
+
+INSERT INTO Cuidadoras (IdUsuario, AniosExperiencia, TarifaHora, DescripcionCorta, Disponible, Zona)
+VALUES (4, 2, 25.00, 'Joven pedagoga con enfoque lúdico y acompañamiento escolar.', FALSE, 'Lima Norte');
+
+INSERT INTO Postulaciones (IdUsuario, Estado)
+VALUES (4, 'Pendiente');
