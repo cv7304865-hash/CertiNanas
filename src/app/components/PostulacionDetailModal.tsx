@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
+import { useState } from 'react';
 import { X, Eye, Clock, FileText, Shield, AlertTriangle } from 'lucide-react';
+import { DocumentPreviewModal } from './DocumentPreviewModal';
 
 type DocumentoVerificacion = {
   id: number;
@@ -52,6 +54,7 @@ const defaultPostulante: PostulanteData = {
 export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar, onRechazar }: PostulacionDetailModalProps) {
   const data = postulante || defaultPostulante;
   const progressPct = Math.min((data.horasTranscurridas / data.horasMaximas) * 100, 100);
+  const [previewDoc, setPreviewDoc] = useState<string | null>(null);
 
   return (
     <AnimatePresence>
@@ -147,7 +150,10 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
                       }`}>
                         {doc.estado === 'por verificar' ? 'Por verificar' : doc.estado === 'verificado' ? 'Verificado' : 'Rechazado'}
                       </span>
-                      <button className="px-3 py-1 rounded-full bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.18)] text-white text-xs font-medium transition-colors flex items-center gap-1">
+                      <button
+                        onClick={() => setPreviewDoc(doc.nombre)}
+                        className="px-3 py-1 rounded-full bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.18)] text-white text-xs font-medium transition-colors flex items-center gap-1"
+                      >
                         <Eye className="w-3 h-3" /> Ver
                       </button>
                     </div>
@@ -195,6 +201,20 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
           </motion.div>
         </motion.div>
       )}
+
+      {/* Document Preview Modal (second layer) */}
+      <DocumentPreviewModal
+        isOpen={!!previewDoc}
+        onClose={() => setPreviewDoc(null)}
+        documentName={previewDoc || ''}
+        postulanteName={`${data.nombres} ${data.apellidos}`}
+        onVerificar={(docName) => {
+          // Could update document status here
+        }}
+        onMarcarInvalido={(docName) => {
+          // Could update document status here
+        }}
+      />
     </AnimatePresence>
   );
 }
