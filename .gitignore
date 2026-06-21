@@ -4,4 +4,6 @@ server/data/
 *.db
 .env
 .env.local
+.vite/
+*.local
 .DS_Store
