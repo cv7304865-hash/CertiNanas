@@ -17,6 +17,7 @@ type PostulacionRich = {
   Estado: string;
   TotalDocumentos: number;
   HorasTranscurridas: number;
+  MotivoRechazo?: string;
 };
 
 type DocumentoBackend = {
@@ -53,6 +54,28 @@ const mockPostulaciones: PostulacionRich[] = [
     FechaPostulacion: new Date(Date.now() - 15.3 * 3600000).toISOString(),
     Estado: 'Pendiente', TotalDocumentos: 4,
     HorasTranscurridas: 15.3,
+  },
+  {
+    Id: 3, IdUsuario: 13,
+    Nombres: 'María', Apellidos: 'González',
+    Email: 'maria.gonzalez@email.com', Telefono: '+51 965 432 101',
+    AniosExperiencia: 5,
+    Especialidades: ['Estimulación Temprana'],
+    FechaPostulacion: new Date(Date.now() - 20 * 3600000).toISOString(),
+    Estado: 'Rechazada', TotalDocumentos: 3,
+    HorasTranscurridas: 20,
+    MotivoRechazo: 'Documentos incompletos: falta certificado de antecedentes penales vigente.',
+  },
+  {
+    Id: 4, IdUsuario: 14,
+    Nombres: 'Carmen', Apellidos: 'Rojas',
+    Email: 'carmen.rojas@email.com', Telefono: '+51 954 321 012',
+    AniosExperiencia: 2,
+    Especialidades: ['TDAH'],
+    FechaPostulacion: new Date(Date.now() - 22 * 3600000).toISOString(),
+    Estado: 'Rechazada', TotalDocumentos: 4,
+    HorasTranscurridas: 22,
+    MotivoRechazo: 'No cumple con el mínimo de 3 años de experiencia requerido.',
   },
 ];
 
@@ -113,7 +136,15 @@ export function AdminPostulaciones() {
     }
   };
 
-  const pendingCount = postulaciones.filter(p => p.Estado === 'Pendiente').length;
+  const counts = {
+    postulaciones: postulaciones.filter(p => p.Estado === 'Pendiente').length,
+    aprobadas: postulaciones.filter(p => p.Estado === 'Aprobada').length,
+    rechazadas: postulaciones.filter(p => p.Estado === 'Rechazada').length,
+  };
+
+  const sectionTitle = activeTab === 'postulaciones' ? 'Postulaciones pendientes'
+    : activeTab === 'aprobadas' ? 'Postulaciones aprobadas'
+    : 'Postulaciones rechazadas';
 
   return (
     <div className="max-w-7xl mx-auto pb-8">
@@ -161,8 +192,8 @@ export function AdminPostulaciones() {
         {/* Section header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
           <div className="flex items-center gap-2">
-            <h2 className="text-white font-bold text-lg">Postulaciones pendientes</h2>
-            <span className="text-xs text-[#6667AB] font-medium">({pendingCount} pendientes)</span>
+            <h2 className="text-white font-bold text-lg">{sectionTitle}</h2>
+            <span className="text-xs text-[#6667AB] font-medium">({counts[activeTab as keyof typeof counts]})</span>
           </div>
         </div>
 
@@ -211,38 +242,52 @@ export function AdminPostulaciones() {
                     </div>
 
                     {/* Review time bar */}
-                    <div className="pt-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-medium text-[#6667AB]">Tiempo de revisión</span>
-                        <span className="text-[10px] font-bold text-[#F5D5E0]">{p.HorasTranscurridas.toFixed(1)}h / 24h</span>
+                    {p.Estado === 'Pendiente' && (
+                      <div className="pt-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] font-medium text-[#6667AB]">Tiempo de revisión</span>
+                          <span className="text-[10px] font-bold text-[#F5D5E0]">{p.HorasTranscurridas.toFixed(1)}h / 24h</span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.min((p.HorasTranscurridas / 24) * 100, 100)}%` }}
+                            transition={{ duration: 0.6, delay: i * 0.05 }}
+                            className="h-full rounded-full bg-[#CC8DB3]"
+                            style={{ boxShadow: '0 0 6px rgba(204,141,179,0.4)' }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full h-1.5 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${Math.min((p.HorasTranscurridas / 24) * 100, 100)}%` }}
-                          transition={{ duration: 0.6, delay: i * 0.05 }}
-                          className="h-full rounded-full bg-[#CC8DB3]"
-                          style={{ boxShadow: '0 0 6px rgba(204,141,179,0.4)' }}
-                        />
+                    )}
+
+                    {/* Rejection reason */}
+                    {p.Estado === 'Rechazada' && p.MotivoRechazo && (
+                      <div className="pt-1">
+                        <div className="flex items-start gap-1.5">
+                          <XCircle className="w-3.5 h-3.5 text-[#D14242] mt-0.5 flex-shrink-0" />
+                          <p className="text-xs text-[#D14242] leading-relaxed">{p.MotivoRechazo}</p>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex flex-col gap-2 flex-shrink-0 pt-1">
-                    <button
-                      onClick={() => handleVerDetalle(p)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F5D5E0] text-[#F5D5E0] text-xs font-semibold hover:bg-[rgba(245,213,224,0.1)] transition-colors"
-                    >
-                      <Eye className="w-3.5 h-3.5" /> Ver detalle
-                    </button>
-                    <button
-                      onClick={() => handleAprobar(p.Id)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#10B981] hover:bg-[#10B981]/80 text-white text-xs font-bold transition-all shadow-lg shadow-black/20"
-                    >
-                      <CheckCircle className="w-3.5 h-3.5" /> Validar
-                    </button>
-                  </div>
+                  {/* Actions — only for pending */}
+                  {p.Estado === 'Pendiente' && (
+                    <div className="flex flex-col gap-2 flex-shrink-0 pt-1">
+                      <button
+                        onClick={() => handleVerDetalle(p)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F5D5E0] text-[#F5D5E0] text-xs font-semibold hover:bg-[rgba(245,213,224,0.1)] transition-colors"
+                      >
+                        <Eye className="w-3.5 h-3.5" /> Ver detalle
+                      </button>
+                      <button
+                        onClick={() => handleAprobar(p.Id)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#10B981] hover:bg-[#10B981]/80 text-white text-xs font-bold transition-all shadow-lg shadow-black/20"
+                      >
+                        <CheckCircle className="w-3.5 h-3.5" /> Validar
+                      </button>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             ))}
