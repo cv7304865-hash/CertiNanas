@@ -10,6 +10,7 @@ import { ProfileAvatar } from './ProfileAvatar';
 import { CuidadoraSolicitudes } from './CuidadoraSolicitudes';
 import { PanicButton } from './PanicButton';
 import { CentroCapacitacion } from './CentroCapacitacion';
+import { HistorialSalud } from './HistorialSalud';
 import { ReporteDiarioForm } from './ReporteDiarioForm';
 import { ReemplazoTracker } from './ReemplazoTracker';
 
@@ -710,7 +711,23 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
               </div>
             )}
 
-            {/* c) Panic Button */}
+            {/* d) Health Records */}
+            {activeService && (
+              <div className={glassCard + ' p-6'}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-[rgba(102,103,171,0.15)] flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-[#6667AB]" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Historial de Salud</h3>
+                    <p className="text-xs text-[#6667AB]">Registros médicos del menor a cargo</p>
+                  </div>
+                </div>
+                <HistorialSalud ordenId={activeService.Id} />
+              </div>
+            )}
+
+            {/* e) Panic Button */}
             {activeService && (
               <div className={glassCard + ' p-6'}>
                 <div className="flex items-center gap-3 mb-4">

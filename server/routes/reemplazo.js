@@ -49,10 +49,26 @@ router.post('/solicitar', (req, res) => {
 
     cuidadorasDisponibles.sort((a, b) => b.NivelCompatibilidad - a.NivelCompatibilidad);
 
+    let autoAssigned = false;
+    if (cuidadorasDisponibles.length > 0) {
+      const best = cuidadorasDisponibles[0];
+      db.transaction(() => {
+        db.prepare("UPDATE ReemplazoEmergencia SET IdCuidadoraReemplazo = ?, Estado = 'Asignado', FechaAsignacion = datetime('now'), NivelCompatibilidad = ? WHERE Id = ?").run(best.Id, best.NivelCompatibilidad, result.lastInsertRowid);
+        db.prepare('UPDATE Ordenes SET IdCuidadora = ? WHERE Id = ?').run(best.Id, IdOrden);
+      })();
+      autoAssigned = true;
+    }
+
     res.json({
       success: true,
       reemplazoId: result.lastInsertRowid,
-      candidatas: cuidadorasDisponibles.slice(0, 5),
+      autoAsignado: autoAssigned,
+      candidatas: cuidadorasDisponibles.slice(0, 5).map(c => ({
+        id: c.Id,
+        nombres: c.Nombres,
+        apellidos: c.Apellidos,
+        compatibilidad: c.NivelCompatibilidad,
+      })),
       totalCandidatas: cuidadorasDisponibles.length,
     });
   } catch (err) {
@@ -111,6 +127,37 @@ router.post('/asignar/:id', (req, res) => {
     })();
 
     res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/verificar-vencidos', (req, res) => {
+  try {
+    const db = getDb();
+    const userId = Number(req.headers['x-user-id']);
+    if (!userId) return res.status(401).json({ error: 'No autenticado' });
+    const user = db.prepare('SELECT IdRol FROM Usuarios WHERE Id = ?').get(userId);
+    if (!user || user.IdRol !== 1) return res.status(403).json({ error: 'Solo administradores' });
+
+    const vencidos = db.prepare(`
+      SELECT r.*, o.TipoServicio, o.FechaServicio
+      FROM ReemplazoEmergencia r
+      INNER JOIN Ordenes o ON o.Id = r.IdOrden
+      WHERE r.Estado = 'Buscando'
+        AND strftime('%s','now') - strftime('%s',r.FechaCreacion) > 1800
+    `).all();
+
+    const updated = db.transaction(() => {
+      const ids = vencidos.map(r => r.Id);
+      if (ids.length > 0) {
+        const placeholders = ids.map(() => '?').join(',');
+        db.prepare(`UPDATE ReemplazoEmergencia SET Estado = 'Fallido', TiempoBusquedaSegundos = 1800 WHERE Id IN (${placeholders})`).run(...ids);
+      }
+      return ids.length;
+    })();
+
+    res.json({ vencidosMarcados: updated, totalVencidos: vencidos.length });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

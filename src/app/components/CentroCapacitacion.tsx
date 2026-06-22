@@ -111,6 +111,9 @@ export function CentroCapacitacion() {
                 <span className="text-[#6EE7B7] text-sm">✓</span>
                 <span className="text-white text-sm flex-1">{p.Titulo}</span>
                 <span className="text-[#6EE7B7] text-[10px] font-bold">{p.PuntajeObtenido}%</span>
+                <button onClick={() => alert('Certificado: ' + p.Titulo + '\nCódigo: CCT-' + String(p.Id).padStart(6, '0') + '\nVálido: Descargar en Centro de Capacitación')}
+                  className="px-3 py-1 rounded-lg bg-[rgba(246,165,192,0.15)] text-[#F6A5C0] text-[10px] font-bold hover:bg-[rgba(246,165,192,0.25)] transition-colors"
+                >Ver Certificado</button>
               </div>
             ))}
           </div>

@@ -25,6 +25,7 @@ import firmasRoutes from './routes/firmas.js';
 import analyticsRoutes from './routes/analytics.js';
 import incidentesRoutes from './routes/incidentes.js';
 import alertasRoutes from './routes/alertas.js';
+import saludRoutes from './routes/salud.js';
 import { setupDatabase } from './setup.js';
 import { seed } from './seed-data.mjs';
 
@@ -64,6 +65,7 @@ app.use('/api/firmas', firmasRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/incidentes', incidentesRoutes);
 app.use('/api/alertas', alertasRoutes);
+app.use('/api/salud', saludRoutes);
 
 app.use('/uploads', express.static(uploadsDir));
 
