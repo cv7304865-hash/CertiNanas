@@ -23,6 +23,7 @@ export function CrearSolicitud({ onBack, onSuccess }: { onBack: () => void; onSu
   const [horaFin, setHoraFin] = useState('12:00');
   const [totalHoras, setTotalHoras] = useState(4);
   const [tareaIds, setTareaIds] = useState<number[]>([]);
+  const [tareasPersonalizadas, setTareasPersonalizadas] = useState<string[]>(['', '', '']);
   const [observaciones, setObservaciones] = useState('');
 
   useEffect(() => {
@@ -58,7 +59,7 @@ export function CrearSolicitud({ onBack, onSuccess }: { onBack: () => void; onSu
     try {
       const r = await fetch('/api/familia/crear-solicitud', {
         method: 'POST', headers,
-        body: JSON.stringify({ idCuidadora, idMenor, fechaServicio, horaInicio, horaFin, totalHoras, tareaIds, observaciones }),
+        body: JSON.stringify({ idCuidadora, idMenor, fechaServicio, horaInicio, horaFin, totalHoras, tareaIds, observaciones, tareasPersonalizadas: tareasPersonalizadas.filter(t => t.trim()) }),
       });
       if (r.ok) onSuccess();
     } finally { setSubmitting(false); }
@@ -159,6 +160,29 @@ export function CrearSolicitud({ onBack, onSuccess }: { onBack: () => void; onSu
           <ChecklistTareas selected={tareaIds} onChange={setTareaIds} />
         </div>
 
+        {/* Tareas personalizadas */}
+        <div>
+          <label className="text-xs font-bold text-[#6667AB] uppercase tracking-wider block mb-3">
+            Tareas personalizadas <span className="text-[10px] font-normal text-[#6667AB]">(opcional, hasta 3)</span>
+          </label>
+          <div className="space-y-2">
+            {tareasPersonalizadas.map((val, i) => (
+              <input
+                key={i}
+                type="text"
+                value={val}
+                onChange={e => {
+                  const next = [...tareasPersonalizadas];
+                  next[i] = e.target.value;
+                  setTareasPersonalizadas(next);
+                }}
+                className="w-full px-4 py-2.5 rounded-xl bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm placeholder:text-[#6667AB]/60"
+                placeholder={`Ej: Apoyo en terapia de lenguaje (sesión #${i + 1})`}
+              />
+            ))}
+          </div>
+        </div>
+
         {/* Observaciones */}
         <div>
           <label className="text-xs font-bold text-[#6667AB] uppercase tracking-wider block mb-3">Observaciones especiales</label>
@@ -175,7 +199,11 @@ export function CrearSolicitud({ onBack, onSuccess }: { onBack: () => void; onSu
             <p className="text-[#F5D5E0]/70">Cuidadora: <span className="text-white font-semibold">{selectedC.Nombres} {selectedC.Apellidos}</span></p>
             <p className="text-[#F5D5E0]/70">Fecha: <span className="text-white font-semibold">{new Date(fechaServicio + 'T00:00:00').toLocaleDateString('es-PE')}</span></p>
             <p className="text-[#F5D5E0]/70">Horario: <span className="text-white font-semibold">{horaInicio} - {horaFin} ({totalHoras}h)</span></p>
-            <p className="text-[#F5D5E0]/70">Tareas seleccionadas: <span className="text-white font-semibold">{tareaIds.length}</span></p>
+            <p className="text-[#F5D5E0]/70">Tareas seleccionadas: <span className="text-white font-semibold">{tareaIds.length}</span>
+              {tareasPersonalizadas.filter(t => t.trim()).length > 0 && (
+                <> · Personalizadas: <span className="text-white font-semibold">{tareasPersonalizadas.filter(t => t.trim()).length}</span></>
+              )}
+            </p>
             <p className="text-[#F5D5E0]/70">Tarifa: <span className="text-white font-semibold">S/ {selectedC.TarifaHora}/hora</span></p>
             <p className="text-[#F5D5E0]/70">Total estimado: <span className="text-white font-bold">S/ {(selectedC.TarifaHora * totalHoras * 1.15).toFixed(2)}</span></p>
           </div>

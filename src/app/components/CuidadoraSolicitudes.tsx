@@ -8,6 +8,8 @@ type TareaNegociacion = {
   Id: number;
   Descripcion: string;
   Categoria?: string;
+  EsPersonalizada?: boolean;
+  Decision?: string;
 };
 
 type SolicitudPendiente = {
@@ -53,7 +55,13 @@ export function CuidadoraSolicitudes() {
         const initial: Record<number, Record<number, Decision>> = {};
         for (const s of data) {
           if (s.tareas?.length) {
-            initial[s.Id] = {};
+            const taskResp: Record<number, Decision> = {};
+            for (const t of s.tareas) {
+              if (t.Decision && t.Decision !== 'Pendiente') {
+                taskResp[t.Id] = t.Decision as Decision;
+              }
+            }
+            initial[s.Id] = taskResp;
           }
         }
         setResponses(prev => ({ ...prev, ...initial }));
@@ -200,7 +208,12 @@ export function CuidadoraSolicitudes() {
                       const selected = responses[s.Id]?.[t.Id];
                       return (
                         <div key={t.Id} className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-[rgba(33,6,53,0.4)] border border-[rgba(255,255,255,0.06)]">
-                          <span className="text-xs text-[#F5D5E0] flex-1">{t.Descripcion}</span>
+                          <span className="text-xs text-[#F5D5E0] flex-1 flex items-center gap-2">
+                        {t.Descripcion}
+                        {t.EsPersonalizada && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-[#7B337E]/30 text-[#CC8DB3] border border-[#7B337E]/40">Personalizada</span>
+                        )}
+                      </span>
                           <div className="flex items-center gap-1 shrink-0">
                             {DECISIONS.map(d => {
                               const colors: Record<string, string> = {

@@ -12,16 +12,18 @@ router.get('/solicitudes', (req, res) => {
     SELECT o.Id, o.FechaServicio, o.TotalHoras, o.TarifaHora, o.Total, o.Subtotal, o.TarifaPlataforma, o.Estado, o.EstadoNegociacion, o.HoraInicio, o.HoraFin,
            c.Id AS CuidadoraId, u.Nombres AS CuidadoraNombres, u.Apellidos AS CuidadoraApellidos,
            m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico,
-           (SELECT COALESCE(json_group_array(IdTarea), '[]') FROM OrdenTareas WHERE IdOrden = o.Id) AS TareaIds
-    FROM Ordenes o
-    INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
-    INNER JOIN Usuarios u ON u.Id = c.IdUsuario
-    LEFT JOIN Menores m ON m.Id = o.IdMenor
-    WHERE o.IdUsuarioFamilia = ?
-    ORDER BY o.FechaCreacion DESC
-  `).all(Number(userId));
+            (SELECT COALESCE(json_group_array(IdTarea), '[]') FROM OrdenTareas WHERE IdOrden = o.Id) AS TareaIds,
+            (SELECT COALESCE(json_group_array(json_object('Id', Id, 'Descripcion', Descripcion, 'Decision', Decision)), '[]') FROM OrdenTareasPersonalizadas WHERE IdOrden = o.Id) AS TareasPersonalizadas
+     FROM Ordenes o
+     INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+     INNER JOIN Usuarios u ON u.Id = c.IdUsuario
+     LEFT JOIN Menores m ON m.Id = o.IdMenor
+     WHERE o.IdUsuarioFamilia = ?
+     ORDER BY o.FechaCreacion DESC
+   `).all(Number(userId));
 
-  for (const r of rows) r.TareaIds = JSON.parse(r.TareaIds);
+   for (const r of rows) r.TareaIds = JSON.parse(r.TareaIds);
+   for (const r of rows) r.TareasPersonalizadas = JSON.parse(r.TareasPersonalizadas);
 
   res.json(rows);
 });
@@ -36,17 +38,19 @@ router.get('/solicitudes/:id', (req, res) => {
            c.Id AS CuidadoraId, u.Nombres AS CuidadoraNombres, u.Apellidos AS CuidadoraApellidos,
            m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico, m.FechaNacimiento AS MenorFechaNac,
            uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos,
-           (SELECT COALESCE(json_group_array(IdTarea), '[]') FROM OrdenTareas WHERE IdOrden = o.Id) AS TareaIds
-    FROM Ordenes o
-    INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
-    INNER JOIN Usuarios u ON u.Id = c.IdUsuario
-    INNER JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
-    LEFT JOIN Menores m ON m.Id = o.IdMenor
-    WHERE o.Id = ? AND o.IdUsuarioFamilia = ?
-  `).get(Number(req.params.id), Number(userId));
+            (SELECT COALESCE(json_group_array(IdTarea), '[]') FROM OrdenTareas WHERE IdOrden = o.Id) AS TareaIds,
+            (SELECT COALESCE(json_group_array(json_object('Id', Id, 'Descripcion', Descripcion, 'Decision', Decision)), '[]') FROM OrdenTareasPersonalizadas WHERE IdOrden = o.Id) AS TareasPersonalizadas
+     FROM Ordenes o
+     INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+     INNER JOIN Usuarios u ON u.Id = c.IdUsuario
+     INNER JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
+     LEFT JOIN Menores m ON m.Id = o.IdMenor
+     WHERE o.Id = ? AND o.IdUsuarioFamilia = ?
+   `).get(Number(req.params.id), Number(userId));
 
-  if (!row) return res.status(404).json({ error: 'Solicitud no encontrada' });
-  row.TareaIds = JSON.parse(row.TareaIds);
+   if (!row) return res.status(404).json({ error: 'Solicitud no encontrada' });
+   row.TareaIds = JSON.parse(row.TareaIds);
+   row.TareasPersonalizadas = JSON.parse(row.TareasPersonalizadas);
 
   res.json(row);
 });
@@ -306,7 +310,7 @@ router.post('/crear-solicitud', (req, res) => {
   const userId = Number(req.headers['x-user-id']);
   if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
 
-  const { idCuidadora, idMenor, fechaServicio, horaInicio, horaFin, totalHoras, tareaIds, observaciones } = req.body;
+  const { idCuidadora, idMenor, fechaServicio, horaInicio, horaFin, totalHoras, tareaIds, observaciones, tareasPersonalizadas } = req.body;
   if (!idCuidadora || !fechaServicio) {
     return res.status(400).json({ error: 'idCuidadora y fechaServicio son requeridos' });
   }
@@ -333,6 +337,14 @@ router.post('/crear-solicitud', (req, res) => {
     if (tareaIds && Array.isArray(tareaIds) && tareaIds.length > 0) {
       const stmt = db.prepare('INSERT INTO OrdenTareas (IdOrden, IdTarea) VALUES (?, ?)');
       for (const id of tareaIds) stmt.run(newId, id);
+    }
+
+    // Guardar tareas personalizadas
+    if (tareasPersonalizadas && Array.isArray(tareasPersonalizadas) && tareasPersonalizadas.length > 0) {
+      const stmt = db.prepare('INSERT INTO OrdenTareasPersonalizadas (IdOrden, Descripcion) VALUES (?, ?)');
+      for (const desc of tareasPersonalizadas) {
+        if (desc && desc.trim()) stmt.run(newId, desc.trim());
+      }
     }
 
     // Insertar observaciones como notación interna (usando campo Descripcion de Ordenes? No existe, lo guardamos como auditoria)

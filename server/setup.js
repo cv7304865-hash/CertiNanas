@@ -292,6 +292,15 @@ db.exec(`
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
     IdTarea INTEGER NOT NULL REFERENCES Tareas(Id),
+    Decision TEXT NOT NULL DEFAULT 'Pendiente',
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS OrdenTareasPersonalizadas (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
+    Descripcion TEXT NOT NULL,
+    Decision TEXT NOT NULL DEFAULT 'Pendiente',
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -682,6 +691,7 @@ db.exec(`
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN CheckOutLongitud REAL`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Contratos ADD COLUMN PdfUrl TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Contratos ADD COLUMN HashCriptografico TEXT`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE OrdenTareas ADD COLUMN Decision TEXT NOT NULL DEFAULT 'Pendiente'`).run(); } catch(e) {}
   try { db.prepare("UPDATE Postulaciones SET MotivoRechazo = 'No cumple con los requisitos minimos establecidos.' WHERE Estado = 'Rechazada' AND (MotivoRechazo IS NULL OR MotivoRechazo = '')").run(); } catch(e) {}
   try { db.prepare("UPDATE DocumentosPostulacion SET MotivoRechazo = 'Documento no cumple con los requisitos.' WHERE Estado = 'Rechazado' AND (MotivoRechazo IS NULL OR MotivoRechazo = '')").run(); } catch(e) {}
   try { db.prepare("UPDATE DocumentosPostulacion SET TipoRequisito = 'Antecedentes penales' WHERE TipoRequisito = 'Antecedentes PNP'").run(); } catch(e) {}

@@ -9,6 +9,41 @@ function getUserRole(userId) {
   return u ? u.IdRol : null;
 }
 
+// ── CAREGIVER: enviar matriz de decisiones sobre tareas ──
+router.post('/negociacion', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'No autenticado' });
+  if (getUserRole(userId) !== 3) return res.status(403).json({ error: 'Solo cuidadoras' });
+
+  const cuidadora = db.prepare('SELECT Id FROM Cuidadoras WHERE IdUsuario = ?').get(userId);
+  if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
+
+  const { ordenId, respuestas } = req.body;
+  if (!ordenId || !Array.isArray(respuestas)) {
+    return res.status(400).json({ error: 'ordenId y respuestas son requeridos' });
+  }
+
+  const orden = db.prepare('SELECT * FROM Ordenes WHERE Id = ? AND IdCuidadora = ?').get(ordenId, cuidadora.Id);
+  if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+  if (orden.EstadoNegociacion !== 'Pendiente') return res.status(400).json({ error: 'La orden ya no está pendiente' });
+
+  db.transaction(() => {
+    for (const r of respuestas) {
+      // Intentar actualizar en OrdenTareas primero
+      const updated = db.prepare('UPDATE OrdenTareas SET Decision = ? WHERE Id = ? AND IdOrden = ?').run(r.decision, r.tareaId, ordenId);
+      if (updated.changes === 0) {
+        // Si no afectó OrdenTareas, probar en OrdenTareasPersonalizadas
+        db.prepare('UPDATE OrdenTareasPersonalizadas SET Decision = ? WHERE Id = ? AND IdOrden = ?').run(r.decision, r.tareaId, ordenId);
+      }
+    }
+    db.prepare("UPDATE Ordenes SET EstadoNegociacion = 'Negociacion' WHERE Id = ?").run(ordenId);
+    audit(userId, 'responder_tareas', 'Ordenes', ordenId, 'Respuestas a tareas enviadas');
+  })();
+
+  res.json({ success: true, message: 'Respuestas registradas' });
+});
+
 // ── CAREGIVER: proponer cambio a una orden ──
 router.post('/cuidadora/orden/:id/proponer', (req, res) => {
   const db = getDb();
@@ -303,6 +338,21 @@ router.get('/cuidadora/solicitudes-pendientes', (req, res) => {
     WHERE o.IdCuidadora = ? AND o.EstadoNegociacion IN ('Pendiente', 'Negociacion', 'Reunion')
     ORDER BY o.FechaCreacion DESC
   `).all(cuidadora.Id);
+
+  for (const r of rows) {
+    const tareas = db.prepare(`
+      SELECT ot.Id, t.Descripcion, ot.Decision FROM OrdenTareas ot
+      INNER JOIN Tareas t ON t.Id = ot.IdTarea
+      WHERE ot.IdOrden = ?
+    `).all(r.Id);
+    const tareasPersonalizadas = db.prepare(`
+      SELECT Id, Descripcion, Decision FROM OrdenTareasPersonalizadas WHERE IdOrden = ?
+    `).all(r.Id);
+    r.tareas = [
+      ...tareas.map((t: any) => ({ Id: t.Id, Descripcion: t.Descripcion, Decision: t.Decision, EsPersonalizada: false })),
+      ...tareasPersonalizadas.map((t: any) => ({ Id: t.Id, Descripcion: t.Descripcion, Decision: t.Decision, EsPersonalizada: true })),
+    ];
+  }
 
   res.json(rows);
 });

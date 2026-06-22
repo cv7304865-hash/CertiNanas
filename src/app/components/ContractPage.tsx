@@ -6,6 +6,8 @@ import { ProfileAvatar } from './ProfileAvatar';
 import { TareasResumen } from './ChecklistTareas';
 import { SignatureCanvas } from './SignatureCanvas';
 
+type TareaPersonalizadaContrato = { Id: number; Descripcion: string; Decision: string; };
+
 type ContratoData = {
   Id: number; FechaServicio: string; TotalHoras: number; TarifaHora: number;
   Subtotal: number; TarifaPlataforma: number; Total: number; Estado: string;
@@ -14,6 +16,7 @@ type ContratoData = {
   MenorNombre: string | null; MenorDiagnostico: string | null; MenorFechaNac: string | null;
   FamiliaNombres: string; FamiliaApellidos: string;
   TareaIds?: number[];
+  TareasPersonalizadas?: TareaPersonalizadaContrato[];
 };
 
 export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?: number; onBack?: () => void; onProceedToPayment?: () => void }) {
@@ -145,9 +148,25 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
                 <div className="mx-6 sm:mx-8 mb-6 bg-[rgba(246,165,192,0.15)] backdrop-blur-sm border border-[rgba(246,165,192,0.3)] rounded-2xl p-5">
                   <div className="flex items-center gap-2 mb-3">
                     <ListTodo className="w-4 h-4 text-[#F6A5C0]" />
-                    <span className="text-xs font-bold text-[#F5D5E0]/70 uppercase tracking-wider">Tareas seleccionadas</span>
+                    <span className="text-xs font-bold text-[#F5D5E0]/70 uppercase tracking-wider">Servicios Estándar Seleccionados</span>
                   </div>
                   <TareasResumen ids={data.TareaIds} />
+                </div>
+              )}
+              {data.TareasPersonalizadas && data.TareasPersonalizadas.length > 0 && (
+                <div className="mx-6 sm:mx-8 mb-6 bg-[rgba(123,51,126,0.15)] backdrop-blur-sm border border-[rgba(123,51,126,0.3)] rounded-2xl p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <ListTodo className="w-4 h-4 text-[#CC8DB3]" />
+                    <span className="text-xs font-bold text-[#F5D5E0]/70 uppercase tracking-wider">Servicios Personalizados</span>
+                  </div>
+                  <ul className="space-y-1">
+                    {data.TareasPersonalizadas.map(t => (
+                      <li key={t.Id} className="flex items-start gap-2 text-xs text-[#F5D5E0]/80">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#CC8DB3] mt-1 shrink-0" />
+                        {t.Descripcion}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
 
