@@ -628,6 +628,36 @@ db.exec(`
     }
   }
 
+  // Postulaciones seed data
+  const existingPost = db.prepare('SELECT COUNT(*) AS c FROM Postulaciones').get().c;
+  if (existingPost === 0) {
+    // Postulaciones pendientes
+    db.prepare("INSERT INTO Postulaciones (IdUsuario, FechaPostulacion, Estado) VALUES (?, datetime('now', '-2 hours'), 'Pendiente')").run(8);
+    db.prepare("INSERT INTO Postulaciones (IdUsuario, FechaPostulacion, Estado) VALUES (?, datetime('now', '-12 hours'), 'Pendiente')").run(9);
+    db.prepare("INSERT INTO Postulaciones (IdUsuario, FechaPostulacion, Estado) VALUES (?, datetime('now', '-28 hours'), 'Pendiente')").run(10);
+    // Postulaciones aprobadas
+    db.prepare("INSERT INTO Postulaciones (IdUsuario, FechaPostulacion, Estado) VALUES (?, datetime('now', '-5 days'), 'Aprobada')").run(11);
+    db.prepare("INSERT INTO Postulaciones (IdUsuario, FechaPostulacion, Estado) VALUES (?, datetime('now', '-10 days'), 'Aprobada')").run(12);
+    // Postulaciones rechazadas
+    db.prepare("INSERT INTO Postulaciones (IdUsuario, FechaPostulacion, Estado, MotivoRechazo) VALUES (?, datetime('now', '-7 days'), 'Rechazada', 'Documentos incompletos: falta certificado de antecedentes penales')").run(13);
+    db.prepare("INSERT INTO Postulaciones (IdUsuario, FechaPostulacion, Estado, MotivoRechazo) VALUES (?, datetime('now', '-14 days'), 'Rechazada', 'No cumple con los requisitos minimos de experiencia')").run(14);
+
+    // Documentos for each postulacion
+    const postulacionesIds = db.prepare('SELECT Id, Estado FROM Postulaciones ORDER BY Id').all();
+    const tiposDoc = ['DNI', 'Antecedentes penales', 'Certificado de salud', 'Titulo profesional', 'Carta de presentacion'];
+    for (const p of postulacionesIds) {
+      const estadoDoc = p.Estado === 'Aprobada' ? 'Aprobado' : p.Estado === 'Rechazada' ? 'Rechazado' : 'Pendiente';
+      for (let i = 0; i < tiposDoc.length; i++) {
+        const archivo = tiposDoc[i].toLowerCase().replace(/\s+/g, '_') + '.pdf';
+        db.prepare("INSERT INTO DocumentosPostulacion (IdPostulacion, TipoRequisito, NombreArchivo, Peso, Estado, MotivoRechazo) VALUES (?, ?, ?, ?, ?, ?)").run(
+          p.Id, tiposDoc[i], archivo, (0.5 + Math.random() * 2).toFixed(1) + ' MB',
+          estadoDoc,
+          estadoDoc === 'Rechazado' ? 'El documento no es legible o esta incompleto' : null
+        );
+      }
+    }
+  }
+
   // Migraciones
   try { db.prepare(`ALTER TABLE Cuidadoras ADD COLUMN Zona TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN IdMenor INTEGER REFERENCES Menores(Id)`).run(); } catch(e) {}
