@@ -10,6 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 import { SearchPage } from './SearchPage';
 import { MinorsSection } from './MinorsSection';
+import { CrearSolicitud } from './CrearSolicitud';
 import { DocumentPreviewModal } from './DocumentPreviewModal';
 import { PaymentEscrow } from './PaymentEscrow';
 
@@ -106,6 +107,9 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
   const [incidenciaForm, setIncidenciaForm] = useState({ categoria: '', descripcion: '', archivo: null as File | null });
   const [submittingIncidencia, setSubmittingIncidencia] = useState(false);
 
+  // Create solicitud
+  const [showCrearSolicitud, setShowCrearSolicitud] = useState(false);
+
   // Document preview
   const [docPreviewCuidadoraId, setDocPreviewCuidadoraId] = useState<number | null>(null);
 
@@ -137,6 +141,10 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
     fetchAll();
     fetchMiembros();
     if (activeTab === 'buscar') fetchCompatibilidad();
+    if (localStorage.getItem('showCreateSolicitud') === 'true') {
+      localStorage.removeItem('showCreateSolicitud');
+      setShowCrearSolicitud(true);
+    }
   }, [activeTab]);
 
   useEffect(() => {
@@ -320,13 +328,23 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
         {/* ═══ TAB 1: BUSCAR ═══ */}
         {activeTab === 'buscar' && (
           <div className="space-y-6">
-            <SearchPage onNavigate={onNavigate} />
+            <SearchPage onNavigate={(v) => {
+              if (v === 'familia') setActiveTab('servicios');
+              else onNavigate?.(v);
+            }} />
           </div>
         )}
 
         {/* ═══ TAB 2: MIS SERVICIOS ═══ */}
         {activeTab === 'servicios' && (
           <div className="space-y-6">
+            {showCrearSolicitud ? (
+              <CrearSolicitud
+                onBack={() => setShowCrearSolicitud(false)}
+                onSuccess={() => { setShowCrearSolicitud(false); fetchAll(); }}
+              />
+            ) : (
+            <>
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-white">Mis Servicios</h2>
               <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}
@@ -441,6 +459,8 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                   </motion.div>
                 ))}
               </div>
+            )}
+            </>
             )}
           </div>
         )}
