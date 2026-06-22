@@ -349,8 +349,8 @@ router.get('/cuidadora/solicitudes-pendientes', (req, res) => {
       SELECT Id, Descripcion, Decision FROM OrdenTareasPersonalizadas WHERE IdOrden = ?
     `).all(r.Id);
     r.tareas = [
-      ...tareas.map((t: any) => ({ Id: t.Id, Descripcion: t.Descripcion, Decision: t.Decision, EsPersonalizada: false })),
-      ...tareasPersonalizadas.map((t: any) => ({ Id: t.Id, Descripcion: t.Descripcion, Decision: t.Decision, EsPersonalizada: true })),
+      ...tareas.map(t => ({ Id: t.Id, Descripcion: t.Descripcion, Decision: t.Decision, EsPersonalizada: false })),
+      ...tareasPersonalizadas.map(t => ({ Id: t.Id, Descripcion: t.Descripcion, Decision: t.Decision, EsPersonalizada: true })),
     ];
   }
 
