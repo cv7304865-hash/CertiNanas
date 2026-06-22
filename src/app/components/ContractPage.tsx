@@ -59,7 +59,7 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
   const nroContrato = data ? `CTN-2026-${String(data.Id).padStart(4, '0')}` : '---';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
+    <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
       <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">

@@ -33,7 +33,7 @@ export function AdminLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E] font-['Inter',system-ui,sans-serif]">
+    <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E] font-['Inter',system-ui,sans-serif]">
       <div className="flex h-screen overflow-hidden">
         <aside className={`${sidebarCollapsed ? 'w-20' : 'w-64'} flex-shrink-0 bg-[rgba(33,6,53,0.9)] backdrop-blur-[20px] border-r border-[rgba(255,255,255,0.1)] flex flex-col transition-all duration-300 z-30`}>
           <div className="flex items-center justify-between px-4 h-16 border-b border-[rgba(255,255,255,0.1)]">

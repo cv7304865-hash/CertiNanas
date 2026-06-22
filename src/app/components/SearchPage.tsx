@@ -99,7 +99,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
+    <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {/* Buscador */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6 sm:p-8">
@@ -156,7 +156,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                   <div className="flex items-center gap-3">
                     <h3 className="text-lg font-bold text-white">{c.Nombres} {c.Apellidos?.charAt(0)}.</h3>
                     {compatibilidad > 0 && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-linear-to-r from-[#7B337E] to-[#F6A5C0] text-white">
                         {compatibilidad}% Compatibilidad Clínica
                       </span>
                     )}
@@ -200,7 +200,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
               <div className="p-6 sm:p-8">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#CC8DB3] to-[#F6A5C0] flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                    <div className="w-16 h-16 rounded-full bg-linear-to-br from-[#CC8DB3] to-[#F6A5C0] flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
                       {getIniciales(selectedNana.Nombres, selectedNana.Apellidos)}
                     </div>
                     <div>

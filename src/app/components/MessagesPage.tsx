@@ -79,7 +79,7 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E] flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E] flex flex-col">
       {/* Navbar */}
       <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] text-white sticky top-0 z-40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

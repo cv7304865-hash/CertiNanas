@@ -259,7 +259,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E] flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E] flex items-center justify-center">
         <div className="text-[#6667AB] text-sm">Cargando...</div>
       </div>
     );
@@ -273,7 +273,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
+    <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
       <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] text-white sticky top-0 z-40 shadow-lg shadow-black/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -347,7 +347,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                   Busca cuidadoras y contrata un servicio para comenzar
                 </p>
                 <button onClick={() => setActiveTab('buscar')}
-                  className="mt-5 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                  className="mt-5 px-6 py-2.5 rounded-full bg-linear-to-r from-[#7B337E] to-[#F6A5C0] text-white text-xs font-bold hover:opacity-90 transition-opacity"
                 >
                   Buscar cuidadoras
                 </button>

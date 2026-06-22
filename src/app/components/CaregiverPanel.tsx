@@ -277,7 +277,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
   const glassCard = 'bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
+    <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
       <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] text-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -460,7 +460,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                     <motion.div
                       initial={{ width: 0 }} animate={{ width: `${reputacion.progreso}%` }}
                       transition={{ duration: 1, ease: 'easeOut' }}
-                      className="h-full rounded-full bg-gradient-to-r from-[#7B337E] to-[#F6A5C0]"
+                      className="h-full rounded-full bg-linear-to-r from-[#7B337E] to-[#F6A5C0]"
                     />
                   </div>
                   <p className="text-xs text-[#6667AB]">Próximo nivel: {reputacion.siguienteNivel} ({Math.round(reputacion.progreso)}%)</p>
@@ -485,7 +485,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                     <motion.div
                       initial={{ width: 0 }} animate={{ width: `${capacitacion.progreso}%` }}
                       transition={{ duration: 1, ease: 'easeOut' }}
-                      className="h-full rounded-full bg-gradient-to-r from-[#7B337E] to-[#F6A5C0]"
+                      className="h-full rounded-full bg-linear-to-r from-[#7B337E] to-[#F6A5C0]"
                     />
                   </div>
                   <p className="text-xs text-[#6667AB]">{Math.round(capacitacion.progreso)}% completado</p>

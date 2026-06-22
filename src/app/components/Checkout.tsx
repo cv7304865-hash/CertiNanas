@@ -23,7 +23,7 @@ export function Checkout({ onBack }: Props) {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
+      <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-3xl p-12">
             <div className="w-20 h-20 mx-auto rounded-full bg-[#f6a5c0]/30 flex items-center justify-center mb-6">
@@ -46,7 +46,7 @@ export function Checkout({ onBack }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
+    <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <button onClick={onBack} className="inline-flex items-center gap-1 text-sm font-semibold text-[#6667AB] hover:text-white mb-6 transition-colors">
           <ChevronLeft className="w-4 h-4" /> Volver

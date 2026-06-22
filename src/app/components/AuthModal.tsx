@@ -303,7 +303,7 @@ export function AuthModal({ isOpen, onClose, mode: initialMode, onOpenLegal }: A
                   <button type="button" onClick={onClose} className="px-3 py-2 text-xs font-semibold text-[#F5D5E0] hover:text-white transition-colors">
                     Cancelar
                   </button>
-                  <button type="submit" className="flex-1 py-2.5 bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:opacity-90 text-xs flex items-center justify-center gap-1.5">
+                  <button type="submit" className="flex-1 py-2.5 bg-linear-to-r from-[#7B337E] to-[#F6A5C0] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:opacity-90 text-xs flex items-center justify-center gap-1.5">
                     Ingresar <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

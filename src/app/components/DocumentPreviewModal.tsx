@@ -20,11 +20,11 @@ const documentTypes: DocumentType[] = [
 // ─── DNI ELECTRÓNICO ────────────────────────────
 const DniTemplate = () => (
   <div className="rounded-xl overflow-hidden shadow-xl shadow-black/40 max-w-sm mx-auto border border-gray-300 relative">
-    <div className="absolute inset-0 bg-gradient-to-br from-[#E8F0FE] via-[#D6E8FA] to-[#B8D4F0] opacity-40" />
+    <div className="absolute inset-0 bg-linear-to-br from-[#E8F0FE] via-[#D6E8FA] to-[#B8D4F0] opacity-40" />
     <div className="absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 12px, rgba(196,167,71,0.04) 12px, rgba(196,167,71,0.04) 13px), repeating-linear-gradient(90deg, transparent, transparent 12px, rgba(196,167,71,0.04) 12px, rgba(196,167,71,0.04) 13px)' }} />
     <div className="absolute inset-1 rounded-xl border border-[rgba(196,167,71,0.15)]" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(196,167,71,0.06) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(196,167,71,0.06) 0%, transparent 50%)' }} />
     <div className="relative bg-[rgba(255,255,255,0.85)] backdrop-blur-sm">
-      <div className="bg-gradient-to-r from-[#4A6585] via-[#5A7A9F] to-[#4A6585] px-3.5 py-2 flex items-center gap-2">
+      <div className="bg-linear-to-r from-[#4A6585] via-[#5A7A9F] to-[#4A6585] px-3.5 py-2 flex items-center gap-2">
         <div className="w-6 h-6 rounded-full border-[1.5px] border-[#C4A747] flex items-center justify-center flex-shrink-0">
           <span className="text-[#C4A747] text-[7px] font-black">RP</span>
         </div>
@@ -38,7 +38,7 @@ const DniTemplate = () => (
         </div>
       </div>
       <div className="p-3.5 flex gap-3">
-        <div className="w-[82px] h-[98px] bg-gradient-to-b from-[#E8EFF7] to-[#D0DCEB] border border-gray-300 rounded flex flex-col items-center justify-center flex-shrink-0 overflow-hidden shadow-inner">
+        <div className="w-[82px] h-[98px] bg-linear-to-b from-[#E8EFF7] to-[#D0DCEB] border border-gray-300 rounded flex flex-col items-center justify-center flex-shrink-0 overflow-hidden shadow-inner">
           <div className="w-11 h-11 rounded-full bg-[#CC8DB3] flex items-center justify-center text-white font-bold text-base">LR</div>
           <p className="text-[5px] text-gray-400 mt-1 tracking-wider">FOTO</p>
         </div>
@@ -56,7 +56,7 @@ const DniTemplate = () => (
               <span className="text-[6px] text-gray-400 font-semibold tracking-wide">DNI / CUI</span>
               <p className="text-[12px] font-extrabold text-[#1a1a2e] tracking-widest">48 765 321</p>
             </div>
-            <div className="w-[30px] h-[18px] bg-gradient-to-br from-[#C4A747] to-[#A08830] rounded-[2px] flex items-center justify-center">
+            <div className="w-[30px] h-[18px] bg-linear-to-br from-[#C4A747] to-[#A08830] rounded-[2px] flex items-center justify-center">
               <span className="text-white text-[4px] font-bold tracking-wider">CHIP</span>
             </div>
           </div>
@@ -90,7 +90,7 @@ const DniTemplate = () => (
           </div>
         </div>
       </div>
-      <div className="border-t border-gray-200 px-3.5 py-1.5 flex items-center justify-between bg-gradient-to-r from-[rgba(74,101,133,0.04)] to-transparent">
+      <div className="border-t border-gray-200 px-3.5 py-1.5 flex items-center justify-between bg-linear-to-r from-[rgba(74,101,133,0.04)] to-transparent">
         <div className="flex gap-[1px]">
           {[...Array(24)].map((_, i) => (
             <div key={i} className="w-[1px] h-[10px]" style={{ backgroundColor: `rgba(0,0,0,${0.15 + (i % 4) * 0.12})` }} />
@@ -134,7 +134,7 @@ const AntecedentesTemplate = () => (
           <p className="text-[9px] text-gray-700">Evaluación para cuidado infantil — CertiNanas</p>
         </div>
       </div>
-      <div className="border-2 border-[#1B5E20] rounded-xl bg-gradient-to-b from-[#E8F5E9] to-[#C8E6C9] p-3 text-center relative overflow-hidden">
+      <div className="border-2 border-[#1B5E20] rounded-xl bg-linear-to-b from-[#E8F5E9] to-[#C8E6C9] p-3 text-center relative overflow-hidden">
         <CheckCircle className="w-7 h-7 text-[#2E7D32] mx-auto mb-1" />
         <p className="text-[11px] font-extrabold text-[#1B5E20] tracking-wider">NO REGISTRA ANTECEDENTES PENALES</p>
         <p className="text-[8px] text-[#558B2F] mt-0.5">Certificado válido para fines legales y administrativos</p>
@@ -146,7 +146,7 @@ const AntecedentesTemplate = () => (
 // ─── CERTIFICADO DE SALUD ──────────────────────
 const SaludTemplate = () => (
   <div className="bg-white rounded-xl overflow-hidden shadow-xl shadow-black/40 max-w-sm mx-auto border border-gray-200">
-    <div className="bg-gradient-to-r from-[#0D4F2B] to-[#1B7A42] px-4 py-3 flex items-center gap-3">
+    <div className="bg-linear-to-r from-[#0D4F2B] to-[#1B7A42] px-4 py-3 flex items-center gap-3">
       <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0">
         <span className="text-[#0D4F2B] text-[8px] font-black">MS</span>
       </div>
@@ -193,7 +193,7 @@ const SaludTemplate = () => (
           ))}
         </div>
       </div>
-      <div className="bg-gradient-to-r from-[#E8F5E9] to-[#C8E6C9] border border-[#4CAF50] rounded-lg p-3 text-center">
+      <div className="bg-linear-to-r from-[#E8F5E9] to-[#C8E6C9] border border-[#4CAF50] rounded-lg p-3 text-center">
         <p className="text-[12px] font-extrabold text-[#1B5E20] tracking-wide">APTO PARA CUIDADO INFANTIL</p>
         <p className="text-[8px] text-[#558B2F]">Certificado de Salud Ocupacional — Válido 12 meses</p>
       </div>
@@ -204,18 +204,18 @@ const SaludTemplate = () => (
 // ─── TÍTULO PROFESIONAL ─────────────────────────
 const TituloTemplate = () => (
   <div className="bg-white rounded-xl overflow-hidden shadow-xl shadow-black/40 max-w-sm mx-auto border border-gray-200">
-    <div className="h-1 bg-gradient-to-r from-[#8B6914] via-[#C4A747] to-[#8B6914]" />
+    <div className="h-1 bg-linear-to-r from-[#8B6914] via-[#C4A747] to-[#8B6914]" />
     <div className="px-4 pt-3 pb-1 text-center">
-      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8B4513] to-[#5C2E0A] flex items-center justify-center mx-auto mb-1.5 shadow-md">
+      <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#8B4513] to-[#5C2E0A] flex items-center justify-center mx-auto mb-1.5 shadow-md">
         <span className="text-[#C4A747] text-lg font-serif font-bold">U</span>
       </div>
       <p className="text-[10px] font-extrabold text-[#8B4513] tracking-[0.2em]">UNIVERSIDAD CÉSAR VALLEJO</p>
       <p className="text-[7px] text-gray-500 font-medium tracking-wider">LICENCIATURA EN EDUCACIÓN ESPECIAL</p>
     </div>
     <div className="flex items-center gap-2 px-8 py-1.5">
-      <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#C4A747] to-transparent" />
+      <div className="flex-1 h-[1px] bg-linear-to-r from-transparent via-[#C4A747] to-transparent" />
       <div className="w-1.5 h-1.5 rotate-45 bg-[#C4A747]" />
-      <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-[#C4A747] to-transparent" />
+      <div className="flex-1 h-[1px] bg-linear-to-r from-transparent via-[#C4A747] to-transparent" />
     </div>
     <div className="px-5 pb-2 text-center">
       <p className="text-[8px] text-gray-500 italic leading-relaxed">El Rector de la Universidad César Vallejo, por cuanto:</p>
@@ -253,7 +253,7 @@ const TituloTemplate = () => (
         <p className="text-[5px] text-gray-400">DECANO</p>
       </div>
     </div>
-    <div className="h-1 bg-gradient-to-r from-[#8B6914] via-[#C4A747] to-[#8B6914]" />
+    <div className="h-1 bg-linear-to-r from-[#8B6914] via-[#C4A747] to-[#8B6914]" />
   </div>
 );
 
@@ -261,7 +261,7 @@ const TituloTemplate = () => (
 const CartaTemplate = () => (
   <div className="bg-white rounded-xl overflow-hidden shadow-xl shadow-black/40 max-w-sm mx-auto border border-gray-200 p-5">
     <div className="text-center mb-4">
-      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#CC8DB3] to-[#F6A5C0] flex items-center justify-center mx-auto mb-2">
+      <div className="w-12 h-12 rounded-full bg-linear-to-br from-[#CC8DB3] to-[#F6A5C0] flex items-center justify-center mx-auto mb-2">
         <span className="text-white text-lg font-bold">LR</span>
       </div>
       <p className="text-sm font-bold text-gray-800">Lucia Fernanda Ramirez Garcia</p>

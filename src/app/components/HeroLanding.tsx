@@ -21,7 +21,7 @@ const steps = [
 
 export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCatalog }: Props) {
   return (
-    <section id="inicio" className="relative bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E] overflow-hidden">
+    <section id="inicio" className="relative bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E] overflow-hidden">
       {/* Background grid + glows */}
       <div
         className="absolute inset-0 opacity-[0.35] pointer-events-none"
@@ -61,7 +61,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
         >
           Cuidado especializado y seguro{' '}
           <span className="relative inline-block">
-            <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-[#CC8DB3] to-emerald-500">
+            <span className="relative z-10 text-transparent bg-clip-text bg-linear-to-r from-[#CC8DB3] to-emerald-500">
               para quienes más amas
             </span>
             <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none" preserveAspectRatio="none">
@@ -95,7 +95,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               whileHover={{ y: -3 }}
               className="group inline-flex items-center gap-2.5 px-5 py-3 rounded-full bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 transition-all"
             >
-              <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[#210635] to-[#420D4B] border border-[rgba(255,255,255,0.2)] flex items-center justify-center shadow-inner">
+              <span className="w-8 h-8 rounded-full bg-linear-to-br from-[#210635] to-[#420D4B] border border-[rgba(255,255,255,0.2)] flex items-center justify-center shadow-inner">
                 <b.icon className={`w-4 h-4 ${b.color}`} />
               </span>
               <span className="text-sm font-bold text-[#F5D5E0]">{b.label}</span>
@@ -118,7 +118,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               whileHover={{ y: -6 }}
               className="relative group lg:translate-y-3"
             >
-              <div className="absolute -inset-0.5 bg-gradient-to-br from-[#CC8DB3]/30 to-[#210635]/20 rounded-[2.25rem] blur opacity-40 group-hover:opacity-70 transition-opacity" />
+              <div className="absolute -inset-0.5 bg-linear-to-br from-[#CC8DB3]/30 to-[#210635]/20 rounded-[2.25rem] blur opacity-40 group-hover:opacity-70 transition-opacity" />
               <div className="relative bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden">
                 {/* image */}
                 <div className="relative h-60 overflow-hidden">
@@ -127,7 +127,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                     alt="Cuidadora con niño"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#210635] via-[#210635]/10 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-[#210635] via-[#210635]/10 to-transparent" />
 
                   {/* Floating verified badge */}
                   <motion.div
@@ -209,7 +209,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
               whileHover={{ y: -6 }}
               className="relative group lg:-translate-y-3"
             >
-              <div className="absolute -inset-0.5 bg-gradient-to-br from-[#210635]/30 to-[#CC8DB3]/20 rounded-[2.25rem] blur opacity-40 group-hover:opacity-70 transition-opacity" />
+              <div className="absolute -inset-0.5 bg-linear-to-br from-[#210635]/30 to-[#CC8DB3]/20 rounded-[2.25rem] blur opacity-40 group-hover:opacity-70 transition-opacity" />
               <div className="relative bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden">
                 <div className="relative h-60 overflow-hidden">
                   <img
@@ -217,7 +217,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                     alt="Cuidadora profesional con certificado"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#210635] via-[#210635]/10 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-[#210635] via-[#210635]/10 to-transparent" />
 
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -340,7 +340,7 @@ export function HeroLanding({ onRegisterFamily, onRegisterCaregiver, onScrollCat
                   transition={{ delay: i * 0.15 }}
                   className="relative flex flex-col items-center text-center"
                 >
-                  <div className={`relative w-24 h-24 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center shadow-xl shadow-blue-900/20 mb-6`}>
+                  <div className={`relative w-24 h-24 rounded-2xl bg-linear-to-br ${s.color} flex items-center justify-center shadow-xl shadow-blue-900/20 mb-6`}>
                     <s.icon className="w-10 h-10 text-white" strokeWidth={1.8} />
                     <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-xs font-extrabold text-[#210635]">
                       {s.n}

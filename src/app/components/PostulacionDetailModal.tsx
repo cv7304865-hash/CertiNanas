@@ -145,7 +145,7 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
                     initial={{ width: 0 }}
                     animate={{ width: `${progressPct}%` }}
                     transition={{ duration: 0.8, ease: 'easeOut' }}
-                    className="h-full rounded-full bg-gradient-to-r from-[#7B337E] to-[#CC8DB3]"
+                    className="h-full rounded-full bg-linear-to-r from-[#7B337E] to-[#CC8DB3]"
                     style={{ boxShadow: '0 0 8px rgba(204,141,179,0.5)' }}
                   />
                 </div>
@@ -301,7 +301,7 @@ export function PostulacionDetailModal({ isOpen, onClose, postulante, onAprobar,
                       disabled={!allVerified}
                       className={`px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg ${
                         allVerified
-                          ? 'bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] hover:from-[#7B337E]/90 hover:to-[#F6A5C0]/90 shadow-[#7B337E]/30 text-white'
+                          ? 'bg-linear-to-r from-[#7B337E] to-[#F6A5C0] hover:from-[#7B337E]/90 hover:to-[#F6A5C0]/90 shadow-[#7B337E]/30 text-white'
                           : 'bg-[rgba(255,255,255,0.08)] text-[#6667AB] cursor-not-allowed'
                       }`}
                     >

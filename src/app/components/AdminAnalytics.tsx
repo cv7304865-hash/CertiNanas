@@ -152,7 +152,7 @@ export function AdminAnalytics() {
                     initial={{ height: 0 }}
                     animate={{ height: `${(v / maxSemana) * 100}%` }}
                     transition={{ duration: 0.5, delay: i * 0.05 }}
-                    className="w-full rounded-t-lg bg-gradient-to-t from-[#7B337E] to-[#CC8DB3]"
+                    className="w-full rounded-t-lg bg-linear-to-t from-[#7B337E] to-[#CC8DB3]"
                     style={{ minHeight: v > 0 ? '4px' : '0' }}
                   />
                   <span className="text-[10px] text-[#6667AB]">S{i + 1}</span>
@@ -177,7 +177,7 @@ export function AdminAnalytics() {
                     initial={{ height: 0 }}
                     animate={{ height: `${(v / maxMes) * 100}%` }}
                     transition={{ duration: 0.5, delay: i * 0.05 }}
-                    className="w-full rounded-t-lg bg-gradient-to-t from-[#7B337E] to-[#F6A5C0]"
+                    className="w-full rounded-t-lg bg-linear-to-t from-[#7B337E] to-[#F6A5C0]"
                     style={{ minHeight: v > 0 ? '4px' : '0' }}
                   />
                   <span className="text-[10px] text-[#6667AB]">{'EneFebMarAbrMayJunJulAgoSepOctNovDec'.match(/.../g)?.[i] || `M${i + 1}`}</span>

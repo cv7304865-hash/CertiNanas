@@ -124,7 +124,7 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
         </div>
 
         {/* Payment status */}
-        <div className="bg-gradient-to-br from-[#210635] to-[#7B337E] rounded-2xl p-6 text-white shadow-sm">
+        <div className="bg-linear-to-br from-[#210635] to-[#7B337E] rounded-2xl p-6 text-white shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <CreditCard className="w-5 h-5" />
             <h2 className="font-bold">Estado de Pagos</h2>

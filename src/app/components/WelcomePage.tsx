@@ -14,7 +14,7 @@ const features = [
 
 export function WelcomePage({ onRegister, onLogin }: Props) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E] flex items-center justify-center p-4">
       <div className="fixed top-[-15%] left-[-10%] w-[55%] h-[55%] bg-[#CC8DB3]/10 rounded-full blur-[140px] pointer-events-none" />
       <div className="fixed bottom-[-15%] right-[-10%] w-[55%] h-[55%] bg-[#210635]/10 rounded-full blur-[140px] pointer-events-none" />
 
@@ -24,11 +24,11 @@ export function WelcomePage({ onRegister, onLogin }: Props) {
         transition={{ duration: 0.6 }}
         className="w-full max-w-sm bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-3xl overflow-hidden"
       >
-        <div className="h-1 bg-gradient-to-r from-[#F6A5C0] to-[#CC8DB3]" />
+        <div className="h-1 bg-linear-to-r from-[#F6A5C0] to-[#CC8DB3]" />
 
         <div className="p-6">
           <div className="flex flex-col items-center text-center mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#210635] to-[#7B337E] flex items-center justify-center mb-4 shadow-lg">
+            <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-[#210635] to-[#7B337E] flex items-center justify-center mb-4 shadow-lg">
               <Heart className="w-6 h-6 text-[#F5D5E0]" fill="#F5D5E0" />
             </div>
 
@@ -48,7 +48,7 @@ export function WelcomePage({ onRegister, onLogin }: Props) {
           <div className="space-y-2.5 mb-6">
             <button
               onClick={onRegister}
-              className="w-full py-3 bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:opacity-90 text-sm"
+              className="w-full py-3 bg-linear-to-r from-[#7B337E] to-[#F6A5C0] text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:opacity-90 text-sm"
             >
               Registrarse
             </button>

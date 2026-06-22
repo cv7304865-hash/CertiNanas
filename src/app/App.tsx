@@ -228,7 +228,7 @@ function AppContent() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E] font-['Inter',system-ui,sans-serif] selection:bg-[#CC8DB3] selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E] font-['Inter',system-ui,sans-serif] selection:bg-[#CC8DB3] selection:text-white overflow-x-hidden">
       {showHeader && (
       <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] sticky top-0 z-40 transition-all duration-300 shadow-lg shadow-black/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -526,7 +526,7 @@ function AppContent() {
                                 alt={nana.name}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-[#210635]/80 via-black/20 to-transparent opacity-80"></div>
+                              <div className="absolute inset-0 bg-linear-to-t from-[#210635]/80 via-black/20 to-transparent opacity-80"></div>
                               <div className="absolute top-4 right-4 bg-[rgba(33,6,53,0.65)] backdrop-blur-sm rounded-full p-2 shadow-lg flex items-center justify-center border-2 border-[#CC8DB3] group-hover:scale-110 transition-transform" title="Perfil Verificado">
                                 <CheckCircle className="w-4 h-4 text-[#CC8DB3]" />
                               </div>
@@ -642,7 +642,7 @@ function AppContent() {
                         transition={{ delay: index * 0.2 }}
                         className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] rounded-3xl p-8 border border-[rgba(255,255,255,0.2)] hover:bg-[rgba(33,6,53,0.75)] transition-colors shadow-lg shadow-black/30"
                       >
-                        <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br ${item.color} shadow-lg mb-6`}>
+                        <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-linear-to-br ${item.color} shadow-lg mb-6`}>
                           {item.icon}
                         </div>
                         <h3 className="text-2xl font-bold mb-4">{item.title}</h3>
