@@ -121,6 +121,20 @@ app.get('/api/health', (req, res) => {
   }
 });
 
+app.get('/api/debug/db-check', (req, res) => {
+  try {
+    const db = getDb();
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all();
+    const counts = {};
+    for (const t of tables) {
+      try { counts[t.name] = db.prepare(`SELECT COUNT(*) AS c FROM "${t.name}"`).get().c; } catch(e) { counts[t.name] = -1; }
+    }
+    res.json({ tableCount: tables.length, tables: tables.map(t => t.name), counts });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const distPath = path.resolve(__dirname, '..', 'dist');
 app.use(express.static(distPath));
 
