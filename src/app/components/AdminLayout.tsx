@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, FileText, MessageSquare, Shield, Handshake, BarChart3,
-  Clock, AlertTriangle, Bell, LogOut, ChevronLeft, ChevronRight
+  Clock, AlertTriangle, Bell, LogOut, ChevronLeft, ChevronRight, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AdminDashboard } from './AdminDashboard';
@@ -13,8 +13,9 @@ import { AdminMediaciones } from './AdminMediaciones';
 import { AdminAnalytics } from './AdminAnalytics';
 import { AdminSLAMonitor } from './AdminSLAMonitor';
 import { AdminAlertasRiesgo } from './AdminAlertasRiesgo';
+import { AdminIncidencias } from './AdminIncidencias';
 
-type Tab = 'dashboard' | 'postulaciones' | 'negociaciones' | 'pagos' | 'mediaciones' | 'analitica' | 'sla' | 'alertas';
+type Tab = 'dashboard' | 'postulaciones' | 'negociaciones' | 'pagos' | 'mediaciones' | 'analitica' | 'sla' | 'alertas' | 'incidencias';
 
 const navItems: { key: Tab; label: string; icon: any }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -25,6 +26,7 @@ const navItems: { key: Tab; label: string; icon: any }[] = [
   { key: 'analitica', label: 'Analítica', icon: BarChart3 },
   { key: 'sla', label: 'Monitoreo SLA', icon: Clock },
   { key: 'alertas', label: 'Alertas de Riesgo', icon: AlertTriangle },
+  { key: 'incidencias', label: 'Incidencias', icon: AlertCircle },
 ];
 
 export function AdminLayout() {
@@ -138,6 +140,7 @@ export function AdminLayout() {
                 {tab === 'analitica' && <AdminAnalytics />}
                 {tab === 'sla' && <AdminSLAMonitor />}
                 {tab === 'alertas' && <AdminAlertasRiesgo />}
+                {tab === 'incidencias' && <AdminIncidencias />}
               </motion.div>
             </AnimatePresence>
           </main>

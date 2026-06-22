@@ -329,7 +329,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
         {activeTab === 'buscar' && (
           <div className="space-y-6">
             <SearchPage onNavigate={(v) => {
-              if (v === 'familia') setActiveTab('servicios');
+              if (v === 'familia') setActiveTab('familia');
               else onNavigate?.(v);
             }} />
           </div>
