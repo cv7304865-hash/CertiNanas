@@ -29,7 +29,28 @@ export function AdminAlertasRiesgo() {
   useEffect(() => {
     fetch('/api/alertas/riesgo', { headers })
       .then(r => r.json())
-      .then(setAlertas)
+      .then(data => {
+        const mapped = (data.predicciones || []).map((p: any) => {
+          let score = p.PuntajeRiesgo || 0;
+          let riesgo: 'Bajo' | 'Medio' | 'Alto' = 'Bajo';
+          if (score >= 50) riesgo = 'Alto';
+          else if (score >= 25) riesgo = 'Medio';
+          return {
+            Id: p.Id, OrdenId: p.IdOrden,
+            FamiliaNombres: p.FamiliaNombres || '', FamiliaApellidos: p.FamiliaApellidos || '',
+            CuidadoraNombres: p.CuidadoraNombres || '', CuidadoraApellidos: p.CuidadoraApellidos || '',
+            Riesgo: riesgo, Score: score,
+            Variables: (p.VariablesAnalizadas || []).map((v: any) => ({
+              nombre: v.variable || v.nombre || '',
+              valor: v.peso ? String(v.peso) : '',
+              impacto: score >= 50 ? 'negativo' : 'neutral',
+            })),
+            FechaCreacion: p.FechaCreacion || new Date().toISOString(),
+            Revisado: !!p.AlertaGenerada,
+          };
+        });
+        setAlertas(mapped);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

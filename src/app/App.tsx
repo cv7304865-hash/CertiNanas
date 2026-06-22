@@ -53,6 +53,7 @@ function AppContent() {
     }
     if (user.rol === 'cuidadora') setView('cuidadora');
     else if (user.rol === 'admin') setView('admin');
+    else if (user.rol === 'familia') setView('familia');
     else setView('search');
   }, [loading, user?.id]);
 

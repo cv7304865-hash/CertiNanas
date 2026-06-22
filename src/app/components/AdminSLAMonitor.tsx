@@ -26,7 +26,16 @@ export function AdminSLAMonitor() {
   useEffect(() => {
     fetch('/api/alertas/sla', { headers })
       .then(r => r.json())
-      .then(setPerfiles)
+      .then(data => {
+        const mapped = (data.postulaciones || []).map((p: any) => ({
+          Id: p.Id, Nombres: p.Nombres, Apellidos: p.Apellidos, Email: p.Email,
+          FechaPostulacion: p.FechaPostulacion,
+          HorasTranscurridas: (p.DiasPendiente || 0) * 24 + (p.nivelAlerta === 'critico' ? 12 : 0),
+          Estado: p.DiasPendiente >= 3 ? 'critico' : p.DiasPendiente >= 1 ? 'pendiente' : 'normal',
+          Etapa: p.DiasPendiente >= 3 ? 'Aprobación Final' : p.DiasPendiente >= 2 ? 'Validación' : p.DiasPendiente >= 1 ? 'Documentos' : 'Postulación',
+        }));
+        setPerfiles(mapped);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

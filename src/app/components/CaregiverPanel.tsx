@@ -753,15 +753,8 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
             <MessageSquare className="w-16 h-16 text-[#6667AB] mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white mb-2">Mensajes</h2>
             <p className="text-[#F5D5E0]/70 mb-6 max-w-md mx-auto">
-              Accede a tu bandeja de mensajes para comunicarte con las familias y el equipo CERTINANAS.
+              Accede a tu bandeja de mensajes desde el botón <strong className="text-white">"Mensajes"</strong> en el encabezado de la página.
             </p>
-            <motion.button
-              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-              onClick={() => onNavigate?.('messages')}
-              className="inline-flex items-center gap-2 px-8 py-3 bg-[#F6A5C0] text-[#210635] rounded-xl text-sm font-bold"
-            >
-              <MessageSquare className="w-4 h-4" /> Ir a Mensajes
-            </motion.button>
           </motion.div>
         )}
 
