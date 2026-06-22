@@ -28,7 +28,7 @@ type CasoExito = {
   Nombres: string; Apellidos: string;
 };
 
-export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void }) {
+export function SearchPage({ onNavigate, inline }: { onNavigate?: (v: string) => void; inline?: boolean }) {
   const { user, logout } = useAuth();
   const [cuidadoras, setCuidadoras] = useState<CuidadoraCard[]>([]);
   const [count, setCount] = useState(0);
@@ -98,9 +98,9 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
     return `${names?.[0]?.charAt(0) || ''}${a?.charAt(0) || ''}`;
   };
 
-  return (
-    <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+  const content = (
+    <>
+      <div className="space-y-6">
         {/* Buscador */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6 sm:p-8">
           <h2 className="text-xl font-bold text-white mb-6">Encuentra la cuidadora ideal para tu hijo</h2>
@@ -407,7 +407,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
       </AnimatePresence>
 
       {/* Casos de Éxito */}
-      {exitos.length > 0 && (
+      {!inline && exitos.length > 0 && (
         <section className="max-w-5xl mx-auto px-4 mt-16 mb-8">
           <div className="flex items-center gap-3 mb-8">
             <Heart className="w-6 h-6 text-[#CC8DB3]" />
@@ -489,6 +489,16 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
           />
         )}
       </AnimatePresence>
+    </>
+  );
+
+  if (inline) return content;
+
+  return (
+    <div className="min-h-screen bg-linear-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        {content}
+      </div>
     </div>
   );
 }

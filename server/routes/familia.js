@@ -128,6 +128,24 @@ router.post('/pagar/:id', (req, res) => {
   res.json({ success: true });
 });
 
+// La familia inicia el servicio (transición de Pagada a En curso)
+router.post('/orden/:id/iniciar', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+
+  const orden = db.prepare('SELECT * FROM Ordenes WHERE Id = ? AND IdUsuarioFamilia = ?').get(Number(req.params.id), userId);
+  if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+  if (orden.Estado !== 'Pagada') return res.status(400).json({ error: 'El servicio debe estar pagado para iniciarlo' });
+
+  db.transaction(() => {
+    db.prepare("UPDATE Ordenes SET Estado = 'En curso' WHERE Id = ?").run(orden.Id);
+    audit(userId, 'iniciar_servicio', 'Ordenes', orden.Id, null);
+  })();
+
+  res.json({ success: true });
+});
+
 // La familia confirma que el servicio finalizó sin incidencias (RN-16)
 router.post('/orden/:id/confirmar-finalizacion', (req, res) => {
   const db = getDb();
@@ -136,7 +154,7 @@ router.post('/orden/:id/confirmar-finalizacion', (req, res) => {
 
   const orden = db.prepare('SELECT * FROM Ordenes WHERE Id = ? AND IdUsuarioFamilia = ?').get(Number(req.params.id), userId);
   if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
-  if (orden.Estado !== 'Pagada') return res.status(400).json({ error: 'El servicio debe estar pagado para finalizarlo' });
+  if (orden.Estado !== 'Pagada' && orden.Estado !== 'En curso') return res.status(400).json({ error: 'El servicio debe estar en curso o pagado para finalizarlo' });
   if (orden.FinalizadaFamilia) return res.status(400).json({ error: 'Ya confirmaste la finalización' });
 
   db.transaction(() => {

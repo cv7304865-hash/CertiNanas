@@ -162,15 +162,15 @@ db.exec(`
 
   CREATE TABLE IF NOT EXISTS Negociaciones (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
-    IdPropuestoPor INTEGER NOT NULL REFERENCES Usuarios(Id),
+    IdOrden INTEGER,
+    IdPropuestoPor INTEGER,
     TarifaHora REAL,
     TotalHoras REAL,
     HoraInicio TEXT,
     HoraFin TEXT,
     Mensaje TEXT,
-    Estado TEXT NOT NULL DEFAULT 'activa' CHECK (Estado IN ('activa','aceptada','rechazada','contrapropuesta')),
-    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+    Estado TEXT DEFAULT 'activa',
+    FechaCreacion TEXT DEFAULT (datetime('now'))
   );
 
   CREATE TABLE IF NOT EXISTS Menores (

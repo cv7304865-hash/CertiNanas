@@ -33,6 +33,15 @@ type Minor = {
   Id: number; Nombre: string; Diagnostico: string | null; FechaNacimiento: string | null;
 };
 
+type Cita = {
+  Id: number; FechaCita: string; HoraCita: string; Modalidad: string; Estado: string;
+  CuidadoraId: number; CuidadoraNombres: string; CuidadoraApellidos: string;
+};
+
+type StatsResumen = {
+  totalEntrevistas: number; totalServicios: number; totalEscrow: number; totalInvertido: number;
+};
+
 const statusPill: Record<string, string> = {
   Pendiente: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
   Confirmada: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
@@ -78,6 +87,8 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [menores, setMenores] = useState<Minor[]>([]);
   const [resultadosCompatibilidad, setResultadosCompatibilidad] = useState<any[]>([]);
+  const [citas, setCitas] = useState<Cita[]>([]);
+  const [stats, setStats] = useState<StatsResumen>({ totalEntrevistas: 0, totalServicios: 0, totalEscrow: 0, totalInvertido: 0 });
 
   // Tab - Servicios
   const [filtroEstado, setFiltroEstado] = useState('');
@@ -115,10 +126,22 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
 
   const fetchAll = async () => {
     try {
-      const [sol] = await Promise.all([
+      const [sol, citasData] = await Promise.all([
         fetch('/api/familia/solicitudes', { headers }).then(r => r.json()),
+        fetch('/api/familia/citas', { headers }).then(r => r.json().catch(() => [])),
       ]);
       setSolicitudes(sol);
+      setCitas(citasData);
+      const totalEscrow = sol.reduce((sum: number, s: Solicitud) =>
+        s.Estado === 'Pagada' || s.Estado === 'En curso' ? sum + (s.Total || 0) : sum, 0);
+      const totalInvertido = sol.reduce((sum: number, s: Solicitud) =>
+        s.Estado === 'Completada' || s.Estado === 'Finalizada' ? sum + (s.Total || 0) : sum, 0);
+      setStats({
+        totalEntrevistas: citasData.length,
+        totalServicios: sol.length,
+        totalEscrow,
+        totalInvertido,
+      });
     } catch {}
     setLoading(false);
   };
@@ -254,8 +277,18 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
     setSubmittingIncidencia(false);
   };
 
-  const completarServicio = async (id: number) => {
-    await fetch(`/api/familia/completar-servicio/${id}`, { method: 'PUT', headers });
+  const iniciarServicio = async (id: number) => {
+    await fetch(`/api/familia/orden/${id}/iniciar`, { method: 'POST', headers });
+    fetchAll();
+  };
+
+  const finalizarServicio = async (id: number) => {
+    await fetch(`/api/familia/orden/${id}/confirmar-finalizacion`, { method: 'POST', headers });
+    fetchAll();
+  };
+
+  const pagarServicio = async (id: number) => {
+    await fetch(`/api/familia/pagar/${id}`, { method: 'POST', headers, body: '{}' });
     fetchAll();
   };
 
@@ -328,7 +361,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
         {/* ═══ TAB 1: BUSCAR ═══ */}
         {activeTab === 'buscar' && (
           <div className="space-y-6">
-            <SearchPage onNavigate={(v) => {
+            <SearchPage inline onNavigate={(v) => {
               if (v === 'familia') setActiveTab('familia');
               else onNavigate?.(v);
             }} />
@@ -345,121 +378,191 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
               />
             ) : (
             <>
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white">Mis Servicios</h2>
-              <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}
-                className="px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.1)] text-white text-xs appearance-none cursor-pointer"
-              >
-                <option value="">Todos</option>
-                {Object.keys(statusPill).map(k => (
-                  <option key={k} value={k}>{statusText[k] || k}</option>
-                ))}
-              </select>
+            {/* Welcome */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              <h1 className="text-3xl font-bold text-white tracking-tight">Hola, {user?.nombres || 'Familia'}</h1>
+              <p className="text-[#6667AB] mt-1">Este es el resumen de tu actividad en CERTINANAS.</p>
+            </motion.div>
+
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { label: 'Entrevistas agendadas', value: stats.totalEntrevistas, icon: Calendar, color: 'text-[#F6A5C0]' },
+                { label: 'Servicios contratados', value: stats.totalServicios, icon: Briefcase, color: 'text-[#CC8DB3]' },
+                { label: 'Retenido en Escrow', value: `S/ ${stats.totalEscrow.toFixed(2)}`, icon: Shield, color: 'text-emerald-300' },
+                { label: 'Total invertido', value: `S/ ${stats.totalInvertido.toFixed(2)}`, icon: DollarSign, color: 'text-amber-300' },
+              ].map((s, i) => (
+                <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+                  className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-5"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <s.icon className={`w-6 h-6 ${s.color}`} />
+                  </div>
+                  <p className="text-2xl font-bold text-white">{s.value}</p>
+                  <p className="text-xs text-[#6667AB] mt-1">{s.label}</p>
+                </motion.div>
+              ))}
             </div>
 
-            {solicitudes.filter(s => !filtroEstado || s.Estado === filtroEstado).length === 0 ? (
-              <div className="text-center py-16 bg-[rgba(33,6,53,0.3)] rounded-2xl">
-                <Briefcase className="w-12 h-12 text-[#6667AB] mx-auto mb-3 opacity-50" />
-                <p className="text-white font-semibold">No hay servicios registrados</p>
-                <p className="text-[#F5D5E0]/60 text-sm mt-1">
-                  Busca cuidadoras y contrata un servicio para comenzar
-                </p>
-                <button onClick={() => setActiveTab('buscar')}
-                  className="mt-5 px-6 py-2.5 rounded-full bg-linear-to-r from-[#7B337E] to-[#F6A5C0] text-white text-xs font-bold hover:opacity-90 transition-opacity"
-                >
-                  Buscar cuidadoras
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {solicitudes.filter(s => !filtroEstado || s.Estado === filtroEstado).map(s => (
-                  <motion.div key={s.Id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                    className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden"
+            {/* Interviews Section */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
+            >
+              <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-[#F6A5C0]" /> Mis entrevistas agendadas (CUS-06)
+              </h2>
+              {citas.length === 0 ? (
+                <div className="text-center py-8">
+                  <Calendar className="w-10 h-10 text-[#6667AB] mx-auto mb-2 opacity-50" />
+                  <p className="text-white font-semibold">Aun no has agendado entrevistas</p>
+                  <p className="text-[#F5D5E0]/60 text-sm mt-1">Explora nuestras cuidadoras y agenda tu primera consulta.</p>
+                  <button onClick={() => setActiveTab('buscar')}
+                    className="mt-4 px-6 py-2.5 rounded-full bg-linear-to-r from-[#7B337E] to-[#F6A5C0] text-white text-xs font-bold hover:opacity-90 transition-opacity"
                   >
-                    <div className="p-5">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <p className="text-white font-bold">{s.CuidadoraNombres} {s.CuidadoraApellidos}</p>
-                          <p className="text-[#F5D5E0]/60 text-xs mt-0.5">
-                            {formatFecha(s.FechaServicio)} · {formatHora(s.HoraInicio)} - {formatHora(s.HoraFin)}
-                          </p>
-                        </div>
-                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusPill[s.Estado] || 'bg-[rgba(33,6,53,0.5)] text-[#6667AB] border-transparent'}`}>
-                          {statusText[s.Estado] || s.Estado}
-                        </span>
+                    Buscar cuidadoras
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {citas.map(c => (
+                    <div key={c.Id} className="flex items-center justify-between bg-[rgba(255,255,255,0.04)] rounded-xl p-4">
+                      <div>
+                        <p className="text-white font-semibold text-sm">{c.CuidadoraNombres} {c.CuidadoraApellidos}</p>
+                        <p className="text-xs text-[#6667AB] mt-0.5">{formatFecha(c.FechaCita)} · {formatHora(c.HoraCita)} · {c.Modalidad}</p>
                       </div>
-
-                      {s.MenorNombre && (
-                        <div className="text-xs text-[#F5D5E0]/60 mb-3">
-                          Menor: <span className="text-white">{s.MenorNombre}</span>
-                          {s.MenorDiagnostico && <span className="text-[#CC8DB3]"> ({s.MenorDiagnostico})</span>}
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between bg-[rgba(255,255,255,0.04)] rounded-xl px-4 py-3 mb-3">
-                        <span className="text-xs text-[#F5D5E0]/60">{s.TotalHoras}h × S/ {s.TarifaHora}/h</span>
-                        <span className="text-lg font-bold text-white">S/ {(s.Total ?? 0).toFixed(2)}</span>
-                      </div>
-
-                      {/* Escrow Lifecycle */}
-                      {s.Estado === 'Pagada' && (
-                        <div className="space-y-2">
-                          <div className="flex gap-2">
-                            <button onClick={() => completarServicio(s.Id)}
-                              className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold hover:bg-emerald-500/30 transition-all"
-                            >
-                              <CheckCircle className="w-3.5 h-3.5 inline mr-1" />
-                              Completar Servicio
-                            </button>
-                            <button onClick={() => setIncidenciaModal({ open: true, ordenId: s.Id })}
-                              className="flex-1 px-4 py-2.5 rounded-xl bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-bold hover:bg-red-500/30 transition-all"
-                            >
-                              <AlertTriangle className="w-3.5 h-3.5 inline mr-1" />
-                              Reportar Incidencia
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {(s.Estado === 'Completada' || s.Estado === 'Finalizada') && (
-                        <div className="flex gap-2">
-                          <button onClick={() => onReview?.(s.Id)}
-                            className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6A5C0]/20 border border-[#F6A5C0]/30 text-[#F6A5C0] text-xs font-bold hover:bg-[#F6A5C0]/30 transition-all"
-                          >
-                            <Star className="w-3.5 h-3.5 inline mr-1" />
-                            Dejar Reseña
-                          </button>
-                          <button onClick={() => contratarDeNuevo(s)}
-                            className="flex-1 px-4 py-2.5 rounded-xl bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.15)] text-[#F5D5E0]/80 text-xs font-bold hover:bg-[rgba(255,255,255,0.15)] transition-all"
-                          >
-                            <Repeat className="w-3.5 h-3.5 inline mr-1" />
-                            Volver a contratar
-                          </button>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(255,255,255,0.06)]">
-                        <button onClick={() => setDetalleModal({ open: true, item: s })}
-                          className="text-[10px] text-[#F6A5C0] hover:text-[#CC8DB3] transition-colors font-semibold"
-                        >
-                          <Eye className="w-3 h-3 inline mr-1" /> Ver Detalle
-                        </button>
-                        <button onClick={() => setDocPreviewCuidadoraId(s.CuidadoraId)}
-                          className="text-[10px] text-[#F5D5E0]/60 hover:text-white transition-colors font-semibold"
-                        >
-                          <FileText className="w-3 h-3 inline mr-1" /> Ver Documentos
-                        </button>
-                        <button onClick={() => onViewContract?.(s.Id)}
-                          className="text-[10px] text-[#6667AB] hover:text-white transition-colors font-semibold"
-                        >
-                          Contrato
-                        </button>
-                      </div>
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${c.Estado === 'Completada' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-amber-500/15 text-amber-300'}`}>
+                        {c.Estado || 'Pendiente'}
+                      </span>
                     </div>
-                  </motion.div>
-                ))}
+                  ))}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Services Table */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-[#CC8DB3]" /> Mis solicitudes de servicio (CUS-07)
+                </h2>
+                <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}
+                  className="px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.1)] text-white text-xs appearance-none cursor-pointer"
+                >
+                  <option value="">Todos</option>
+                  {Object.keys(statusPill).map(k => (
+                    <option key={k} value={k}>{statusText[k] || k}</option>
+                  ))}
+                </select>
               </div>
-            )}
+
+              {solicitudes.filter(s => !filtroEstado || s.Estado === filtroEstado).length === 0 ? (
+                <div className="text-center py-12">
+                  <Briefcase className="w-10 h-10 text-[#6667AB] mx-auto mb-2 opacity-50" />
+                  <p className="text-white font-semibold">No hay solicitudes de servicio</p>
+                  <p className="text-[#F5D5E0]/60 text-sm mt-1">Busca cuidadoras y crea tu primera solicitud</p>
+                  <button onClick={() => setActiveTab('buscar')}
+                    className="mt-4 px-6 py-2.5 rounded-full bg-linear-to-r from-[#7B337E] to-[#F6A5C0] text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                  >
+                    Buscar cuidadoras
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm text-[#6667AB] mb-4">
+                    {solicitudes.filter(s => !filtroEstado || s.Estado === filtroEstado).length} resultado(s)
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-[rgba(255,255,255,0.1)] text-[#6667AB] text-xs uppercase tracking-wider">
+                          <th className="text-left py-3 pr-4 font-semibold">Cuidadora</th>
+                          <th className="text-left py-3 pr-4 font-semibold">Menor</th>
+                          <th className="text-left py-3 pr-4 font-semibold">Fecha</th>
+                          <th className="text-left py-3 pr-4 font-semibold">Horario</th>
+                          <th className="text-right py-3 pr-4 font-semibold">Monto</th>
+                          <th className="text-center py-3 pr-4 font-semibold">Estado</th>
+                          <th className="text-right py-3 font-semibold">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {solicitudes.filter(s => !filtroEstado || s.Estado === filtroEstado).map(s => (
+                          <tr key={s.Id} className="border-b border-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.03)] transition-colors">
+                            <td className="py-3 pr-4">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-[10px] font-bold text-[#CC8DB3] flex-shrink-0">
+                                  {s.CuidadoraNombres?.charAt(0)}{s.CuidadoraApellidos?.charAt(0)}
+                                </div>
+                                <span className="text-white font-medium text-xs whitespace-nowrap">{s.CuidadoraNombres} {s.CuidadoraApellidos}</span>
+                              </div>
+                            </td>
+                            <td className="py-3 pr-4 text-xs text-[#F5D5E0]/80">
+                              {s.MenorNombre || '--'}
+                              {s.MenorDiagnostico && <span className="text-[#CC8DB3] text-[10px] block">({s.MenorDiagnostico})</span>}
+                            </td>
+                            <td className="py-3 pr-4 text-xs text-white whitespace-nowrap">{formatFecha(s.FechaServicio)}</td>
+                            <td className="py-3 pr-4 text-xs text-[#F5D5E0]/60 whitespace-nowrap">{formatHora(s.HoraInicio)} ({s.TotalHoras}h)</td>
+                            <td className="py-3 pr-4 text-xs text-right text-white font-semibold whitespace-nowrap">S/ {(s.Total ?? 0).toFixed(2)}</td>
+                            <td className="py-3 pr-4 text-center">
+                              <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap ${statusPill[s.Estado] || 'bg-[rgba(33,6,53,0.5)] text-[#6667AB] border-transparent'}`}>
+                                {statusText[s.Estado] || s.Estado}
+                              </span>
+                            </td>
+                            <td className="py-3 text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <button onClick={() => setDetalleModal({ open: true, item: s })}
+                                  className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#F6A5C0] hover:bg-[#F6A5C0]/10 transition-colors"
+                                  title="Ver detalle"
+                                >Detalle</button>
+                                {s.Estado === 'Pendiente' && (
+                                  <button onClick={() => pagarServicio(s.Id)}
+                                    className="px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+                                  >Pagar</button>
+                                )}
+                                {s.Estado === 'Confirmada' && (
+                                  <button onClick={() => iniciarServicio(s.Id)}
+                                    className="px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+                                  >Iniciar</button>
+                                )}
+                                {s.Estado === 'Pagada' && (
+                                  <>
+                                    <button onClick={() => iniciarServicio(s.Id)}
+                                      className="px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+                                    >Iniciar</button>
+                                    <button onClick={() => setIncidenciaModal({ open: true, ordenId: s.Id })}
+                                      className="px-2 py-1 rounded-lg text-[10px] font-bold text-red-300 hover:bg-red-500/10 transition-colors"
+                                    >Reportar</button>
+                                  </>
+                                )}
+                                {s.Estado === 'En curso' && (
+                                  <>
+                                    <button onClick={() => setDetalleModal({ open: true, item: s })}
+                                      className="px-2 py-1 rounded-lg text-[10px] font-bold text-purple-300 hover:bg-purple-500/10 transition-colors"
+                                    >Monitorear</button>
+                                    <button onClick={() => finalizarServicio(s.Id)}
+                                      className="px-2 py-1 rounded-lg text-[10px] font-bold text-white hover:bg-[rgba(255,255,255,0.1)] transition-colors"
+                                    >Finalizar</button>
+                                  </>
+                                )}
+                                {(s.Estado === 'Completada' || s.Estado === 'Finalizada') && (
+                                  <button onClick={() => onReview?.(s.Id)}
+                                    className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#F6A5C0] hover:bg-[#F6A5C0]/10 transition-colors"
+                                  >Ver reseña</button>
+                                )}
+                                <button onClick={() => onViewContract?.(s.Id)}
+                                  className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#6667AB] hover:text-white transition-colors"
+                                >Contrato</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </motion.div>
             </>
             )}
           </div>

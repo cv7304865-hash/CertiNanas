@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, FileText, MessageSquare, Shield, Handshake, BarChart3,
-  Clock, AlertTriangle, Bell, LogOut, ChevronLeft, ChevronRight, AlertCircle
+  Clock, AlertTriangle, Bell, LogOut, ChevronLeft, ChevronRight, AlertCircle, FileSignature
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { AdminDashboard } from './AdminDashboard';
@@ -14,12 +14,14 @@ import { AdminAnalytics } from './AdminAnalytics';
 import { AdminSLAMonitor } from './AdminSLAMonitor';
 import { AdminAlertasRiesgo } from './AdminAlertasRiesgo';
 import { AdminIncidencias } from './AdminIncidencias';
+import { AdminContratos } from './AdminContratos';
 
-type Tab = 'dashboard' | 'postulaciones' | 'negociaciones' | 'pagos' | 'mediaciones' | 'analitica' | 'sla' | 'alertas' | 'incidencias';
+type Tab = 'dashboard' | 'postulaciones' | 'negociaciones' | 'pagos' | 'mediaciones' | 'analitica' | 'sla' | 'alertas' | 'incidencias' | 'contratos';
 
 const navItems: { key: Tab; label: string; icon: any }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { key: 'postulaciones', label: 'Postulaciones', icon: FileText },
+  { key: 'contratos', label: 'Contratos', icon: FileSignature },
   { key: 'negociaciones', label: 'Negociaciones', icon: MessageSquare },
   { key: 'pagos', label: 'Pagos Protegidos', icon: Shield },
   { key: 'mediaciones', label: 'Mediaciones', icon: Handshake },
@@ -141,6 +143,7 @@ export function AdminLayout() {
                 {tab === 'sla' && <AdminSLAMonitor />}
                 {tab === 'alertas' && <AdminAlertasRiesgo />}
                 {tab === 'incidencias' && <AdminIncidencias />}
+                {tab === 'contratos' && <AdminContratos />}
               </motion.div>
             </AnimatePresence>
           </main>
