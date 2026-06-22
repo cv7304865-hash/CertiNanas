@@ -3,12 +3,15 @@ import { useState, useEffect } from 'react';
 import {
   LogOut, Search, MessageSquare, CheckCircle, XCircle, DollarSign, Clock, ListTodo,
   Calendar, Briefcase, Shield, Wallet, Eye, Plus, Edit3, Trash2, AlertTriangle, X,
-  Baby, Lock, CreditCard, HelpCircle, ChevronDown, ChevronUp, Star, Send
+  Baby, Lock, CreditCard, HelpCircle, ChevronDown, ChevronUp, Star, Send, User,
+  Phone, Mail, MapPin, Upload, FileText, Repeat, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
-import { ChecklistTareas } from './ChecklistTareas';
-import { CrearSolicitud } from './CrearSolicitud';
+import { SearchPage } from './SearchPage';
+import { MinorsSection } from './MinorsSection';
+import { DocumentPreviewModal } from './DocumentPreviewModal';
+import { PaymentEscrow } from './PaymentEscrow';
 
 type Solicitud = {
   Id: number; FechaServicio: string; TotalHoras: number; TarifaHora: number;
@@ -16,31 +19,17 @@ type Solicitud = {
   Estado: string; EstadoNegociacion?: string; HoraInicio: string; HoraFin: string;
   CuidadoraId: number; CuidadoraNombres: string; CuidadoraApellidos: string;
   MenorNombre: string | null; MenorDiagnostico: string | null;
-  TareaIds?: number[];
+  TareaIds?: number[]; FamiliaNombres?: string; FamiliaApellidos?: string;
+  TipoServicio?: string; MenorFechaNac?: string | null; IdEscrow?: number;
+};
+
+type Miembro = {
+  Id: number; Nombre: string; Email: string; Telefono: string;
+  Rol: string; FechaCreacion?: string;
 };
 
 type Minor = {
   Id: number; Nombre: string; Diagnostico: string | null; FechaNacimiento: string | null;
-};
-
-type Cita = {
-  Id: number; FechaCita: string; HoraCita: string; Modalidad: string;
-  Estado: string; DuracionMinutos: number; CuidadoraId: number;
-  CuidadoraNombres: string; CuidadoraApellidos: string;
-};
-
-type PropuestaNegociacion = {
-  Id: number; IdOrden: number; IdPropuestoPor: number;
-  TarifaHora: number | null; TotalHoras: number | null;
-  HoraInicio: string | null; HoraFin: string | null;
-  Mensaje: string | null; Estado: string; FechaCreacion: string;
-  PropuestoPorNombres?: string; PropuestoPorApellidos?: string;
-};
-
-type SolicitudDetalle = Solicitud & {
-  FamiliaNombres: string; FamiliaApellidos: string;
-  TipoServicio: string; MenorFechaNac: string | null;
-  IdEscrow?: number;
 };
 
 const statusPill: Record<string, string> = {
@@ -63,16 +52,16 @@ const statusText: Record<string, string> = {
   'En curso': 'En curso',
 };
 
-const negState: Record<string, string> = {
-  Pendiente: 'Esperando respuesta',
-  Aceptada: 'Aceptada',
-  Negociacion: 'En negociación',
-  Reunion: 'Acordado',
-  Acordado: 'Acordado',
-  Cancelada: 'Cancelada',
-};
+const incidenciaCategorias = [
+  'Incumplimiento de horario',
+  'Trato inadecuado',
+  'Incumplimiento de tareas',
+  'Negligencia',
+  'Problemas de comunicación',
+  'Otros',
+];
 
-const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Setiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+type Tab = 'buscar' | 'servicios' | 'perfil' | 'familia';
 
 export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
   onNavigate?: (v: string) => void;
@@ -81,145 +70,88 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
 }) {
   const { user, logout } = useAuth();
   const headers = { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) };
+  const [activeTab, setActiveTab] = useState<Tab>('servicios');
+  const [loading, setLoading] = useState(true);
 
   // Data
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [menores, setMenores] = useState<Minor[]>([]);
-  const [citas, setCitas] = useState<Cita[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [resultadosCompatibilidad, setResultadosCompatibilidad] = useState<any[]>([]);
 
-  // Filters
+  // Tab - Servicios
   const [filtroEstado, setFiltroEstado] = useState('');
-  const [filtroMes, setFiltroMes] = useState('');
+  const [detalleModal, setDetalleModal] = useState<{ open: boolean; item: Solicitud | null }>({ open: false, item: null });
 
-  // Modals
-  const [detalle, setDetalle] = useState<{ open: boolean; id: number }>({ open: false, id: 0 });
-  const [detalleData, setDetalleData] = useState<SolicitudDetalle | null>(null);
-  const [negModal, setNegModal] = useState<{ open: boolean; ordenId: number }>({ open: false, ordenId: 0 });
-  const [propuestas, setPropuestas] = useState<PropuestaNegociacion[]>([]);
-  const [responding, setResponding] = useState(false);
-  const [counterForm, setCounterForm] = useState({ tarifaHora: 0, totalHoras: 0, horaInicio: '', horaFin: '', mensaje: '' });
-  const [showCounter, setShowCounter] = useState(false);
-  const [tareasModal, setTareasModal] = useState<{ open: boolean; ordenId: number; tareasIds: number[] }>({ open: false, ordenId: 0, tareasIds: [] });
-
-  // Hijos
-  const [hijosModal, setHijosModal] = useState(false);
-  const [minorForm, setMinorForm] = useState({ nombre: '', diagnostico: '', fechaNacimiento: '' });
-  const [editMinorId, setEditMinorId] = useState<number | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
-
-  const fetchAll = () => {
-    Promise.all([
-      fetch('/api/familia/solicitudes', { headers }).then(r => r.json()),
-      fetch('/api/familia/menores', { headers }).then(r => r.json()),
-      fetch('/api/familia/citas', { headers }).then(r => r.json()),
-    ]).then(([sol, men, cit]) => {
-      setSolicitudes(sol);
-      setMenores(men);
-      setCitas(cit);
-      setLoading(false);
-    }).catch(() => setLoading(false));
-    if (localStorage.getItem('showCreateSolicitud') === 'true') {
-      localStorage.removeItem('showCreateSolicitud');
-      setShowCreate(true);
-    }
-  };
-
-  useEffect(() => { fetchAll(); }, []);
-
-  // --- KPIs ---
-  const filtrados = solicitudes.filter(s => {
-    if (filtroEstado && s.Estado !== filtroEstado) return false;
-    if (filtroMes) {
-      const m = new Date(s.FechaServicio + 'T00:00:00').getMonth();
-      if (meses[m] !== filtroMes) return false;
-    }
-    return true;
+  // Tab - Perfil
+  const [perfilForm, setPerfilForm] = useState({
+    nombres: user?.nombres || '',
+    apellidos: user?.apellidos || '',
+    email: user?.email || '',
+    telefono: '',
+    direccion: '',
+    latitud: '',
+    longitud: '',
   });
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [savingPerfil, setSavingPerfil] = useState(false);
 
-  const contratados = solicitudes.filter(s =>
-    s.Estado === 'Pagada' || s.Estado === 'Completada' || s.Estado === 'Finalizada'
-  );
-  const retenidoEscrow = solicitudes
-    .filter(s => s.Estado === 'Pagada')
-    .reduce((sum, s) => sum + s.Total, 0);
-  const totalInvertido = contratados.reduce((sum, s) => sum + s.Total, 0);
+  // Tab - Familia miembros
+  const [miembros, setMiembros] = useState<Miembro[]>([]);
+  const [miembroForm, setMiembroForm] = useState({ nombre: '', email: '', telefono: '', rol: 'Observador' });
+  const [editMiembroId, setEditMiembroId] = useState<number | null>(null);
+  const [showMiembroForm, setShowMiembroForm] = useState(false);
 
-  // --- Menores CRUD ---
-  const saveMinor = async () => {
-    if (!minorForm.nombre.trim()) return;
-    const url = editMinorId
-      ? `/api/familia/menores/${editMinorId}`
-      : '/api/familia/menores';
-    await fetch(url, {
-      method: editMinorId ? 'PUT' : 'POST',
-      headers, body: JSON.stringify(minorForm),
-    });
-    setMinorForm({ nombre: '', diagnostico: '', fechaNacimiento: '' });
-    setEditMinorId(null);
-    const r = await fetch('/api/familia/menores', { headers });
-    setMenores(await r.json());
+  // Escrow / Incidencia
+  const [incidenciaModal, setIncidenciaModal] = useState<{ open: boolean; ordenId: number | null }>({ open: false, ordenId: null });
+  const [incidenciaForm, setIncidenciaForm] = useState({ categoria: '', descripcion: '', archivo: null as File | null });
+  const [submittingIncidencia, setSubmittingIncidencia] = useState(false);
+
+  // Document preview
+  const [docPreviewCuidadoraId, setDocPreviewCuidadoraId] = useState<number | null>(null);
+
+  const fetchAll = async () => {
+    try {
+      const [sol] = await Promise.all([
+        fetch('/api/familia/solicitudes', { headers }).then(r => r.json()),
+      ]);
+      setSolicitudes(sol);
+    } catch {}
+    setLoading(false);
   };
 
-  const deleteMinor = async (id: number) => {
-    await fetch(`/api/familia/menores/${id}`, { method: 'DELETE', headers });
-    setMenores(prev => prev.filter(m => m.Id !== id));
+  const fetchMiembros = async () => {
+    try {
+      const r = await fetch('/api/familiares/miembros', { headers });
+      if (r.ok) setMiembros(await r.json());
+    } catch {}
   };
 
-  // --- Negotiation ---
-  const loadPropuestas = async (ordenId: number) => {
-    const r = await fetch(`/api/familia/orden/${ordenId}/propuestas`, { headers });
-    if (r.ok) setPropuestas(await r.json());
+  const fetchCompatibilidad = async () => {
+    try {
+      const r = await fetch(`/api/matching/resultados/${user?.id}`, { headers });
+      if (r.ok) setResultadosCompatibilidad(await r.json());
+    } catch {}
   };
 
-  const openNeg = (ordenId: number) => {
-    setNegModal({ open: true, ordenId });
-    setShowCounter(false);
-    loadPropuestas(ordenId);
-  };
-
-  const respondNeg = async (accion: string) => {
-    if (!propuestas.length) return;
-    const active = propuestas.find(p => p.Estado === 'activa');
-    if (!active) return;
-    setResponding(true);
-    const body: any = { accion };
-    if (accion === 'contrapropuesta') {
-      body.tarifaHora = counterForm.tarifaHora;
-      body.totalHoras = counterForm.totalHoras;
-      body.horaInicio = counterForm.horaInicio || null;
-      body.horaFin = counterForm.horaFin || null;
-      body.mensaje = counterForm.mensaje || null;
-    }
-    const r = await fetch(`/api/familia/negociacion/${active.Id}/responder`, {
-      method: 'POST', headers, body: JSON.stringify(body),
-    });
-    setResponding(false);
-    if (r.ok) {
-      setNegModal({ open: false, ordenId: 0 });
-      setShowCounter(false);
-      setCounterForm({ tarifaHora: 0, totalHoras: 0, horaInicio: '', horaFin: '', mensaje: '' });
-      fetchAll();
-    }
-  };
-
-  // --- Detail ---
-  const openDetalle = async (id: number) => {
-    setDetalle({ open: true, id });
-    const r = await fetch(`/api/familia/solicitudes/${id}`, { headers });
-    if (r.ok) setDetalleData(await r.json());
-  };
-
-  const confirmarFin = async (id: number) => {
-    await fetch(`/api/familia/orden/${id}/confirmar-finalizacion`, { method: 'POST', headers });
+  useEffect(() => {
     fetchAll();
-    if (detalle.open && detalleData?.Id === id) {
-      const r = await fetch(`/api/familia/solicitudes/${id}`, { headers });
-      if (r.ok) setDetalleData(await r.json());
+    fetchMiembros();
+    if (activeTab === 'buscar') fetchCompatibilidad();
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (user) {
+      setPerfilForm(prev => ({
+        ...prev,
+        nombres: user.nombres || '',
+        apellidos: user.apellidos || '',
+        email: user.email || '',
+      }));
     }
-  };
+  }, [user]);
 
   const formatFecha = (f: string) => {
+    if (!f) return '--';
     const d = new Date(f + 'T00:00:00');
     return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
@@ -231,9 +163,98 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
     return `${hhN > 12 ? hhN - 12 : hhN}:${mm} ${hhN >= 12 ? 'PM' : 'AM'}`;
   };
 
-  const getIniciales = (n: string, a: string) => {
-    const names = n?.split(' ');
-    return `${names?.[0]?.charAt(0) || ''}${a?.charAt(0) || ''}`;
+  const formatPhone = (v: string) => {
+    const d = v.replace(/\D/g, '').slice(0, 9);
+    if (d.length > 6) return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`;
+    if (d.length > 3) return `${d.slice(0, 3)} ${d.slice(3)}`;
+    return d;
+  };
+
+  const savePerfil = async () => {
+    setSavingPerfil(true);
+    try {
+      await fetch('/api/familia/perfil', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          nombres: perfilForm.nombres,
+          apellidos: perfilForm.apellidos,
+          telefono: perfilForm.telefono,
+          direccion: perfilForm.direccion,
+          latitud: parseFloat(perfilForm.latitud) || null,
+          longitud: parseFloat(perfilForm.longitud) || null,
+        }),
+      });
+      if (fotoPreview && fotoPreview.startsWith('data:')) {
+        await fetch('/api/familia/perfil/foto', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) },
+          body: JSON.stringify({ fotoPerfil: fotoPreview }),
+        });
+      }
+    } catch {}
+    setSavingPerfil(false);
+  };
+
+  const handleFotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setFotoPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  // Miembros CRUD
+  const saveMiembro = async () => {
+    if (!miembroForm.nombre.trim() || !miembroForm.email.trim()) return;
+    const url = editMiembroId
+      ? `/api/familiares/miembros/${editMiembroId}`
+      : '/api/familiares/miembros';
+    await fetch(url, {
+      method: editMiembroId ? 'PUT' : 'POST',
+      headers,
+      body: JSON.stringify(miembroForm),
+    });
+    setMiembroForm({ nombre: '', email: '', telefono: '', rol: 'Observador' });
+    setEditMiembroId(null);
+    setShowMiembroForm(false);
+    fetchMiembros();
+  };
+
+  const deleteMiembro = async (id: number) => {
+    await fetch(`/api/familiares/miembros/${id}`, { method: 'DELETE', headers });
+    setMiembros(prev => prev.filter(m => m.Id !== id));
+  };
+
+  // Incidencia
+  const submitIncidencia = async () => {
+    if (!incidenciaForm.categoria || !incidenciaForm.descripcion || !incidenciaForm.archivo) return;
+    setSubmittingIncidencia(true);
+    try {
+      const formData = new FormData();
+      formData.append('categoria', incidenciaForm.categoria);
+      formData.append('descripcion', incidenciaForm.descripcion);
+      formData.append('archivo', incidenciaForm.archivo);
+      await fetch(`/api/familia/reportar-incidencia`, {
+        method: 'POST',
+        headers: { 'x-user-id': String(user?.id) },
+        body: formData,
+      });
+      setIncidenciaModal({ open: false, ordenId: null });
+      setIncidenciaForm({ categoria: '', descripcion: '', archivo: null });
+    } catch {}
+    setSubmittingIncidencia(false);
+  };
+
+  const completarServicio = async (id: number) => {
+    await fetch(`/api/familia/completar-servicio/${id}`, { method: 'PUT', headers });
+    fetchAll();
+  };
+
+  const contratarDeNuevo = async (s: Solicitud) => {
+    localStorage.setItem('preselectCuidadoraId', String(s.CuidadoraId));
+    localStorage.setItem('showCreateSolicitud', 'true');
+    onNavigate?.('search');
   };
 
   if (loading) {
@@ -244,9 +265,15 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
     );
   }
 
+  const tabs: { key: Tab; label: string; icon: any }[] = [
+    { key: 'buscar', label: 'Buscar', icon: Search },
+    { key: 'servicios', label: 'Mis Servicios', icon: Briefcase },
+    { key: 'perfil', label: 'Mi Perfil', icon: User },
+    { key: 'familia', label: 'Mi Familia', icon: Baby },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
-      {/* ── NAVBAR ── */}
       <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] text-white sticky top-0 z-40 shadow-lg shadow-black/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -260,620 +287,494 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
               <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
               <span className="text-[#6667AB] text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
-            <nav className="flex items-center gap-6">
-              <button onClick={() => onNavigate?.('search')} className="text-sm text-[#F5D5E0]/70 hover:text-white transition-colors">Inicio</button>
-              <button onClick={() => onNavigate?.('familia')} className="text-sm font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0] pb-0.5">Mi Panel</button>
-              <button onClick={() => onNavigate?.('messages')} className="text-sm text-[#F5D5E0]/70 hover:text-white transition-colors">Mensajes</button>
+            <div className="flex items-center gap-2">
               <ProfileAvatar size={36} className="ml-2" />
               <button onClick={logout} className="p-2 hover:bg-[rgba(33,6,53,0.4)] rounded-lg transition-colors">
                 <LogOut className="w-4 h-4 text-[#6667AB]" />
               </button>
-            </nav>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-
-        {/* ── GREETING ── */}
-        <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
-            Hola, {user?.nombres?.split(' ')[0] || 'Familia'}
-          </h1>
-          <p className="text-[#F5D5E0] text-sm mt-1">Gestiona tus servicios, pagos y mucho más</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Tabs */}
+        <div className="flex items-center gap-1 mb-6 bg-[rgba(33,6,53,0.5)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.08)] rounded-2xl p-1.5 overflow-x-auto">
+          {tabs.map(t => {
+            const Icon = t.icon;
+            return (
+              <button key={t.key} onClick={() => setActiveTab(t.key)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                  activeTab === t.key
+                    ? 'bg-[#F6A5C0] text-[#210635] shadow-md'
+                    : 'text-[#F5D5E0]/60 hover:text-white hover:bg-[rgba(255,255,255,0.05)]'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {t.label}
+              </button>
+            );
+          })}
         </div>
 
-        {/* ── KPI CARDS ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { icon: Calendar, label: 'Entrevistas agendadas', value: String(citas.length), bg: 'bg-[rgba(102,103,171,0.2)]' },
-            { icon: Briefcase, label: 'Servicios contratados', value: String(contratados.length), bg: 'bg-[rgba(102,103,171,0.2)]' },
-            { icon: Lock, label: 'Retenido en Escrow', value: `S/ ${retenidoEscrow.toFixed(2)}`, bg: 'bg-[rgba(251,191,36,0.15)]' },
-            { icon: Wallet, label: 'Total invertido', value: `S/ ${totalInvertido.toFixed(2)}`, bg: 'bg-[rgba(246,165,192,0.15)]' },
-          ].map((kpi, i) => (
-            <motion.div
-              key={i} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
-              className="bg-[rgba(255,255,255,0.05)] backdrop-blur-[12px] border border-[rgba(255,255,255,0.1)] rounded-2xl p-5"
-            >
-              <div className={`w-10 h-10 rounded-xl ${kpi.bg} flex items-center justify-center mb-3`}>
-                <kpi.icon className="w-5 h-5 text-white" />
-              </div>
-              <p className="text-2xl font-bold text-white">{kpi.value}</p>
-              <p className="text-xs text-[#F5D5E0]/70 mt-1">{kpi.label}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* ── CREAR SOLICITUD INLINE ── */}
-        {showCreate && (
-          <CrearSolicitud onBack={() => setShowCreate(false)} onSuccess={() => {
-            setShowCreate(false);
-            fetchAll();
-          }} />
+        {/* ═══ TAB 1: BUSCAR ═══ */}
+        {activeTab === 'buscar' && (
+          <div className="space-y-6">
+            <SearchPage onNavigate={onNavigate} />
+          </div>
         )}
 
-        {!showCreate && (
-        <>
-        {/* ── TWO COLUMNS ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-          {/* ═══ LEFT COLUMN (2/3) ═══ */}
-          <div className="lg:col-span-2 space-y-6">
-
-            {/* ── MIS ENTREVISTAS ── */}
-            <div className="bg-[rgba(33,6,53,0.5)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-[#F6A5C0]" />
-                  Mis entrevistas agendadas
-                </h2>
-              </div>
-              {citas.length === 0 ? (
-                <div className="text-center py-10">
-                  <Calendar className="w-12 h-12 text-[#6667AB] mx-auto mb-3 opacity-50" />
-                  <p className="text-white font-semibold text-sm">Aún no has agendado entrevistas</p>
-                  <p className="text-[#F5D5E0] text-xs mt-1 mb-5">
-                    Busca cuidadoras especializadas y agenda una entrevista virtual
-                  </p>
-                  <button onClick={() => onNavigate?.('search')}
-                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white text-xs font-bold hover:opacity-90 transition-opacity"
-                  >
-                    Buscar cuidadoras
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {citas.map(c => (
-                    <div key={c.Id} className="bg-[rgba(255,255,255,0.04)] rounded-xl p-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-sm font-bold text-[#CC8DB3]">
-                          {getIniciales(c.CuidadoraNombres, c.CuidadoraApellidos)}
-                        </div>
-                        <div>
-                          <p className="text-white text-sm font-semibold">{c.CuidadoraNombres} {c.CuidadoraApellidos}</p>
-                          <p className="text-[#F5D5E0]/60 text-xs">{formatFecha(c.FechaCita)} · {formatHora(c.HoraCita)} · {c.Modalidad}</p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                        {c.Estado}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* ── MIS SOLICITUDES ── */}
-            <div className="bg-[rgba(33,6,53,0.5)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Briefcase className="w-4 h-4 text-[#F6A5C0]" />
-                  Mis solicitudes de servicio
-                </h2>
-                <button onClick={() => setShowCreate(true)}
-                  className="px-4 py-2 rounded-full bg-[#F6A5C0] text-[#210635] text-xs font-bold hover:bg-[#F6A5C0]/80 transition-all flex items-center gap-1.5"
-                ><Plus className="w-3.5 h-3.5" /> Nueva solicitud</button>
-              </div>
-
-              {/* Filtros */}
-              <div className="flex flex-wrap gap-3 mb-5">
-                <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}
-                  className="px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.1)] text-white text-xs appearance-none cursor-pointer"
-                >
-                  <option value="">Todos los estados</option>
-                  {Object.keys(statusPill).map(k => (
-                    <option key={k} value={k}>{statusText[k] || k}</option>
-                  ))}
-                </select>
-                <select value={filtroMes} onChange={e => setFiltroMes(e.target.value)}
-                  className="px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.1)] text-white text-xs appearance-none cursor-pointer"
-                >
-                  <option value="">Todos los meses</option>
-                  {meses.map(m => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Tabla */}
-              {filtrados.length === 0 ? (
-                <div className="text-center py-12">
-                  <Search className="w-10 h-10 text-[#6667AB] mx-auto mb-2" />
-                  <p className="text-[#6667AB] text-sm">No hay solicitudes con estos filtros</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-[rgba(255,255,255,0.06)]">
-                        <th className="text-left pb-3 text-[10px] font-semibold text-[#6667AB] uppercase tracking-wider">Cuidadora</th>
-                        <th className="text-left pb-3 text-[10px] font-semibold text-[#6667AB] uppercase tracking-wider">Menor</th>
-                        <th className="text-left pb-3 text-[10px] font-semibold text-[#6667AB] uppercase tracking-wider">Monto</th>
-                        <th className="text-left pb-3 text-[10px] font-semibold text-[#6667AB] uppercase tracking-wider">Estado</th>
-                        <th className="text-right pb-3 text-[10px] font-semibold text-[#6667AB] uppercase tracking-wider">Acción</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filtrados.map(s => (
-                        <motion.tr
-                          key={s.Id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="border-b border-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.02)] transition-colors"
-                        >
-                          <td className="py-4 pr-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-xs font-bold text-[#CC8DB3] ring-2 ring-[#CC8DB3]/30">
-                                {getIniciales(s.CuidadoraNombres, s.CuidadoraApellidos)}
-                              </div>
-                              <span className="text-white text-sm font-semibold">
-                                {s.CuidadoraNombres.split(' ')[0]} {s.CuidadoraApellidos.split(' ')[0]}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="py-4 pr-4">
-                            <p className="text-white text-sm">{s.MenorNombre || 'No especificado'}</p>
-                            {s.MenorDiagnostico && (
-                              <p className="text-[#F5D5E0] text-[10px]">({s.MenorDiagnostico})</p>
-                            )}
-                          </td>
-                          <td className="py-4 pr-4 text-sm font-bold text-white">S/ {s.Total.toFixed(2)}</td>
-                          <td className="py-4 pr-4">
-                            <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusPill[s.Estado] || 'bg-[rgba(33,6,53,0.5)] text-[#6667AB] border-transparent'}`}>
-                              {statusText[s.Estado] || s.Estado}
-                            </span>
-                            {s.EstadoNegociacion === 'Negociacion' && (
-                              <span className="ml-1.5 inline-flex px-2 py-0.5 rounded-full text-[9px] font-bold bg-purple-500/20 text-purple-200 border border-purple-500/30">
-                                Negociando
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              {s.EstadoNegociacion === 'Negociacion' && (
-                                <button onClick={() => openNeg(s.Id)}
-                                  className="px-3 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-200 text-[10px] font-bold hover:bg-purple-500/30 transition-all"
-                                >Responder</button>
-                              )}
-                              <button onClick={() => openDetalle(s.Id)}
-                                className="px-3 py-1.5 rounded-full border border-[rgba(255,255,255,0.15)] text-[#F5D5E0]/80 text-[10px] font-bold hover:text-white hover:border-white/30 transition-all"
-                              >Detalle</button>
-                              {s.Estado === 'Pendiente' && !s.EstadoNegociacion?.match(/Negociacion|Acordado/) && (
-                                <button onClick={async () => {
-                                  await fetch(`/api/familia/orden/${s.Id}/aceptar`, { method: 'POST', headers });
-                                  fetchAll();
-                                }}
-                                  className="px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold hover:bg-emerald-500/30 transition-all"
-                                >Aceptar</button>
-                              )}
-                              {s.Estado === 'Pagada' && (
-                                <button onClick={() => confirmarFin(s.Id)}
-                                  className="px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold hover:bg-emerald-500/30 transition-all"
-                                >Finalizar</button>
-                              )}
-                              {(s.Estado === 'Completada' || s.Estado === 'Finalizada') && (
-                                <button onClick={() => onReview?.(s.Id)}
-                                  className="px-3 py-1.5 rounded-full border border-[rgba(255,255,255,0.15)] text-[#F5D5E0]/60 text-[10px] font-bold hover:text-white hover:border-white/30 transition-all"
-                                >Evaluar</button>
-                              )}
-                              <button onClick={() => onViewContract?.(s.Id)}
-                                className="text-[10px] text-[#F6A5C0] hover:text-[#CC8DB3] transition-colors font-semibold"
-                              >Contrato</button>
-                            </div>
-                          </td>
-                        </motion.tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* ═══ RIGHT COLUMN (1/3) ═══ */}
+        {/* ═══ TAB 2: MIS SERVICIOS ═══ */}
+        {activeTab === 'servicios' && (
           <div className="space-y-6">
-
-            {/* ── ESTADO DE PAGOS ── */}
-            <div className="bg-[rgba(45,12,68,0.75)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
-                <CreditCard className="w-4 h-4 text-[#F6A5C0]" />
-                Estado de Pagos
-              </h2>
-              <div className="space-y-3">
-                <div className="bg-[rgba(0,0,0,0.2)] rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-[#F5D5E0]/70">Retenido</span>
-                    <Lock className="w-3.5 h-3.5 text-amber-400" />
-                  </div>
-                  <p className="text-2xl font-bold text-white">S/ {retenidoEscrow.toFixed(2)}</p>
-                  <p className="text-[10px] text-[#F5D5E0]/50 mt-1">Se libera al completar el servicio</p>
-                </div>
-                <div className="bg-[rgba(0,0,0,0.2)] rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-[#F5D5E0]/70">Total liberado</span>
-                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                  </div>
-                  <p className="text-2xl font-bold text-white">S/ {totalInvertido.toFixed(2)}</p>
-                  <p className="text-[10px] text-[#F5D5E0]/50 mt-1">Transferido a las cuidadoras</p>
-                </div>
-              </div>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white">Mis Servicios</h2>
+              <select value={filtroEstado} onChange={e => setFiltroEstado(e.target.value)}
+                className="px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.1)] text-white text-xs appearance-none cursor-pointer"
+              >
+                <option value="">Todos</option>
+                {Object.keys(statusPill).map(k => (
+                  <option key={k} value={k}>{statusText[k] || k}</option>
+                ))}
+              </select>
             </div>
 
-            {/* ── MIS HIJOS ── */}
-            <div className="bg-[rgba(33,6,53,0.5)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Baby className="w-4 h-4 text-[#F6A5C0]" />
-                  Mis hijos registrados
-                </h2>
-                <button onClick={() => setHijosModal(true)}
-                  className="px-3 py-1.5 rounded-full bg-[#F6A5C0] text-[#210635] text-[10px] font-bold hover:bg-[#F6A5C0]/80 transition-all flex items-center gap-1"
-                ><Plus className="w-3 h-3" /> Agregar</button>
+            {solicitudes.filter(s => !filtroEstado || s.Estado === filtroEstado).length === 0 ? (
+              <div className="text-center py-16 bg-[rgba(33,6,53,0.3)] rounded-2xl">
+                <Briefcase className="w-12 h-12 text-[#6667AB] mx-auto mb-3 opacity-50" />
+                <p className="text-white font-semibold">No hay servicios registrados</p>
+                <p className="text-[#F5D5E0]/60 text-sm mt-1">
+                  Busca cuidadoras y contrata un servicio para comenzar
+                </p>
+                <button onClick={() => setActiveTab('buscar')}
+                  className="mt-5 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                >
+                  Buscar cuidadoras
+                </button>
               </div>
-              {menores.length === 0 ? (
-                <p className="text-[#6667AB] text-xs text-center py-6">Aún no has registrado hijos</p>
-              ) : (
-                <div className="space-y-3">
-                  {menores.map(m => (
-                    <div key={m.Id} className="bg-[rgba(255,255,255,0.04)] rounded-xl p-4">
-                      <div className="flex items-center justify-between">
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {solicitudes.filter(s => !filtroEstado || s.Estado === filtroEstado).map(s => (
+                  <motion.div key={s.Id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden"
+                  >
+                    <div className="p-5">
+                      <div className="flex items-start justify-between mb-3">
                         <div>
-                          <p className="text-white text-sm font-semibold">{m.Nombre}</p>
-                          {m.Diagnostico && (
-                            <p className="text-[#CC8DB3] text-[10px] mt-0.5">{m.Diagnostico}</p>
-                          )}
-                          {m.FechaNacimiento && (
-                            <p className="text-[#F5D5E0]/40 text-[10px] mt-0.5">
-                              {new Date(m.FechaNacimiento).toLocaleDateString('es-PE')}
-                            </p>
-                          )}
+                          <p className="text-white font-bold">{s.CuidadoraNombres} {s.CuidadoraApellidos}</p>
+                          <p className="text-[#F5D5E0]/60 text-xs mt-0.5">
+                            {formatFecha(s.FechaServicio)} · {formatHora(s.HoraInicio)} - {formatHora(s.HoraFin)}
+                          </p>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => {
-                            setMinorForm({ nombre: m.Nombre, diagnostico: m.Diagnostico || '', fechaNacimiento: m.FechaNacimiento || '' });
-                            setEditMinorId(m.Id);
-                            setHijosModal(true);
-                          }}
-                            className="p-1.5 hover:bg-[rgba(255,255,255,0.1)] rounded-lg transition-colors"
-                          ><Edit3 className="w-3.5 h-3.5 text-[#6667AB]" /></button>
-                          <button onClick={() => deleteMinor(m.Id)}
-                            className="p-1.5 hover:bg-[rgba(255,255,255,0.1)] rounded-lg transition-colors"
-                          ><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusPill[s.Estado] || 'bg-[rgba(33,6,53,0.5)] text-[#6667AB] border-transparent'}`}>
+                          {statusText[s.Estado] || s.Estado}
+                        </span>
+                      </div>
+
+                      {s.MenorNombre && (
+                        <div className="text-xs text-[#F5D5E0]/60 mb-3">
+                          Menor: <span className="text-white">{s.MenorNombre}</span>
+                          {s.MenorDiagnostico && <span className="text-[#CC8DB3]"> ({s.MenorDiagnostico})</span>}
                         </div>
+                      )}
+
+                      <div className="flex items-center justify-between bg-[rgba(255,255,255,0.04)] rounded-xl px-4 py-3 mb-3">
+                        <span className="text-xs text-[#F5D5E0]/60">{s.TotalHoras}h × S/ {s.TarifaHora}/h</span>
+                        <span className="text-lg font-bold text-white">S/ {s.Total.toFixed(2)}</span>
+                      </div>
+
+                      {/* Escrow Lifecycle */}
+                      {s.Estado === 'Pagada' && (
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <button onClick={() => completarServicio(s.Id)}
+                              className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold hover:bg-emerald-500/30 transition-all"
+                            >
+                              <CheckCircle className="w-3.5 h-3.5 inline mr-1" />
+                              Completar Servicio
+                            </button>
+                            <button onClick={() => setIncidenciaModal({ open: true, ordenId: s.Id })}
+                              className="flex-1 px-4 py-2.5 rounded-xl bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-bold hover:bg-red-500/30 transition-all"
+                            >
+                              <AlertTriangle className="w-3.5 h-3.5 inline mr-1" />
+                              Reportar Incidencia
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {(s.Estado === 'Completada' || s.Estado === 'Finalizada') && (
+                        <div className="flex gap-2">
+                          <button onClick={() => onReview?.(s.Id)}
+                            className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6A5C0]/20 border border-[#F6A5C0]/30 text-[#F6A5C0] text-xs font-bold hover:bg-[#F6A5C0]/30 transition-all"
+                          >
+                            <Star className="w-3.5 h-3.5 inline mr-1" />
+                            Dejar Reseña
+                          </button>
+                          <button onClick={() => contratarDeNuevo(s)}
+                            className="flex-1 px-4 py-2.5 rounded-xl bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.15)] text-[#F5D5E0]/80 text-xs font-bold hover:bg-[rgba(255,255,255,0.15)] transition-all"
+                          >
+                            <Repeat className="w-3.5 h-3.5 inline mr-1" />
+                            Volver a contratar
+                          </button>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(255,255,255,0.06)]">
+                        <button onClick={() => setDetalleModal({ open: true, item: s })}
+                          className="text-[10px] text-[#F6A5C0] hover:text-[#CC8DB3] transition-colors font-semibold"
+                        >
+                          <Eye className="w-3 h-3 inline mr-1" /> Ver Detalle
+                        </button>
+                        <button onClick={() => setDocPreviewCuidadoraId(s.CuidadoraId)}
+                          className="text-[10px] text-[#F5D5E0]/60 hover:text-white transition-colors font-semibold"
+                        >
+                          <FileText className="w-3 h-3 inline mr-1" /> Ver Documentos
+                        </button>
+                        <button onClick={() => onViewContract?.(s.Id)}
+                          className="text-[10px] text-[#6667AB] hover:text-white transition-colors font-semibold"
+                        >
+                          Contrato
+                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* ── CÓMO TE PROTEGEMOS ── */}
-            <div className="bg-[rgba(33,6,53,0.5)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
-                <Shield className="w-4 h-4 text-[#F6A5C0]" />
-                ¿Cómo te protegemos?
-              </h2>
-              <div className="space-y-4">
-                {[
-                  { icon: Lock, text: 'El pago se retiene en una cuenta protegida hasta que confirmes que el servicio se completó correctamente.' },
-                  { icon: CheckCircle, text: 'Todas nuestras cuidadoras pasan por un proceso de validación de identidad y antecedentes.' },
-                  { icon: MessageSquare, text: 'Soporte directo vía chat y mediación del administrador ante cualquier inconveniente.' },
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-3">
-                    <div className="w-7 h-7 rounded-full bg-[rgba(246,165,192,0.15)] flex items-center justify-center shrink-0">
-                      <item.icon className="w-3.5 h-3.5 text-[#F6A5C0]" />
-                    </div>
-                    <p className="text-xs text-[#F5D5E0]/80 leading-relaxed">{item.text}</p>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            )}
           </div>
-        </div>
-        </>
+        )}
+
+        {/* ═══ TAB 3: MI PERFIL ═══ */}
+        {activeTab === 'perfil' && (
+          <div className="max-w-2xl mx-auto space-y-6">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6 sm:p-8"
+            >
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <User className="w-5 h-5 text-[#F6A5C0]" /> Información Personal
+              </h2>
+
+              {/* Foto */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="relative">
+                  {fotoPreview ? (
+                    <img src={fotoPreview} alt="Preview" className="w-20 h-20 rounded-full object-cover border-2 border-[#F6A5C0]" />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-2xl font-bold text-[#CC8DB3] border-2 border-dashed border-[rgba(255,255,255,0.2)]">
+                      {user?.nombres?.charAt(0) || '?'}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="text-white font-semibold text-sm">Foto de perfil</p>
+                  <p className="text-[#6667AB] text-xs mb-2">PNG, JPG. Máx 2MB</p>
+                  <label className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[rgba(246,165,192,0.15)] border border-[#F6A5C0]/30 text-[#F6A5C0] text-xs font-bold cursor-pointer hover:bg-[rgba(246,165,192,0.25)] transition-all">
+                    <Upload className="w-3.5 h-3.5" /> Subir foto
+                    <input type="file" accept="image/*" className="hidden" onChange={handleFotoUpload} />
+                  </label>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Nombres</label>
+                  <input type="text" value={perfilForm.nombres} onChange={e => setPerfilForm(f => ({ ...f, nombres: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Apellidos</label>
+                  <input type="text" value={perfilForm.apellidos} onChange={e => setPerfilForm(f => ({ ...f, apellidos: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Email</label>
+                  <input type="email" value={perfilForm.email} disabled
+                    className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.3)] border border-[rgba(255,255,255,0.1)] text-white/50 text-sm cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Teléfono</label>
+                  <input type="text" value={perfilForm.telefono} onChange={e => setPerfilForm(f => ({ ...f, telefono: formatPhone(e.target.value) }))}
+                    placeholder="999 999 999"
+                    className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Dirección</label>
+                  <input type="text" value={perfilForm.direccion} onChange={e => setPerfilForm(f => ({ ...f, direccion: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Latitud</label>
+                  <input type="text" value={perfilForm.latitud} onChange={e => setPerfilForm(f => ({ ...f, latitud: e.target.value }))}
+                    placeholder="-8.115"
+                    className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Longitud</label>
+                  <input type="text" value={perfilForm.longitud} onChange={e => setPerfilForm(f => ({ ...f, longitud: e.target.value }))}
+                    placeholder="-79.028"
+                    className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex items-center gap-3">
+                <button onClick={savePerfil} disabled={savingPerfil}
+                  className="px-6 py-2.5 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:bg-[#F6A5C0]/80 transition-all disabled:opacity-50"
+                >{savingPerfil ? 'Guardando...' : 'Guardar cambios'}</button>
+              </div>
+            </motion.div>
+
+            <MinorsSection />
+          </div>
+        )}
+
+        {/* ═══ TAB 4: MI FAMILIA ═══ */}
+        {activeTab === 'familia' && (
+          <div className="max-w-2xl mx-auto space-y-6">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6 sm:p-8"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Baby className="w-5 h-5 text-[#F6A5C0]" /> Miembros de la Familia
+                </h2>
+                <button onClick={() => { setShowMiembroForm(true); setEditMiembroId(null); setMiembroForm({ nombre: '', email: '', telefono: '', rol: 'Observador' }); }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#F6A5C0] text-[#210635] text-xs font-bold hover:bg-[#F6A5C0]/80 transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Agregar
+                </button>
+              </div>
+
+              {miembros.length === 0 && !showMiembroForm ? (
+                <div className="text-center py-10">
+                  <User className="w-10 h-10 text-[#6667AB] mx-auto mb-2" />
+                  <p className="text-[#6667AB] text-sm">Aún no has agregado miembros familiares</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {miembros.map(m => (
+                    <div key={m.Id} className="bg-[rgba(255,255,255,0.04)] rounded-xl p-4 flex items-center justify-between group">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-sm font-bold text-[#CC8DB3]">
+                          {m.Nombre.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="text-white font-semibold text-sm">{m.Nombre}</p>
+                          <p className="text-[#F5D5E0]/60 text-xs">{m.Email}</p>
+                          {m.Telefono && <p className="text-[#F5D5E0]/40 text-[10px]">{m.Telefono}</p>}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          m.Rol === 'Administrador' ? 'bg-purple-500/20 text-purple-200 border border-purple-500/30' : 'bg-[rgba(102,103,171,0.2)] text-[#6667AB] border border-[rgba(102,103,171,0.3)]'
+                        }`}>
+                          {m.Rol}
+                        </span>
+                        <button onClick={() => { setEditMiembroId(m.Id); setMiembroForm({ nombre: m.Nombre, email: m.Email, telefono: m.Telefono || '', rol: m.Rol }); setShowMiembroForm(true); }}
+                          className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-[rgba(255,255,255,0.1)] rounded-lg transition-all"
+                        ><Edit3 className="w-3.5 h-3.5 text-[#6667AB]" /></button>
+                        <button onClick={() => deleteMiembro(m.Id)}
+                          className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-[rgba(255,255,255,0.1)] rounded-lg transition-all"
+                        ><Trash2 className="w-3.5 h-3.5 text-red-400" /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add/Edit Form */}
+              <AnimatePresence>
+                {showMiembroForm && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                    <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.08)] space-y-3">
+                      <div>
+                        <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Nombre completo</label>
+                        <input type="text" value={miembroForm.nombre} onChange={e => setMiembroForm(f => ({ ...f, nombre: e.target.value }))}
+                          className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm"
+                          placeholder="Nombre del miembro"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Email</label>
+                          <input type="email" value={miembroForm.email} onChange={e => setMiembroForm(f => ({ ...f, email: e.target.value }))}
+                            className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm"
+                            placeholder="correo@ejemplo.com"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Teléfono</label>
+                          <input type="text" value={miembroForm.telefono} onChange={e => setMiembroForm(f => ({ ...f, telefono: formatPhone(e.target.value) }))}
+                            className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm"
+                            placeholder="999 999 999"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Rol</label>
+                        <select value={miembroForm.rol} onChange={e => setMiembroForm(f => ({ ...f, rol: e.target.value }))}
+                          className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm"
+                        >
+                          <option value="Administrador">Administrador</option>
+                          <option value="Observador">Observador</option>
+                        </select>
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <button onClick={saveMiembro}
+                          className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:bg-[#F6A5C0]/80 transition-all"
+                        >{editMiembroId ? 'Guardar cambios' : 'Agregar miembro'}</button>
+                        <button onClick={() => { setShowMiembroForm(false); setEditMiembroId(null); }}
+                          className="px-4 py-2.5 rounded-xl border border-[rgba(255,255,255,0.15)] text-[#6667AB] text-sm hover:text-white transition-colors"
+                        >Cancelar</button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </div>
         )}
       </div>
 
       {/* ── DETAIL MODAL ── */}
       <AnimatePresence>
-        {detalle.open && detalleData && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        {detalleModal.open && detalleModal.item && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
               className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.12)] rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl"
             >
-              {/* Header */}
-              <div className="p-6 pb-0">
-                <button onClick={() => setDetalle({ open: false, id: 0 })}
+              <div className="p-6">
+                <button onClick={() => setDetalleModal({ open: false, item: null })}
                   className="float-right p-1.5 hover:bg-[rgba(255,255,255,0.1)] rounded-lg transition-colors"
                 ><X className="w-4 h-4 text-[#6667AB]" /></button>
-
-                {/* Caregiver card */}
-                <div className="bg-[rgba(255,255,255,0.05)] rounded-xl p-4 mb-5">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-lg font-bold text-[#CC8DB3] ring-2 ring-[#CC8DB3]/30">
-                      {getIniciales(detalleData.CuidadoraNombres, detalleData.CuidadoraApellidos)}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-white font-bold text-base">{detalleData.CuidadoraNombres} {detalleData.CuidadoraApellidos}</p>
-                      <p className="text-[#F5D5E0]/60 text-xs">
-                        {formatFecha(detalleData.FechaServicio)} · {formatHora(detalleData.HoraInicio)} - {formatHora(detalleData.HoraFin)}
-                      </p>
-                      <p className="text-[#F5D5E0]/40 text-[10px] mt-0.5">{detalleData.TipoServicio}</p>
-                    </div>
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusPill[detalleData.Estado] || 'bg-[rgba(33,6,53,0.5)] text-[#6667AB] border-transparent'}`}>
-                      {statusText[detalleData.Estado] || detalleData.Estado}
-                    </span>
-                  </div>
-                  {detalleData.MenorNombre && (
-                    <div className="mt-3 pt-3 border-t border-[rgba(255,255,255,0.06)] text-xs text-[#F5D5E0]/70">
-                      <span className="text-[#6667AB]">Menor: </span>
-                      <span className="text-white">{detalleData.MenorNombre}</span>
-                      {detalleData.MenorDiagnostico && (
-                        <span className="text-[#CC8DB3]"> ({detalleData.MenorDiagnostico})</span>
+                <h3 className="text-lg font-bold text-white mb-4">Detalle del Servicio</h3>
+                {detalleModal.item && (
+                  <div className="space-y-4">
+                    <div className="bg-[rgba(255,255,255,0.05)] rounded-xl p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-sm font-bold text-[#CC8DB3]">
+                          {(detalleModal.item.CuidadoraNombres?.charAt(0) || '') + (detalleModal.item.CuidadoraApellidos?.charAt(0) || '')}
+                        </div>
+                        <div>
+                          <p className="text-white font-bold">{detalleModal.item.CuidadoraNombres} {detalleModal.item.CuidadoraApellidos}</p>
+                          <p className="text-[#F5D5E0]/60 text-xs">{formatFecha(detalleModal.item.FechaServicio)} · {formatHora(detalleModal.item.HoraInicio)} - {formatHora(detalleModal.item.HoraFin)}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div><span className="text-[#6667AB]">Horas:</span> <span className="text-white">{detalleModal.item.TotalHoras}h</span></div>
+                        <div><span className="text-[#6667AB]">Tarifa:</span> <span className="text-white">S/ {detalleModal.item.TarifaHora}/h</span></div>
+                        <div><span className="text-[#6667AB]">Subtotal:</span> <span className="text-white">S/ {detalleModal.item.Subtotal.toFixed(2)}</span></div>
+                        <div><span className="text-[#6667AB]">Comisión:</span> <span className="text-white">S/ {detalleModal.item.TarifaPlataforma.toFixed(2)}</span></div>
+                        <div className="col-span-2"><span className="text-[#6667AB]">Total:</span> <span className="text-white font-bold">S/ {detalleModal.item.Total.toFixed(2)}</span></div>
+                      </div>
+                      {detalleModal.item.MenorNombre && (
+                        <div className="mt-3 pt-3 border-t border-[rgba(255,255,255,0.06)] text-xs">
+                          <span className="text-[#6667AB]">Menor: </span><span className="text-white">{detalleModal.item.MenorNombre}</span>
+                          {detalleModal.item.MenorDiagnostico && <span className="text-[#CC8DB3]"> ({detalleModal.item.MenorDiagnostico})</span>}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-
-                {/* Financial panels */}
-                <div className="grid grid-cols-2 gap-3 mb-5">
-                  <div className="bg-[rgba(102,103,171,0.15)] rounded-xl p-4">
-                    <p className="text-[10px] text-[#F5D5E0]/60 uppercase tracking-wider mb-1">Total pagado</p>
-                    <p className="text-xl font-bold text-white">S/ {detalleData.Total.toFixed(2)}</p>
-                    <p className="text-[10px] text-[#F5D5E0]/40 mt-1">
-                      S/ {detalleData.Subtotal.toFixed(2)} servicio + S/ {detalleData.TarifaPlataforma.toFixed(2)} comisión
-                    </p>
-                  </div>
-                  <div className="bg-[rgba(16,185,129,0.12)] rounded-xl p-4">
-                    <p className="text-[10px] text-[#F5D5E0]/60 uppercase tracking-wider mb-1">Estado Escrow</p>
-                    <p className="text-lg font-bold text-emerald-400">
-                      {detalleData.Estado === 'Pagada' ? 'Retenido' : detalleData.Estado === 'Completada' || detalleData.Estado === 'Finalizada' ? 'Liberado' : '—'}
-                    </p>
-                    <p className="text-[10px] text-[#F5D5E0]/40 mt-1">
-                      {detalleData.Estado === 'Pagada' ? 'Esperando confirmación de finalización' : detalleData.Estado === 'Completada' ? 'Transferido a la cuidadora' : ''}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Negociación info */}
-                {detalleData.EstadoNegociacion && detalleData.EstadoNegociacion !== 'Pendiente' && (
-                  <div className="mb-5">
-                    <p className="text-[10px] text-[#6667AB] uppercase tracking-wider mb-2 font-semibold">Negociación</p>
-                    <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border ${
-                      detalleData.EstadoNegociacion === 'Negociacion' ? 'bg-purple-500/20 text-purple-200 border-purple-500/30' :
-                      detalleData.EstadoNegociacion === 'Acordado' || detalleData.EstadoNegociacion === 'Reunion' ? 'bg-emerald-500/20 text-emerald-200 border-emerald-500/30' :
-                      'bg-[rgba(33,6,53,0.5)] text-[#6667AB] border-transparent'
-                    }`}>
-                      {negState[detalleData.EstadoNegociacion] || detalleData.EstadoNegociacion}
-                    </span>
                   </div>
                 )}
               </div>
-
-              {/* ── Reportar incidencia ── */}
-              <div className="mx-6 p-4 rounded-xl bg-[rgba(209,66,66,0.08)] border border-[rgba(209,66,66,0.15)] mb-5">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs text-[#F5D5E0] font-semibold">¿Problemas con el servicio?</p>
-                    <p className="text-[10px] text-[#F5D5E0]/60 mt-0.5">
-                      Si tienes algún inconveniente, puedes reportarlo y el administrador lo revisará.
-                    </p>
-                    <button onClick={() => onNavigate?.('messages')}
-                      className="mt-2 px-3 py-1.5 rounded-full border border-[#D14242] text-[#D14242] text-[10px] font-bold hover:bg-[rgba(209,66,66,0.1)] transition-all"
-                    ><Plus className="w-3 h-3 inline mr-1" />Reportar incidencia</button>
-                  </div>
-                </div>
-              </div>
-
-              {/* ── Footer ── */}
-              <div className="p-6 pt-0 flex gap-3">
-                <button onClick={() => {
-                  setDetalle({ open: false, id: 0 });
-                  onNavigate?.('messages');
-                }}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-white/10 text-white text-sm font-semibold hover:bg-white/20 transition-all"
-                ><MessageSquare className="w-4 h-4 inline mr-1.5" />Ir a mensajes</button>
-                <button onClick={() => setDetalle({ open: false, id: 0 })}
-                  className="px-4 py-2.5 rounded-xl text-[#6667AB] text-sm hover:text-white transition-colors"
-                >Cerrar</button>
-              </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── NEGOTIATION MODAL ── */}
+      {/* ── INCIDENCIA MODAL ── */}
       <AnimatePresence>
-        {negModal.open && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        {incidenciaModal.open && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          >
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.12)] rounded-2xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-2xl"
+              className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.12)] rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl p-6"
             >
-              <h3 className="text-lg font-bold text-white mb-4">Propuesta de la cuidadora</h3>
-              {propuestas.filter(p => p.Estado === 'activa').map(p => (
-                <div key={p.Id} className="space-y-4">
-                  <div className="bg-[rgba(255,255,255,0.04)] rounded-xl p-4 space-y-2">
-                    {p.TarifaHora && (
-                      <div className="flex items-center gap-2 text-sm"><DollarSign className="w-4 h-4 text-[#F6A5C0]" />
-                        <span className="text-[#6667AB]">Tarifa:</span><span className="text-white font-bold">S/ {p.TarifaHora}/hora</span>
-                      </div>
-                    )}
-                    {p.TotalHoras && (
-                      <div className="flex items-center gap-2 text-sm"><Clock className="w-4 h-4 text-[#F6A5C0]" />
-                        <span className="text-[#6667AB]">Horas:</span><span className="text-white font-bold">{p.TotalHoras}h</span>
-                      </div>
-                    )}
-                    {p.HoraInicio && (
-                      <div className="flex items-center gap-2 text-sm"><Clock className="w-4 h-4 text-[#F6A5C0]" />
-                        <span className="text-[#6667AB]">Horario:</span><span className="text-white font-bold">{p.HoraInicio} - {p.HoraFin}</span>
-                      </div>
-                    )}
-                    {p.Mensaje && (
-                      <div className="mt-2 pt-2 border-t border-[rgba(255,255,255,0.06)]">
-                        <p className="text-xs text-[#6667AB] mb-1">Mensaje:</p>
-                        <p className="text-sm text-[#F5D5E0]">{p.Mensaje}</p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => respondNeg('aceptar')} disabled={responding}
-                      className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 transition-colors disabled:opacity-50"
-                    ><CheckCircle className="w-4 h-4 inline mr-1.5" />Aceptar</button>
-                    <button onClick={() => setShowCounter(!showCounter)}
-                      className="flex-1 px-4 py-2.5 rounded-xl border border-[#F6A5C0] text-[#F6A5C0] text-sm font-bold hover:bg-[rgba(246,165,192,0.1)] transition-colors"
-                    ><MessageSquare className="w-4 h-4 inline mr-1.5" />Contraproponer</button>
-                    <button onClick={() => respondNeg('rechazar')} disabled={responding}
-                      className="px-4 py-2.5 rounded-xl border border-red-400 text-red-400 text-sm font-bold hover:bg-[rgba(200,40,40,0.1)] transition-colors disabled:opacity-50"
-                    ><XCircle className="w-4 h-4 inline mr-1.5" />Rechazar</button>
-                  </div>
-                  {showCounter && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-3 pt-2">
-                      <p className="text-xs font-bold text-[#F6A5C0]">Tu contrapropuesta</p>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-[10px] text-[#6667AB] block mb-1">Tarifa</label>
-                          <input type="number" value={counterForm.tarifaHora} onChange={e => setCounterForm(c => ({ ...c, tarifaHora: +e.target.value }))}
-                            className="w-full px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-xs"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-[#6667AB] block mb-1">Horas</label>
-                          <input type="number" value={counterForm.totalHoras} onChange={e => setCounterForm(c => ({ ...c, totalHoras: +e.target.value }))}
-                            className="w-full px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-xs"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-[#6667AB] block mb-1">Inicio</label>
-                          <input type="time" value={counterForm.horaInicio} onChange={e => setCounterForm(c => ({ ...c, horaInicio: e.target.value }))}
-                            className="w-full px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-xs [color-scheme:dark]"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-[#6667AB] block mb-1">Fin</label>
-                          <input type="time" value={counterForm.horaFin} onChange={e => setCounterForm(c => ({ ...c, horaFin: e.target.value }))}
-                            className="w-full px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-xs [color-scheme:dark]"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-[#6667AB] block mb-1">Mensaje</label>
-                        <textarea value={counterForm.mensaje} onChange={e => setCounterForm(c => ({ ...c, mensaje: e.target.value }))} rows={2}
-                          className="w-full px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-xs resize-none"
-                          placeholder="Ej: Prefiero mantener la tarifa original pero podemos ajustar el horario..."
-                        />
-                      </div>
-                      <button onClick={() => respondNeg('contrapropuesta')} disabled={responding}
-                        className="w-full px-4 py-2 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:bg-[#F6A5C0]/80 transition-colors disabled:opacity-50"
-                      >Enviar contrapropuesta</button>
-                    </motion.div>
-                  )}
-                </div>
-              ))}
-              {propuestas.filter(p => p.Estado === 'activa').length === 0 && (
-                <p className="text-[#6667AB] text-sm text-center py-6">No hay propuestas activas</p>
-              )}
-              <button onClick={() => setNegModal({ open: false, ordenId: 0 })}
-                className="w-full mt-4 px-4 py-2 rounded-xl border border-[rgba(255,255,255,0.15)] text-[#6667AB] text-sm hover:text-white transition-colors"
-              >Cerrar</button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── TAREAS MODAL ── */}
-      <AnimatePresence>
-        {tareasModal.open && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.12)] rounded-2xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto shadow-2xl"
-            >
-              <h3 className="text-lg font-bold text-white mb-1">Tareas y necesidades del menor</h3>
-              <p className="text-xs text-[#6667AB] mb-4">Selecciona las tareas que necesita este servicio</p>
-              <ChecklistTareas selected={tareasModal.tareasIds} onChange={ids => setTareasModal(m => ({ ...m, tareasIds: ids }))} />
-              <div className="flex gap-2 mt-6">
-                <button onClick={async () => {
-                  await fetch(`/api/ordenes/${tareasModal.ordenId}/tareas`, {
-                    method: 'POST', headers, body: JSON.stringify({ tareasIds: tareasModal.tareasIds }),
-                  });
-                  setTareasModal({ open: false, ordenId: 0, tareasIds: [] });
-                  fetchAll();
-                }}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:bg-[#F6A5C0]/80 transition-colors"
-                >Guardar tareas</button>
-                <button onClick={() => setTareasModal({ open: false, ordenId: 0, tareasIds: [] })}
-                  className="px-4 py-2.5 rounded-xl border border-[rgba(255,255,255,0.15)] text-[#6667AB] text-sm hover:text-white transition-colors"
-                >Cancelar</button>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-red-400" /> Reportar Incidencia
+                </h3>
+                <button onClick={() => setIncidenciaModal({ open: false, ordenId: null })}
+                  className="p-1.5 hover:bg-[rgba(255,255,255,0.1)] rounded-lg transition-colors"
+                ><X className="w-4 h-4 text-[#6667AB]" /></button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* ── HIJOS MODAL ── */}
-      <AnimatePresence>
-        {hijosModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.12)] rounded-2xl p-6 w-full max-w-md shadow-2xl"
-            >
-              <h3 className="text-lg font-bold text-white mb-4">{editMinorId ? 'Editar hijo' : 'Agregar hijo'}</h3>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div>
-                  <label className="text-[10px] text-[#6667AB] block mb-1">Nombre</label>
-                  <input type="text" value={minorForm.nombre} onChange={e => setMinorForm(f => ({ ...f, nombre: e.target.value }))}
+                  <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Categoría de la falta</label>
+                  <select value={incidenciaForm.categoria} onChange={e => setIncidenciaForm(f => ({ ...f, categoria: e.target.value }))}
                     className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm"
-                    placeholder="Nombre del menor"
-                  />
+                  >
+                    <option value="">Selecciona una categoría</option>
+                    {incidenciaCategorias.map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
                 </div>
+
                 <div>
-                  <label className="text-[10px] text-[#6667AB] block mb-1">Diagnóstico (opcional)</label>
-                  <input type="text" value={minorForm.diagnostico} onChange={e => setMinorForm(f => ({ ...f, diagnostico: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm"
-                    placeholder="Ej: TEA, TDAH, Síndrome de Down"
+                  <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Descripción detallada</label>
+                  <textarea value={incidenciaForm.descripcion} onChange={e => setIncidenciaForm(f => ({ ...f, descripcion: e.target.value }))} rows={4}
+                    className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm resize-none"
+                    placeholder="Describe lo sucedido con el mayor detalle posible..."
                   />
                 </div>
+
                 <div>
-                  <label className="text-[10px] text-[#6667AB] block mb-1">Fecha de nacimiento (opcional)</label>
-                  <input type="date" value={minorForm.fechaNacimiento} onChange={e => setMinorForm(f => ({ ...f, fechaNacimiento: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-sm [color-scheme:dark]"
-                  />
+                  <label className="text-[10px] font-semibold text-[#6667AB] block mb-1">Archivo de evidencia (obligatorio)</label>
+                  <div className="border-2 border-dashed border-[rgba(255,255,255,0.15)] rounded-xl p-4 text-center hover:border-[#F6A5C0]/50 transition-colors cursor-pointer"
+                    onClick={() => document.getElementById('incidencia-file')?.click()}
+                  >
+                    {incidenciaForm.archivo ? (
+                      <div className="flex items-center justify-center gap-2 text-sm">
+                        <FileText className="w-4 h-4 text-[#F6A5C0]" />
+                        <span className="text-white">{incidenciaForm.archivo.name}</span>
+                        <button onClick={(e) => { e.stopPropagation(); setIncidenciaForm(f => ({ ...f, archivo: null })); }}
+                          className="text-red-400 hover:text-red-300"
+                        ><X className="w-3.5 h-3.5" /></button>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="w-6 h-6 text-[#6667AB] mx-auto mb-1" />
+                        <p className="text-xs text-[#6667AB]">Haz clic para seleccionar un archivo</p>
+                        <p className="text-[10px] text-[#6667AB]/60">PDF, JPG, PNG (máx 10MB)</p>
+                      </>
+                    )}
+                    <input id="incidencia-file" type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
+                      onChange={e => setIncidenciaForm(f => ({ ...f, archivo: e.target.files?.[0] || null }))}
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="flex gap-2 mt-6">
-                <button onClick={saveMinor}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:bg-[#F6A5C0]/80 transition-colors"
-                >{editMinorId ? 'Guardar cambios' : 'Agregar'}</button>
-                <button onClick={() => { setHijosModal(false); setEditMinorId(null); setMinorForm({ nombre: '', diagnostico: '', fechaNacimiento: '' }); }}
-                  className="px-4 py-2.5 rounded-xl border border-[rgba(255,255,255,0.15)] text-[#6667AB] text-sm hover:text-white transition-colors"
-                >Cancelar</button>
+
+                <button onClick={submitIncidencia} disabled={submittingIncidencia || !incidenciaForm.categoria || !incidenciaForm.descripcion || !incidenciaForm.archivo}
+                  className="w-full py-3 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-all disabled:opacity-50"
+                >
+                  {submittingIncidencia ? 'Enviando...' : 'Enviar Reporte'}
+                </button>
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── DOCUMENT PREVIEW MODAL ── */}
+      <AnimatePresence>
+        {docPreviewCuidadoraId && (
+          <DocumentPreviewModal
+            isOpen={true}
+            onClose={() => setDocPreviewCuidadoraId(null)}
+            cuidadoraId={docPreviewCuidadoraId}
+          />
         )}
       </AnimatePresence>
     </div>

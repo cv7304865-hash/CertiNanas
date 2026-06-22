@@ -295,6 +295,216 @@ db.exec(`
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
+  -- Modulo 5: Geolocalizacion (Check-In/Check-Out)
+  CREATE TABLE IF NOT EXISTS GeolocalizacionRegistros (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
+    IdCuidadora INTEGER NOT NULL REFERENCES Cuidadoras(Id),
+    Tipo TEXT NOT NULL CHECK(Tipo IN ('CheckIn','CheckOut')),
+    Latitud REAL NOT NULL,
+    Longitud REAL NOT NULL,
+    DistanciaMetros REAL,
+    Validado INTEGER NOT NULL DEFAULT 0,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  -- Modulo 5: Contratos Digitales (PDF storage)
+  CREATE TABLE IF NOT EXISTS ContratosDigitales (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL UNIQUE REFERENCES Ordenes(Id),
+    CodigoContrato TEXT NOT NULL UNIQUE,
+    FechaEmision TEXT,
+    PdfUrl TEXT,
+    HashCriptografico TEXT,
+    FirmaFamilia TEXT,
+    FirmaCuidadora TEXT,
+    FirmaAdmin TEXT,
+    OTPFamilia TEXT,
+    OTPCuidadora TEXT,
+    OTPVerificadoFamilia INTEGER NOT NULL DEFAULT 0,
+    OTPVerificadoCuidadora INTEGER NOT NULL DEFAULT 0,
+    Estado TEXT NOT NULL DEFAULT 'Pendiente' CHECK(Estado IN ('Pendiente','PendienteFirma','Completado','Cancelado')),
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  -- Modulo 8: Incidentes (Boton de Panico)
+  CREATE TABLE IF NOT EXISTS Incidentes (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
+    IdUsuarioReporta INTEGER NOT NULL REFERENCES Usuarios(Id),
+    Latitud REAL,
+    Longitud REAL,
+    Tipo TEXT NOT NULL DEFAULT 'Panico' CHECK(Tipo IN ('Panico','Emergencia','Incidente')),
+    Estado TEXT NOT NULL DEFAULT 'Activo' CHECK(Estado IN ('Activo','EnAtencion','Resuelto','Cerrado')),
+    Descripcion TEXT,
+    FechaActivacion TEXT NOT NULL DEFAULT (datetime('now')),
+    FechaResolucion TEXT
+  );
+
+  -- Modulo 9: Historial Salud Criptografico
+  CREATE TABLE IF NOT EXISTS HistorialSalud (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdMenor INTEGER NOT NULL REFERENCES Menores(Id),
+    IdCuidadora INTEGER NOT NULL REFERENCES Cuidadoras(Id),
+    IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
+    DatosCifrados TEXT NOT NULL,
+    VectorInicializacion TEXT NOT NULL,
+    HashVerificacion TEXT NOT NULL,
+    Activo INTEGER NOT NULL DEFAULT 1,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now')),
+    FechaRevocacion TEXT
+  );
+
+  -- Modulo 11: Reemplazo de Emergencia
+  CREATE TABLE IF NOT EXISTS ReemplazoEmergencia (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
+    IdCuidadoraOriginal INTEGER NOT NULL REFERENCES Cuidadoras(Id),
+    IdCuidadoraReemplazo INTEGER REFERENCES Cuidadoras(Id),
+    Motivo TEXT NOT NULL,
+    Estado TEXT NOT NULL DEFAULT 'Buscando' CHECK(Estado IN ('Buscando','Encontrado','Asignado','Fallido','Cancelado')),
+    TiempoBusquedaSegundos INTEGER DEFAULT 0,
+    NivelCompatibilidad REAL,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now')),
+    FechaAsignacion TEXT
+  );
+
+  -- Modulo 12: Reportes Diarios de Atencion
+  CREATE TABLE IF NOT EXISTS ReportesDiarios (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
+    IdCuidadora INTEGER NOT NULL REFERENCES Cuidadoras(Id),
+    IdMenor INTEGER NOT NULL REFERENCES Menores(Id),
+    EstadoGeneral TEXT CHECK(EstadoGeneral IN ('Excelente','Bueno','Regular','Requiere Observacion')),
+    Alimentacion TEXT,
+    Medicamentos TEXT,
+    ActividadesRealizadas TEXT,
+    Observaciones TEXT,
+    FechaReporte TEXT NOT NULL DEFAULT (date('now')),
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS ReportesDiariosEvidencias (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdReporte INTEGER NOT NULL REFERENCES ReportesDiarios(Id) ON DELETE CASCADE,
+    TipoArchivo TEXT NOT NULL,
+    NombreArchivo TEXT NOT NULL,
+    RutaArchivo TEXT NOT NULL,
+    FechaSubida TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  -- Modulo 13: Calendario Inteligente
+  CREATE TABLE IF NOT EXISTS ReservasCalendario (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
+    IdUsuarioFamilia INTEGER NOT NULL REFERENCES Usuarios(Id),
+    IdCuidadora INTEGER NOT NULL REFERENCES Cuidadoras(Id),
+    FechaInicio TEXT NOT NULL,
+    FechaFin TEXT NOT NULL,
+    TipoRecurrencia TEXT DEFAULT 'Unico' CHECK(TipoRecurrencia IN ('Unico','Diario','Semanal','Mensual','Personalizado')),
+    Estado TEXT NOT NULL DEFAULT 'Programada' CHECK(Estado IN ('Programada','EnCurso','Completada','Cancelada')),
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  -- Modulo 14: Capacitaciones y Certificaciones
+  CREATE TABLE IF NOT EXISTS Capacitaciones (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Titulo TEXT NOT NULL,
+    Descripcion TEXT,
+    TipoContenido TEXT DEFAULT 'Video' CHECK(TipoContenido IN ('Video','PDF','Manual','CasoPractico')),
+    UrlContenido TEXT,
+    DuracionMinutos INTEGER,
+    Categoria TEXT,
+    Activo INTEGER NOT NULL DEFAULT 1,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS EvaluacionesCapacitacion (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdCapacitacion INTEGER NOT NULL REFERENCES Capacitaciones(Id) ON DELETE CASCADE,
+    Pregunta TEXT NOT NULL,
+    TipoRespuesta TEXT NOT NULL DEFAULT 'MultipleChoice' CHECK(TipoRespuesta IN ('MultipleChoice','VerdaderoFalso','CasoPractico')),
+    Opciones TEXT,
+    RespuestaCorrecta TEXT NOT NULL,
+    Orden INTEGER NOT NULL DEFAULT 0
+  );
+
+  CREATE TABLE IF NOT EXISTS ProgresoCapacitacion (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdCuidadora INTEGER NOT NULL REFERENCES Cuidadoras(Id) ON DELETE CASCADE,
+    IdCapacitacion INTEGER NOT NULL REFERENCES Capacitaciones(Id) ON DELETE CASCADE,
+    PuntajeObtenido REAL,
+    Aprobado INTEGER NOT NULL DEFAULT 0,
+    CertificadoGenerado INTEGER NOT NULL DEFAULT 0,
+    CertificadoUrl TEXT,
+    FechaCompletado TEXT,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(IdCuidadora, IdCapacitacion)
+  );
+
+  -- Modulo 15: Centro de Analitica
+  CREATE TABLE IF NOT EXISTS MetricasAnalytics (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Tipo TEXT NOT NULL,
+    Clave TEXT NOT NULL,
+    Valor REAL NOT NULL,
+    Periodo TEXT NOT NULL,
+    FechaRegistro TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  -- Modulo 16: Prediccion de Riesgos
+  CREATE TABLE IF NOT EXISTS PrediccionRiesgos (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdOrden INTEGER NOT NULL REFERENCES Ordenes(Id),
+    NivelRiesgo TEXT NOT NULL CHECK(NivelRiesgo IN ('Bajo','Medio','Alto')),
+    PuntajeRiesgo REAL NOT NULL DEFAULT 0,
+    VariablesAnalizadas TEXT,
+    AlertaGenerada INTEGER NOT NULL DEFAULT 0,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  -- Modulo 17: Miembros Familiares
+  CREATE TABLE IF NOT EXISTS FamiliaMiembros (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdUsuarioFamiliaPrincipal INTEGER NOT NULL REFERENCES Usuarios(Id) ON DELETE CASCADE,
+    Nombre TEXT NOT NULL,
+    Email TEXT,
+    Telefono TEXT,
+    Rol TEXT NOT NULL CHECK(Rol IN ('Administrador','Observador')) DEFAULT 'Observador',
+    Activo INTEGER NOT NULL DEFAULT 1,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  -- Modulo 18: Reputacion y Gamificacion
+  CREATE TABLE IF NOT EXISTS NivelesReputacion (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Nombre TEXT NOT NULL UNIQUE,
+    PuntajeMinimo INTEGER NOT NULL,
+    PuntajeMaximo INTEGER NOT NULL,
+    Color TEXT,
+    Orden INTEGER NOT NULL DEFAULT 0
+  );
+
+  CREATE TABLE IF NOT EXISTS ReputacionCuidadora (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdCuidadora INTEGER NOT NULL UNIQUE REFERENCES Cuidadoras(Id) ON DELETE CASCADE,
+    PuntajeTotal INTEGER NOT NULL DEFAULT 0,
+    IdNivelActual INTEGER REFERENCES NivelesReputacion(Id),
+    ServiciosCompletados INTEGER NOT NULL DEFAULT 0,
+    Recontrataciones INTEGER NOT NULL DEFAULT 0,
+    PuntualidadPromedio REAL DEFAULT 0,
+    FechaActualizacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS HistorialReputacion (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    IdCuidadora INTEGER NOT NULL REFERENCES Cuidadoras(Id) ON DELETE CASCADE,
+    PuntajeAnterior INTEGER NOT NULL,
+    PuntajeNuevo INTEGER NOT NULL,
+    Concepto TEXT NOT NULL,
+    IdReferencia INTEGER,
+    FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
   // Seed data
@@ -370,7 +580,53 @@ db.exec(`
   INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (43, 6, 'Supervisión durante el sueño', 5);
   INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (44, 6, 'Preparación de refrigerios', 6);
   INSERT OR IGNORE INTO Tareas (Id, IdCategoria, Descripcion, Orden) VALUES (45, 6, 'Organización de materiales escolares', 7);
+
+  -- Niveles de Reputacion
+  INSERT OR IGNORE INTO NivelesReputacion (Nombre, PuntajeMinimo, PuntajeMaximo, Color, Orden) VALUES ('Bronce', 0, 199, '#CD7F32', 1);
+  INSERT OR IGNORE INTO NivelesReputacion (Nombre, PuntajeMinimo, PuntajeMaximo, Color, Orden) VALUES ('Plata', 200, 399, '#C0C0C0', 2);
+  INSERT OR IGNORE INTO NivelesReputacion (Nombre, PuntajeMinimo, PuntajeMaximo, Color, Orden) VALUES ('Oro', 400, 599, '#FFD700', 3);
+  INSERT OR IGNORE INTO NivelesReputacion (Nombre, PuntajeMinimo, PuntajeMaximo, Color, Orden) VALUES ('Platino', 600, 799, '#E5E4E2', 4);
+  INSERT OR IGNORE INTO NivelesReputacion (Nombre, PuntajeMinimo, PuntajeMaximo, Color, Orden) VALUES ('Elite', 800, 999999, '#B9F2FF', 5);
+
+  -- Capacitaciones
+  INSERT OR IGNORE INTO Capacitaciones (Id, Titulo, Descripcion, TipoContenido, UrlContenido, DuracionMinutos, Categoria) VALUES (1, 'Introduccion al Cuidado de Ninos con TEA', 'Aprende los fundamentos del Trastorno del Espectro Autista y las mejores practicas de cuidado.', 'Video', '/capacitaciones/tea-intro.mp4', 45, 'TEA');
+  INSERT OR IGNORE INTO Capacitaciones (Id, Titulo, Descripcion, TipoContenido, UrlContenido, DuracionMinutos, Categoria) VALUES (2, 'Manejo de Crisis Conductuales', 'Tecnicas efectivas para prevenir y manejar crisis conductuales en ninos con necesidades especiales.', 'Video', '/capacitaciones/crisis.mp4', 60, 'Conductual');
+  INSERT OR IGNORE INTO Capacitaciones (Id, Titulo, Descripcion, TipoContenido, UrlContenido, DuracionMinutos, Categoria) VALUES (3, 'Primeros Auxilios Pediatricos Avanzados', 'Protocolos completos de primeros auxilios especificos para la poblacion pediatrica.', 'Video', '/capacitaciones/primeros-auxilios.mp4', 90, 'Salud');
+  INSERT OR IGNORE INTO Capacitaciones (Id, Titulo, Descripcion, TipoContenido, UrlContenido, DuracionMinutos, Categoria) VALUES (4, 'Estimulacion Temprana en Casa', 'Actividades y ejercicios de estimulacion temprana que pueden realizarse en el hogar.', 'Manual', '/capacitaciones/estimulacion-temprana.pdf', 120, 'Desarrollo');
+  INSERT OR IGNORE INTO Capacitaciones (Id, Titulo, Descripcion, TipoContenido, UrlContenido, DuracionMinutos, Categoria) VALUES (5, 'Comunicacion con Familias', 'Estrategias de comunicacion efectiva para construir relaciones de confianza con las familias.', 'CasoPractico', '/capacitaciones/comunicacion-familias.pdf', 45, 'Habilidades');
 `);
+
+  // Evaluaciones para Capacitacion 1: TEA
+  const evals = [
+    [1, 'Cual de las siguientes es una caracteristica comun del TEA?', 'MultipleChoice', '["Dificultades en la comunicacion social","Problemas de vision","Alergias alimentarias","Problemas de audicion"]', 'Dificultades en la comunicacion social', 1],
+    [1, 'Que estrategia es mas efectiva para un nino con TEA?', 'MultipleChoice', '["Mantener rutinas predecibles","Cambiar la rutina diariamente","Hablar en voz alta","Ignorar las conductas repetitivas"]', 'Mantener rutinas predecibles', 2],
+    [1, 'La sobrecarga sensorial puede provocar crisis en ninos con TEA.', 'VerdaderoFalso', '["Verdadero","Falso"]', 'Verdadero', 3],
+    [1, 'Cual es la mejor manera de comunicarse con un nino no verbal con TEA?', 'MultipleChoice', '["Usar apoyos visuales","Hablar mas fuerte","Ignorar al nino","Usar solo lenguaje escrito"]', 'Usar apoyos visuales', 4],
+    [2, 'Cual es el primer paso ante una crisis conductual?', 'MultipleChoice', '["Mantener la calma y evaluar la situacion","Sujetar al nino","Llamar a los padres inmediatamente","Ignorar la conducta"]', 'Mantener la calma y evaluar la situacion', 1],
+    [2, 'Que debes evitar durante una crisis?', 'MultipleChoice', '["Hablar en tono calmado","Dar instrucciones claras","Elevar la voz","Retirar estimulos sensoriales"]', 'Elevar la voz', 2],
+    [2, 'Es recomendable usar tecnicas de contencion fisica como primera opcion.', 'VerdaderoFalso', '["Verdadero","Falso"]', 'Falso', 3],
+    [2, 'Despues de una crisis, que es importante hacer?', 'MultipleChoice', '["Reflexionar sobre lo ocurrido y registrar","Ignorar lo sucedido","Castigar al nino","Continuar como si nada"]', 'Reflexionar sobre lo ocurrido y registrar', 4],
+    [3, 'Cual es la relacion correcta de compresiones toracicas y ventilaciones en RCP pediatrico?', 'MultipleChoice', '["30:2","15:2","5:1","10:1"]', '30:2', 1],
+    [3, 'Que hacer si un nino se esta atragantando y no puede toser?', 'MultipleChoice', '["Maniobra de Heimlich","Dar palmadas en la espalda","Ofrecer agua","Esperar a que pase"]', 'Maniobra de Heimlich', 2],
+    [3, 'La posicion de recuperacion se usa cuando el nino esta inconsciente pero respira.', 'VerdaderoFalso', '["Verdadero","Falso"]', 'Verdadero', 3],
+    [3, 'Cual es la temperatura corporal que indica fiebre alta en ninos?', 'MultipleChoice', '["38.5°C o mas","37°C","36.5°C","39.5°C o mas"]', '39.5°C o mas', 4],
+    [4, 'A que edad se recomienda iniciar la estimulacion temprana?', 'MultipleChoice', '["Desde el nacimiento","A los 2 anos","A los 3 anos","A los 6 meses"]', 'Desde el nacimiento', 1],
+    [4, 'Cual de estas actividades favorece la motricidad fina?', 'MultipleChoice', '["Enhebrar cuentas","Correr","Saltar","Nadar"]', 'Enhebrar cuentas', 2],
+    [4, 'El juego sensorial solo es benefico para ninos con discapacidades.', 'VerdaderoFalso', '["Verdadero","Falso"]', 'Falso', 3],
+    [4, 'Cuantas horas de sueno necesita un nino de 2 anos en promedio?', 'MultipleChoice', '["11-14 horas","6-8 horas","8-10 horas","14-16 horas"]', '11-14 horas', 4],
+    [5, 'Cual es la clave para una comunicacion efectiva con la familia?', 'MultipleChoice', '["Escucha activa y empatia","Hablar solo de temas laborales","Evitar el contacto visual","Usar terminos tecnicos"]', 'Escucha activa y empatia', 1],
+    [5, 'Como manejar un desacuerdo con una familia sobre el cuidado del nino?', 'MultipleChoice', '["Dialogar respetuosamente y buscar acuerdo","Imponer tu criterio","Ignorar la opinion de la familia","Quejarte con otras cuidadoras"]', 'Dialogar respetuosamente y buscar acuerdo', 2],
+    [5, 'Es importante establecer limites claros desde el inicio de la relacion laboral.', 'VerdaderoFalso', '["Verdadero","Falso"]', 'Verdadero', 3],
+    [5, 'Que hacer si observas una situacion de riesgo en el hogar de la familia?', 'MultipleChoice', '["Reportarlo al coordinador de CERTINANAS","Ignorarlo","Comentarlo con otros","Publicarlo en redes"]', 'Reportarlo al coordinador de CERTINANAS', 4],
+  ];
+
+  const insertEval = db.prepare('INSERT OR IGNORE INTO EvaluacionesCapacitacion (IdCapacitacion, Pregunta, TipoRespuesta, Opciones, RespuestaCorrecta, Orden) VALUES (?, ?, ?, ?, ?, ?)');
+  for (const e of evals) {
+    const exists = db.prepare('SELECT Id FROM EvaluacionesCapacitacion WHERE IdCapacitacion = ? AND Orden = ?').get(e[0], e[5]);
+    if (!exists) {
+      insertEval.run(...e);
+    }
+  }
 
   // Migraciones
   try { db.prepare(`ALTER TABLE Cuidadoras ADD COLUMN Zona TEXT`).run(); } catch(e) {}
@@ -388,10 +644,16 @@ db.exec(`
   try { db.prepare(`ALTER TABLE Usuarios ADD COLUMN Suspendido INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Postulaciones ADD COLUMN MotivoRechazo TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE DocumentosPostulacion ADD COLUMN MotivoRechazo TEXT`).run(); } catch(e) {}
-  // Asignar MotivoRechazo por defecto a postulaciones Rechazadas existentes sin motivo
-  try { db.prepare("UPDATE Postulaciones SET MotivoRechazo = 'No cumple con los requisitos mínimos establecidos.' WHERE Estado = 'Rechazada' AND (MotivoRechazo IS NULL OR MotivoRechazo = '')").run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN CheckIn REAL`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN CheckOut REAL`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN CheckInLatitud REAL`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN CheckInLongitud REAL`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN CheckOutLatitud REAL`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN CheckOutLongitud REAL`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Contratos ADD COLUMN PdfUrl TEXT`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Contratos ADD COLUMN HashCriptografico TEXT`).run(); } catch(e) {}
+  try { db.prepare("UPDATE Postulaciones SET MotivoRechazo = 'No cumple con los requisitos minimos establecidos.' WHERE Estado = 'Rechazada' AND (MotivoRechazo IS NULL OR MotivoRechazo = '')").run(); } catch(e) {}
   try { db.prepare("UPDATE DocumentosPostulacion SET MotivoRechazo = 'Documento no cumple con los requisitos.' WHERE Estado = 'Rechazado' AND (MotivoRechazo IS NULL OR MotivoRechazo = '')").run(); } catch(e) {}
-  // Renombrar tipos de documento a nombres legibles para el frontend
   try { db.prepare("UPDATE DocumentosPostulacion SET TipoRequisito = 'Antecedentes penales' WHERE TipoRequisito = 'Antecedentes PNP'").run(); } catch(e) {}
   try { db.prepare("UPDATE DocumentosPostulacion SET TipoRequisito = 'Certificado de salud' WHERE TipoRequisito = 'Certificado Salud'").run(); } catch(e) {}
   try { db.prepare("UPDATE DocumentosPostulacion SET TipoRequisito = 'Titulo profesional' WHERE TipoRequisito = 'Certificado Estudios'").run(); } catch(e) {}
@@ -400,7 +662,6 @@ db.exec(`
 console.log('Tablas creadas y datos de semilla insertados.');
 }
 
-// Ejecutar directamente si es llamado como script
 if (process.argv[1] && (process.argv[1].endsWith('setup.js') || process.argv[1].endsWith('setup'))) {
   const db = getDb();
   setupDatabase(db);

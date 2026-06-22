@@ -418,3 +418,260 @@ VALUES (4, 2, 25.00, 'Joven pedagoga con enfoque lúdico y acompañamiento escol
 
 INSERT INTO Postulaciones (IdUsuario, Estado)
 VALUES (4, 'Pendiente');
+
+-- ============================================================
+-- NUEVAS TABLAS - MÓDULOS 5-18
+-- ============================================================
+
+CREATE TABLE GeolocalizacionRegistros (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdOrden INT NOT NULL,
+    IdCuidadora INT NOT NULL,
+    Tipo VARCHAR(20) NOT NULL CHECK (Tipo IN ('CheckIn','CheckOut')),
+    Latitud DECIMAL(10,7) NOT NULL,
+    Longitud DECIMAL(10,7) NOT NULL,
+    DistanciaMetros DECIMAL(10,2),
+    Validado BOOLEAN DEFAULT FALSE,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (IdOrden) REFERENCES Ordenes(Id) ON DELETE CASCADE,
+    FOREIGN KEY (IdCuidadora) REFERENCES Cuidadoras(Id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE ContratosDigitales (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdOrden INT NOT NULL UNIQUE,
+    CodigoContrato VARCHAR(50) NOT NULL UNIQUE,
+    FechaEmision DATETIME,
+    PdfUrl VARCHAR(500),
+    HashCriptografico VARCHAR(255),
+    FirmaFamilia TEXT,
+    FirmaCuidadora TEXT,
+    FirmaAdmin TEXT,
+    OTPFamilia VARCHAR(10),
+    OTPCuidadora VARCHAR(10),
+    OTPVerificadoFamilia BOOLEAN DEFAULT FALSE,
+    OTPVerificadoCuidadora BOOLEAN DEFAULT FALSE,
+    Estado VARCHAR(20) DEFAULT 'Pendiente' CHECK (Estado IN ('Pendiente','PendienteFirma','Completado','Cancelado')),
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (IdOrden) REFERENCES Ordenes(Id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE Incidentes (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdOrden INT NOT NULL,
+    IdUsuarioReporta INT NOT NULL,
+    Latitud DECIMAL(10,7),
+    Longitud DECIMAL(10,7),
+    Tipo VARCHAR(20) DEFAULT 'Panico' CHECK (Tipo IN ('Panico','Emergencia','Incidente')),
+    Estado VARCHAR(20) DEFAULT 'Activo' CHECK (Estado IN ('Activo','EnAtencion','Resuelto','Cerrado')),
+    Descripcion TEXT,
+    FechaActivacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FechaResolucion DATETIME,
+    FOREIGN KEY (IdOrden) REFERENCES Ordenes(Id) ON DELETE CASCADE,
+    FOREIGN KEY (IdUsuarioReporta) REFERENCES Usuarios(Id)
+) ENGINE=InnoDB;
+
+CREATE TABLE HistorialSalud (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdMenor INT NOT NULL,
+    IdCuidadora INT NOT NULL,
+    IdOrden INT NOT NULL,
+    DatosCifrados TEXT NOT NULL,
+    VectorInicializacion VARCHAR(255) NOT NULL,
+    HashVerificacion VARCHAR(255) NOT NULL,
+    Activo BOOLEAN DEFAULT TRUE,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FechaRevocacion DATETIME,
+    FOREIGN KEY (IdMenor) REFERENCES Menores(Id) ON DELETE CASCADE,
+    FOREIGN KEY (IdCuidadora) REFERENCES Cuidadoras(Id),
+    FOREIGN KEY (IdOrden) REFERENCES Ordenes(Id)
+) ENGINE=InnoDB;
+
+CREATE TABLE ReemplazoEmergencia (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdOrden INT NOT NULL,
+    IdCuidadoraOriginal INT NOT NULL,
+    IdCuidadoraReemplazo INT,
+    Motivo TEXT NOT NULL,
+    Estado VARCHAR(20) DEFAULT 'Buscando' CHECK (Estado IN ('Buscando','Encontrado','Asignado','Fallido','Cancelado')),
+    TiempoBusquedaSegundos INT DEFAULT 0,
+    NivelCompatibilidad DECIMAL(5,2),
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FechaAsignacion DATETIME,
+    FOREIGN KEY (IdOrden) REFERENCES Ordenes(Id) ON DELETE CASCADE,
+    FOREIGN KEY (IdCuidadoraOriginal) REFERENCES Cuidadoras(Id),
+    FOREIGN KEY (IdCuidadoraReemplazo) REFERENCES Cuidadoras(Id)
+) ENGINE=InnoDB;
+
+CREATE TABLE ReportesDiarios (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdOrden INT NOT NULL,
+    IdCuidadora INT NOT NULL,
+    IdMenor INT NOT NULL,
+    EstadoGeneral VARCHAR(30) CHECK (EstadoGeneral IN ('Excelente','Bueno','Regular','Requiere Observacion')),
+    Alimentacion TEXT,
+    Medicamentos TEXT,
+    ActividadesRealizadas TEXT,
+    Observaciones TEXT,
+    FechaReporte DATE NOT NULL DEFAULT (CURRENT_DATE),
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (IdOrden) REFERENCES Ordenes(Id) ON DELETE CASCADE,
+    FOREIGN KEY (IdCuidadora) REFERENCES Cuidadoras(Id),
+    FOREIGN KEY (IdMenor) REFERENCES Menores(Id)
+) ENGINE=InnoDB;
+
+CREATE TABLE ReportesDiariosEvidencias (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdReporte INT NOT NULL,
+    TipoArchivo VARCHAR(20) NOT NULL,
+    NombreArchivo VARCHAR(255) NOT NULL,
+    RutaArchivo VARCHAR(500) NOT NULL,
+    FechaSubida DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (IdReporte) REFERENCES ReportesDiarios(Id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE ReservasCalendario (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdOrden INT NOT NULL,
+    IdUsuarioFamilia INT NOT NULL,
+    IdCuidadora INT NOT NULL,
+    FechaInicio DATETIME NOT NULL,
+    FechaFin DATETIME NOT NULL,
+    TipoRecurrencia VARCHAR(20) DEFAULT 'Unico' CHECK (TipoRecurrencia IN ('Unico','Diario','Semanal','Mensual','Personalizado')),
+    Estado VARCHAR(20) DEFAULT 'Programada' CHECK (Estado IN ('Programada','EnCurso','Completada','Cancelada')),
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (IdOrden) REFERENCES Ordenes(Id) ON DELETE CASCADE,
+    FOREIGN KEY (IdUsuarioFamilia) REFERENCES Usuarios(Id),
+    FOREIGN KEY (IdCuidadora) REFERENCES Cuidadoras(Id)
+) ENGINE=InnoDB;
+
+CREATE TABLE Capacitaciones (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Titulo VARCHAR(255) NOT NULL,
+    Descripcion TEXT,
+    TipoContenido VARCHAR(20) DEFAULT 'Video' CHECK (TipoContenido IN ('Video','PDF','Manual','CasoPractico')),
+    UrlContenido VARCHAR(500),
+    DuracionMinutos INT,
+    Categoria VARCHAR(100),
+    Activo BOOLEAN DEFAULT TRUE,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE EvaluacionesCapacitacion (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdCapacitacion INT NOT NULL,
+    Pregunta TEXT NOT NULL,
+    TipoRespuesta VARCHAR(30) DEFAULT 'MultipleChoice' CHECK (TipoRespuesta IN ('MultipleChoice','VerdaderoFalso','CasoPractico')),
+    Opciones TEXT,
+    RespuestaCorrecta TEXT NOT NULL,
+    Orden INT DEFAULT 0,
+    FOREIGN KEY (IdCapacitacion) REFERENCES Capacitaciones(Id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE ProgresoCapacitacion (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdCuidadora INT NOT NULL,
+    IdCapacitacion INT NOT NULL,
+    PuntajeObtenido DECIMAL(5,2),
+    Aprobado BOOLEAN DEFAULT FALSE,
+    CertificadoGenerado BOOLEAN DEFAULT FALSE,
+    CertificadoUrl VARCHAR(500),
+    FechaCompletado DATETIME,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_progreso (IdCuidadora, IdCapacitacion),
+    FOREIGN KEY (IdCuidadora) REFERENCES Cuidadoras(Id) ON DELETE CASCADE,
+    FOREIGN KEY (IdCapacitacion) REFERENCES Capacitaciones(Id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE MetricasAnalytics (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Tipo VARCHAR(50) NOT NULL,
+    Clave VARCHAR(100) NOT NULL,
+    Valor DECIMAL(12,2) NOT NULL,
+    Periodo VARCHAR(20) NOT NULL,
+    FechaRegistro DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE PrediccionRiesgos (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdOrden INT NOT NULL,
+    NivelRiesgo VARCHAR(10) NOT NULL CHECK (NivelRiesgo IN ('Bajo','Medio','Alto')),
+    PuntajeRiesgo DECIMAL(5,2) DEFAULT 0,
+    VariablesAnalizadas TEXT,
+    AlertaGenerada BOOLEAN DEFAULT FALSE,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (IdOrden) REFERENCES Ordenes(Id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE FamiliaMiembros (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdUsuarioFamiliaPrincipal INT NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    Email VARCHAR(180),
+    Telefono VARCHAR(20),
+    Rol VARCHAR(20) DEFAULT 'Observador' CHECK (Rol IN ('Administrador','Observador')),
+    Activo BOOLEAN DEFAULT TRUE,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (IdUsuarioFamiliaPrincipal) REFERENCES Usuarios(Id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE NivelesReputacion (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(50) NOT NULL UNIQUE,
+    PuntajeMinimo INT NOT NULL,
+    PuntajeMaximo INT NOT NULL,
+    Color VARCHAR(20),
+    Orden INT DEFAULT 0
+) ENGINE=InnoDB;
+
+CREATE TABLE ReputacionCuidadora (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdCuidadora INT NOT NULL UNIQUE,
+    PuntajeTotal INT DEFAULT 0,
+    IdNivelActual INT,
+    ServiciosCompletados INT DEFAULT 0,
+    Recontrataciones INT DEFAULT 0,
+    PuntualidadPromedio DECIMAL(5,2) DEFAULT 0,
+    FechaActualizacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (IdCuidadora) REFERENCES Cuidadoras(Id) ON DELETE CASCADE,
+    FOREIGN KEY (IdNivelActual) REFERENCES NivelesReputacion(Id)
+) ENGINE=InnoDB;
+
+CREATE TABLE HistorialReputacion (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdCuidadora INT NOT NULL,
+    PuntajeAnterior INT NOT NULL,
+    PuntajeNuevo INT NOT NULL,
+    Concepto VARCHAR(255) NOT NULL,
+    IdReferencia INT,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (IdCuidadora) REFERENCES Cuidadoras(Id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ============================================================
+-- MIGRACIONES DE COLUMNAS
+-- ============================================================
+ALTER TABLE Ordenes ADD COLUMN CheckInLatitud DECIMAL(10,7) AFTER FechaFinalizacion;
+ALTER TABLE Ordenes ADD COLUMN CheckInLongitud DECIMAL(10,7) AFTER CheckInLatitud;
+ALTER TABLE Ordenes ADD COLUMN CheckOutLatitud DECIMAL(10,7) AFTER CheckInLongitud;
+ALTER TABLE Ordenes ADD COLUMN CheckOutLongitud DECIMAL(10,7) AFTER CheckOutLatitud;
+ALTER TABLE Contratos ADD COLUMN PdfUrl VARCHAR(500) AFTER Terminos;
+ALTER TABLE Contratos ADD COLUMN HashCriptografico VARCHAR(255) AFTER PdfUrl;
+
+-- ============================================================
+-- DATOS INICIALES ADICIONALES
+-- ============================================================
+
+INSERT INTO NivelesReputacion (Nombre, PuntajeMinimo, PuntajeMaximo, Color, Orden) VALUES
+('Bronce', 0, 199, '#CD7F32', 1),
+('Plata', 200, 399, '#C0C0C0', 2),
+('Oro', 400, 599, '#FFD700', 3),
+('Platino', 600, 799, '#E5E4E2', 4),
+('Élite', 800, 9999, '#F6A5C0', 5);
+
+INSERT INTO Capacitaciones (Titulo, Descripcion, TipoContenido, DuracionMinutos, Categoria) VALUES
+('Introducción al Cuidado de Niños con TEA', 'Aprende las bases del Trastorno del Espectro Autista y estrategias de cuidado diario.', 'Video', 45, 'TEA'),
+('Manejo de Crisis Conductuales', 'Técnicas probadas para manejar crisis sensoriales y conductuales en niños neurodivergentes.', 'Video', 60, 'Conductual'),
+('Primeros Auxilios Pediátricos Avanzados', 'Protocolos completos de RCP, atragantamiento y emergencias pediátricas comunes.', 'Video', 90, 'Salud'),
+('Estimulación Temprana en Casa', 'Actividades prácticas de estimulación sensorial, motriz y cognitiva para hacer en el hogar.', 'Manual', 120, 'Estimulación'),
+('Comunicación con Familias', 'Habilidades de comunicación efectiva y reportes profesionales para familias.', 'CasoPractico', 45, 'Profesional');

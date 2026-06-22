@@ -1,8 +1,14 @@
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, MessageSquare, Clock, DollarSign, Calendar, User, Baby } from 'lucide-react';
+import { CheckCircle, XCircle, MessageSquare, Clock, DollarSign, Calendar, User, Baby, Send } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Banner } from './ui/Banner';
+
+type TareaNegociacion = {
+  Id: number;
+  Descripcion: string;
+  Categoria?: string;
+};
 
 type SolicitudPendiente = {
   Id: number;
@@ -22,7 +28,11 @@ type SolicitudPendiente = {
   MenorNombre: string | null;
   MenorDiagnostico: string | null;
   TotalPropuestas: number;
+  tareas?: TareaNegociacion[];
 };
+
+const DECISIONS = ['Aceptar', 'Rechazar', 'Negociar'] as const;
+type Decision = typeof DECISIONS[number];
 
 export function CuidadoraSolicitudes() {
   const { user } = useAuth();
@@ -30,54 +40,77 @@ export function CuidadoraSolicitudes() {
   const [solicitudes, setSolicitudes] = useState<SolicitudPendiente[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'warning' | 'danger'; text: string } | null>(null);
-  const [proposing, setProposing] = useState<number | null>(null);
-  const [propForm, setPropForm] = useState({ tarifaHora: 0, totalHoras: 0, horaInicio: '', horaFin: '', mensaje: '' });
+  const [responses, setResponses] = useState<Record<number, Record<number, Decision>>>({});
+  const [submitting, setSubmitting] = useState<number | null>(null);
 
   const load = async () => {
     setLoading(true);
     try {
       const r = await fetch('/api/cuidadora/solicitudes-pendientes', { headers });
-      if (r.ok) setSolicitudes(await r.json());
+      if (r.ok) {
+        const data: SolicitudPendiente[] = await r.json();
+        setSolicitudes(data);
+        const initial: Record<number, Record<number, Decision>> = {};
+        for (const s of data) {
+          if (s.tareas?.length) {
+            initial[s.Id] = {};
+          }
+        }
+        setResponses(prev => ({ ...prev, ...initial }));
+      }
     } catch {}
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
 
-  const accept = async (id: number) => {
-    const r = await fetch(`/api/cuidadora/orden/${id}/aceptar-negociacion`, { method: 'POST', headers });
-    if (r.ok) {
-      setMessage({ type: 'success', text: 'Solicitud aceptada' });
-      load();
-    } else {
-      const e = await r.json();
-      setMessage({ type: 'danger', text: e.error || 'Error al aceptar' });
-    }
+  const setDecision = (ordenId: number, tareaId: number, decision: Decision) => {
+    setResponses(prev => ({
+      ...prev,
+      [ordenId]: { ...prev[ordenId], [tareaId]: decision },
+    }));
   };
 
-  const reject = async (id: number) => {
-    const r = await fetch(`/api/cuidadora/orden/${id}/rechazar-negociacion`, { method: 'POST', headers });
-    if (r.ok) {
-      setMessage({ type: 'warning', text: 'Solicitud rechazada' });
-      load();
-    }
+  const allResponded = (ordenId: number) => {
+    const s = solicitudes.find(x => x.Id === ordenId);
+    if (!s?.tareas?.length) return false;
+    const resp = responses[ordenId] || {};
+    return s.tareas.every(t => resp[t.Id] !== undefined);
   };
 
-  const propose = async (id: number) => {
-    const r = await fetch(`/api/cuidadora/orden/${id}/proponer`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(propForm),
-    });
-    if (r.ok) {
-      setMessage({ type: 'success', text: 'Contrapropuesta enviada' });
-      setProposing(null);
-      setPropForm({ tarifaHora: 0, totalHoras: 0, horaInicio: '', horaFin: '', mensaje: '' });
-      load();
-    } else {
-      const e = await r.json();
-      setMessage({ type: 'danger', text: e.error || 'Error al proponer' });
+  const enviarRespuesta = async (ordenId: number) => {
+    if (!allResponded(ordenId)) return;
+    setSubmitting(ordenId);
+    const resp = responses[ordenId] || {};
+    const body = {
+      ordenId,
+      respuestas: Object.entries(resp).map(([tareaId, decision]) => ({
+        tareaId: Number(tareaId),
+        decision,
+      })),
+    };
+    try {
+      const r = await fetch('/api/negociacion', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+      });
+      if (r.ok) {
+        setMessage({ type: 'success', text: 'Respuestas enviadas correctamente' });
+        load();
+        setResponses(prev => {
+          const next = { ...prev };
+          delete next[ordenId];
+          return next;
+        });
+      } else {
+        const e = await r.json();
+        setMessage({ type: 'danger', text: e.error || 'Error al enviar respuestas' });
+      }
+    } catch {
+      setMessage({ type: 'danger', text: 'Error de conexión' });
     }
+    setSubmitting(null);
   };
 
   const formatFecha = (f: string) => new Date(f + 'T00:00:00').toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -112,9 +145,8 @@ export function CuidadoraSolicitudes() {
             <motion.div key={s.Id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
               className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.08)] rounded-2xl p-5"
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex-1 space-y-3">
-                  {/* Header */}
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.1)] flex items-center justify-center text-[#CC8DB3] font-bold text-sm">
                       {s.FamiliaNombres.charAt(0)}{s.FamiliaApellidos.charAt(0)}
@@ -131,7 +163,6 @@ export function CuidadoraSolicitudes() {
                     </div>
                   </div>
 
-                  {/* Details */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <div className="flex items-center gap-1.5 text-xs text-[#F5D5E0]/70">
                       <Calendar className="w-3.5 h-3.5 text-[#6667AB]" /> {formatFecha(s.FechaServicio)}
@@ -154,87 +185,86 @@ export function CuidadoraSolicitudes() {
                     </div>
                   )}
 
-                  {/* Total display */}
                   <div className="text-sm font-bold text-white">
                     Total: S/ {(s.TarifaHora * s.TotalHoras).toFixed(2)}
                   </div>
                 </div>
-
-                {/* Actions */}
-                <div className="flex flex-col gap-2 shrink-0">
-                  {s.Estado === 'Pagada' ? (
-                    <button onClick={async () => {
-                      await fetch(`/api/cuidadora/orden/${s.Id}/confirmar-finalizacion`, { method: 'POST', headers });
-                      load();
-                    }}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-all">
-                      <CheckCircle className="w-3.5 h-3.5" /> Confirmar finalización
-                    </button>
-                  ) : (
-                    <>
-                      <button onClick={() => accept(s.Id)}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-all">
-                        <CheckCircle className="w-3.5 h-3.5" /> Aceptar
-                      </button>
-                      <button onClick={() => { setProposing(s.Id); setPropForm({ tarifaHora: s.TarifaHora, totalHoras: s.TotalHoras, horaInicio: s.HoraInicio || '', horaFin: s.HoraFin || '', mensaje: '' }); }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F6A5C0] text-[#F6A5C0] text-xs font-bold hover:bg-[rgba(246,165,192,0.1)] transition-all">
-                        <MessageSquare className="w-3.5 h-3.5" /> Proponer
-                      </button>
-                      <button onClick={() => reject(s.Id)}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-red-400 text-red-400 text-xs font-bold hover:bg-[rgba(200,40,40,0.1)] transition-all">
-                        <XCircle className="w-3.5 h-3.5" /> Rechazar
-                      </button>
-                    </>
-                  )}
-                </div>
               </div>
 
-              {/* Proposal form */}
-              {proposing === s.Id && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.06)]">
-                  <p className="text-xs font-bold text-[#F6A5C0] mb-3">Proponer cambios</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-                    <div>
-                      <label className="text-[10px] text-[#6667AB] block mb-1">Tarifa por hora</label>
-                      <input type="number" value={propForm.tarifaHora} onChange={e => setPropForm(p => ({ ...p, tarifaHora: +e.target.value }))}
-                        className="w-full px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[#6667AB] block mb-1">Total horas</label>
-                      <input type="number" value={propForm.totalHoras} onChange={e => setPropForm(p => ({ ...p, totalHoras: +e.target.value }))}
-                        className="w-full px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[#6667AB] block mb-1">Hora inicio</label>
-                      <input type="time" value={propForm.horaInicio} onChange={e => setPropForm(p => ({ ...p, horaInicio: e.target.value }))}
-                        className="w-full px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-xs [color-scheme:dark]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-[#6667AB] block mb-1">Hora fin</label>
-                      <input type="time" value={propForm.horaFin} onChange={e => setPropForm(p => ({ ...p, horaFin: e.target.value }))}
-                        className="w-full px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-xs [color-scheme:dark]"
-                      />
-                    </div>
+              {/* Task Negotiation Matrix */}
+              {s.tareas && s.tareas.length > 0 ? (
+                <div className="border-t border-[rgba(255,255,255,0.06)] pt-4">
+                  <p className="text-xs font-bold text-[#F6A5C0] mb-3 uppercase tracking-wider">Matriz de Tareas</p>
+                  <div className="space-y-2">
+                    {s.tareas.map(t => {
+                      const selected = responses[s.Id]?.[t.Id];
+                      return (
+                        <div key={t.Id} className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-[rgba(33,6,53,0.4)] border border-[rgba(255,255,255,0.06)]">
+                          <span className="text-xs text-[#F5D5E0] flex-1">{t.Descripcion}</span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {DECISIONS.map(d => {
+                              const colors: Record<string, string> = {
+                                Aceptar: 'data-[selected=true]:bg-[rgba(16,185,129,0.2)] data-[selected=true]:text-[#6EE7B7] data-[selected=true]:border-[#6EE7B7]',
+                                Rechazar: 'data-[selected=true]:bg-[rgba(239,68,68,0.2)] data-[selected=true]:text-red-400 data-[selected=true]:border-red-400',
+                                Negociar: 'data-[selected=true]:bg-[rgba(246,165,192,0.2)] data-[selected=true]:text-[#F6A5C0] data-[selected=true]:border-[#F6A5C0]',
+                              };
+                              return (
+                                <button
+                                  key={d}
+                                  onClick={() => setDecision(s.Id, t.Id, d)}
+                                  data-selected={selected === d}
+                                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all ${
+                                    selected === d
+                                      ? 'border text-white'
+                                      : 'border-[rgba(255,255,255,0.1)] text-[#6667AB] hover:text-[#F5D5E0] hover:border-[rgba(255,255,255,0.2)]'
+                                  } ${selected === d ? colors[d] : ''}`}
+                                >
+                                  {d}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <div className="mb-3">
-                    <label className="text-[10px] text-[#6667AB] block mb-1">Mensaje para la familia</label>
-                    <textarea value={propForm.mensaje} onChange={e => setPropForm(p => ({ ...p, mensaje: e.target.value }))} rows={2}
-                      className="w-full px-3 py-1.5 rounded-lg bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.15)] text-white text-xs placeholder:text-[#6667AB] resize-none"
-                      placeholder="Ej: Podría ajustar mi tarifa si reducimos las horas..."
-                    />
+                  <div className="flex justify-end mt-4">
+                    <motion.button
+                      whileHover={allResponded(s.Id) ? { scale: 1.02 } : {}}
+                      whileTap={allResponded(s.Id) ? { scale: 0.98 } : {}}
+                      onClick={() => enviarRespuesta(s.Id)}
+                      disabled={!allResponded(s.Id) || submitting === s.Id}
+                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#F6A5C0] text-[#210635] rounded-xl text-xs font-bold transition-colors disabled:opacity-40"
+                    >
+                      {submitting === s.Id ? 'Enviando...' : (
+                        <><Send className="w-3.5 h-3.5" /> Enviar Respuesta</>
+                      )}
+                    </motion.button>
                   </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => propose(s.Id)}
-                      className="px-4 py-1.5 rounded-lg bg-[#F6A5C0] text-[#210635] text-xs font-bold hover:bg-[#F6A5C0]/80 transition-colors"
-                    >Enviar propuesta</button>
-                    <button onClick={() => setProposing(null)}
-                      className="px-4 py-1.5 rounded-lg border border-[rgba(255,255,255,0.15)] text-[#6667AB] text-xs hover:text-white transition-colors"
-                    >Cancelar</button>
-                  </div>
-                </motion.div>
+                </div>
+              ) : (
+                <div className="flex justify-end gap-2 border-t border-[rgba(255,255,255,0.06)] pt-4">
+                  <button
+                    onClick={async () => {
+                      await fetch(`/api/cuidadora/orden/${s.Id}/aceptar-negociacion`, { method: 'POST', headers });
+                      setMessage({ type: 'success', text: 'Solicitud aceptada' });
+                      load();
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-all"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" /> Aceptar
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await fetch(`/api/cuidadora/orden/${s.Id}/rechazar-negociacion`, { method: 'POST', headers });
+                      setMessage({ type: 'warning', text: 'Solicitud rechazada' });
+                      load();
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-red-400 text-red-400 text-xs font-bold hover:bg-[rgba(200,40,40,0.1)] transition-all"
+                  >
+                    <XCircle className="w-3.5 h-3.5" /> Rechazar
+                  </button>
+                </div>
               )}
             </motion.div>
           ))}

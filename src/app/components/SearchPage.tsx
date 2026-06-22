@@ -1,15 +1,20 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { Search, Star, LogOut, X, CheckCircle, Heart, Quote, MapPin, Award, BookOpen, FileText, Briefcase, MessageSquare, ChevronDown, ChevronUp, Video, FileSignature } from 'lucide-react';
+import { Search, Star, LogOut, X, CheckCircle, Heart, Quote, MapPin, Award, BookOpen, FileText, Briefcase, MessageSquare, ChevronDown, ChevronUp, Video, FileSignature, Eye } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 import { ScheduleInterviewModal } from './ScheduleInterviewModal';
+import { DocumentPreviewModal } from './DocumentPreviewModal';
 
 type CuidadoraCard = {
   Id: number; IdUsuario: number; AniosExperiencia: number; TarifaHora: number;
   CalificacionPromedio: number; TotalResenas: number;
   Nombres: string; Apellidos: string; Email: string;
-  Especialidades: string;
+  Especialidades: string; Compatibilidad?: number;
+};
+
+type MatchingResult = {
+  cuidadoraId: number; compatibilidad: number; nombre: string;
 };
 
 const zonas = ['Todas', 'Trujillo Centro', 'Víctor Larco', 'La Esperanza', 'Moche', 'Buenos Aires'];
@@ -38,6 +43,8 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
   const [showSchedule, setShowSchedule] = useState<CuidadoraCard | null>(null);
   const [showOptions, setShowOptions] = useState<CuidadoraCard | null>(null);
   const [exitos, setExitos] = useState<CasoExito[]>([]);
+  const [matching, setMatching] = useState<MatchingResult[]>([]);
+  const [docPreviewCuidadora, setDocPreviewCuidadora] = useState<CuidadoraCard | null>(null);
 
   const buscar = async () => {
     setLoading(true);
@@ -49,8 +56,13 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
       if (tarifaMax) params.set('tarifa_max', tarifaMax);
       const r = await fetch(`/api/search/cuidadoras?${params}`);
       const data = await r.json();
-      setCuidadoras(data);
-      setCount(data.length);
+      const matchMap = new Map(matching.map(m => [m.cuidadoraId, m.compatibilidad]));
+      const enriched = data.map((c: CuidadoraCard) => ({
+        ...c,
+        Compatibilidad: matchMap.get(c.Id) || 0,
+      }));
+      setCuidadoras(enriched);
+      setCount(enriched.length);
     } catch { setCuidadoras([]); setCount(0); }
     setLoading(false);
   };
@@ -60,6 +72,14 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
   useEffect(() => {
     fetch('/api/casos/exito').then(r => r.json()).then(setExitos).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    fetch(`/api/matching/resultados/${user.id}`)
+      .then(r => r.json())
+      .then((data: MatchingResult[]) => setMatching(data))
+      .catch(() => {});
+  }, [user?.id]);
 
   const abrirPerfil = async (c: CuidadoraCard) => {
     setSelectedNana(c);
@@ -80,33 +100,6 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
-      {/* Navbar */}
-      <header className="bg-[#210635]/80 backdrop-blur-[20px] border-b border-[rgba(255,255,255,0.1)] text-white sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 overflow-hidden rounded">
-                  <img src="/logo.png" alt="" className="w-full h-full object-cover" />
-                </div>
-                <span className="text-lg font-extrabold text-[#f6a5c0] tracking-tight">CERTINANAS</span>
-              </div>
-              <span className="text-white/40 text-xl font-light hidden sm:inline">|</span>
-              <span className="text-[#6667AB] text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
-            </div>
-            <nav className="flex items-center gap-6">
-              <button onClick={() => onNavigate?.('search')} className="text-sm font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0] pb-0.5">Inicio</button>
-              <button onClick={() => onNavigate?.('familia')} className="text-sm text-[#F5D5E0]/70 hover:text-white transition-colors">Mis Servicios</button>
-              <button onClick={() => onNavigate?.('messages')} className="text-sm text-[#F5D5E0]/70 hover:text-white transition-colors">Mensajes</button>
-              <ProfileAvatar size={36} className="ml-2" />
-              <button onClick={logout} className="p-2 hover:bg-[rgba(33,6,53,0.4)] rounded-lg transition-colors">
-                <LogOut className="w-4 h-4 text-[#6667AB]" />
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {/* Buscador */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6 sm:p-8">
@@ -149,7 +142,9 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
 
         {/* Listado */}
         <div className="space-y-4">
-          {cuidadoras.map((c, i) => (
+          {cuidadoras.map((c, i) => {
+            const compatibilidad = matching.find(m => m.cuidadoraId === c.Id)?.compatibilidad || c.Compatibilidad || 0;
+            return (
             <motion.div key={c.Id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-3xl overflow-hidden">
               <div className="h-1.5 bg-[#f6a5c0]"></div>
@@ -158,7 +153,14 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                   {getIniciales(c.Nombres, c.Apellidos)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-bold text-white">{c.Nombres} {c.Apellidos?.charAt(0)}.</h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-lg font-bold text-white">{c.Nombres} {c.Apellidos?.charAt(0)}.</h3>
+                    {compatibilidad > 0 && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-[#7B337E] to-[#F6A5C0] text-white">
+                        {compatibilidad}% Compatibilidad Clínica
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-[#6667AB] mt-0.5">{c.Especialidades || 'Cuidado general'} · {c.AniosExperiencia} años exp.</p>
                   <div className="flex items-center gap-1 mt-2">
                     {[1, 2, 3, 4, 5].map(j => (
@@ -168,14 +170,19 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                   </div>
                   <p className="text-lg font-bold text-[#F6A5C0] mt-2">S/ {c.TarifaHora}/h</p>
                 </div>
-                <div className="self-end sm:self-center flex-shrink-0">
+                <div className="self-end sm:self-center flex-shrink-0 flex flex-col gap-2">
                   <button onClick={() => abrirPerfil(c)} className="px-6 py-2.5 bg-[#F6A5C0] hover:bg-[#CC8DB3] text-[#210635] font-bold rounded-full transition-all shadow-md hover:shadow-lg text-sm">
                     Ver perfil
                   </button>
+                  <button onClick={() => setDocPreviewCuidadora(c)}
+                    className="px-6 py-2 rounded-full border border-[rgba(255,255,255,0.2)] text-[#F5D5E0]/70 hover:text-white hover:border-white/40 text-xs font-bold transition-all"
+                  >
+                    <Eye className="w-3 h-3 inline mr-1" /> Ver Documentos
+                  </button>
                 </div>
               </div>
-              </motion.div>
-          ))}
+            </motion.div>
+          )})}
         </div>
       </div>
 
@@ -241,7 +248,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                     </div>
 
                     {/* Biografía */}
-                    {perfilCompleto.cuidadora.DescripcionCorta && (
+                    {perfilCompleto.cuidadora?.DescripcionCorta && (
                       <div>
                         <h4 className="text-sm font-bold text-[#F5D5E0] mb-2 flex items-center gap-2">
                           <BookOpen className="w-4 h-4 text-[#CC8DB3]" /> Sobre mí
@@ -265,7 +272,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                     )}
 
                     {/* Áreas de cobertura */}
-                    {perfilCompleto.cuidadora.Zona && (
+                    {perfilCompleto.cuidadora?.Zona && (
                       <div>
                         <h4 className="text-sm font-bold text-[#F5D5E0] mb-2 flex items-center gap-2">
                           <MapPin className="w-4 h-4 text-[#CC8DB3]" /> Zona de cobertura
@@ -399,9 +406,9 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
         )}
       </AnimatePresence>
 
-      {/* Casos de Éxito - Inspiración para familias */}
+      {/* Casos de Éxito */}
       {exitos.length > 0 && (
-        <section className="mt-16 mb-8">
+        <section className="max-w-5xl mx-auto px-4 mt-16 mb-8">
           <div className="flex items-center gap-3 mb-8">
             <Heart className="w-6 h-6 text-[#CC8DB3]" />
             <h2 className="text-2xl font-bold text-white">Casos de Éxito</h2>
@@ -469,6 +476,17 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
       <AnimatePresence>
         {showSchedule && (
           <ScheduleInterviewModal cuidadora={showSchedule} userId={user!.id} onClose={() => setShowSchedule(null)} />
+        )}
+      </AnimatePresence>
+
+      {/* Document Preview Modal */}
+      <AnimatePresence>
+        {docPreviewCuidadora && (
+          <DocumentPreviewModal
+            isOpen={true}
+            onClose={() => setDocPreviewCuidadora(null)}
+            cuidadoraId={docPreviewCuidadora.Id}
+          />
         )}
       </AnimatePresence>
     </div>

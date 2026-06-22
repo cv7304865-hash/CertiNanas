@@ -1,387 +1,284 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { UserCheck, Clock, Eye, CheckCircle, XCircle, Search, Shield, Users, Phone, Mail } from 'lucide-react';
+import {
+  UserCheck, Clock, Eye, CheckCircle, XCircle, Search, FileText,
+  Download, AlertTriangle, ChevronDown, ChevronUp, Mail, Phone
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { PostulacionDetailModal } from './PostulacionDetailModal';
 
-type PostulacionRich = {
+type Documento = {
+  Id: number;
+  NombreArchivo: string;
+  TipoRequisito: string;
+  Estado: string;
+  Tamano?: string;
+};
+
+type Postulacion = {
   Id: number;
   IdUsuario: number;
   Nombres: string;
   Apellidos: string;
   Email: string;
-  Telefono: string;
-  AniosExperiencia: number;
-  Especialidades: string[];
   FechaPostulacion: string;
   Estado: string;
-  TotalDocumentos: number;
   HorasTranscurridas: number;
-  MotivoRechazo?: string;
-  DocumentosRechazados?: { nombre: string; motivo: string }[];
+  Documentos: Documento[];
 };
-
-type DocumentoBackend = {
-  Id: number;
-  IdPostulacion: number;
-  TipoRequisito: string;
-  NombreArchivo: string;
-  Estado: string;
-};
-
-const tabs = [
-  { key: 'postulaciones', label: 'Postulaciones', count: 2 },
-  { key: 'aprobadas', label: 'Aprobadas' },
-  { key: 'rechazadas', label: 'Rechazadas' },
-];
-
-const mockPostulaciones: PostulacionRich[] = [
-  {
-    Id: 1, IdUsuario: 11,
-    Nombres: 'Lucia', Apellidos: 'Ramirez',
-    Email: 'lucia.ramirez@email.com', Telefono: '+51 987 654 321',
-    AniosExperiencia: 8,
-    Especialidades: ['TDAH', 'Primeros Auxilios', 'Estimulación Temprana'],
-    FechaPostulacion: new Date(Date.now() - 8.1 * 3600000).toISOString(),
-    Estado: 'Pendiente', TotalDocumentos: 4,
-    HorasTranscurridas: 8.1,
-  },
-  {
-    Id: 2, IdUsuario: 12,
-    Nombres: 'Patricia', Apellidos: 'Vargas',
-    Email: 'patricia.vargas@email.com', Telefono: '+51 976 543 210',
-    AniosExperiencia: 12,
-    Especialidades: ['TEA', 'Terapia de Lenguaje'],
-    FechaPostulacion: new Date(Date.now() - 15.3 * 3600000).toISOString(),
-    Estado: 'Pendiente', TotalDocumentos: 4,
-    HorasTranscurridas: 15.3,
-  },
-  {
-    Id: 3, IdUsuario: 13,
-    Nombres: 'María', Apellidos: 'González',
-    Email: 'maria.gonzalez@email.com', Telefono: '+51 965 432 101',
-    AniosExperiencia: 5,
-    Especialidades: ['Estimulación Temprana'],
-    FechaPostulacion: new Date(Date.now() - 20 * 3600000).toISOString(),
-    Estado: 'Rechazada', TotalDocumentos: 3,
-    HorasTranscurridas: 20,
-    MotivoRechazo: 'Documentos incompletos: falta certificado de antecedentes penales vigente.',
-    DocumentosRechazados: [
-      { nombre: 'Antecedentes penales', motivo: 'Documento vencido — data PNP no coincide con el archivo subido.' },
-    ],
-  },
-  {
-    Id: 4, IdUsuario: 14,
-    Nombres: 'Carmen', Apellidos: 'Rojas',
-    Email: 'carmen.rojas@email.com', Telefono: '+51 954 321 012',
-    AniosExperiencia: 2,
-    Especialidades: ['TDAH'],
-    FechaPostulacion: new Date(Date.now() - 22 * 3600000).toISOString(),
-    Estado: 'Rechazada', TotalDocumentos: 4,
-    HorasTranscurridas: 22,
-    MotivoRechazo: 'No cumple con el mínimo de 3 años de experiencia requerido.',
-    DocumentosRechazados: [
-      { nombre: 'Título profesional', motivo: 'El título no corresponde a una institución reconocida por MINEDU.' },
-      { nombre: 'Certificado de salud', motivo: 'Certificado tiene más de 6 meses de antigüedad.' },
-    ],
-  },
-];
 
 export function AdminPostulaciones() {
   const { user } = useAuth();
-  const headers = { 'Content-Type': 'application/json', 'x-admin-user': String(user?.id) };
-  const [activeTab, setActiveTab] = useState('postulaciones');
-  const [postulaciones, setPostulaciones] = useState<PostulacionRich[]>(mockPostulaciones);
-  const [selectedPost, setSelectedPost] = useState<PostulacionRich | null>(null);
-  const [showDetailModal, setShowDetailModal] = useState(false);
+  const headers = { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) };
+  const [postulaciones, setPostulaciones] = useState<Postulacion[]>([]);
   const [search, setSearch] = useState('');
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch('/api/admin/postulaciones', { headers })
-      .then(r => r.json())
-      .then((data: any[]) => {
-        if (data.length > 0) {
-          const enriched = data.map((p, i) => ({
-            ...p,
-            Telefono: p.Telefono || '+51 9' + String(10000000 + i).slice(0, 8),
-            AniosExperiencia: p.AniosExperiencia || Math.floor(Math.random() * 10) + 3,
-            Especialidades: p.Especialidades || ['TDAH', 'Primeros Auxilios'].slice(0, (i % 2) + 1),
-            HorasTranscurridas: Math.round((Date.now() - new Date(p.FechaPostulacion).getTime()) / 3600000 * 10) / 10,
-          }));
-          setPostulaciones(prev => {
-            const merged = [...prev];
-            for (const apiItem of enriched) {
-              const idx = merged.findIndex(m => m.Id === apiItem.Id);
-              if (idx >= 0) {
-                const mock = merged[idx];
-                const preserveRejection = mock.Estado === 'Rechazada' && mock.MotivoRechazo && !apiItem.MotivoRechazo;
-                merged[idx] = {
-                  ...mock,
-                  ...apiItem,
-                  ...(preserveRejection
-                    ? { Estado: 'Rechazada', MotivoRechazo: mock.MotivoRechazo, DocumentosRechazados: mock.DocumentosRechazados }
-                    : {}),
-                };
-              } else {
-                merged.push(apiItem);
-              }
-            }
-            return merged;
-          });
-        }
-      })
-      .catch(() => {});
-  }, []);
+  const load = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch('/api/admin/postulaciones', { headers });
+      if (r.ok) {
+        const data = await r.json();
+        const enriched = data.map((p: any) => ({
+          ...p,
+          HorasTranscurridas: Math.round((Date.now() - new Date(p.FechaPostulacion).getTime()) / 3600000 * 10) / 10,
+          Documentos: p.Documentos || [],
+        }));
+        setPostulaciones(enriched);
+      }
+    } catch {}
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
 
   const filtered = postulaciones.filter(p => {
     const q = search.toLowerCase();
-    const matchSearch = `${p.Nombres} ${p.Apellidos} ${p.Email}`.toLowerCase().includes(q);
-    if (activeTab === 'postulaciones') return matchSearch && p.Estado === 'Pendiente';
-    if (activeTab === 'aprobadas') return matchSearch && p.Estado === 'Aprobada';
-    if (activeTab === 'rechazadas') return matchSearch && p.Estado === 'Rechazada';
-    return matchSearch;
+    return `${p.Nombres} ${p.Apellidos} ${p.Email}`.toLowerCase().includes(q);
   });
 
-  const handleVerDetalle = (p: PostulacionRich) => {
-    setSelectedPost(p);
-    setShowDetailModal(true);
-  };
-
-  const handleAprobar = async (id: number) => {
-    const r = await fetch(`/api/admin/postulaciones/${id}/aprobar`, { method: 'POST', headers });
-    if (r.ok) {
-      setPostulaciones(prev => prev.map(p => p.Id === id ? { ...p, Estado: 'Aprobada' } : p));
-      setShowDetailModal(false);
-    }
-  };
-
-  const handleRechazar = async (id: number, motivo: string, listaNegra: boolean, documentos?: { nombre: string; motivo: string }[]) => {
-    const r = await fetch(`/api/admin/postulaciones/${id}/rechazar`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ motivo, listaNegra, documentos }),
+  const handleAprobarDocumento = async (postId: number, docId: number) => {
+    const r = await fetch(`/api/admin/postulaciones/${postId}/documentos/${docId}/aprobar`, {
+      method: 'POST', headers,
     });
-    if (r.ok) {
-      setPostulaciones(prev => prev.map(p => p.Id === id ? { ...p, Estado: 'Rechazada', MotivoRechazo: motivo } : p));
-      setShowDetailModal(false);
-    }
+    if (r.ok) load();
   };
 
-  const counts = {
-    postulaciones: postulaciones.filter(p => p.Estado === 'Pendiente').length,
-    aprobadas: postulaciones.filter(p => p.Estado === 'Aprobada').length,
-    rechazadas: postulaciones.filter(p => p.Estado === 'Rechazada').length,
+  const handleRechazarDocumento = async (postId: number, docId: number) => {
+    const r = await fetch(`/api/admin/postulaciones/${postId}/documentos/${docId}/rechazar`, {
+      method: 'POST', headers,
+    });
+    if (r.ok) load();
   };
 
-  const sectionTitle = activeTab === 'postulaciones' ? 'Postulaciones pendientes'
-    : activeTab === 'aprobadas' ? 'Postulaciones aprobadas'
-    : 'Postulaciones rechazadas';
+  const handleAprobarPostulacion = async (id: number) => {
+    const r = await fetch(`/api/admin/postulaciones/${id}/aprobar`, { method: 'POST', headers });
+    if (r.ok) load();
+  };
+
+  const handleRechazarPostulacion = async (id: number) => {
+    const r = await fetch(`/api/admin/postulaciones/${id}/rechazar`, {
+      method: 'POST', headers,
+      body: JSON.stringify({ motivo: 'Documentos no cumplen requisitos' }),
+    });
+    if (r.ok) load();
+  };
+
+  const slaExceeded = (h: number) => h > 23;
+
+  const badgeEstado = (est: string) => {
+    if (est === 'Pendiente') return 'bg-amber-500/20 text-amber-200 border-amber-500/30';
+    if (est === 'Aprobado') return 'bg-emerald-500/20 text-emerald-200 border-emerald-500/30';
+    return 'bg-red-500/20 text-red-200 border-red-500/30';
+  };
+
+  const formatFecha = (f: string) => {
+    const d = new Date(f);
+    return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
     <div className="max-w-7xl mx-auto pb-8">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-extrabold text-white">Postulaciones</h1>
-        <div className="relative w-64">
+        <div>
+          <h1 className="text-2xl font-extrabold text-white">Postulaciones</h1>
+          <p className="text-sm text-[#6667AB] mt-1">Revisión y verificación de documentos</p>
+        </div>
+        <div className="relative w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6667AB]" />
           <input
             type="text" placeholder="Buscar postulante..."
             value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-[rgba(33,6,53,0.5)] border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] text-sm focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E]"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[rgba(33,6,53,0.5)] border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] text-sm focus:outline-none focus:ring-2 focus:ring-[#7B337E]"
           />
         </div>
       </div>
 
-      {/* Glass tabs bar */}
-      <div className="bg-[rgba(33,6,53,0.5)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.12)] shadow-lg shadow-black/20 rounded-2xl p-1.5 mb-6 inline-flex">
-        {tabs.map(tab => {
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                isActive
-                  ? 'bg-[rgba(255,255,255,0.08)] backdrop-blur-[10px] border border-[rgba(255,255,255,0.1)] text-white'
-                  : 'text-[#6667AB] hover:text-white hover:bg-[rgba(255,255,255,0.05)]'
-              }`}
-            >
-              <UserCheck className="w-4 h-4" />
-              <span>{tab.label}</span>
-              {tab.count !== undefined && (
-                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-[#F6A5C0] text-[#210635] text-[10px] font-extrabold">
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Pending postulations list */}
-      <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.05)] shadow-2xl shadow-black/30 rounded-3xl overflow-hidden" style={{ boxShadow: '0 8px 32px 0 rgba(0,0,0,0.37)' }}>
-        {/* Section header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
-          <div className="flex items-center gap-2">
-            <h2 className="text-white font-bold text-lg">{sectionTitle}</h2>
-            <span className="text-xs text-[#6667AB] font-medium">({counts[activeTab as keyof typeof counts]})</span>
-          </div>
+      {loading ? (
+        <div className="text-center py-16">
+          <Clock className="w-8 h-8 text-[#6667AB] mx-auto mb-2 animate-spin" />
+          <p className="text-sm text-[#6667AB]">Cargando postulaciones...</p>
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16 bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl">
+          <UserCheck className="w-12 h-12 text-[#6667AB] mx-auto mb-3" />
+          <p className="text-[#6667AB]">No hay postulaciones</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filtered.map((p, i) => {
+            const isExpanded = expandedId === p.Id;
+            const totalDocs = p.Documentos?.length || 0;
+            const aprobados = p.Documentos?.filter(d => d.Estado === 'Aprobado').length || 0;
+            const todosAprobados = totalDocs > 0 && aprobados === totalDocs;
 
-        {filtered.length === 0 ? (
-          <div className="py-16 text-center text-[#6667AB] text-sm">No hay postulaciones en esta categoría</div>
-        ) : (
-          <div className="divide-y divide-[rgba(255,255,255,0.06)]">
-            {filtered.map((p, i) => (
+            return (
               <motion.div
                 key={p.Id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.06)] transition-colors px-6 py-4"
+                className={`bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border shadow-lg shadow-black/30 rounded-2xl overflow-hidden ${
+                  slaExceeded(p.HorasTranscurridas) && p.Estado === 'Pendiente'
+                    ? 'border-[#D14242] animate-pulse'
+                    : 'border-[rgba(255,255,255,0.2)]'
+                }`}
               >
-                <div className="flex items-start gap-4">
-                  {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.1)] flex items-center justify-center text-[#CC8DB3] font-bold text-lg flex-shrink-0">
-                    {p.Nombres.charAt(0)}{p.Apellidos.charAt(0)}
-                  </div>
-
-                  {/* Info */}
-                  <div className="flex-1 min-w-0 space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-white text-base truncate">{p.Nombres} {p.Apellidos}</h3>
+                <div className="p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.1)] flex items-center justify-center text-[#CC8DB3] font-bold text-lg flex-shrink-0">
+                      {p.Nombres?.charAt(0)}{p.Apellidos?.charAt(0)}
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#F5D5E0]">
-                      <span className="flex items-center gap-1">
-                        <Mail className="w-3 h-3 text-[#6667AB]" /> {p.Email}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Phone className="w-3 h-3 text-[#6667AB]" /> {p.Telefono}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-[#6667AB]" /> {p.AniosExperiencia} años exp.
-                      </span>
-                    </div>
-
-                    {/* Specialties */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {p.Especialidades.map((esp, idx) => (
-                        <span key={idx} className="px-2.5 py-0.5 rounded-full bg-[#7B337E] text-white text-[10px] font-semibold">
-                          {esp}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <h3 className="font-bold text-white text-base">{p.Nombres} {p.Apellidos}</h3>
+                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeEstado(p.Estado)}`}>
+                          {p.Estado}
                         </span>
-                      ))}
+                        {slaExceeded(p.HorasTranscurridas) && p.Estado === 'Pendiente' && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#D14242]/20 text-[#D14242] text-[10px] font-bold border border-[#D14242]/40">
+                            <AlertTriangle className="w-3 h-3" /> SLA Excedido
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#F5D5E0] mt-1.5">
+                        <span className="flex items-center gap-1"><Mail className="w-3 h-3 text-[#6667AB]" />{p.Email}</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-[#6667AB]" />{formatFecha(p.FechaPostulacion)}</span>
+                        <span className="flex items-center gap-1"><FileText className="w-3 h-3 text-[#6667AB]" />{totalDocs} documentos</span>
+                      </div>
+
+                      {p.Estado === 'Pendiente' && (
+                        <div className="mt-2">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[10px] font-medium text-[#6667AB]">Tiempo de revisión</span>
+                            <span className={`text-[10px] font-bold ${slaExceeded(p.HorasTranscurridas) ? 'text-[#D14242]' : 'text-[#F5D5E0]'}`}>
+                              {p.HorasTranscurridas.toFixed(1)}h / 24h
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.min((p.HorasTranscurridas / 24) * 100, 100)}%` }}
+                              transition={{ duration: 0.6 }}
+                              className={`h-full rounded-full ${slaExceeded(p.HorasTranscurridas) ? 'bg-[#D14242]' : 'bg-[#CC8DB3]'}`}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
-
-                    {/* Review time bar */}
-                    {p.Estado === 'Pendiente' && (
-                      <div className="pt-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-[10px] font-medium text-[#6667AB]">Tiempo de revisión</span>
-                          <span className="text-[10px] font-bold text-[#F5D5E0]">{p.HorasTranscurridas.toFixed(1)}h / 24h</span>
-                        </div>
-                        <div className="w-full h-1.5 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${Math.min((p.HorasTranscurridas / 24) * 100, 100)}%` }}
-                            transition={{ duration: 0.6, delay: i * 0.05 }}
-                            className="h-full rounded-full bg-[#CC8DB3]"
-                            style={{ boxShadow: '0 0 6px rgba(204,141,179,0.4)' }}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Rejection reason & documents */}
-                    {p.Estado === 'Rechazada' && (
-                      <div className="pt-1 space-y-1.5">
-                        {p.MotivoRechazo && (
-                          <div className="flex items-start gap-1.5">
-                            <XCircle className="w-3.5 h-3.5 text-[#D14242] mt-0.5 flex-shrink-0" />
-                            <p className="text-xs text-[#D14242] leading-relaxed">{p.MotivoRechazo}</p>
-                          </div>
-                        )}
-                        {p.DocumentosRechazados && p.DocumentosRechazados.length > 0 && (
-                          <div className="ml-5 space-y-1">
-                            {p.DocumentosRechazados.map((doc, idx) => (
-                              <div key={idx} className="flex items-start gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#D14242] mt-1.5 flex-shrink-0" />
-                                <div>
-                                  <span className="text-xs font-bold text-[#D14242]">{doc.nombre}:</span>{' '}
-                                  <span className="text-xs text-[#F5D5E0]/70">{doc.motivo}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex flex-col gap-2 flex-shrink-0 pt-1">
-                    <button
-                      onClick={() => handleVerDetalle(p)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F5D5E0] text-[#F5D5E0] text-xs font-semibold hover:bg-[rgba(245,213,224,0.1)] transition-colors"
-                    >
-                      <Eye className="w-3.5 h-3.5" /> Ver detalle
-                    </button>
-                    {p.Estado === 'Pendiente' && (
+                    <div className="flex flex-col gap-2 flex-shrink-0">
                       <button
-                        onClick={() => handleAprobar(p.Id)}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#10B981] hover:bg-[#10B981]/80 text-white text-xs font-bold transition-all shadow-lg shadow-black/20"
+                        onClick={() => setExpandedId(isExpanded ? null : p.Id)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F5D5E0] text-[#F5D5E0] text-xs font-semibold hover:bg-[rgba(245,213,224,0.1)] transition-colors"
                       >
-                        <CheckCircle className="w-3.5 h-3.5" /> Validar
+                        {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        Documentos
                       </button>
-                    )}
+                    </div>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* Detail Modal */}
-      <PostulacionDetailModal
-        key={selectedPost?.Id ?? 'none'}
-        isOpen={showDetailModal}
-        onClose={() => setShowDetailModal(false)}
-        postulante={selectedPost ? {
-          id: selectedPost.Id,
-          nombres: selectedPost.Nombres,
-          apellidos: selectedPost.Apellidos,
-          email: selectedPost.Email,
-          telefono: selectedPost.Telefono,
-          experiencia: selectedPost.AniosExperiencia,
-          especialidades: selectedPost.Especialidades,
-          avatarLetras: selectedPost.Nombres.charAt(0) + selectedPost.Apellidos.charAt(0),
-          horasTranscurridas: selectedPost.HorasTranscurridas,
-          horasMaximas: 24,
-          estado: selectedPost.Estado,
-          motivoRechazo: selectedPost.MotivoRechazo,
-          documentosRechazados: selectedPost.DocumentosRechazados,
-          documentos: (() => {
-            const docs: { id: number; nombre: string; estado: 'por verificar' | 'verificado' | 'rechazado'; motivoRechazo?: string }[] = [
-              { id: 1, nombre: 'DNI', estado: 'por verificar' },
-              { id: 2, nombre: 'Antecedentes penales', estado: 'por verificar' },
-              { id: 3, nombre: 'Certificado de salud', estado: 'por verificar' },
-              { id: 4, nombre: 'Título profesional', estado: 'por verificar' },
-            ];
-            if (selectedPost.Estado === 'Aprobada') {
-              docs.forEach(d => { d.estado = 'verificado'; });
-            } else if (selectedPost.Estado === 'Rechazada') {
-              docs.forEach(d => {
-                const match = selectedPost.DocumentosRechazados?.find(r => r.nombre === d.nombre);
-                if (match) { d.estado = 'rechazado'; d.motivoRechazo = match.motivo; }
-                else { d.estado = 'verificado'; }
-              });
-            }
-            return docs;
-          })(),
-        } : null}
-        onAprobar={handleAprobar}
-        onRechazar={handleRechazar}
-      />
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="border-t border-[rgba(255,255,255,0.08)] overflow-hidden"
+                    >
+                      <div className="p-5 space-y-3">
+                        {p.Documentos?.length === 0 ? (
+                          <p className="text-sm text-[#6667AB] text-center py-4">Sin documentos subidos</p>
+                        ) : (
+                          p.Documentos.map(doc => (
+                            <div key={doc.Id} className="flex items-center justify-between bg-[rgba(33,6,53,0.4)] rounded-xl p-3">
+                              <div className="flex items-center gap-3">
+                                <FileText className="w-5 h-5 text-[#6667AB]" />
+                                <div>
+                                  <p className="text-sm font-semibold text-white">{doc.TipoRequisito}</p>
+                                  <p className="text-[10px] text-[#6667AB]">{doc.NombreArchivo}{doc.Tamano ? ` · ${doc.Tamano}` : ''}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                  doc.Estado === 'Aprobado' ? 'bg-emerald-500/20 text-emerald-200' :
+                                  doc.Estado === 'Rechazado' ? 'bg-red-500/20 text-red-200' :
+                                  'bg-amber-500/20 text-amber-200'
+                                }`}>
+                                  {doc.Estado}
+                                </span>
+                                {doc.Estado === 'Pendiente' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleAprobarDocumento(p.Id, doc.Id)}
+                                      className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-200 hover:bg-emerald-500/30 transition-colors"
+                                    >
+                                      <CheckCircle className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleRechazarDocumento(p.Id, doc.Id)}
+                                      className="p-1.5 rounded-lg bg-red-500/20 text-red-200 hover:bg-red-500/30 transition-colors"
+                                    >
+                                      <XCircle className="w-4 h-4" />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        )}
+
+                        {p.Estado === 'Pendiente' && (
+                          <div className="flex items-center gap-3 pt-2 border-t border-[rgba(255,255,255,0.06)]">
+                            <button
+                              onClick={() => handleAprobarPostulacion(p.Id)}
+                              disabled={!todosAprobados}
+                              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all ${
+                                todosAprobados
+                                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-black/20'
+                                  : 'bg-[rgba(33,6,53,0.5)] text-[#6667AB] cursor-not-allowed'
+                              }`}
+                            >
+                              <CheckCircle className="w-3.5 h-3.5" /> Aprobar Postulación
+                            </button>
+                            <button
+                              onClick={() => handleRechazarPostulacion(p.Id)}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-red-400 text-red-400 text-xs font-bold hover:bg-[rgba(200,40,40,0.1)] transition-all"
+                            >
+                              <XCircle className="w-3.5 h-3.5" /> Rechazar
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

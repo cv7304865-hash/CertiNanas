@@ -1,188 +1,183 @@
 import { motion } from 'motion/react';
-import { Shield, Users, UserCheck, UserCog, LogOut, ArrowLeft, Heart, XCircle, CheckCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import {
+  Activity, Calendar, DollarSign, Users, Shield, Smartphone, CreditCard,
+  ArrowRight, AlertCircle, CheckCircle, Clock
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-type AdminStats = {
-  totalUsers: number;
-  totalCuidadoras: number;
-  totalFamilias: number;
-  totalAdmins: number;
+type DashboardData = {
+  serviciosActivos: number;
+  serviciosDelMes: number;
+  ingresosDelMes: number;
+  candidatasEnEspera: number;
 };
 
-type Usuario = {
+type EscrowStatus = {
+  electronico: { total: number; count: number; status: string };
+  yapePlin: { total: number; count: number; status: string };
+};
+
+type Mediacion = {
   Id: number;
-  Email: string;
-  Nombres: string;
-  Apellidos: string;
-  Rol: string;
-  Activo: number;
+  FamiliaNombres: string;
+  FamiliaApellidos: string;
+  CuidadoraNombres: string;
+  CuidadoraApellidos: string;
+  Estado: string;
   FechaCreacion: string;
 };
 
-type Caso = {
-  Id: number;
-  Titulo: string;
-  Descripcion: string;
-  IdFamilia: number;
-  IdCuidadora: number;
-  FechaCreacion: string;
-};
+export function AdminDashboard() {
+  const { user } = useAuth();
+  const headers = { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) };
 
-type Props = {
-  onBack: () => void;
-};
-
-export function AdminDashboard({ onBack }: Props) {
-  const { user, logout } = useAuth();
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [exitos, setExitos] = useState<Caso[]>([]);
-  const [noAcuerdo, setNoAcuerdo] = useState<Caso[]>([]);
-  const [tab, setTab] = useState<'stats' | 'usuarios' | 'exito' | 'noacuerdo'>('stats');
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const [escrow, setEscrow] = useState<EscrowStatus | null>(null);
+  const [mediaciones, setMediaciones] = useState<Mediacion[]>([]);
 
   useEffect(() => {
-    const headers = { 'Content-Type': 'application/json', 'x-admin-user': String(user?.id) };
-    fetch('/api/admin/stats', { headers }).then(r => r.json()).then(setStats).catch(() => {});
-    fetch('/api/admin/usuarios', { headers }).then(r => r.json()).then(setUsuarios).catch(() => {});
-    fetch('/api/admin/casos?tipo=Exito', { headers }).then(r => r.json()).then(setExitos).catch(() => {});
-    fetch('/api/admin/casos?tipo=NoAcuerdo', { headers }).then(r => r.json()).then(setNoAcuerdo).catch(() => {});
-  }, [user?.id]);
+    fetch('/api/analytics/dashboard', { headers })
+      .then(r => r.json())
+      .then(setDashboard)
+      .catch(() => {});
+
+    fetch('/api/admin/escrow-status', { headers })
+      .then(r => r.json())
+      .then(setEscrow)
+      .catch(() => {});
+
+    fetch('/api/admin/mediaciones', { headers })
+      .then(r => r.json())
+      .then(setMediaciones)
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetch('/api/admin/escrow-status', { headers })
+        .then(r => r.json())
+        .then(setEscrow)
+        .catch(() => {});
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const kpis = [
+    { label: 'Servicios Activos', value: dashboard?.serviciosActivos ?? 0, icon: Activity, color: 'text-[#F6A5C0]' },
+    { label: 'Servicios del Mes', value: dashboard?.serviciosDelMes ?? 0, icon: Calendar, color: 'text-[#CC8DB3]' },
+    { label: 'Ingresos del Mes', value: `S/ ${(dashboard?.ingresosDelMes ?? 0).toFixed(2)}`, icon: DollarSign, color: 'text-[#F6A5C0]' },
+    { label: 'Candidatas en Espera', value: dashboard?.candidatasEnEspera ?? 0, icon: Users, color: 'text-[#CC8DB3]' },
+  ];
+
+  const formatFecha = (f: string) => {
+    const d = new Date(f);
+    return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#210635] via-[#420D4B] to-[#7B337E]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button onClick={onBack} className="p-2 text-[#6667AB] hover:text-white hover:bg-[rgba(246,165,192,0.2)] rounded-xl transition-all">
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <div>
-                <div className="flex items-center gap-2">
-                  <Shield className="w-6 h-6 text-white" />
-                  <h1 className="text-3xl font-bold text-white">Panel Admin</h1>
-                </div>
-                <p className="text-[#6667AB] mt-1">Bienvenido, {user?.nombres} — aquí puedes supervisar toda la plataforma.</p>
-              </div>
+    <div className="max-w-7xl mx-auto space-y-6 pb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {kpis.map((k, i) => (
+          <motion.div
+            key={k.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <k.icon className={`w-8 h-8 ${k.color}`} />
             </div>
-            <button onClick={logout} className="p-2 text-[#6667AB] hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Cerrar sesión">
-              <LogOut className="w-5 h-5" />
-            </button>
-          </div>
-        </motion.div>
+            <p className={`text-3xl font-extrabold ${k.color}`}>{k.value}</p>
+            <p className="text-sm text-[#6667AB] mt-1 font-medium">{k.label}</p>
+          </motion.div>
+        ))}
+      </div>
 
-        <div className="flex gap-2 mb-8 flex-wrap">
-          <button onClick={() => setTab('stats')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'stats' ? 'bg-[#F6A5C0] text-[#210635] shadow-lg' : 'bg-[rgba(33,6,53,0.4)] text-[#6667AB] hover:bg-[rgba(33,6,53,0.5)]'}`}>
-            Estadísticas
-          </button>
-          <button onClick={() => setTab('usuarios')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'usuarios' ? 'bg-[#F6A5C0] text-[#210635] shadow-lg' : 'bg-[rgba(33,6,53,0.4)] text-[#6667AB] hover:bg-[rgba(33,6,53,0.5)]'}`}>
-            Usuarios
-          </button>
-          <button onClick={() => setTab('exito')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'exito' ? 'bg-[#F6A5C0] text-[#210635] shadow-lg' : 'bg-[rgba(33,6,53,0.4)] text-[#6667AB] hover:bg-[rgba(33,6,53,0.5)]'}`}>
-            <Heart className="w-4 h-4 inline mr-1.5 -mt-0.5" />Casos de Éxito
-          </button>
-          <button onClick={() => setTab('noacuerdo')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === 'noacuerdo' ? 'bg-[#F6A5C0] text-[#210635] shadow-lg' : 'bg-[rgba(33,6,53,0.4)] text-[#6667AB] hover:bg-[rgba(33,6,53,0.5)]'}`}>
-            <XCircle className="w-4 h-4 inline mr-1.5 -mt-0.5" />Sin Acuerdo
-          </button>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Shield className="w-5 h-5 text-[#F6A5C0]" />
+            <h2 className="font-bold text-white text-lg">Escrow Monitor</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
+              <div className="flex items-center gap-2 mb-3">
+                <CreditCard className="w-4 h-4 text-[#CC8DB3]" />
+                <span className="text-xs font-bold text-[#6667AB] uppercase">Electrónicas</span>
+              </div>
+              <p className="text-2xl font-bold text-white">
+                S/ {escrow?.electronico?.total?.toFixed(2) ?? '0.00'}
+              </p>
+              <p className="text-xs text-[#6667AB] mt-1">{escrow?.electronico?.count ?? 0} transacciones</p>
+              <span className="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-200">
+                {escrow?.electronico?.status ?? 'Activo'}
+              </span>
+            </div>
+            <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
+              <div className="flex items-center gap-2 mb-3">
+                <Smartphone className="w-4 h-4 text-[#F6A5C0]" />
+                <span className="text-xs font-bold text-[#6667AB] uppercase">Yape/Plin</span>
+              </div>
+              <p className="text-2xl font-bold text-white">
+                S/ {escrow?.yapePlin?.total?.toFixed(2) ?? '0.00'}
+              </p>
+              <p className="text-xs text-[#6667AB] mt-1">{escrow?.yapePlin?.count ?? 0} transacciones</p>
+              <span className="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-200">
+                {escrow?.yapePlin?.status ?? 'Pendiente'}
+              </span>
+            </div>
+          </div>
         </div>
 
-        {tab === 'stats' && stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[
-              { label: 'Total Usuarios', value: stats.totalUsers, icon: Users, color: 'blue' },
-              { label: 'Familias', value: stats.totalFamilias, icon: UserCheck, color: 'emerald' },
-              { label: 'Cuidadoras', value: stats.totalCuidadoras, icon: UserCog, color: 'purple' },
-              { label: 'Admins', value: stats.totalAdmins, icon: Shield, color: 'amber' },
-            ].map(({ label, value, icon: Icon, color }) => (
-              <motion.div key={label} whileHover={{ scale: 1.02 }} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
-                color === 'blue' ? 'bg-[#f6a5c0]/20 text-white' :
-                color === 'emerald' ? 'bg-[#f6a5c0]/20 text-[#F5D5E0]' :
-                color === 'purple' ? 'bg-[#9d85b6]/20 text-white' :
-                'bg-[#f6a5c0]/20 text-[#F5D5E0]'
-                }`}>
-                  <Icon className="w-6 h-6" />
+        <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Activity className="w-5 h-5 text-[#F6A5C0]" />
+            <h2 className="font-bold text-white text-lg">Mediaciones Pendientes</h2>
+          </div>
+          {mediaciones.length === 0 ? (
+            <div className="text-center py-8">
+              <AlertCircle className="w-8 h-8 text-[#6667AB] mx-auto mb-2" />
+              <p className="text-sm text-[#6667AB]">No hay mediaciones pendientes</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {mediaciones.map((m, i) => (
+                <div key={m.Id} className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4 border border-[rgba(255,255,255,0.06)]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-[#CC8DB3] text-xs font-bold">
+                        {m.FamiliaNombres?.charAt(0)}{m.FamiliaApellidos?.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          {m.FamiliaNombres} {m.FamiliaApellidos}
+                        </p>
+                        <p className="text-xs text-[#6667AB]">
+                          ↔ {m.CuidadoraNombres} {m.CuidadoraApellidos}
+                        </p>
+                      </div>
+                    </div>
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      m.Estado === 'Pendiente' ? 'bg-amber-500/20 text-amber-200' :
+                      m.Estado === 'En Progreso' ? 'bg-purple-500/20 text-purple-200' :
+                      'bg-emerald-500/20 text-emerald-200'
+                    }`}>
+                      {m.Estado}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-[10px] text-[#6667AB]">{formatFecha(m.FechaCreacion)}</span>
+                    <button className="text-[10px] font-semibold text-[#F6A5C0] hover:text-[#F6A5C0]/80 transition-colors">
+                      Ver Detalle <ArrowRight className="w-3 h-3 inline" />
+                    </button>
+                  </div>
                 </div>
-                <p className="text-3xl font-bold text-white">{value}</p>
-                <p className="text-sm text-[#6667AB] mt-1">{label}</p>
-              </motion.div>
-            ))}
-          </div>
-        )}
-
-        {tab === 'exito' && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Heart className="w-5 h-5 text-[#cc8db3]" />
-              <h2 className="text-xl font-bold text-white">Historias de Éxito</h2>
-              <span className="text-sm text-[#6667AB] ml-2">({exitos.length} casos)</span>
+              ))}
             </div>
-            {exitos.map(c => (
-              <motion.div key={c.Id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
-                <h3 className="font-bold text-white text-lg">{c.Titulo}</h3>
-                <p className="text-[#6667AB] mt-2 leading-relaxed">{c.Descripcion}</p>
-                <p className="text-xs text-[#6667AB] mt-3">{c.FechaCreacion}</p>
-              </motion.div>
-            ))}
-          </div>
-        )}
-
-        {tab === 'noacuerdo' && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-              <XCircle className="w-5 h-5 text-red-500" />
-              <h2 className="text-xl font-bold text-white">Casos sin Acuerdo</h2>
-              <span className="text-sm text-[#6667AB] ml-2">({noAcuerdo.length} casos)</span>
-            </div>
-            {noAcuerdo.map(c => (
-              <motion.div key={c.Id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
-                <h3 className="font-bold text-white text-lg">{c.Titulo}</h3>
-                <p className="text-[#6667AB] mt-2 leading-relaxed">{c.Descripcion}</p>
-                <p className="text-xs text-[#6667AB] mt-3">{c.FechaCreacion}</p>
-              </motion.div>
-            ))}
-          </div>
-        )}
-
-        {tab === 'usuarios' && (
-          <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-[rgba(33,6,53,0.4)] border-b border-[rgba(255,255,255,0.1)]">
-                    <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">ID</th>
-                    <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Nombre</th>
-                    <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Email</th>
-                    <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Rol</th>
-                    <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Activo</th>
-                    <th className="text-left py-3 px-4 font-semibold text-[#6667AB]">Creado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {usuarios.map(u => (
-                    <tr key={u.Id} className="border-b border-[rgba(255,255,255,0.05)] hover:bg-[rgba(33,6,53,0.3)] transition-colors">
-                      <td className="py-3 px-4 text-white font-mono">{u.Id}</td>
-                      <td className="py-3 px-4 text-white font-medium">{u.Nombres} {u.Apellidos}</td>
-                      <td className="py-3 px-4 text-[#6667AB]">{u.Email}</td>
-                      <td className="py-3 px-4">
-                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                          u.Rol === 'Admin' ? 'bg-[#f6a5c0]/20 text-[#cc8db3]' :
-                          u.Rol === 'Cuidadora' ? 'bg-[#f6a5c0]/20 text-[#cc8db3]' :
-                          'bg-[#f6a5c0]/20 text-[#cc8db3]'
-                        }`}>{u.Rol}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className={`inline-block w-2 h-2 rounded-full ${u.Activo ? 'bg-green-500' : 'bg-red-400'}`} />
-                      </td>
-                      <td className="py-3 px-4 text-[#6667AB] text-xs">{u.FechaCreacion}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
