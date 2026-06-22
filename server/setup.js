@@ -659,6 +659,7 @@ db.exec(`
   }
 
   // Migraciones
+  try { db.prepare(`ALTER TABLE Negociaciones ADD COLUMN Propuestas TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Cuidadoras ADD COLUMN Zona TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN IdMenor INTEGER REFERENCES Menores(Id)`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN HoraInicio TEXT`).run(); } catch(e) {}
