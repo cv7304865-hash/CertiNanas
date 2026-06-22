@@ -1,9 +1,10 @@
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { LogOut, FileSignature, Wallet, CheckCircle, ListTodo } from 'lucide-react';
+import { LogOut, FileSignature, Wallet, CheckCircle, ListTodo, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 import { TareasResumen } from './ChecklistTareas';
+import { SignatureCanvas } from './SignatureCanvas';
 
 type ContratoData = {
   Id: number; FechaServicio: string; TotalHoras: number; TarifaHora: number;
@@ -164,6 +165,20 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
                 <p className="text-xs text-[#F5D5E0]/70 leading-relaxed">
                   <strong className="text-white">Términos del Servicio Escrow:</strong> Al aceptar, el monto será retenido por la pasarela de pagos hasta la conformidad del servicio. La liberación se realizará al cierre sin incidencias graves pendientes, conforme a la RN-16 del negocio CERTINANAS.
                 </p>
+              </div>
+
+              {/* Firma digital */}
+              <div className="mx-6 sm:mx-8 mb-6 bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.08)] rounded-2xl p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <Shield className="w-5 h-5 text-[#F6A5C0]" />
+                  <span className="text-sm font-bold text-white">Firma Digital y Verificación</span>
+                </div>
+                <div className="space-y-6">
+                  <SignatureCanvas ordenId={data?.Id || 0} tipo="familia" />
+                  <div className="border-t border-[rgba(255,255,255,0.06)] pt-6">
+                    <SignatureCanvas ordenId={data?.Id || 0} tipo="cuidadora" />
+                  </div>
+                </div>
               </div>
 
               <div className="mx-6 sm:mx-8 mb-6 flex items-start gap-3">

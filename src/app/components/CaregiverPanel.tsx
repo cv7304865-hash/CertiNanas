@@ -9,6 +9,9 @@ import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 import { CuidadoraSolicitudes } from './CuidadoraSolicitudes';
 import { PanicButton } from './PanicButton';
+import { CentroCapacitacion } from './CentroCapacitacion';
+import { ReporteDiarioForm } from './ReporteDiarioForm';
+import { ReemplazoTracker } from './ReemplazoTracker';
 
 type Servicio = {
   Id: number;
@@ -64,7 +67,7 @@ type CaregiverPanelProps = {
   onNavigate?: (view: string) => void;
 };
 
-type Tab = 'perfil' | 'servicios' | 'solicitudes' | 'panel' | 'mensajes';
+type Tab = 'perfil' | 'servicios' | 'solicitudes' | 'panel' | 'mensajes' | 'capacitacion' | 'reportes' | 'reemplazo';
 
 export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
   const { user, logout } = useAuth();
@@ -291,8 +294,8 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
               <span className="text-[#6667AB] text-xl font-light hidden sm:inline">|</span>
               <span className="text-[#6667AB] text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
-            <nav className="flex items-center gap-4 sm:gap-6">
-              {(['perfil', 'servicios', 'solicitudes', 'panel', 'mensajes'] as Tab[]).map(t => (
+            <nav className="flex items-center gap-4 sm:gap-6 overflow-x-auto pb-1 scrollbar-none">
+              {(['perfil', 'servicios', 'solicitudes', 'panel', 'mensajes', 'capacitacion', 'reportes', 'reemplazo'] as Tab[]).map(t => (
                 <button
                   key={t}
                   onClick={() => t === 'mensajes' ? onNavigate?.('messages') : setTab(t)}
@@ -307,6 +310,9 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                   {t === 'solicitudes' && 'Solicitudes'}
                   {t === 'panel' && 'Mi Panel'}
                   {t === 'mensajes' && 'Mensajes'}
+                  {t === 'capacitacion' && 'Capacitación'}
+                  {t === 'reportes' && 'Reportes'}
+                  {t === 'reemplazo' && 'Reemplazo'}
                 </button>
               ))}
               <ProfileAvatar size={36} className="ml-2" />
@@ -739,6 +745,27 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
             >
               <MessageSquare className="w-4 h-4" /> Ir a Mensajes
             </motion.button>
+          </motion.div>
+        )}
+
+        {/* ════════════════════ TAB: CAPACITACION ════════════════════ */}
+        {tab === 'capacitacion' && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <CentroCapacitacion />
+          </motion.div>
+        )}
+
+        {/* ════════════════════ TAB: REPORTES ════════════════════ */}
+        {tab === 'reportes' && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <ReporteDiarioForm onBack={() => setTab('panel')} />
+          </motion.div>
+        )}
+
+        {/* ════════════════════ TAB: REEMPLAZO ════════════════════ */}
+        {tab === 'reemplazo' && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <ReemplazoTracker />
           </motion.div>
         )}
       </div>

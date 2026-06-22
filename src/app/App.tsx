@@ -20,9 +20,10 @@ import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
 import { WelcomePage } from './components/WelcomePage';
 import { PanicButton } from './components/PanicButton';
+import { CalendarioReservas } from './components/CalendarioReservas';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 
-type View = 'home' | 'dashboard' | 'messages' | 'checkout' | 'admin' | 'cuidadora' | 'familia' | 'search' | 'contract' | 'payment' | 'review' | 'admin-postulaciones' | 'admin-mediaciones' | 'admin-pagos' | 'admin-analytics' | 'admin-sla' | 'admin-riesgo';
+type View = 'home' | 'dashboard' | 'messages' | 'checkout' | 'admin' | 'cuidadora' | 'familia' | 'search' | 'contract' | 'payment' | 'review' | 'admin-postulaciones' | 'admin-mediaciones' | 'admin-pagos' | 'admin-analytics' | 'admin-sla' | 'admin-riesgo' | 'calendario';
 
 const pageVariants = {
   initial: { opacity: 0, y: 8 },
@@ -363,6 +364,9 @@ function AppContent() {
         )}
         {view === 'checkout' && renderView('checkout',
           <Checkout onBack={() => setView('dashboard')} />
+        )}
+        {view === 'calendario' && renderView('calendario',
+          <CalendarioReservas />
         )}
         {view === 'home' && renderView('home',
           <>
