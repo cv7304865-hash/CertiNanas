@@ -129,7 +129,9 @@ app.get('/api/debug/db-check', (req, res) => {
     for (const t of tables) {
       try { counts[t.name] = db.prepare(`SELECT COUNT(*) AS c FROM "${t.name}"`).get().c; } catch(e) { counts[t.name] = -1; }
     }
-    res.json({ tableCount: tables.length, tables: tables.map(t => t.name), counts });
+    let fks = [];
+    try { fks = db.prepare('PRAGMA foreign_key_list(Negociaciones)').all(); } catch(e) {}
+    res.json({ tableCount: tables.length, tables: tables.map(t => t.name), counts, negociacionesFK: fks });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
