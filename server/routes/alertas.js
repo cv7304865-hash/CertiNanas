@@ -178,4 +178,15 @@ router.get('/riesgo', (req, res) => {
   }
 });
 
+// ── ADMIN: marcar alerta de riesgo como revisada ──
+router.post('/riesgo/:id/revisar', (req, res) => {
+  try {
+    const db = getDb();
+    db.prepare("UPDATE PrediccionRiesgos SET AlertaGenerada = 0 WHERE Id = ?").run(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

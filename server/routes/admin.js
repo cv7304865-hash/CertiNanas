@@ -4,12 +4,16 @@ import { getDb, audit } from '../db.js';
 const router = Router();
 
 function isAdmin(req, res, next) {
-  const adminHeader = req.headers['x-admin-user'];
+  const adminHeader = req.headers['x-admin-user'] || req.headers['x-user-id'];
   if (!adminHeader) return res.status(403).json({ error: 'Acceso denegado' });
   const db = getDb();
   const user = db.prepare('SELECT Id, IdRol FROM Usuarios WHERE Id = ?').get(Number(adminHeader));
   if (!user || user.IdRol !== 1) return res.status(403).json({ error: 'Acceso denegado' });
   next();
+}
+
+function getAdminId(req) {
+  return Number(req.headers['x-admin-user'] || req.headers['x-user-id']);
 }
 
 router.get('/stats', isAdmin, (req, res) => {
@@ -343,6 +347,68 @@ router.post('/agendar-mediacion', isAdmin, (req, res) => {
     db.prepare("UPDATE Conversaciones SET FechaUltimoMensaje = datetime('now') WHERE Id = ?").run(conv.Id);
   })();
   res.json({ success: true });
+});
+
+// ── ADMIN: aprobar documento individual en postulacion ──
+router.post('/postulaciones/:id/documentos/:docId/aprobar', isAdmin, (req, res) => {
+  const db = getDb();
+  db.prepare("UPDATE DocumentosPostulacion SET Estado = 'Aprobado' WHERE Id = ? AND IdPostulacion = ?").run(req.params.docId, req.params.id);
+  audit(getAdminId(req), 'aprobar_documento', 'DocumentosPostulacion', Number(req.params.docId), null);
+  res.json({ success: true });
+});
+
+// ── ADMIN: rechazar documento individual en postulacion ──
+router.post('/postulaciones/:id/documentos/:docId/rechazar', isAdmin, (req, res) => {
+  const db = getDb();
+  const { motivo } = req.body || {};
+  db.prepare("UPDATE DocumentosPostulacion SET Estado = 'Rechazado', MotivoRechazo = ? WHERE Id = ? AND IdPostulacion = ?").run(motivo || 'Documento no cumple requisitos', req.params.docId, req.params.id);
+  audit(getAdminId(req), 'rechazar_documento', 'DocumentosPostulacion', Number(req.params.docId), motivo);
+  res.json({ success: true });
+});
+
+// ── ADMIN: lista de transacciones (pagos protegidos / escrow) ──
+router.get('/transacciones', isAdmin, (req, res) => {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT e.Id, o.Id AS OrdenId,
+           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos,
+           uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
+           e.MontoTotal, e.MontoPlataforma AS Comision, e.MontoCuidadora,
+           e.Estado, COALESCE(p.MetodoPago, 'Tarjeta') AS MetodoPago, e.FechaCreacion
+    FROM Escrow e
+    INNER JOIN Ordenes o ON o.Id = e.IdOrden
+    INNER JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
+    INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+    INNER JOIN Usuarios uc ON uc.Id = c.IdUsuario
+    LEFT JOIN Pagos p ON p.IdOrden = o.Id
+    ORDER BY e.FechaCreacion DESC
+  `).all();
+  res.json(rows);
+});
+
+// ── ADMIN: lista de mediaciones ──
+router.get('/mediaciones', isAdmin, (req, res) => {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT c.Id, c.IdOrden AS OrdenId,
+           u.Nombres AS FamiliaNombres, u.Apellidos AS FamiliaApellidos,
+           uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
+           c.Tipo AS Estado, c.FechaCreacion,
+           CASE WHEN c.Tipo = 'Exito' THEN 1 ELSE 0 END AS TieneVb
+    FROM Casos c
+    INNER JOIN Ordenes o ON o.Id = c.IdOrden
+    INNER JOIN Usuarios u ON u.Id = o.IdUsuarioFamilia
+    INNER JOIN Cuidadoras cu ON cu.Id = o.IdCuidadora
+    INNER JOIN Usuarios uc ON uc.Id = cu.IdUsuario
+    ORDER BY c.FechaCreacion DESC
+  `).all();
+  const result = rows.map(r => ({
+    ...r,
+    AuditLog: db.prepare(`SELECT Accion, FechaCreacion, u.Nombres || ' ' || u.Apellidos AS adminNombre
+      FROM Auditoria a LEFT JOIN Usuarios u ON u.Id = a.IdUsuario
+      WHERE a.Entidad = 'Casos' AND a.IdEntidad = ? ORDER BY a.FechaCreacion DESC`).all(r.Id),
+  }));
+  res.json(result);
 });
 
 export default router;

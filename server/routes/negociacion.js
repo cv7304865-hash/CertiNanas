@@ -196,7 +196,7 @@ router.get('/familia/negociaciones', (req, res) => {
 // ── ADMIN: ver todas las negociaciones ──
 router.get('/admin/negociaciones', (req, res) => {
   const db = getDb();
-  const adminId = Number(req.headers['x-admin-user']);
+  const adminId = Number(req.headers['x-admin-user'] || req.headers['x-user-id']);
   if (!adminId) return res.status(403).json({ error: 'Acceso denegado' });
   if (getUserRole(adminId) !== 1) return res.status(403).json({ error: 'Acceso denegado' });
 
@@ -232,7 +232,7 @@ router.get('/admin/negociaciones', (req, res) => {
 // ── ADMIN: mediar en una negociacion ──
 router.post('/admin/negociaciones/:id/mediar', (req, res) => {
   const db = getDb();
-  const adminId = Number(req.headers['x-admin-user']);
+  const adminId = Number(req.headers['x-admin-user'] || req.headers['x-user-id']);
   if (!adminId) return res.status(403).json({ error: 'Acceso denegado' });
   if (getUserRole(adminId) !== 1) return res.status(403).json({ error: 'Acceso denegado' });
 

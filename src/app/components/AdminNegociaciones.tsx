@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import {
   MessageSquare, CheckCircle, XCircle, Clock, Calendar, DollarSign,
   User, Baby, Shield, Users, Phone, ArrowRight, FileText, Video,
-  Edit3, ThumbsUp
+  Edit3, ThumbsUp, Eye
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Banner } from './ui/Banner';

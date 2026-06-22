@@ -39,12 +39,27 @@ export function AdminDashboard() {
   useEffect(() => {
     fetch('/api/analytics/dashboard', { headers })
       .then(r => r.json())
-      .then(setDashboard)
+      .then(d => {
+        if (d) setDashboard({
+          serviciosActivos: d.serviciosActivos ?? 0,
+          serviciosDelMes: d.serviciosFinalizados ?? 0,
+          ingresosDelMes: d.ingresos ?? 0,
+          candidatasEnEspera: d.postulacionesPendientes ?? 0,
+        });
+      })
       .catch(() => {});
 
-    fetch('/api/admin/escrow-status', { headers })
+    fetch('/api/admin/transacciones', { headers })
       .then(r => r.json())
-      .then(setEscrow)
+      .then((rows: any[]) => {
+        if (Array.isArray(rows)) {
+          const total = rows.reduce((s, r) => s + (r.MontoTotal || 0), 0);
+          setEscrow({
+            electronico: { total, count: rows.length, status: rows.some(r => r.Estado === 'Retenido') ? 'Retenido' : 'Liberado' },
+            yapePlin: { total: 0, count: 0, status: 'Sin datos' },
+          });
+        }
+      })
       .catch(() => {});
 
     fetch('/api/admin/mediaciones', { headers })
@@ -55,9 +70,17 @@ export function AdminDashboard() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      fetch('/api/admin/escrow-status', { headers })
+      fetch('/api/admin/transacciones', { headers })
         .then(r => r.json())
-        .then(setEscrow)
+        .then((rows: any[]) => {
+          if (Array.isArray(rows)) {
+            const total = rows.reduce((s, r) => s + (r.MontoTotal || 0), 0);
+            setEscrow({
+              electronico: { total, count: rows.length, status: rows.some(r => r.Estado === 'Retenido') ? 'Retenido' : 'Liberado' },
+              yapePlin: { total: 0, count: 0, status: 'Sin datos' },
+            });
+          }
+        })
         .catch(() => {});
     }, 30000);
     return () => clearInterval(interval);

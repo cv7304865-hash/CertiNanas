@@ -32,8 +32,24 @@ export function AdminAnalytics() {
       fetch('/api/analytics/dashboard', { headers }).then(r => r.json()).catch(() => null),
       fetch('/api/analytics/prediccion-demanda', { headers }).then(r => r.json()).catch(() => null),
     ]).then(([d, p]) => {
-      if (d) setData(d);
-      if (p) setDemanda(p);
+      if (d) {
+        setData({
+          serviciosActivos: d.serviciosActivos ?? 0,
+          serviciosCompletados: d.serviciosFinalizados ?? 0,
+          serviciosCancelados: d.serviciosCancelados ?? 0,
+          ingresosTotales: d.ingresos ?? 0,
+          comisionesTotales: d.comisiones ?? 0,
+          escrowTotal: d.fondosEscrow ?? 0,
+          tiempoPromedioRespuesta: d.tiempoRespuestaPromedio ?? 0,
+          tasaCancelaciones: d.tasaCancelaciones ?? 0,
+          recontrataciones: d.recontrataciones ?? 0,
+          serviciosPorSemana: Array.isArray(d.ordenesPorEstado) ? d.ordenesPorEstado.map((o: any) => o.count) : undefined,
+          serviciosPorMes: Array.isArray(d.ordenesPorMes) ? d.ordenesPorMes.map((o: any) => o.count) : undefined,
+        });
+      }
+      if (p && Array.isArray(p.ordenesPorMes)) {
+        setDemanda(p.ordenesPorMes.map((o: any) => ({ semana: o.mes, prediccion: o.count })));
+      }
       setLoading(false);
     });
   }, []);
