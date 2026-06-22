@@ -6,6 +6,7 @@ import {
   Users, ThumbsUp, ThumbsDown, Filter
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { DocumentPreviewModal } from './DocumentPreviewModal';
 
 type Documento = {
   Id: number;
@@ -56,6 +57,15 @@ export function AdminPostulaciones() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'pendientes' | 'validadas' | 'rechazadas'>('pendientes');
+  const [previewDoc, setPreviewDoc] = useState<{ name: string; postulante: string } | null>(null);
+
+  const tipoRequisitoToDocTitle: Record<string, string> = {
+    'DNI': 'DNI Electrónico',
+    'Antecedentes penales': 'Antecedentes Penales',
+    'Certificado de salud': 'Certificado de Salud (MINSA)',
+    'Título profesional': 'Título Profesional',
+    'Carta de presentación': 'Carta de Presentación',
+  };
 
   const load = async () => {
     setLoading(true);
@@ -375,6 +385,13 @@ export function AdminPostulaciones() {
                                     </button>
                                   </>
                                 )}
+                                <button
+                                  onClick={() => setPreviewDoc({ name: tipoRequisitoToDocTitle[doc.TipoRequisito] || doc.TipoRequisito, postulante: `${p.Nombres} ${p.Apellidos}` })}
+                                  className="p-1.5 rounded-lg bg-[rgba(255,255,255,0.06)] text-[#6667AB] hover:text-[#F6A5C0] transition-colors"
+                                  title="Ver documento"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
                                 <button className="p-1.5 rounded-lg bg-[rgba(255,255,255,0.06)] text-[#6667AB] hover:text-white transition-colors" title="Descargar">
                                   <Download className="w-4 h-4" />
                                 </button>
@@ -416,6 +433,12 @@ export function AdminPostulaciones() {
           })}
         </div>
       )}
+      <DocumentPreviewModal
+        isOpen={!!previewDoc}
+        onClose={() => setPreviewDoc(null)}
+        documentName={previewDoc?.name || ''}
+        postulanteName={previewDoc?.postulante}
+      />
     </div>
   );
 }

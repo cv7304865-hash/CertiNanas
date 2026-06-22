@@ -658,6 +658,204 @@ db.exec(`
     }
   }
 
+  // ========== NEGOCIACIONES ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM Negociaciones').get().c === 0) {
+    const ordenesPendientes = db.prepare("SELECT Id, IdCuidadora, IdUsuarioFamilia, TarifaHora, TotalHoras FROM Ordenes WHERE EstadoNegociacion = 'Pendiente' LIMIT 8").all();
+    const familias = db.prepare('SELECT Id FROM Usuarios WHERE IdRol = 2').all();
+    for (const o of ordenesPendientes) {
+      const propPor = Math.random() > 0.5 ? o.IdUsuarioFamilia : (familias[0]?.Id || o.IdUsuarioFamilia);
+      db.prepare("INSERT INTO Negociaciones (IdOrden, IdPropuestoPor, TarifaHora, TotalHoras, Mensaje, Estado, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?, datetime('now', '-? days'))").run(
+        o.Id, propPor,
+        o.TarifaHora + (Math.random() - 0.5) * 10,
+        o.TotalHoras + (Math.random() - 0.5) * 2,
+        Math.random() > 0.5 ? 'Solicito ajustar la tarifa por el tipo de cuidado requerido.' : 'Acepto las condiciones propuestas.',
+        Math.random() > 0.3 ? 'activa' : 'aceptada',
+        Math.floor(Math.random() * 15) + 1
+      );
+    }
+  }
+
+  // ========== ESCROW ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM Escrow').get().c === 0) {
+    const ordenes = db.prepare("SELECT Id, Total FROM Ordenes WHERE Estado NOT IN ('Cancelada', 'Pendiente') LIMIT 15").all();
+    for (const o of ordenes) {
+      const montoTotal = o.Total;
+      const montoCuidadora = +(montoTotal * 0.85).toFixed(2);
+      const montoPlataforma = +(montoTotal * 0.15).toFixed(2);
+      const diasCreado = Math.floor(Math.random() * 60) + 1;
+      db.prepare("INSERT INTO Escrow (IdOrden, MontoTotal, MontoCuidadora, MontoPlataforma, Estado, FechaCreacion) VALUES (?, ?, ?, ?, ?, datetime('now', '-? days'))").run(
+        o.Id, montoTotal, montoCuidadora, montoPlataforma,
+        Math.random() > 0.6 ? 'Liberado' : 'Retenido',
+        diasCreado
+      );
+    }
+  }
+
+  // ========== CONTRATOS ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM Contratos').get().c === 0) {
+    const ordenes = db.prepare("SELECT Id FROM Ordenes WHERE Estado NOT IN ('Cancelada') LIMIT 10").all();
+    for (const o of ordenes) {
+      db.prepare("INSERT INTO Contratos (IdOrden, Terminos, AceptadoFamilia, AceptadoCuidadora, FechaCreacion) VALUES (?, ?, ?, ?, datetime('now', '-? days'))").run(
+        o.Id,
+        'Terminos y condiciones estandar de servicio de cuidado infantil. El servicio incluye atencion personalizada segun necesidades del menor.',
+        Math.random() > 0.2 ? 1 : 0,
+        Math.random() > 0.2 ? 1 : 0,
+        Math.floor(Math.random() * 30) + 1
+      );
+    }
+  }
+
+  // ========== METRICAS ANALYTICS ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM MetricasAnalytics').get().c === 0) {
+    const metricasData = [
+      ['servicios', 'activos', 12, '2026-06'],
+      ['servicios', 'completados_mes', 45, '2026-06'],
+      ['servicios', 'cancelados_mes', 5, '2026-06'],
+      ['ingresos', 'total_mes', 28500, '2026-06'],
+      ['ingresos', 'comisiones_mes', 4275, '2026-06'],
+      ['escrow', 'recaudado_mes', 32000, '2026-06'],
+      ['escrow', 'liberado_mes', 18000, '2026-06'],
+      ['usuarios', 'familias_activas', 45, '2026-06'],
+      ['usuarios', 'cuidadoras_activas', 38, '2026-06'],
+      ['postulaciones', 'nuevas_mes', 15, '2026-06'],
+      ['postulaciones', 'aprobadas_mes', 8, '2026-06'],
+    ];
+    const stmt = db.prepare("INSERT INTO MetricasAnalytics (Tipo, Clave, Valor, Periodo, FechaRegistro) VALUES (?, ?, ?, ?, datetime('now'))");
+    for (const [tipo, clave, valor, periodo] of metricasData) {
+      stmt.run(tipo, clave, valor, periodo);
+    }
+  }
+
+  // ========== PREDICCION RIESGOS ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM PrediccionRiesgos').get().c === 0) {
+    const ordenes = db.prepare("SELECT Id FROM Ordenes LIMIT 10").all();
+    for (const o of ordenes) {
+      const score = Math.floor(Math.random() * 100);
+      const nivel = score >= 50 ? 'Alto' : score >= 25 ? 'Medio' : 'Bajo';
+      const variables = JSON.stringify([
+        { variable: 'Antiguedad cuidadora', peso: Math.floor(Math.random() * 30) + 10 },
+        { variable: 'Historial de incidencias', peso: Math.floor(Math.random() * 25) },
+        { variable: 'Tiempo desde ultima resena', peso: Math.floor(Math.random() * 20) },
+        { variable: 'Consistencia de horarios', peso: Math.floor(Math.random() * 15) },
+      ]);
+      db.prepare("INSERT INTO PrediccionRiesgos (IdOrden, NivelRiesgo, PuntajeRiesgo, VariablesAnalizadas, AlertaGenerada, FechaCreacion) VALUES (?, ?, ?, ?, ?, datetime('now', '-? days'))").run(
+        o.Id, nivel, score, variables, score >= 25 ? 1 : 0,
+        Math.floor(Math.random() * 45) + 1
+      );
+    }
+  }
+
+  // ========== CUIDADORA DOCUMENTOS ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM CuidadoraDocumentos').get().c === 0) {
+    const cuidadoras = db.prepare('SELECT Id FROM Cuidadoras LIMIT 5').all();
+    const tiposDocs = ['DNI', 'Antecedentes penales', 'Certificado de salud', 'Titulo profesional', 'Carta de presentacion'];
+    for (const c of cuidadoras) {
+      for (const tipo of tiposDocs) {
+        const archivo = tipo.toLowerCase().replace(/\s+/g, '_') + '_cuidadora_' + c.Id + '.pdf';
+        db.prepare("INSERT INTO CuidadoraDocumentos (IdCuidadora, TipoDocumento, NombreArchivo, RutaArchivo, Verificado) VALUES (?, ?, ?, ?, ?)").run(
+          c.Id, tipo, archivo, '/uploads/cuidadora/' + archivo,
+          Math.random() > 0.3 ? 1 : 0
+        );
+      }
+    }
+  }
+
+  // ========== INCIDENTES (Boton de Panico) ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM Incidentes').get().c === 0) {
+    const ordenes = db.prepare("SELECT Id, IdCuidadora FROM Ordenes WHERE Estado IN ('En curso', 'Finalizada') LIMIT 5").all();
+    for (const o of ordenes) {
+      db.prepare("INSERT INTO Incidentes (IdOrden, IdUsuarioReporta, Latitud, Longitud, Tipo, Estado, Descripcion, FechaActivacion) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now', '-? days'))").run(
+        o.Id, Math.floor(Math.random() * 10) + 2,
+        -8.1 + Math.random() * 0.05, -79.0 + Math.random() * 0.05,
+        Math.random() > 0.7 ? 'Emergencia' : 'Panico',
+        Math.random() > 0.5 ? 'Resuelto' : 'Activo',
+        'Incidente reportado durante la sesion de cuidado.',
+        Math.floor(Math.random() * 30) + 1
+      );
+    }
+  }
+
+  // ========== CONTRATOS DIGITALES ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM ContratosDigitales').get().c === 0) {
+    const ordenes = db.prepare("SELECT Id FROM Ordenes WHERE Estado NOT IN ('Cancelada') LIMIT 5").all();
+    for (const o of ordenes) {
+      const codigo = 'CT-' + String(o.Id).padStart(4, '0') + '-' + String(Math.floor(Math.random() * 9000) + 1000);
+      db.prepare("INSERT INTO ContratosDigitales (IdOrden, CodigoContrato, FechaEmision, Estado, FechaCreacion) VALUES (?, ?, datetime('now', '-? days'), ?, datetime('now', '-? days'))").run(
+        o.Id, codigo,
+        Math.floor(Math.random() * 15) + 1,
+        Math.random() > 0.5 ? 'Completado' : 'Pendiente',
+        Math.floor(Math.random() * 15) + 1
+      );
+    }
+  }
+
+  // ========== REPUTACION CUIDADORA (adicional) ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM ReputacionCuidadora').get().c === 0) {
+    const cuidadoras = db.prepare('SELECT Id FROM Cuidadoras').all();
+    for (const c of cuidadoras) {
+      const exists = db.prepare('SELECT Id FROM ReputacionCuidadora WHERE IdCuidadora = ?').get(c.Id);
+      if (!exists) {
+        const puntos = Math.floor(Math.random() * 400) + 50;
+        const nivelId = db.prepare("SELECT Id FROM NivelesReputacion WHERE ? BETWEEN PuntajeMinimo AND PuntajeMaximo").get(puntos)?.Id || 1;
+        db.prepare("INSERT OR IGNORE INTO ReputacionCuidadora (IdCuidadora, PuntajeTotal, IdNivelActual, ServiciosCompletados, Recontrataciones, PuntualidadPromedio) VALUES (?, ?, ?, ?, ?, ?)").run(
+          c.Id, puntos, nivelId, Math.floor(Math.random() * 30) + 1, Math.floor(Math.random() * 5), +(3 + Math.random() * 2).toFixed(1)
+        );
+      }
+    }
+  }
+
+  // ========== HISTORIAL REPUTACION ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM HistorialReputacion').get().c === 0) {
+    const cuidadoras = db.prepare('SELECT Id FROM ReputacionCuidadora LIMIT 5').all();
+    for (const c of cuidadoras) {
+      const actual = db.prepare('SELECT PuntajeTotal FROM ReputacionCuidadora WHERE Id = ?').get(c.Id);
+      if (actual) {
+        db.prepare("INSERT INTO HistorialReputacion (IdCuidadora, PuntajeAnterior, PuntajeNuevo, Concepto, FechaCreacion) VALUES (?, ?, ?, ?, datetime('now', '-? days'))").run(
+          c.Id, 0, Math.floor(actual.PuntajeTotal / 3), 'Registro inicial', Math.floor(Math.random() * 60) + 30
+        );
+        db.prepare("INSERT INTO HistorialReputacion (IdCuidadora, PuntajeAnterior, PuntajeNuevo, Concepto, FechaCreacion) VALUES (?, ?, ?, ?, datetime('now', '-? days'))").run(
+          c.Id, Math.floor(actual.PuntajeTotal / 3), Math.floor(actual.PuntajeTotal / 2), 'Servicio completado', Math.floor(Math.random() * 30) + 10
+        );
+        db.prepare("INSERT INTO HistorialReputacion (IdCuidadora, PuntajeAnterior, PuntajeNuevo, Concepto, FechaCreacion) VALUES (?, ?, ?, ?, datetime('now', '-? days'))").run(
+          c.Id, Math.floor(actual.PuntajeTotal / 2), actual.PuntajeTotal, 'Resena positiva', Math.floor(Math.random() * 10) + 1
+        );
+      }
+    }
+  }
+
+  // ========== REEMPLAZO EMERGENCIA ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM ReemplazoEmergencia').get().c === 0) {
+    const ordenes = db.prepare("SELECT Id, IdCuidadora FROM Ordenes LIMIT 3").all();
+    for (const o of ordenes) {
+      db.prepare("INSERT INTO ReemplazoEmergencia (IdOrden, IdCuidadoraOriginal, Motivo, Estado, TiempoBusquedaSegundos, FechaCreacion) VALUES (?, ?, ?, ?, ?, datetime('now', '-? days'))").run(
+        o.Id, o.IdCuidadora,
+        Math.random() > 0.5 ? 'Emergencia familiar de la cuidadora' : 'Cuidadora reporta malestar repentino',
+        Math.random() > 0.7 ? 'Encontrado' : 'Buscando', Math.floor(Math.random() * 3600) + 120,
+        Math.floor(Math.random() * 20) + 1
+      );
+    }
+  }
+
+  // ========== REPORTES DIARIOS (adicional) ==========
+  if (db.prepare('SELECT COUNT(*) AS c FROM ReportesDiarios').get().c < 5) {
+    const ordenes = db.prepare("SELECT Id, IdCuidadora, IdMenor FROM Ordenes WHERE IdMenor IS NOT NULL LIMIT 3").all();
+    const estadosGen = ['Excelente', 'Bueno', 'Regular', 'Requiere Observacion'];
+    for (const o of ordenes) {
+      const existentes = db.prepare('SELECT COUNT(*) AS c FROM ReportesDiarios WHERE IdOrden = ?').get(o.Id).c;
+      if (existentes === 0) {
+        db.prepare("INSERT INTO ReportesDiarios (IdOrden, IdCuidadora, IdMenor, EstadoGeneral, Alimentacion, Medicamentos, ActividadesRealizadas, Observaciones, FechaReporte, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, date('now', '-? days'), datetime('now', '-? days'))").run(
+          o.Id, o.IdCuidadora, o.IdMenor,
+          estadosGen[Math.floor(Math.random() * estadosGen.length)],
+          Math.random() > 0.5 ? 'Comio bien toda la porcion' : 'Comio la mitad de la porcion',
+          Math.random() > 0.7 ? 'Vitamina D recetada' : 'Ninguno',
+          Math.random() > 0.5 ? 'Juego libre, lectura' : 'Terapia sensorial, ejercicios de motricidad',
+          Math.random() > 0.5 ? 'Sin novedades' : 'Tuvo un buen dia',
+          Math.floor(Math.random() * 7) + 1, Math.floor(Math.random() * 7) + 1
+        );
+      }
+    }
+  }
+
   // Migraciones
   try { db.prepare(`ALTER TABLE Cuidadoras ADD COLUMN Zona TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN IdMenor INTEGER REFERENCES Menores(Id)`).run(); } catch(e) {}
