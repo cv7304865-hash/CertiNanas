@@ -380,7 +380,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
 
                       <div className="flex items-center justify-between bg-[rgba(255,255,255,0.04)] rounded-xl px-4 py-3 mb-3">
                         <span className="text-xs text-[#F5D5E0]/60">{s.TotalHoras}h × S/ {s.TarifaHora}/h</span>
-                        <span className="text-lg font-bold text-white">S/ {s.Total.toFixed(2)}</span>
+                        <span className="text-lg font-bold text-white">S/ {(s.Total ?? 0).toFixed(2)}</span>
                       </div>
 
                       {/* Escrow Lifecycle */}
@@ -672,9 +672,9 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div><span className="text-[#6667AB]">Horas:</span> <span className="text-white">{detalleModal.item.TotalHoras}h</span></div>
                         <div><span className="text-[#6667AB]">Tarifa:</span> <span className="text-white">S/ {detalleModal.item.TarifaHora}/h</span></div>
-                        <div><span className="text-[#6667AB]">Subtotal:</span> <span className="text-white">S/ {detalleModal.item.Subtotal.toFixed(2)}</span></div>
-                        <div><span className="text-[#6667AB]">Comisión:</span> <span className="text-white">S/ {detalleModal.item.TarifaPlataforma.toFixed(2)}</span></div>
-                        <div className="col-span-2"><span className="text-[#6667AB]">Total:</span> <span className="text-white font-bold">S/ {detalleModal.item.Total.toFixed(2)}</span></div>
+                        <div><span className="text-[#6667AB]">Subtotal:</span> <span className="text-white">S/ {(detalleModal.item.Subtotal ?? 0).toFixed(2)}</span></div>
+                        <div><span className="text-[#6667AB]">Comisión:</span> <span className="text-white">S/ {(detalleModal.item.TarifaPlataforma ?? 0).toFixed(2)}</span></div>
+                        <div className="col-span-2"><span className="text-[#6667AB]">Total:</span> <span className="text-white font-bold">S/ {(detalleModal.item.Total ?? 0).toFixed(2)}</span></div>
                       </div>
                       {detalleModal.item.MenorNombre && (
                         <div className="mt-3 pt-3 border-t border-[rgba(255,255,255,0.06)] text-xs">

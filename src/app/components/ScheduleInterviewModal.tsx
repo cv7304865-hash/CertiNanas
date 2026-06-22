@@ -114,9 +114,9 @@ export function ScheduleInterviewModal({ cuidadora, userId, onClose, onSuccess }
                     <span className="text-[#6667AB]">·</span>
                     <span className="flex items-center gap-0.5">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className={`w-3 h-3 ${i < Math.round(cuidadora.CalificacionPromedio) ? 'text-[#cc8db3] fill-[#cc8db3]' : 'text-[#6667AB]'}`} />
+                        <Star key={i} className={`w-3 h-3 ${i < Math.round(cuidadora.CalificacionPromedio ?? 0) ? 'text-[#cc8db3] fill-[#cc8db3]' : 'text-[#6667AB]'}`} />
                       ))}
-                      <span className="ml-0.5">{cuidadora.CalificacionPromedio.toFixed(1)}</span>
+                      <span className="ml-0.5">{(cuidadora.CalificacionPromedio ?? 0).toFixed(1)}</span>
                     </span>
                   </div>
                 </div>

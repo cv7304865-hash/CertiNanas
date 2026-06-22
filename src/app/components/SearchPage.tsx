@@ -166,7 +166,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                     {[1, 2, 3, 4, 5].map(j => (
                       <Star key={j} className={`w-4 h-4 ${j <= Math.round(c.CalificacionPromedio) ? 'text-[#CC8DB3] fill-[#CC8DB3]' : 'text-gray-200'}`} />
                     ))}
-                    <span className="text-sm text-[#6667AB] ml-1">{c.CalificacionPromedio.toFixed(1)}</span>
+                    <span className="text-sm text-[#6667AB] ml-1">{(c.CalificacionPromedio ?? 0).toFixed(1)}</span>
                   </div>
                   <p className="text-lg font-bold text-[#F6A5C0] mt-2">S/ {c.TarifaHora}/h</p>
                 </div>
@@ -242,8 +242,8 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                         <p className="text-xs text-[#6667AB]">Servicios</p>
                       </div>
                       <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-3 text-center">
-                        <p className="text-2xl font-bold text-white">{selectedNana.CalificacionPromedio.toFixed(1)}</p>
-                        <p className="text-xs text-[#6667AB]">Calificación</p>
+<p className="text-2xl font-bold text-white">{(selectedNana.CalificacionPromedio ?? 0).toFixed(1)}</p>
+                         <p className="text-xs text-[#6667AB]">Calificación</p>
                       </div>
                     </div>
 
@@ -388,7 +388,7 @@ export function SearchPage({ onNavigate }: { onNavigate?: (v: string) => void })
                         <Star key={j} className={`w-4 h-4 ${j <= Math.round(selectedNana.CalificacionPromedio) ? 'text-[#CC8DB3] fill-[#CC8DB3]' : 'text-[#6667AB]'}`} />
                       ))}
                     </div>
-                    <span className="text-sm text-[#6667AB]">{selectedNana.CalificacionPromedio.toFixed(1)} · {selectedNana.TotalResenas} reseñas</span>
+                    <span className="text-sm text-[#6667AB]">{(selectedNana.CalificacionPromedio ?? 0).toFixed(1)} · {selectedNana.TotalResenas} reseñas</span>
                   </div>
                 )}
 
