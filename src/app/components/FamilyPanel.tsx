@@ -1139,6 +1139,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                     estado={contractViewData.orden?.Estado || contractViewData.Estado || ''}
                     firmadoFamilia={contractViewData.contrato?.AceptadoFamilia || false}
                     firmadoCuidadora={contractViewData.contrato?.AceptadoCuidadora || false}
+                    negociaciones={contractViewData.negociaciones || []}
                   />
                   <button onClick={() => { setShowContractFormat(false); setContractViewData(null); }}
                     className="mt-4 w-full py-3 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:opacity-90 transition-opacity"
@@ -1191,6 +1192,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                 estado={detalleData.Estado || ''}
                 firmadoFamilia={detalleData.contrato?.AceptadoFamilia || false}
                 firmadoCuidadora={detalleData.contrato?.AceptadoCuidadora || false}
+                negociaciones={detalleData.negociaciones || []}
               />
               <button onClick={() => setShowContractPreview(false)}
                 className="mt-4 w-full py-3 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:opacity-90 transition-opacity"

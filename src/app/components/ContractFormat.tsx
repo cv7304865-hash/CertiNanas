@@ -1,6 +1,13 @@
-import { FileSignature, Shield, CheckCircle, XCircle, Clock, User, Baby, DollarSign, Calendar } from 'lucide-react';
+import { FileSignature, Shield, CheckCircle, XCircle, Clock, User, Baby, DollarSign, Calendar, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 type TareaItem = { Id: number; Descripcion: string; Decision: string; Categoria?: string; EsPersonalizada?: boolean };
+
+type NegociacionItem = {
+  Id: number; IdOrden: number; IdPropuestoPor: number;
+  TarifaHora?: number; TotalHoras?: number; HoraInicio?: string; HoraFin?: string;
+  Mensaje?: string; Estado?: string; FechaCreacion?: string;
+  PropuestoPorNombres?: string; PropuestoPorApellidos?: string;
+};
 
 type ContractFormatProps = {
   codigo: string;
@@ -21,6 +28,7 @@ type ContractFormatProps = {
   estado: string;
   firmadoFamilia?: boolean;
   firmadoCuidadora?: boolean;
+  negociaciones?: NegociacionItem[];
 };
 
 export function ContractFormat(props: ContractFormatProps) {
@@ -133,9 +141,53 @@ export function ContractFormat(props: ContractFormatProps) {
           </div>
         </section>
 
-        {/* 4. TERMINOS ECONOMICOS */}
+        {/* 4. HISTORIAL DE NEGOCIACIÓN */}
+        {props.negociaciones && props.negociaciones.length > 0 && (
+          <section>
+            <h2 className="text-sm font-bold text-[#210635] border-b border-gray-200 pb-1 mb-3">4. HISTORIAL DE NEGOCIACIÓN Y RESOLUCIÓN</h2>
+            <div className="space-y-3 text-xs">
+              {props.negociaciones.map((n, i) => (
+                <div key={n.Id} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="w-3.5 h-3.5 text-[#7B337E]" />
+                      <span className="font-bold text-gray-700">
+                        {n.PropuestoPorNombres} {n.PropuestoPorApellidos}
+                      </span>
+                    </div>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      n.Estado === 'aceptada' ? 'bg-emerald-100 text-emerald-700' :
+                      n.Estado === 'rechazada' ? 'bg-red-100 text-red-700' :
+                      'bg-amber-100 text-amber-700'
+                    }`}>
+                      {n.Estado === 'aceptada' ? <ThumbsUp className="w-3 h-3" /> :
+                       n.Estado === 'rechazada' ? <ThumbsDown className="w-3 h-3" /> :
+                       <Clock className="w-3 h-3" />}
+                      {n.Estado === 'aceptada' ? 'Aceptada' :
+                       n.Estado === 'rechazada' ? 'Rechazada' : 'Pendiente'}
+                    </span>
+                  </div>
+                  {n.Mensaje && (
+                    <p className="text-gray-600 ml-5 mb-2 italic">"{n.Mensaje}"</p>
+                  )}
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 ml-5 text-gray-500">
+                    {n.TarifaHora != null && <span>Tarifa propuesta: <strong className="text-gray-700">S/ {n.TarifaHora}/h</strong></span>}
+                    {n.TotalHoras != null && <span>Horas propuestas: <strong className="text-gray-700">{n.TotalHoras}h</strong></span>}
+                    {n.HoraInicio && <span>Inicio propuesto: <strong className="text-gray-700">{n.HoraInicio}</strong></span>}
+                    {n.HoraFin && <span>Fin propuesto: <strong className="text-gray-700">{n.HoraFin}</strong></span>}
+                  </div>
+                </div>
+              ))}
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2 text-emerald-800 text-center">
+                <strong>Resolución:</strong> {props.firmadoFamilia && props.firmadoCuidadora ? 'Acuerdo mutuo alcanzado' : props.firmadoFamilia ? 'Aceptado por la familia, pendiente de la cuidadora' : props.firmadoCuidadora ? 'Aceptado por la cuidadora, pendiente de la familia' : 'En proceso de negociación'}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* 5. TERMINOS ECONOMICOS */}
         <section>
-          <h2 className="text-sm font-bold text-[#210635] border-b border-gray-200 pb-1 mb-3">4. TÉRMINOS ECONÓMICOS Y CUSTODIA EN ESCROW</h2>
+          <h2 className="text-sm font-bold text-[#210635] border-b border-gray-200 pb-1 mb-3">5. TÉRMINOS ECONÓMICOS Y CUSTODIA EN ESCROW</h2>
           <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-xs">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#7B337E]" />
@@ -158,7 +210,7 @@ export function ContractFormat(props: ContractFormatProps) {
 
         {/* 5. FIRMAS */}
         <section>
-          <h2 className="text-sm font-bold text-[#210635] border-b border-gray-200 pb-1 mb-3">5. FIRMAS DIGITALES</h2>
+          <h2 className="text-sm font-bold text-[#210635] border-b border-gray-200 pb-1 mb-3">6. FIRMAS DIGITALES</h2>
           <div className="grid grid-cols-2 gap-4 text-xs">
             <div className={`border rounded-lg p-3 ${props.firmadoFamilia ? 'border-emerald-300 bg-emerald-50' : 'border-gray-200 bg-gray-50'}`}>
               <div className="flex items-center gap-2 mb-1">
