@@ -245,12 +245,14 @@ router.get('/contratos', isAdmin, (req, res) => {
            u.Nombres AS FamiliaNombres, u.Apellidos AS FamiliaApellidos,
            uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
            m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico,
-           o.TipoServicio, o.TotalHoras, o.TarifaHora, o.Subtotal, o.TarifaPlataforma
+           o.TipoServicio, o.TotalHoras, o.TarifaHora, o.Subtotal, o.TarifaPlataforma,
+           ct.AceptadoFamilia, ct.AceptadoCuidadora
     FROM Ordenes o
     INNER JOIN Usuarios u ON u.Id = o.IdUsuarioFamilia
     INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
     INNER JOIN Usuarios uc ON uc.Id = c.IdUsuario
     LEFT JOIN Menores m ON m.Id = o.IdMenor
+    LEFT JOIN Contratos ct ON ct.IdOrden = o.Id
     ORDER BY o.Id ASC
   `).all();
   res.json(contratos);
@@ -262,12 +264,15 @@ router.get('/contratos/:id', isAdmin, (req, res) => {
   const orden = db.prepare(`
     SELECT o.*, u.Nombres AS FamiliaNombres, u.Apellidos AS FamiliaApellidos,
            uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
-           m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico
+           m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico,
+           ct.AceptadoFamilia, ct.AceptadoCuidadora,
+           ct.FechaAceptacionFamilia, ct.FechaAceptacionCuidadora
     FROM Ordenes o
     INNER JOIN Usuarios u ON u.Id = o.IdUsuarioFamilia
     INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
     INNER JOIN Usuarios uc ON uc.Id = c.IdUsuario
     LEFT JOIN Menores m ON m.Id = o.IdMenor
+    LEFT JOIN Contratos ct ON ct.IdOrden = o.Id
     WHERE o.Id = ?
   `).get(Number(req.params.id));
   if (!orden) return res.status(404).json({ error: 'Contrato no encontrado' });

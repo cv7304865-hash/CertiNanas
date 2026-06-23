@@ -14,12 +14,16 @@ type Contrato = {
   Subtotal: number; TarifaPlataforma: number;
   EstadoNegociacion?: string;
   requiere_mediacion_manual?: boolean;
+  AceptadoFamilia?: number;
+  AceptadoCuidadora?: number;
 };
 
 type DetalleContrato = Contrato & {
   tareas: { Id: number; Descripcion: string; Categoria?: string; Decision: string; EsPersonalizada: boolean }[];
   escrow: { Id: number; MontoTotal: number; MontoCuidadora: number; MontoPlataforma: number; Estado: string; FechaCreacion: string } | null;
   pago: { Id: number; MetodoPago: string; Estado: string; Monto: number; FechaPago: string } | null;
+  AceptadoFamilia?: number;
+  AceptadoCuidadora?: number;
 };
 
 export function AdminContratos() {
@@ -240,6 +244,18 @@ export function AdminContratos() {
                       <span className="text-[#6667AB]">Estado:</span>
                       <span className={`ml-1 inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusBadge(detalle.Estado)}`}>{detalle.Estado}</span>
                     </div>
+                    <div>
+                      <span className="text-[#6667AB]">Familia firma:</span>
+                      <span className={`ml-1 text-xs font-bold ${detalle.AceptadoFamilia ? 'text-emerald-300' : 'text-amber-300'}`}>
+                        {detalle.AceptadoFamilia ? 'Sí' : 'Pendiente'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[#6667AB]">Cuidadora firma:</span>
+                      <span className={`ml-1 text-xs font-bold ${detalle.AceptadoCuidadora ? 'text-emerald-300' : 'text-amber-300'}`}>
+                        {detalle.AceptadoCuidadora ? 'Sí' : 'Pendiente'}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -352,8 +368,8 @@ export function AdminContratos() {
               comision={showContract.TarifaPlataforma}
               tareas={detalle?.tareas || []}
               estado={showContract.Estado}
-              firmadoFamilia={showContract.Estado === 'Confirmada' || showContract.Estado === 'Completada' || showContract.Estado === 'Finalizada'}
-              firmadoCuidadora={showContract.Estado === 'Confirmada' || showContract.Estado === 'Completada' || showContract.Estado === 'Finalizada'}
+              firmadoFamilia={showContract.AceptadoFamilia === 1}
+              firmadoCuidadora={showContract.AceptadoCuidadora === 1}
             />
             <button onClick={() => setShowContract(null)}
               className="mt-4 w-full py-3 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:opacity-90 transition-opacity"

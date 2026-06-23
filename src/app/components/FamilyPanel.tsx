@@ -15,6 +15,7 @@ import { CrearSolicitud } from './CrearSolicitud';
 import { DocumentPreviewModal } from './DocumentPreviewModal';
 import { PaymentEscrow } from './PaymentEscrow';
 import { ContractFormat } from './ContractFormat';
+import { ErrorBoundary } from './ErrorBoundary';
 
 type Solicitud = {
   Id: number; FechaServicio: string; TotalHoras: number; TarifaHora: number;
@@ -399,10 +400,12 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
         {/* ═══ TAB 1: BUSCAR ═══ */}
         {activeTab === 'buscar' && (
           <div className="space-y-6">
-            <SearchPage inline onNavigate={(v) => {
-              if (v === 'familia') setActiveTab('familia');
-              else onNavigate?.(v);
-            }} />
+            <ErrorBoundary>
+              <SearchPage inline onNavigate={(v) => {
+                if (v === 'familia') setActiveTab('familia');
+                else onNavigate?.(v);
+              }} />
+            </ErrorBoundary>
           </div>
         )}
 
