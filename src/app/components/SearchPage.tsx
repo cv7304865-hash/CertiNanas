@@ -77,9 +77,11 @@ export function SearchPage({ onNavigate, inline }: { onNavigate?: (v: string) =>
 
   useEffect(() => {
     if (!user?.id) return;
-    fetch(`/api/matching/resultados/${user.id}`)
+    fetch(`/api/matching/resultados/${user.id}`, {
+      headers: { 'x-user-id': String(user.id) }
+    })
       .then(r => r.json())
-      .then((data: MatchingResult[]) => setMatching(data))
+      .then((data: any) => { if (Array.isArray(data)) setMatching(data); })
       .catch(() => {});
   }, [user?.id]);
 
