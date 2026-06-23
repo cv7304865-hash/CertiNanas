@@ -929,7 +929,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                         {detalleData.contrato.Terminos && (
                           <pre className="mt-3 text-[10px] text-[#6667AB] whitespace-pre-wrap max-h-32 overflow-y-auto bg-[rgba(33,6,53,0.3)] rounded-lg p-3">{detalleData.contrato.Terminos}</pre>
                         )}
-                        <button onClick={() => { setContractViewData(detalleData); setShowContractFormat(true); }}
+                        <button onClick={() => { setContractViewData(detalleData); setLoadingContract(false); setShowContractFormat(true); }}
                           className="mt-3 w-full py-2 rounded-lg bg-[#F6A5C0]/10 text-[#F6A5C0] text-xs font-bold hover:bg-[#F6A5C0]/20 transition-colors border border-[#F6A5C0]/30"
                         >Ver Contrato Completo</button>
                       </div>
@@ -1088,22 +1088,22 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
               ) : (
                 <>
                   <ContractFormat
-                    codigo={`CTN-2026-${String(contractViewData.orden.Id).padStart(4, '0')}`}
+                    codigo={`CTN-2026-${String(contractViewData.orden?.Id || contractViewData.Id || 0).padStart(4, '0')}`}
                     fechaEmision={new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}
                     familiaNombre={`${user?.nombres || ''} ${user?.apellidos || ''}`}
-                    cuidadoraNombre={`${contractViewData.orden.CuidadoraNombres || ''} ${contractViewData.orden.CuidadoraApellidos || ''}`}
-                    menorNombre={contractViewData.orden.MenorNombre || 'No especificado'}
-                    menorDiagnostico={contractViewData.orden.MenorDiagnostico || 'No especificado'}
-                    fechaServicio={contractViewData.orden.FechaServicio || ''}
-                    horaInicio={contractViewData.orden.HoraInicio || '--'}
-                    horaFin={contractViewData.orden.HoraFin || '--'}
-                    duracionHoras={contractViewData.orden.TotalHoras || 0}
-                    tarifaHora={contractViewData.orden.TarifaHora || 0}
-                    montoTotal={contractViewData.orden.Total || 0}
-                    subtotal={contractViewData.orden.Subtotal || 0}
-                    comision={contractViewData.orden.TarifaPlataforma || 0}
+                    cuidadoraNombre={`${contractViewData.orden?.CuidadoraNombres || contractViewData.CuidadoraNombres || ''} ${contractViewData.orden?.CuidadoraApellidos || contractViewData.CuidadoraApellidos || ''}`}
+                    menorNombre={contractViewData.orden?.MenorNombre || contractViewData.MenorNombre || 'No especificado'}
+                    menorDiagnostico={contractViewData.orden?.MenorDiagnostico || contractViewData.MenorDiagnostico || 'No especificado'}
+                    fechaServicio={contractViewData.orden?.FechaServicio || contractViewData.FechaServicio || ''}
+                    horaInicio={contractViewData.orden?.HoraInicio || contractViewData.HoraInicio || '--'}
+                    horaFin={contractViewData.orden?.HoraFin || contractViewData.HoraFin || '--'}
+                    duracionHoras={contractViewData.orden?.TotalHoras || contractViewData.TotalHoras || 0}
+                    tarifaHora={contractViewData.orden?.TarifaHora || contractViewData.TarifaHora || 0}
+                    montoTotal={contractViewData.orden?.Total || contractViewData.Total || 0}
+                    subtotal={contractViewData.orden?.Subtotal || contractViewData.Subtotal || 0}
+                    comision={contractViewData.orden?.TarifaPlataforma || contractViewData.TarifaPlataforma || 0}
                     tareas={contractViewData.tareas || []}
-                    estado={contractViewData.orden.Estado || ''}
+                    estado={contractViewData.orden?.Estado || contractViewData.Estado || ''}
                     firmadoFamilia={contractViewData.contrato?.AceptadoFamilia || false}
                     firmadoCuidadora={contractViewData.contrato?.AceptadoCuidadora || false}
                   />
