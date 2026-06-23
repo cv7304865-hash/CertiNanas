@@ -606,6 +606,78 @@ class AdminController
     // ========================================================================
     //  REPORTES mejorados (para dashboard)
     // ========================================================================
+    // ========================================================================
+    //  VISTO BUENO RAPIDO
+    // ========================================================================
+    public function vistoBuenoRapido(int $ordenId): void
+    {
+        $this->requireAdmin();
+        $orden = Database::fetchOne('SELECT * FROM Ordenes WHERE Id = ?', [$ordenId]);
+        if (!$orden) Response::notFound('Orden no encontrada');
+
+        Database::getConnection()->beginTransaction();
+        try {
+            // Generar contrato digital
+            $codigo = 'CTN-2026-' . str_pad((string)$ordenId, 4, '0', STR_PAD_LEFT);
+            $contratoId = Database::insert('Contratos', [
+                'IdOrden' => $ordenId,
+                'Terminos' => 'Contrato aprobado via Visto Bueno Rapido',
+                'AceptadoFamilia' => 1,
+                'AceptadoCuidadora' => 1,
+                'FechaAceptacionFamilia' => date('Y-m-d H:i:s'),
+                'FechaAceptacionCuidadora' => date('Y-m-d H:i:s'),
+            ]);
+            Database::insert('ContratosDigitales', [
+                'IdOrden' => $ordenId,
+                'CodigoContrato' => $codigo,
+                'FechaEmision' => date('Y-m-d H:i:s'),
+                'Estado' => 'Completado',
+            ]);
+            // Actualizar estados
+            Database::update('Ordenes', [
+                'EstadoNegociacion' => 'Acordado',
+                'Estado' => 'Confirmada',
+                'ConfirmadaFamilia' => 1,
+                'ConfirmadaCuidadora' => 1,
+            ], 'Id = ?', [$ordenId]);
+            // Liberar escrow
+            Database::update('Escrow', ['Estado' => 'Liberado', 'FechaLiberacion' => date('Y-m-d H:i:s')], 'IdOrden = ?', [$ordenId]);
+            Database::insert('Auditoria', [
+                'IdUsuario' => $_SERVER['HTTP_X_ADMIN_USER'] ?? null,
+                'Accion' => 'VB_RAPIDO',
+                'Entidad' => 'Ordenes',
+                'IdEntidad' => $ordenId,
+                'Detalle' => 'Visto Bueno Rapido - aprobacion inmediata',
+            ]);
+            Database::commit();
+        } catch (Exception $e) {
+            Database::getConnection()->rollBack();
+            Response::error('Error en Vb Rapido: ' . $e->getMessage(), 500);
+        }
+        Response::success(null, 'Visto Bueno otorgado correctamente');
+    }
+
+    public function guardarAcuerdoNegociacion(int $ordenId, array $body): void
+    {
+        $this->requireAdmin();
+        $acuerdo = $body['acuerdo'] ?? '';
+        if (!$acuerdo) Response::error('Texto de acuerdo requerido');
+
+        Database::update('Ordenes', [
+            'EstadoNegociacion' => 'Acordado',
+            'Estado' => 'Confirmada',
+        ], 'Id = ?', [$ordenId]);
+
+        Database::insert('Auditoria', [
+            'IdUsuario' => $_SERVER['HTTP_X_ADMIN_USER'] ?? null,
+            'Accion' => 'GUARDAR_ACUERDO',
+            'Entidad' => 'Ordenes',
+            'IdEntidad' => $ordenId,
+            'Detalle' => mb_substr($acuerdo, 0, 500),
+        ]);
+        Response::success(null, 'Acuerdo guardado');
+    }
+
     public function getReportesFull(): void
     {
         $this->requireAdmin();

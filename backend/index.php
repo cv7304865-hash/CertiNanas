@@ -119,6 +119,9 @@ try {
     if ($uri === '/api/categorias' && $method === 'GET') {
         $tareasCtrl->getCategorias();
     }
+    if ($uri === '/api/tareas/categorias' && $method === 'GET') {
+        $tareasCtrl->getCategorias();
+    }
     if ($uri === '/api/tareas' && $method === 'GET') {
         $tareasCtrl->getTareasAll();
     }
@@ -131,25 +134,44 @@ try {
     if (preg_match('#^/api/orden/(\d+)/tareas$#', $uri, $m) && $method === 'POST') {
         $tareasCtrl->saveOrdenTareas((int)$m[1], $body);
     }
+    // CAREGIVER: enviar matriz de decisiones sobre tareas
+    if ($uri === '/api/negociacion' && $method === 'POST') {
+        $tareasCtrl->enviarRespuestaNegociacionBody($body);
+    }
+    // CAREGIVER: aceptar orden directamente
+    if (preg_match('#^/api/cuidadora/orden/(\d+)/aceptar-negociacion$#', $uri, $m) && $method === 'POST') {
+        $tareasCtrl->aceptarOrden((int)$m[1]);
+    }
+    // CAREGIVER: rechazar orden
+    if (preg_match('#^/api/cuidadora/orden/(\d+)/rechazar-negociacion$#', $uri, $m) && $method === 'POST') {
+        $tareasCtrl->rechazarOrden((int)$m[1], $body);
+    }
+    // CAREGIVER: ver solicitudes pendientes con negociacion
     if ($uri === '/api/cuidadora/solicitudes-pendientes' && $method === 'GET') {
         $tareasCtrl->solicitudesPendientesCuidadora();
     }
-    if (preg_match('#^/api/negociacion/(\d+)/responder$#', $uri, $m) && $method === 'POST') {
-        $tareasCtrl->enviarRespuestaNegociacion((int)$m[1], $body);
-    }
-    if (preg_match('#^/api/orden/(\d+)/aceptar$#', $uri, $m) && $method === 'POST') {
-        $tareasCtrl->aceptarOrden((int)$m[1]);
-    }
-    if (preg_match('#^/api/orden/(\d+)/rechazar$#', $uri, $m) && $method === 'POST') {
-        $tareasCtrl->rechazarOrden((int)$m[1], $body);
-    }
+    // FAMILY: ver negociaciones activas
     if ($uri === '/api/familia/negociaciones' && $method === 'GET') {
         $tareasCtrl->getNegociacionesFamilia();
     }
+    // FAMILY: responder a una negociacion
+    if (preg_match('#^/api/familia/negociacion/(\d+)/responder$#', $uri, $m) && $method === 'POST') {
+        $tareasCtrl->responderNegociacionFamilia((int)$m[1], $body);
+    }
+    // FAMILY: ver historial de negociaciones de una orden
+    if (preg_match('#^/api/familia/orden/(\d+)/propuestas$#', $uri, $m) && $method === 'GET') {
+        $tareasCtrl->getPropuestasOrden((int)$m[1]);
+    }
+    // CAREGIVER: ver historial de negociaciones de una orden
+    if (preg_match('#^/api/cuidadora/orden/(\d+)/propuestas$#', $uri, $m) && $method === 'GET') {
+        $tareasCtrl->getPropuestasOrden((int)$m[1]);
+    }
+    // ADMIN: ver todas las negociaciones
     if ($uri === '/api/admin/negociaciones' && $method === 'GET') {
         $tareasCtrl->getNegociacionesAdmin();
     }
-    if (preg_match('#^/api/negociacion/(\d+)/mediar$#', $uri, $m) && $method === 'POST') {
+    // ADMIN: mediar en una negociacion
+    if (preg_match('#^/api/admin/negociaciones/(\d+)/mediar$#', $uri, $m) && $method === 'POST') {
         $tareasCtrl->mediarNegociacion((int)$m[1], $body);
     }
 
@@ -280,6 +302,14 @@ try {
     }
     if ($uri === '/api/admin/reportes/full' && $method === 'GET') {
         $adminCtrl->getReportesFull();
+    }
+    // ADMIN: Visto Bueno Rapido
+    if (preg_match('#^/api/admin/visto-bueno/(\d+)$#', $uri, $m) && $method === 'POST') {
+        $adminCtrl->vistoBuenoRapido((int)$m[1]);
+    }
+    // ADMIN: guardar acuerdo de negociacion
+    if (preg_match('#^/api/admin/negociaciones/(\d+)/acuerdo$#', $uri, $m) && $method === 'POST') {
+        $adminCtrl->guardarAcuerdoNegociacion((int)$m[1], $body);
     }
 
     // ============================================================

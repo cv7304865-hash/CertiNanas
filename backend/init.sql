@@ -701,6 +701,7 @@ CREATE TABLE HistorialReputacion (
 -- MIGRACIONES DE COLUMNAS
 -- ============================================================
 ALTER TABLE Ordenes ADD COLUMN EstadoNegociacion VARCHAR(20) DEFAULT 'Pendiente' AFTER Estado;
+ALTER TABLE Negociaciones ADD COLUMN requiere_mediacion_manual BOOLEAN DEFAULT TRUE AFTER Estado;
 ALTER TABLE Ordenes ADD COLUMN CheckInLatitud DECIMAL(10,7) AFTER FechaFinalizacion;
 ALTER TABLE Ordenes ADD COLUMN CheckInLongitud DECIMAL(10,7) AFTER CheckInLatitud;
 ALTER TABLE Ordenes ADD COLUMN CheckOutLatitud DECIMAL(10,7) AFTER CheckInLongitud;
@@ -718,6 +719,25 @@ INSERT INTO NivelesReputacion (Nombre, PuntajeMinimo, PuntajeMaximo, Color, Orde
 ('Oro', 400, 599, '#FFD700', 3),
 ('Platino', 600, 799, '#E5E4E2', 4),
 ('Élite', 800, 9999, '#F6A5C0', 5);
+
+-- ============================================================
+-- TAREAS CATEGORIAS Y TAREAS (CATALOGO MAESTRO)
+-- ============================================================
+INSERT INTO TareasCategoria (Nombre, Orden) VALUES
+('Soporte Clínico y Conductual Especializado', 1),
+('Estimulación y Aprendizaje Pedagógico', 2),
+('Asistencia en Autonomía y Cuidado Diario', 3);
+
+INSERT INTO Tareas (IdCategoria, Descripcion, Orden) VALUES
+(1, 'Regulación y contención de crisis conductuales agudas (específico para TEA / TDAH)', 1),
+(1, 'Suministro, dosificación y registro de medicación neurológica/médica bajo receta', 2),
+(1, 'Acompañamiento, monitoreo y asistencia física en terapias externas (Ocupacional, Lenguaje, Física)', 3),
+(2, 'Ejecución de planes de estimulación cognitiva y sensorial adaptada según diagnóstico clínico', 1),
+(2, 'Guía y supervisión y apoyo en tareas escolares bajo metodologías adaptadas de aprendizaje', 2),
+(2, 'Implementación de rutinas con pictogramas y agendas visuales estructuradas de organización', 3),
+(3, 'Entrenamiento y asistencia guiada en el control de esfínteres e higiene personal', 1),
+(3, 'Preparación, asistencia y alimentación con dietas restringidas (texturas especiales, libre de gluten/caseína)', 2),
+(3, 'Supervisión de higiene general, vestimenta autónoma y transferencia física segura', 3);
 
 INSERT INTO Capacitaciones (Titulo, Descripcion, TipoContenido, DuracionMinutos, Categoria) VALUES
 ('Introducción al Cuidado de Niños con TEA', 'Aprende las bases del Trastorno del Espectro Autista y estrategias de cuidado diario.', 'Video', 45, 'TEA'),

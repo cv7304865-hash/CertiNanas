@@ -1,7 +1,8 @@
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { FileText, CheckCircle, XCircle, Eye, ListTodo, DollarSign, Clock, CreditCard, Smartphone, Loader } from 'lucide-react';
+import { FileText, CheckCircle, XCircle, Eye, ListTodo, DollarSign, Clock, CreditCard, Smartphone, Loader, ThumbsUp, FileSignature } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { ContractFormat } from './ContractFormat';
 
 type Contrato = {
   Id: number; FechaServicio: string; HoraInicio: string; HoraFin: string;
@@ -11,6 +12,8 @@ type Contrato = {
   MenorNombre: string | null; MenorDiagnostico: string | null;
   TipoServicio: string; TotalHoras: number; TarifaHora: number;
   Subtotal: number; TarifaPlataforma: number;
+  EstadoNegociacion?: string;
+  requiere_mediacion_manual?: boolean;
 };
 
 type DetalleContrato = Contrato & {
@@ -44,6 +47,17 @@ export function AdminContratos() {
     const r = await fetch(`/api/admin/contratos/${id}/rechazar`, { method: 'PUT', headers });
     if (r.ok) setContratos(prev => prev.map(c => c.Id === id ? { ...c, Estado: 'Cancelada' } : c));
   };
+
+  const handleVbRapido = async (id: number) => {
+    const r = await fetch(`/api/admin/visto-bueno/${id}`, { method: 'POST', headers });
+    if (r.ok) {
+      setContratos(prev => prev.map(c => c.Id === id ? { ...c, Estado: 'Confirmada', EstadoNegociacion: 'Acordado' } : c));
+      setMessage('Visto Bueno otorgado');
+    }
+  };
+
+  const [message, setMessage] = useState<string | null>(null);
+  const [showContract, setShowContract] = useState<Contrato | null>(null);
 
   const formatFecha = (f: string) => {
     if (!f) return '--';
@@ -90,6 +104,12 @@ export function AdminContratos() {
           <p className="text-2xl font-bold text-emerald-400 mt-1">{contratos.filter(c => c.Estado === 'Completada' || c.Estado === 'Finalizada').length}</p>
         </div>
       </div>
+
+      {message && (
+        <div className="mb-4 px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-200 text-sm font-semibold">
+          {message}
+        </div>
+      )}
 
       {loading ? (
         <p className="text-[#6667AB]">Cargando contratos...</p>
@@ -146,8 +166,20 @@ export function AdminContratos() {
                       >
                         <Eye className="w-3 h-3 inline mr-1" /> Ver
                       </button>
+                      <button onClick={() => setShowContract(c)}
+                        className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#CC8DB3] hover:bg-[#CC8DB3]/10 transition-colors"
+                      >
+                        <FileSignature className="w-3 h-3 inline mr-1" /> Contrato
+                      </button>
                       {c.Estado === 'Pendiente' && (
                         <>
+                          {c.requiere_mediacion_manual === false && (
+                            <button onClick={() => handleVbRapido(c.Id)}
+                              className="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/30"
+                            >
+                              <ThumbsUp className="w-3 h-3 inline mr-1" /> Aprobación Inmediata (Vb Rápido)
+                            </button>
+                          )}
                           <button onClick={() => handleAprobar(c.Id)}
                             className="px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-300 hover:bg-emerald-500/10 transition-colors"
                           >
@@ -292,6 +324,45 @@ export function AdminContratos() {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Contract Format Modal */}
+      {showContract && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={() => setShowContract(null)}
+        >
+          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+            className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <ContractFormat
+              codigo={`CTN-2026-${String(showContract.Id).padStart(4, '0')}`}
+              fechaEmision={new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}
+              familiaNombre={`${showContract.FamiliaNombres} ${showContract.FamiliaApellidos}`}
+              cuidadoraNombre={`${showContract.CuidadoraNombres} ${showContract.CuidadoraApellidos}`}
+              menorNombre={showContract.MenorNombre || 'No especificado'}
+              menorDiagnostico={showContract.MenorDiagnostico || 'No especificado'}
+              fechaServicio={showContract.FechaServicio}
+              horaInicio={showContract.HoraInicio}
+              horaFin={showContract.HoraFin}
+              duracionHoras={showContract.TotalHoras}
+              tarifaHora={showContract.TarifaHora}
+              montoTotal={showContract.Total}
+              subtotal={showContract.Subtotal}
+              comision={showContract.TarifaPlataforma}
+              tareas={detalle?.tareas || []}
+              estado={showContract.Estado}
+              firmadoFamilia={showContract.Estado === 'Confirmada' || showContract.Estado === 'Completada' || showContract.Estado === 'Finalizada'}
+              firmadoCuidadora={showContract.Estado === 'Confirmada' || showContract.Estado === 'Completada' || showContract.Estado === 'Finalizada'}
+            />
+            <button onClick={() => setShowContract(null)}
+              className="mt-4 w-full py-3 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:opacity-90 transition-opacity"
+            >Cerrar</button>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {message && setTimeout(() => setMessage(null), 3000)}
     </div>
   );
 }
