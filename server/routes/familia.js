@@ -370,67 +370,72 @@ router.post('/crear-solicitud', (req, res) => {
 
 // GET /api/familia/solicitudes/:id/detalle — detalle completo con tareas, negociaciones, cancelación
 router.get('/solicitudes/:id/detalle', (req, res) => {
-  const db = getDb();
-  const userId = Number(req.headers['x-user-id']);
-  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+  try {
+    const db = getDb();
+    const userId = Number(req.headers['x-user-id']);
+    if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
 
-  const orden = db.prepare(`
-    SELECT o.*, u.Nombres AS CuidadoraNombres, u.Apellidos AS CuidadoraApellidos,
-           m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico
-    FROM Ordenes o
-    INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
-    INNER JOIN Usuarios u ON u.Id = c.IdUsuario
-    LEFT JOIN Menores m ON m.Id = o.IdMenor
-    WHERE o.Id = ? AND o.IdUsuarioFamilia = ?
-  `).get(Number(req.params.id), userId);
+    const orden = db.prepare(`
+      SELECT o.*, u.Nombres AS CuidadoraNombres, u.Apellidos AS CuidadoraApellidos,
+             m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico
+      FROM Ordenes o
+      INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+      INNER JOIN Usuarios u ON u.Id = c.IdUsuario
+      LEFT JOIN Menores m ON m.Id = o.IdMenor
+      WHERE o.Id = ? AND o.IdUsuarioFamilia = ?
+    `).get(Number(req.params.id), userId);
 
-  if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+    if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
 
-  // Tareas con decisión
-  const tareas = db.prepare(`
-    SELECT ot.Id, t.Descripcion, ot.Decision FROM OrdenTareas ot
-    INNER JOIN Tareas t ON t.Id = ot.IdTarea
-    WHERE ot.IdOrden = ?
-  `).all(orden.Id);
-  const tareasPersonalizadas = db.prepare(`
-    SELECT Id, Descripcion, Decision FROM OrdenTareasPersonalizadas WHERE IdOrden = ?
-  `).all(orden.Id);
+    // Tareas con decisión
+    const tareas = db.prepare(`
+      SELECT ot.Id, t.Descripcion, ot.Decision FROM OrdenTareas ot
+      INNER JOIN Tareas t ON t.Id = ot.IdTarea
+      WHERE ot.IdOrden = ?
+    `).all(orden.Id);
+    const tareasPersonalizadas = db.prepare(`
+      SELECT Id, Descripcion, Decision FROM OrdenTareasPersonalizadas WHERE IdOrden = ?
+    `).all(orden.Id);
 
-  // Contrato
-  const contrato = db.prepare('SELECT * FROM Contratos WHERE IdOrden = ?').get(orden.Id);
+    // Contrato
+    const contrato = db.prepare('SELECT * FROM Contratos WHERE IdOrden = ?').get(orden.Id);
 
-  // Negociaciones
-  const negociaciones = db.prepare(`
-    SELECT n.*, u.Nombres AS PropuestoPorNombres, u.Apellidos AS PropuestoPorApellidos
-    FROM Negociaciones n
-    INNER JOIN Usuarios u ON u.Id = n.IdPropuestoPor
-    WHERE n.IdOrden = ?
-    ORDER BY n.FechaCreacion DESC
-  `).all(orden.Id);
+    // Negociaciones
+    const negociaciones = db.prepare(`
+      SELECT n.*, u.Nombres AS PropuestoPorNombres, u.Apellidos AS PropuestoPorApellidos
+      FROM Negociaciones n
+      INNER JOIN Usuarios u ON u.Id = n.IdPropuestoPor
+      WHERE n.IdOrden = ?
+      ORDER BY n.FechaCreacion DESC
+    `).all(orden.Id);
 
-  // Motivo cancelación
-  const cancelReason = db.prepare(`
-    SELECT Descripcion FROM Auditoria
-    WHERE IdEntidad = ? AND (Accion LIKE '%cancel%' OR Accion LIKE '%rechaz%')
-    ORDER BY Fecha DESC LIMIT 1
-  `).get(orden.Id);
+    // Motivo cancelación
+    const cancelReason = db.prepare(`
+      SELECT Descripcion FROM Auditoria
+      WHERE IdEntidad = ? AND (Accion LIKE '%cancel%' OR Accion LIKE '%rechaz%')
+      ORDER BY Fecha DESC LIMIT 1
+    `).get(orden.Id);
 
-  // Reseñas
-  const resenas = db.prepare(`
-    SELECT Calificacion, Comentario, FechaCreacion FROM Resenas WHERE IdOrden = ?
-  `).all(orden.Id);
+    // Reseñas
+    const resenas = db.prepare(`
+      SELECT Calificacion, Comentario, FechaCreacion FROM Resenas WHERE IdOrden = ?
+    `).all(orden.Id);
 
-  res.json({
-    ...orden,
-    tareas: [
-      ...tareas.map(t => ({ ...t, EsPersonalizada: false })),
-      ...tareasPersonalizadas.map(t => ({ ...t, EsPersonalizada: true })),
-    ],
-    contrato,
-    negociaciones,
-    motivoCancelacion: cancelReason?.Descripcion || null,
-    resenas,
-  });
+    res.json({
+      ...orden,
+      tareas: [
+        ...tareas.map(t => ({ ...t, EsPersonalizada: false })),
+        ...tareasPersonalizadas.map(t => ({ ...t, EsPersonalizada: true })),
+      ],
+      contrato,
+      negociaciones,
+      motivoCancelacion: cancelReason?.Descripcion || null,
+      resenas,
+    });
+  } catch (e) {
+    console.error('DETALLE ERROR:', e);
+    res.status(500).json({ error: e.message || 'Error interno' });
+  }
 });
 
 // Liberar pago (finalizar sin incidencia)
