@@ -402,7 +402,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
           <div className="space-y-6">
             <ErrorBoundary>
               <SearchPage inline onNavigate={(v) => {
-                if (v === 'familia') setActiveTab('familia');
+                if (v === 'familia') setActiveTab('servicios');
                 else onNavigate?.(v);
               }} />
             </ErrorBoundary>
