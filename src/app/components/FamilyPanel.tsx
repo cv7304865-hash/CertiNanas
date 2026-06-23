@@ -568,10 +568,6 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                             </td>
                             <td className="py-3 text-right">
                               <div className="flex items-center justify-end gap-1">
-                                <button onClick={() => setDetalleModal({ open: true, item: s })}
-                                  className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#F6A5C0] hover:bg-[#F6A5C0]/10 transition-colors"
-                                  title="Ver detalle"
-                                >Detalle</button>
                                 {s.Estado === 'Pendiente' && (
                                   <button onClick={() => pagarServicio(s.Id)}
                                     className="px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-300 hover:bg-emerald-500/10 transition-colors"
