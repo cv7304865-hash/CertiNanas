@@ -68,22 +68,14 @@ router.get('/postulaciones', isAdmin, (req, res) => {
   const db = getDb();
   const postulaciones = db.prepare(`
      SELECT p.Id, p.IdUsuario, p.FechaPostulacion, p.Estado, p.MotivoRechazo,
-            u.Nombres, u.Apellidos, u.Email,
-            (SELECT COUNT(*) FROM DocumentosPostulacion WHERE IdPostulacion = p.Id) AS TotalDocumentos,
-            (SELECT json_group_array(json_object('nombre', dp.TipoRequisito, 'motivo', dp.MotivoRechazo))
-             FROM DocumentosPostulacion dp
-             WHERE dp.IdPostulacion = p.Id AND dp.Estado = 'Rechazado' AND dp.MotivoRechazo IS NOT NULL
-            ) AS DocumentosRechazados
+            u.Nombres, u.Apellidos, u.Email
     FROM Postulaciones p
     INNER JOIN Usuarios u ON u.Id = p.IdUsuario
     ORDER BY p.FechaPostulacion DESC
   `).all();
   for (const p of postulaciones) {
-    if (p.DocumentosRechazados) {
-      try { p.DocumentosRechazados = JSON.parse(p.DocumentosRechazados); } catch(e) { p.DocumentosRechazados = []; }
-    } else {
-      p.DocumentosRechazados = [];
-    }
+    p.Documentos = db.prepare('SELECT Id, TipoRequisito, NombreArchivo, Peso, Estado, MotivoRechazo FROM DocumentosPostulacion WHERE IdPostulacion = ? ORDER BY TipoRequisito').all(p.Id);
+    p.TotalDocumentos = p.Documentos.length;
   }
   res.json(postulaciones);
 });
