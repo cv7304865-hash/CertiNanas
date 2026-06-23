@@ -1021,10 +1021,64 @@ const perfiles = [
       }
     }
 
+    // ========== 27. ORDENTAREAS POR DIAGNÓSTICO ==========
+    try {
+      const ordenesSinTareas = db.prepare(`
+        SELECT o.Id, o.Estado, m.Diagnostico
+        FROM Ordenes o
+        LEFT JOIN Menores m ON m.Id = o.IdMenor
+        WHERE o.Id NOT IN (SELECT DISTINCT IdOrden FROM OrdenTareas)
+      `).all();
+      const diagMap = [
+        { kw: 'tea', tasks: [1,2,3,4,5,6,7,8,9,10,29,33,38,39,40,42,43] },
+        { kw: 'autista', tasks: [1,2,3,4,5,6,7,8,9,10,29,33,38,39,40,42,43] },
+        { kw: 'autism', tasks: [1,2,3,4,5,6,7,8,9,10,29,33,38,39,40,42,43] },
+        { kw: 'asperger', tasks: [1,2,3,4,5,6,7,8,9,10,29,33,38,39,40,42,43] },
+        { kw: 'tdah', tasks: [11,12,13,14,15,16,17,18,27,33,34,36,37,39,40,43,44] },
+        { kw: 'hiperactividad', tasks: [11,12,13,14,15,16,17,18,27,33,34,36,37,39,40,43,44] },
+        { kw: 'deficit de atencion', tasks: [11,12,13,14,15,16,17,18,27,33,34,36,37,39,40,43,44] },
+        { kw: 'down', tasks: [19,20,21,22,23,24,25,26,29,33,34,35,37,39,40,41,44] },
+        { kw: 'paralisis', tasks: [19,20,21,22,25,27,28,29,30,31,32,38,39,40,41,42,43] },
+        { kw: 'cerebral', tasks: [19,20,21,22,25,27,28,29,30,31,32,38,39,40,41,42,43] },
+        { kw: 'lenguaje', tasks: [23,33,34,35,37,39,40,44,45] },
+        { kw: 'aprendizaje', tasks: [5,24,33,34,35,36,37,38,45] },
+        { kw: 'sensorial', tasks: [3,4,7,9,10,29,39,40,42,43] },
+        { kw: 'oposicionista', tasks: [6,11,16,17,37,40,43] },
+        { kw: 'ansiedad', tasks: [4,6,7,12,14,15,37,39,43,44] },
+        { kw: 'retraso', tasks: [19,20,21,23,24,33,37,39,40] },
+        { kw: 'hipoacusia', tasks: [23,33,34,37,39,40,45] },
+      ];
+      const defaultTasks = [33,37,39,40,42,44,27,29];
+      function matchTasks(diag) {
+        const d = (diag||'').toLowerCase();
+        for (const m of diagMap) { if (d.includes(m.kw)) return m.tasks; }
+        return defaultTasks;
+      }
+      function decision(estado, i, total) {
+        if (['Finalizada','Completada','En curso','Pagada'].includes(estado)) return 'Aceptar';
+        if (estado === 'Cancelada') return i % 2 === 0 ? 'Rechazar' : 'Aceptar';
+        if (estado === 'En revisión') {
+          if (i < Math.floor(total/2)) return 'Aceptar';
+          if (i < Math.floor(total*0.75)) return 'Negociar';
+          return 'Pendiente';
+        }
+        return 'Pendiente';
+      }
+      let n = 0;
+      for (const o of ordenesSinTareas) {
+        const tasks = matchTasks(o.Diagnostico);
+        if (tasks.length > 0) {
+          const stmt = db.prepare('INSERT OR IGNORE INTO OrdenTareas (IdOrden, IdTarea, Decision) VALUES (?, ?, ?)');
+          for (let i = 0; i < tasks.length; i++) { stmt.run(o.Id, tasks[i], decision(o.Estado, i, tasks.length)); n++; }
+        }
+      }
+      if (n) console.log(`OrdenTareas insertadas: ${n}`);
+    } catch(e) { console.log('Seed 27 (OrdenTareas) omitido:', e.message); }
+
     console.log('Enriquecimiento de datos completo.');
   } catch(e) { console.log('Seed 26 (Enriquecido) omitido:', e.message); console.error(e); }
 
-  // ========== 27. REPORTE ==========
+  // ========== 28. REPORTE ==========
   const stats = {
     usuarios: db.prepare('SELECT COUNT(*) AS c FROM Usuarios').get().c,
     cuidadoras: db.prepare('SELECT COUNT(*) AS c FROM Cuidadoras').get().c,
