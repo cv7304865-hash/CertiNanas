@@ -100,19 +100,6 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
   const [reputacion, setReputacion] = useState<ReputacionData | null>(null);
   const [capacitacion, setCapacitacion] = useState<CapacitacionData | null>(null);
 
-  // -- Contrato format modal --
-  const [loadingContract, setLoadingContract] = useState(false);
-  const handleViewContract = async (servicioId: number) => {
-    setLoadingContract(true);
-    setShowContractFormat(true);
-    setContractViewData(null);
-    try {
-      const r = await fetch(`/api/cuidadora/servicios/${servicioId}/detalle`, { headers });
-      if (r.ok) setContractViewData(await r.json());
-    } catch {}
-    setLoadingContract(false);
-  };
-
   // -- Stats for Dashboard tab --
   const [stats, setStats] = useState<StatsData | null>(null);
 
@@ -924,7 +911,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                         {detalleData.contrato.Terminos && (
                           <pre className="mt-3 text-[10px] text-[#6667AB] whitespace-pre-wrap max-h-40 overflow-y-auto bg-[rgba(33,6,53,0.3)] rounded-lg p-3">{detalleData.contrato.Terminos}</pre>
                         )}
-                        <button onClick={() => { if (detalleServicio) handleViewContract(detalleServicio.Id); }}
+                        <button onClick={() => { setContractViewData(detalleData); setShowContractFormat(true); }}
                           className="mt-3 w-full py-2 rounded-lg bg-[#F6A5C0]/10 text-[#F6A5C0] text-xs font-bold hover:bg-[#F6A5C0]/20 transition-colors border border-[#F6A5C0]/30"
                         >Ver Contrato Completo</button>
                       </div>
@@ -1002,7 +989,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
           <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            {loadingContract || !contractViewData ? (
+            {!contractViewData ? (
               <div className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] rounded-2xl p-12 text-center">
                 <div className="animate-spin w-8 h-8 border-2 border-[#F6A5C0] border-t-transparent rounded-full mx-auto mb-3" />
                 <p className="text-sm text-[#6667AB]">Cargando contrato...</p>
