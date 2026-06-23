@@ -368,4 +368,126 @@ router.post('/crear-solicitud', (req, res) => {
   res.json({ success: true, ordenId });
 });
 
+// GET /api/familia/solicitudes/:id/detalle — detalle completo con tareas, negociaciones, cancelación
+router.get('/solicitudes/:id/detalle', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+
+  const orden = db.prepare(`
+    SELECT o.*, u.Nombres AS CuidadoraNombres, u.Apellidos AS CuidadoraApellidos,
+           m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico
+    FROM Ordenes o
+    INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+    INNER JOIN Usuarios u ON u.Id = c.IdUsuario
+    LEFT JOIN Menores m ON m.Id = o.IdMenor
+    WHERE o.Id = ? AND o.IdUsuarioFamilia = ?
+  `).get(Number(req.params.id), userId);
+
+  if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+
+  // Tareas con decisión
+  const tareas = db.prepare(`
+    SELECT ot.Id, t.Descripcion, ot.Decision FROM OrdenTareas ot
+    INNER JOIN Tareas t ON t.Id = ot.IdTarea
+    WHERE ot.IdOrden = ?
+  `).all(orden.Id);
+  const tareasPersonalizadas = db.prepare(`
+    SELECT Id, Descripcion, Decision FROM OrdenTareasPersonalizadas WHERE IdOrden = ?
+  `).all(orden.Id);
+
+  // Contrato
+  const contrato = db.prepare('SELECT * FROM Contratos WHERE IdOrden = ?').get(orden.Id);
+
+  // Negociaciones
+  const negociaciones = db.prepare(`
+    SELECT n.*, u.Nombres AS PropuestoPorNombres, u.Apellidos AS PropuestoPorApellidos
+    FROM Negociaciones n
+    INNER JOIN Usuarios u ON u.Id = n.IdPropuestoPor
+    WHERE n.IdOrden = ?
+    ORDER BY n.FechaCreacion DESC
+  `).all(orden.Id);
+
+  // Motivo cancelación
+  const cancelReason = db.prepare(`
+    SELECT Descripcion FROM Auditoria
+    WHERE IdEntidad = ? AND (Accion LIKE '%cancel%' OR Accion LIKE '%rechaz%')
+    ORDER BY Fecha DESC LIMIT 1
+  `).get(orden.Id);
+
+  // Reseñas
+  const resenas = db.prepare(`
+    SELECT Calificacion, Comentario, FechaCreacion FROM Resenas WHERE IdOrden = ?
+  `).all(orden.Id);
+
+  res.json({
+    ...orden,
+    tareas: [
+      ...tareas.map(t => ({ ...t, EsPersonalizada: false })),
+      ...tareasPersonalizadas.map(t => ({ ...t, EsPersonalizada: true })),
+    ],
+    contrato,
+    negociaciones,
+    motivoCancelacion: cancelReason?.Descripcion || null,
+    resenas,
+  });
+});
+
+// Liberar pago (finalizar sin incidencia)
+router.post('/orden/:id/liberar-pago', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+
+  const orden = db.prepare('SELECT * FROM Ordenes WHERE Id = ? AND IdUsuarioFamilia = ?').get(Number(req.params.id), userId);
+  if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+  if (orden.Estado !== 'Completada' && orden.Estado !== 'Finalizada') {
+    return res.status(400).json({ error: 'El servicio debe estar completado' });
+  }
+
+  db.transaction(() => {
+    db.prepare("UPDATE Escrow SET Estado = 'Liberado', FechaLiberacion = datetime('now') WHERE IdOrden = ?").run(orden.Id);
+    db.prepare("UPDATE Ordenes SET Estado = 'Finalizada' WHERE Id = ?").run(orden.Id);
+    // Notificar a la cuidadora
+    const cuidadora = db.prepare('SELECT IdUsuario FROM Cuidadoras WHERE Id = ?').get(orden.IdCuidadora);
+    if (cuidadora) {
+      db.prepare("INSERT INTO Notificaciones (IdUsuarioDestino, Titulo, Descripcion, Tipo) VALUES (?, ?, ?, 'pago')").run(
+        cuidadora.IdUsuario, 'Pago liberado',
+        `El pago del servicio #${orden.Id} ha sido liberado.`
+      );
+    }
+    // Notificar al admin
+    const admins = db.prepare('SELECT Id FROM Usuarios WHERE IdRol = 1').all();
+    for (const a of admins) {
+      db.prepare("INSERT INTO Notificaciones (IdUsuarioDestino, Titulo, Descripcion, Tipo) VALUES (?, ?, ?, 'pago')").run(
+        a.Id, 'Pago liberado sin incidencias',
+        `Pago de orden #${orden.Id} liberado sin incidencias.`
+      );
+    }
+    audit(userId, 'liberar_pago', 'Ordenes', orden.Id, 'Pago liberado sin incidencias');
+  })();
+
+  res.json({ success: true });
+});
+
+// Reportar incidencia + finalizar con incidencia
+router.post('/reportar-incidencia', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'Se requiere x-user-id' });
+
+  const { ordenId, categoria, descripcion, finalizar } = req.body;
+
+  db.transaction(() => {
+    const r = db.prepare(`INSERT INTO Incidencias (IdReporto, IdOrden, Tipo, Descripcion, Estado)
+      VALUES (?, ?, ?, ?, 'Abierta')`).run(userId, ordenId || null, categoria || 'General', descripcion);
+    if (finalizar && ordenId) {
+      db.prepare("UPDATE Ordenes SET FinalizadaFamilia = 1, FechaFinalizacion = datetime('now'), Estado = 'Finalizada' WHERE Id = ?").run(ordenId);
+    }
+    audit(userId, 'reportar_incidencia', 'Incidencias', r.lastInsertRowid, descripcion?.slice(0, 200));
+  })();
+
+  res.json({ success: true });
+});
+
 export default router;

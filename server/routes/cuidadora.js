@@ -70,6 +70,85 @@ router.get('/servicios', isCaregiver, (req, res) => {
   res.json(rows);
 });
 
+// GET /api/cuidadora/servicios/:id/detalle — detalle completo con tareas, reseñas, cancelación
+router.get('/servicios/:id/detalle', isCaregiver, (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  const cuidadora = db.prepare('SELECT Id FROM Cuidadoras WHERE IdUsuario = ?').get(userId);
+  if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
+
+  const orden = db.prepare(`
+    SELECT o.*, uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos,
+           m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico
+    FROM Ordenes o
+    INNER JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
+    LEFT JOIN Menores m ON m.Id = o.IdMenor
+    WHERE o.Id = ? AND o.IdCuidadora = ?
+  `).get(Number(req.params.id), cuidadora.Id);
+
+  if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+
+  // Tareas estándar con decisión
+  const tareas = db.prepare(`
+    SELECT ot.Id, t.Descripcion, ot.Decision FROM OrdenTareas ot
+    INNER JOIN Tareas t ON t.Id = ot.IdTarea
+    WHERE ot.IdOrden = ?
+  `).all(orden.Id);
+
+  // Tareas personalizadas con decisión
+  const tareasPersonalizadas = db.prepare(`
+    SELECT Id, Descripcion, Decision FROM OrdenTareasPersonalizadas WHERE IdOrden = ?
+  `).all(orden.Id);
+
+  // Contrato
+  const contrato = db.prepare(`
+    SELECT Id, Terminos, AceptadoFamilia, AceptadoCuidadora, FechaAceptacionFamilia, FechaAceptacionCuidadora
+    FROM Contratos WHERE IdOrden = ?
+  `).get(orden.Id);
+
+  // Reseñas
+  const resenas = db.prepare(`
+    SELECT r.Calificacion, r.Comentario, r.FechaCreacion,
+           u.Nombres, u.Apellidos
+    FROM Resenas r
+    INNER JOIN Usuarios u ON u.Id = r.IdUsuarioFamilia
+    WHERE r.IdCuidadora = ? AND r.IdOrden = ?
+    ORDER BY r.FechaCreacion DESC
+  `).all(cuidadora.Id, orden.Id);
+
+  // Motivo de cancelación (de notificaciones o auditoría)
+  const cancelReason = db.prepare(`
+    SELECT Descripcion FROM Auditoria WHERE IdEntidad = ? AND TipoEntidad = 'Ordenes' AND Accion LIKE '%cancel%' OR Accion LIKE '%rechaz%'
+    ORDER BY Fecha DESC LIMIT 1
+  `).get(orden.Id);
+  // También buscar en notificaciones
+  const notifCancel = db.prepare(`
+    SELECT Descripcion FROM Notificaciones
+    WHERE Descripcion LIKE ? ORDER BY FechaCreacion DESC LIMIT 1
+  `).get(`%orden #${orden.Id}%cancel%`);
+
+  // Negociaciones
+  const negociaciones = db.prepare(`
+    SELECT n.*, u.Nombres AS PropuestoPorNombres, u.Apellidos AS PropuestoPorApellidos
+    FROM Negociaciones n
+    INNER JOIN Usuarios u ON u.Id = n.IdPropuestoPor
+    WHERE n.IdOrden = ?
+    ORDER BY n.FechaCreacion DESC
+  `).all(orden.Id);
+
+  res.json({
+    ...orden,
+    tareas: [
+      ...tareas.map(t => ({ ...t, EsPersonalizada: false })),
+      ...tareasPersonalizadas.map(t => ({ ...t, EsPersonalizada: true })),
+    ],
+    contrato,
+    resenas,
+    motivoCancelacion: cancelReason?.Descripcion || notifCancel?.Descripcion || null,
+    negociaciones,
+  });
+});
+
 // La cuidadora acepta el contrato digital (RN-13)
 router.post('/orden/:id/aceptar', isCaregiver, (req, res) => {
   const db = getDb();

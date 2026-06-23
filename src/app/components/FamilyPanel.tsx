@@ -4,10 +4,11 @@ import {
   LogOut, Search, MessageSquare, CheckCircle, XCircle, DollarSign, Clock, ListTodo,
   Calendar, Briefcase, Shield, Wallet, Eye, Plus, Edit3, Trash2, AlertTriangle, X,
   Baby, Lock, CreditCard, HelpCircle, ChevronDown, ChevronUp, Star, Send, User,
-  Phone, Mail, MapPin, Upload, FileText, Repeat, AlertCircle
+  Phone, Mail, MapPin, Upload, FileText, Repeat, AlertCircle, RefreshCw
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
+import { UserMenu } from './UserMenu';
 import { SearchPage } from './SearchPage';
 import { MinorsSection } from './MinorsSection';
 import { CrearSolicitud } from './CrearSolicitud';
@@ -93,6 +94,8 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
   // Tab - Servicios
   const [filtroEstado, setFiltroEstado] = useState('');
   const [detalleModal, setDetalleModal] = useState<{ open: boolean; item: Solicitud | null }>({ open: false, item: null });
+  const [detalleData, setDetalleData] = useState<any>(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
 
   // Tab - Perfil
   const [perfilForm, setPerfilForm] = useState({
@@ -158,6 +161,16 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
       const r = await fetch(`/api/matching/resultados/${user?.id}`, { headers });
       if (r.ok) setResultadosCompatibilidad(await r.json());
     } catch {}
+  };
+
+  const fetchDetalleCompleto = async (ordenId: number) => {
+    setCargandoDetalle(true);
+    setDetalleData(null);
+    try {
+      const r = await fetch(`/api/familia/solicitudes/${ordenId}/detalle`, { headers });
+      if (r.ok) setDetalleData(await r.json());
+    } catch {}
+    setCargandoDetalle(false);
   };
 
   useEffect(() => {
@@ -263,9 +276,11 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
     setSubmittingIncidencia(true);
     try {
       const formData = new FormData();
+      if (incidenciaModal.ordenId) formData.append('ordenId', String(incidenciaModal.ordenId));
       formData.append('categoria', incidenciaForm.categoria);
       formData.append('descripcion', incidenciaForm.descripcion);
       formData.append('archivo', incidenciaForm.archivo);
+      formData.append('finalizar', '1');
       await fetch(`/api/familia/reportar-incidencia`, {
         method: 'POST',
         headers: { 'x-user-id': String(user?.id) },
@@ -273,6 +288,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
       });
       setIncidenciaModal({ open: false, ordenId: null });
       setIncidenciaForm({ categoria: '', descripcion: '', archivo: null });
+      fetchAll();
     } catch {}
     setSubmittingIncidencia(false);
   };
@@ -296,6 +312,15 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
     localStorage.setItem('preselectCuidadoraId', String(s.CuidadoraId));
     localStorage.setItem('showCreateSolicitud', 'true');
     onNavigate?.('search');
+  };
+
+  const liberarPago = async (id: number) => {
+    await fetch(`/api/familia/orden/${id}/liberar-pago`, { method: 'POST', headers });
+    fetchAll();
+  };
+
+  const finalizarConIncidencia = async (id: number) => {
+    setIncidenciaModal({ open: true, ordenId: id });
   };
 
   if (loading) {
@@ -329,10 +354,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
               <span className="text-[#6667AB] text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <div className="flex items-center gap-2">
-              <ProfileAvatar size={36} className="ml-2" />
-              <button onClick={logout} className="p-2 hover:bg-[rgba(33,6,53,0.4)] rounded-lg transition-colors">
-                <LogOut className="w-4 h-4 text-[#6667AB]" />
-              </button>
+              <UserMenu onNavigate={(v) => { if (v === 'perfil') setActiveTab('perfil'); }} />
             </div>
           </div>
         </div>
@@ -543,13 +565,32 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                                     <button onClick={() => finalizarServicio(s.Id)}
                                       className="px-2 py-1 rounded-lg text-[10px] font-bold text-white hover:bg-[rgba(255,255,255,0.1)] transition-colors"
                                     >Finalizar</button>
+                                    <button onClick={() => finalizarConIncidencia(s.Id)}
+                                      className="px-2 py-1 rounded-lg text-[10px] font-bold text-red-300 hover:bg-red-500/10 transition-colors"
+                                    >Finalizar con incidencia</button>
                                   </>
                                 )}
                                 {(s.Estado === 'Completada' || s.Estado === 'Finalizada') && (
-                                  <button onClick={() => onReview?.(s.Id)}
-                                    className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#F6A5C0] hover:bg-[#F6A5C0]/10 transition-colors"
-                                  >Ver reseña</button>
+                                  <>
+                                    <button onClick={() => liberarPago(s.Id)}
+                                      className="px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+                                    >Liberar Pago</button>
+                                    <button onClick={() => onReview?.(s.Id)}
+                                      className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#F6A5C0] hover:bg-[#F6A5C0]/10 transition-colors"
+                                    >Ver reseña</button>
+                                    <button onClick={() => contratarDeNuevo(s)}
+                                      className="px-2 py-1 rounded-lg text-[10px] font-bold text-purple-300 hover:bg-purple-500/10 transition-colors"
+                                    >Contratar de nuevo</button>
+                                  </>
                                 )}
+                                {s.Estado !== 'Completada' && s.Estado !== 'Finalizada' && s.Estado !== 'Cancelada' && (
+                                  <button onClick={() => setIncidenciaModal({ open: true, ordenId: s.Id })}
+                                    className="px-2 py-1 rounded-lg text-[10px] font-bold text-red-300 hover:bg-red-500/10 transition-colors"
+                                  >Reportar incidencia</button>
+                                )}
+                                <button onClick={() => { setDetalleModal({ open: true, item: s }); fetchDetalleCompleto(s.Id); }}
+                                  className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#F6A5C0] hover:bg-[#F6A5C0]/10 transition-colors"
+                                >Detalle</button>
                                 <button onClick={() => onViewContract?.(s.Id)}
                                   className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#6667AB] hover:text-white transition-colors"
                                 >Contrato</button>
@@ -771,42 +812,162 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
         {detalleModal.open && detalleModal.item && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => { setDetalleModal({ open: false, item: null }); setDetalleData(null); }}
           >
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.12)] rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl"
+              className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.12)] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+              onClick={e => e.stopPropagation()}
             >
               <div className="p-6">
-                <button onClick={() => setDetalleModal({ open: false, item: null })}
+                <button onClick={() => { setDetalleModal({ open: false, item: null }); setDetalleData(null); }}
                   className="float-right p-1.5 hover:bg-[rgba(255,255,255,0.1)] rounded-lg transition-colors"
                 ><X className="w-4 h-4 text-[#6667AB]" /></button>
-                <h3 className="text-lg font-bold text-white mb-4">Detalle del Servicio</h3>
-                {detalleModal.item && (
-                  <div className="space-y-4">
-                    <div className="bg-[rgba(255,255,255,0.05)] rounded-xl p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-sm font-bold text-[#CC8DB3]">
-                          {(detalleModal.item.CuidadoraNombres?.charAt(0) || '') + (detalleModal.item.CuidadoraApellidos?.charAt(0) || '')}
-                        </div>
-                        <div>
-                          <p className="text-white font-bold">{detalleModal.item.CuidadoraNombres} {detalleModal.item.CuidadoraApellidos}</p>
-                          <p className="text-[#F5D5E0]/60 text-xs">{formatFecha(detalleModal.item.FechaServicio)} · {formatHora(detalleModal.item.HoraInicio)} - {formatHora(detalleModal.item.HoraFin)}</p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div><span className="text-[#6667AB]">Horas:</span> <span className="text-white">{detalleModal.item.TotalHoras}h</span></div>
-                        <div><span className="text-[#6667AB]">Tarifa:</span> <span className="text-white">S/ {detalleModal.item.TarifaHora}/h</span></div>
-                        <div><span className="text-[#6667AB]">Subtotal:</span> <span className="text-white">S/ {(detalleModal.item.Subtotal ?? 0).toFixed(2)}</span></div>
-                        <div><span className="text-[#6667AB]">Comisión:</span> <span className="text-white">S/ {(detalleModal.item.TarifaPlataforma ?? 0).toFixed(2)}</span></div>
-                        <div className="col-span-2"><span className="text-[#6667AB]">Total:</span> <span className="text-white font-bold">S/ {(detalleModal.item.Total ?? 0).toFixed(2)}</span></div>
-                      </div>
-                      {detalleModal.item.MenorNombre && (
-                        <div className="mt-3 pt-3 border-t border-[rgba(255,255,255,0.06)] text-xs">
-                          <span className="text-[#6667AB]">Menor: </span><span className="text-white">{detalleModal.item.MenorNombre}</span>
-                          {detalleModal.item.MenorDiagnostico && <span className="text-[#CC8DB3]"> ({detalleModal.item.MenorDiagnostico})</span>}
-                        </div>
-                      )}
-                    </div>
+                <h3 className="text-lg font-bold text-white mb-2">Detalle del Servicio</h3>
+                <p className="text-sm text-[#6667AB] mb-6">
+                  {detalleModal.item.CuidadoraNombres} {detalleModal.item.CuidadoraApellidos} · {formatFecha(detalleModal.item.FechaServicio)}
+                </p>
+
+                {/* Info básica siempre visible */}
+                <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4 mb-4">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div><span className="text-[#6667AB]">Estado:</span> <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-bold text-white">{detalleModal.item.Estado}</span></div>
+                    <div><span className="text-[#6667AB]">Fecha:</span> <span className="text-white ml-1">{formatFecha(detalleModal.item.FechaServicio)}</span></div>
+                    <div><span className="text-[#6667AB]">Horario:</span> <span className="text-white ml-1">{formatHora(detalleModal.item.HoraInicio)} - {formatHora(detalleModal.item.HoraFin)}</span></div>
+                    <div><span className="text-[#6667AB]">Horas:</span> <span className="text-white ml-1">{detalleModal.item.TotalHoras}h</span></div>
+                    <div><span className="text-[#6667AB]">Tarifa:</span> <span className="text-white ml-1">S/ {detalleModal.item.TarifaHora}/h</span></div>
+                    <div><span className="text-[#6667AB]">Subtotal:</span> <span className="text-white ml-1">S/ {(detalleModal.item.Subtotal ?? 0).toFixed(2)}</span></div>
+                    <div><span className="text-[#6667AB]">Comisión:</span> <span className="text-white ml-1">S/ {(detalleModal.item.TarifaPlataforma ?? 0).toFixed(2)}</span></div>
+                    <div className="col-span-2"><span className="text-[#6667AB]">Total:</span> <span className="text-white ml-1 font-bold">S/ {(detalleModal.item.Total ?? 0).toFixed(2)}</span></div>
+                    {detalleModal.item.MenorNombre && (
+                      <div className="col-span-2"><span className="text-[#6667AB]">Menor:</span> <span className="text-white ml-1">{detalleModal.item.MenorNombre}{detalleModal.item.MenorDiagnostico ? ` (${detalleModal.item.MenorDiagnostico})` : ''}</span></div>
+                    )}
                   </div>
+                </div>
+
+                {/* Detalle cargado */}
+                {cargandoDetalle ? (
+                  <div className="text-center py-8">
+                    <RefreshCw className="w-8 h-8 text-[#6667AB] mx-auto mb-2 animate-spin" />
+                    <p className="text-sm text-[#6667AB]">Cargando detalle...</p>
+                  </div>
+                ) : detalleData ? (
+                  <div className="space-y-4">
+
+                    {/* Motivo cancelación */}
+                    {(detalleData.Estado === 'Cancelado' || detalleData.Estado === 'Cancelada') && detalleData.motivoCancelacion && (
+                      <div className="bg-[rgba(239,68,68,0.1)] border border-red-500/30 rounded-xl p-4">
+                        <div className="flex items-start gap-2">
+                          <XCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                          <div>
+                            <h4 className="text-sm font-bold text-red-300 mb-1">Motivo de Cancelación</h4>
+                            <p className="text-xs text-red-200/80">{detalleData.motivoCancelacion}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tareas con decisiones */}
+                    {detalleData.tareas?.length > 0 && (
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                        <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                          <ListTodo className="w-4 h-4" /> Tareas del Contrato
+                        </h4>
+                        <div className="space-y-2">
+                          {detalleData.tareas.map((t: any) => (
+                            <div key={t.Id} className="flex items-center justify-between bg-[rgba(33,6,53,0.3)] rounded-lg px-3 py-2">
+                              <div className="flex items-center gap-2">
+                                {t.Decision === 'Aceptar' && <CheckCircle className="w-3.5 h-3.5 text-[#6EE7B7]" />}
+                                {t.Decision === 'Rechazar' && <XCircle className="w-3.5 h-3.5 text-red-400" />}
+                                {(t.Decision === 'Negociar' || t.Decision === 'Pendiente' || !t.Decision) && <Clock className="w-3.5 h-3.5 text-[#F6A5C0]" />}
+                                <span className="text-xs text-[#F5D5E0]">{t.Descripcion}</span>
+                                {t.EsPersonalizada && (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#7B337E]/30 text-[#CC8DB3]">Personalizada</span>
+                                )}
+                              </div>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                t.Decision === 'Aceptar' ? 'bg-emerald-500/20 text-emerald-200' :
+                                t.Decision === 'Rechazar' ? 'bg-red-500/20 text-red-200' :
+                                'bg-amber-500/20 text-amber-200'
+                              }`}>{t.Decision || 'Pendiente'}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Contrato */}
+                    {detalleData.contrato && (
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                        <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                          <FileText className="w-4 h-4" /> Contrato #{detalleData.contrato.Id}
+                        </h4>
+                        <div className="flex items-center gap-3 text-sm">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${detalleData.contrato.AceptadoFamilia ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-200'}`}>
+                            {detalleData.contrato.AceptadoFamilia ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                            Tú: {detalleData.contrato.AceptadoFamilia ? 'Aceptaste' : 'Pendiente'}
+                          </span>
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${detalleData.contrato.AceptadoCuidadora ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-200'}`}>
+                            {detalleData.contrato.AceptadoCuidadora ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                            Cuidadora: {detalleData.contrato.AceptadoCuidadora ? 'Aceptó' : 'Pendiente'}
+                          </span>
+                        </div>
+                        {detalleData.contrato.Terminos && (
+                          <pre className="mt-3 text-[10px] text-[#6667AB] whitespace-pre-wrap max-h-32 overflow-y-auto bg-[rgba(33,6,53,0.3)] rounded-lg p-3">{detalleData.contrato.Terminos}</pre>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Reseñas */}
+                    {detalleData.resenas?.length > 0 && (
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                        <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3">Reseñas</h4>
+                        <div className="space-y-3">
+                          {detalleData.resenas.map((r: any, i: number) => (
+                            <div key={i} className="bg-[rgba(33,6,53,0.3)] rounded-xl p-3">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="flex items-center">
+                                  {[1, 2, 3, 4, 5].map(j => (
+                                    <Star key={j} className={`w-3 h-3 ${j <= r.Calificacion ? 'text-[#CC8DB3] fill-[#CC8DB3]' : 'text-[#6667AB]'}`} />
+                                  ))}
+                                </div>
+                                <span className="text-xs text-[#6667AB]">({r.Calificacion}/5)</span>
+                              </div>
+                              {r.Comentario && <p className="text-xs text-[#6667AB] leading-relaxed">"{r.Comentario}"</p>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Negociaciones */}
+                    {detalleData.negociaciones?.length > 0 && (
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                        <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4" /> Historial de Negociación
+                        </h4>
+                        <div className="space-y-2">
+                          {detalleData.negociaciones.map((n: any, i: number) => (
+                            <div key={i} className="bg-[rgba(33,6,53,0.3)] rounded-lg p-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-semibold text-white">{n.PropuestoPorNombres} {n.PropuestoPorApellidos}</span>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                                  n.Estado === 'activa' ? 'bg-amber-500/20 text-amber-200' :
+                                  n.Estado === 'aceptada' ? 'bg-emerald-500/20 text-emerald-200' :
+                                  n.Estado === 'rechazada' ? 'bg-red-500/20 text-red-200' :
+                                  'bg-[rgba(33,6,53,0.5)] text-[#6667AB]'
+                                }`}>{n.Estado}</span>
+                              </div>
+                              {n.Mensaje && <p className="text-xs text-[#6667AB] mt-1">{n.Mensaje}</p>}
+                              {n.TarifaHora && <p className="text-xs text-[#F5D5E0] mt-1">S/ {n.TarifaHora}/h · {n.TotalHoras}h</p>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                ) : detalleModal.item && (
+                  <p className="text-center text-[#6667AB] text-sm">Cargando información adicional...</p>
                 )}
               </div>
             </motion.div>

@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
-import { FileText, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { FileText, CheckCircle, XCircle, Eye, ListTodo, DollarSign, Clock, CreditCard, Smartphone, Loader } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 type Contrato = {
@@ -13,12 +13,19 @@ type Contrato = {
   Subtotal: number; TarifaPlataforma: number;
 };
 
+type DetalleContrato = Contrato & {
+  tareas: { Id: number; Descripcion: string; Categoria?: string; Decision: string; EsPersonalizada: boolean }[];
+  escrow: { Id: number; MontoTotal: number; MontoCuidadora: number; MontoPlataforma: number; Estado: string; FechaCreacion: string } | null;
+  pago: { Id: number; MetodoPago: string; Estado: string; Monto: number; FechaPago: string } | null;
+};
+
 export function AdminContratos() {
   const { user } = useAuth();
   const headers = { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) };
   const [contratos, setContratos] = useState<Contrato[]>([]);
   const [loading, setLoading] = useState(true);
-  const [detalle, setDetalle] = useState<Contrato | null>(null);
+  const [detalle, setDetalle] = useState<DetalleContrato | null>(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
 
   useEffect(() => {
     fetch('/api/admin/contratos', { headers })
@@ -127,7 +134,14 @@ export function AdminContratos() {
                   </td>
                   <td className="py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => setDetalle(c)}
+                      <button onClick={async () => {
+                          setCargandoDetalle(true);
+                          try {
+                            const r = await fetch(`/api/admin/contratos/${c.Id}`, { headers });
+                            if (r.ok) setDetalle(await r.json());
+                          } catch {}
+                          setCargandoDetalle(false);
+                        }}
                         className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#F6A5C0] hover:bg-[#F6A5C0]/10 transition-colors"
                       >
                         <Eye className="w-3 h-3 inline mr-1" /> Ver
@@ -159,29 +173,120 @@ export function AdminContratos() {
       {detalle && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-          onClick={() => setDetalle(null)}
+          onClick={() => { setDetalle(null); setCargandoDetalle(false); }}
         >
           <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-            className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.12)] rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl p-6"
+            className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.12)] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6"
             onClick={e => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold text-white mb-4">Detalle del Contrato #{detalle.Id}</h3>
-            <div className="space-y-3 text-sm">
-              <div className="grid grid-cols-2 gap-3">
-                <div><span className="text-[#6667AB]">Familia:</span> <span className="text-white">{detalle.FamiliaNombres} {detalle.FamiliaApellidos}</span></div>
-                <div><span className="text-[#6667AB]">Cuidadora:</span> <span className="text-white">{detalle.CuidadoraNombres} {detalle.CuidadoraApellidos}</span></div>
-                <div><span className="text-[#6667AB]">Menor:</span> <span className="text-white">{detalle.MenorNombre || '--'}</span></div>
-                <div><span className="text-[#6667AB]">Servicio:</span> <span className="text-white">{detalle.TipoServicio}</span></div>
-                <div><span className="text-[#6667AB]">Fecha:</span> <span className="text-white">{formatFecha(detalle.FechaServicio)}</span></div>
-                <div><span className="text-[#6667AB]">Horario:</span> <span className="text-white">{detalle.HoraInicio} - {detalle.HoraFin}</span></div>
-                <div><span className="text-[#6667AB]">Horas:</span> <span className="text-white">{detalle.TotalHoras}h</span></div>
-                <div><span className="text-[#6667AB]">Tarifa:</span> <span className="text-white">S/ {detalle.TarifaHora}/h</span></div>
-                <div><span className="text-[#6667AB]">Subtotal:</span> <span className="text-white">S/ {detalle.Subtotal.toFixed(2)}</span></div>
-                <div><span className="text-[#6667AB]">Comisión:</span> <span className="text-white">S/ {detalle.TarifaPlataforma.toFixed(2)}</span></div>
-                <div className="col-span-2"><span className="text-[#6667AB]">Total:</span> <span className="text-white font-bold">S/ {detalle.Total.toFixed(2)}</span></div>
-              </div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white">Detalle del Contrato #{detalle.Id}</h3>
+              <button onClick={() => { setDetalle(null); setCargandoDetalle(false); }}
+                className="p-1.5 hover:bg-[rgba(255,255,255,0.1)] rounded-lg transition-colors"
+              ><XCircle className="w-4 h-4 text-[#6667AB]" /></button>
             </div>
-            <button onClick={() => setDetalle(null)}
+
+            {cargandoDetalle ? (
+              <div className="text-center py-8">
+                <Loader className="w-8 h-8 text-[#6667AB] mx-auto mb-2 animate-spin" />
+                <p className="text-sm text-[#6667AB]">Cargando detalle...</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+
+                {/* Información general */}
+                <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div><span className="text-[#6667AB]">Familia:</span> <span className="text-white ml-1">{detalle.FamiliaNombres} {detalle.FamiliaApellidos}</span></div>
+                    <div><span className="text-[#6667AB]">Cuidadora:</span> <span className="text-white ml-1">{detalle.CuidadoraNombres} {detalle.CuidadoraApellidos}</span></div>
+                    <div><span className="text-[#6667AB]">Menor:</span> <span className="text-white ml-1">{detalle.MenorNombre || '--'}</span></div>
+                    <div><span className="text-[#6667AB]">Servicio:</span> <span className="text-white ml-1">{detalle.TipoServicio}</span></div>
+                    <div><span className="text-[#6667AB]">Fecha:</span> <span className="text-white ml-1">{formatFecha(detalle.FechaServicio)}</span></div>
+                    <div><span className="text-[#6667AB]">Horario:</span> <span className="text-white ml-1">{detalle.HoraInicio} - {detalle.HoraFin}</span></div>
+                    <div><span className="text-[#6667AB]">Total:</span> <span className="text-white ml-1 font-bold">S/ {detalle.Total.toFixed(2)}</span></div>
+                    <div>
+                      <span className="text-[#6667AB]">Estado:</span>
+                      <span className={`ml-1 inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusBadge(detalle.Estado)}`}>{detalle.Estado}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tareas */}
+                {detalle.tareas?.length > 0 && (
+                  <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                    <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                      <ListTodo className="w-4 h-4" /> Tareas del Contrato
+                    </h4>
+                    <div className="space-y-2">
+                      {detalle.tareas.map((t: any) => (
+                        <div key={t.Id} className="flex items-center justify-between bg-[rgba(33,6,53,0.3)] rounded-lg px-3 py-2">
+                          <div className="flex items-center gap-2">
+                            {t.Decision === 'Aceptar' && <CheckCircle className="w-3.5 h-3.5 text-[#6EE7B7]" />}
+                            {t.Decision === 'Rechazar' && <XCircle className="w-3.5 h-3.5 text-red-400" />}
+                            {(t.Decision === 'Negociar' || t.Decision === 'Pendiente' || !t.Decision) && <Clock className="w-3.5 h-3.5 text-[#F6A5C0]" />}
+                            <span className="text-xs text-[#F5D5E0]">{t.Descripcion}</span>
+                            {t.EsPersonalizada && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#7B337E]/30 text-[#CC8DB3]">Personalizada</span>
+                            )}
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            t.Decision === 'Aceptar' ? 'bg-emerald-500/20 text-emerald-200' :
+                            t.Decision === 'Rechazar' ? 'bg-red-500/20 text-red-200' :
+                            'bg-amber-500/20 text-amber-200'
+                          }`}>{t.Decision || 'Pendiente'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Escrow / Pago */}
+                {detalle.escrow && (
+                  <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                    <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                      <DollarSign className="w-4 h-4" /> Pago Protegido (Escrow)
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div><span className="text-[#6667AB]">Monto Total:</span> <span className="text-white ml-1">S/ {detalle.escrow.MontoTotal?.toFixed(2)}</span></div>
+                      <div><span className="text-[#6667AB]">Monto Cuidadora:</span> <span className="text-emerald-300 ml-1 font-bold">S/ {detalle.escrow.MontoCuidadora?.toFixed(2)}</span></div>
+                      <div><span className="text-[#6667AB]">Comisión:</span> <span className="text-[#F6A5C0] ml-1">S/ {detalle.escrow.MontoPlataforma?.toFixed(2)}</span></div>
+                      <div>
+                        <span className="text-[#6667AB]">Estado:</span>
+                        <span className={`ml-1 inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          detalle.escrow.Estado === 'Liberado' ? 'bg-emerald-500/20 text-emerald-200' :
+                          detalle.escrow.Estado === 'Retenido' ? 'bg-amber-500/20 text-amber-200' :
+                          'bg-red-500/20 text-red-200'
+                        }`}>{detalle.escrow.Estado}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Método de pago */}
+                {detalle.pago && (
+                  <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                    <h4 className="text-xs font-bold text-[#6667AB] uppercase mb-3 flex items-center gap-2">
+                      {detalle.pago.MetodoPago === 'Yape' || detalle.pago.MetodoPago === 'Plin'
+                        ? <Smartphone className="w-4 h-4 text-[#F6A5C0]" />
+                        : <CreditCard className="w-4 h-4 text-[#CC8DB3]" />
+                      }
+                      Información de Pago
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div><span className="text-[#6667AB]">Método:</span> <span className="text-white ml-1">{detalle.pago.MetodoPago}</span></div>
+                      <div><span className="text-[#6667AB]">Monto:</span> <span className="text-white ml-1">S/ {detalle.pago.Monto?.toFixed(2)}</span></div>
+                      <div><span className="text-[#6667AB]">Estado:</span> <span className="text-white ml-1">{detalle.pago.Estado}</span></div>
+                      {detalle.pago.FechaPago && (
+                        <div><span className="text-[#6667AB]">Fecha:</span> <span className="text-white ml-1">{formatFecha(detalle.pago.FechaPago)}</span></div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            )}
+
+            <button onClick={() => { setDetalle(null); setCargandoDetalle(false); }}
               className="mt-6 w-full py-2.5 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:opacity-90 transition-opacity"
             >Cerrar</button>
           </motion.div>

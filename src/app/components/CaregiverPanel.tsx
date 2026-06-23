@@ -1,12 +1,13 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Star, MessageSquare, Briefcase, LogOut, CheckCircle, ChevronRight, Clock, User, DollarSign,
+  Star, MessageSquare, Briefcase, LogOut, CheckCircle, ChevronDown, ChevronRight, Clock, User, DollarSign,
   Calendar, Upload, File, RefreshCw, Award, BookOpen, MapPin, Shield, AlertTriangle, Send,
-  TrendingUp, Users, Search, X, Play, Square, Activity, HelpCircle
+  TrendingUp, Users, Search, X, Play, Square, Activity, HelpCircle, Eye, FileText, ThumbsUp, ThumbsDown, AlertCircle, ListTodo, Ban, MessageCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
+import { UserMenu } from './UserMenu';
 import { CuidadoraSolicitudes } from './CuidadoraSolicitudes';
 import { PanicButton } from './PanicButton';
 import { CentroCapacitacion } from './CentroCapacitacion';
@@ -103,6 +104,22 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
 
   // -- Emergency replacement --
   const [reemplazos, setReemplazos] = useState<any[]>([]);
+
+  // -- Detalle modal --
+  const [detalleServicio, setDetalleServicio] = useState<any>(null);
+  const [detalleData, setDetalleData] = useState<any>(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
+
+  const abrirDetalle = async (servicioId: number) => {
+    setCargandoDetalle(true);
+    setDetalleServicio(servicios.find(s => s.Id === servicioId));
+    setDetalleData(null);
+    try {
+      const r = await fetch(`/api/cuidadora/servicios/${servicioId}/detalle`, { headers });
+      if (r.ok) setDetalleData(await r.json());
+    } catch {}
+    setCargandoDetalle(false);
+  };
 
   const activeService = servicios.find(s => s.Estado === 'En Curso');
 
@@ -316,10 +333,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                   {t === 'reemplazo' && 'Reemplazo'}
                 </button>
               ))}
-              <ProfileAvatar size={36} className="ml-2" />
-              <button onClick={logout} className="p-2 hover:bg-[rgba(33,6,53,0.4)] rounded-lg transition-colors">
-                <LogOut className="w-4 h-4 text-[#6667AB]" />
-              </button>
+              <UserMenu onNavigate={(v) => { if (v === 'perfil') setTab('perfil'); }} />
             </nav>
           </div>
         </div>
@@ -534,24 +548,31 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                           <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-medium bg-[#CC8DB3] text-[#210635]">{s.MenorDiagnostico}</span>
                         )}
                       </div>
-                      {s.Estado === 'En Curso' && (
-                        <div className="flex items-center gap-2 shrink-0 ml-4">
-                          <button
-                            disabled={checkedIn}
-                            onClick={handleCheckIn}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#10B981] text-white text-xs font-bold hover:bg-[#059669] transition-colors disabled:opacity-40"
-                          >
-                            <Play className="w-3.5 h-3.5" /> CHECK-IN
-                          </button>
-                          <button
-                            disabled={!checkedIn}
-                            onClick={handleCheckOut}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D14242] text-white text-xs font-bold hover:bg-[#b03838] transition-colors disabled:opacity-40"
-                          >
-                            <Square className="w-3.5 h-3.5" /> CHECK-OUT
-                          </button>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2 shrink-0 ml-4">
+                        <button onClick={() => abrirDetalle(s.Id)}
+                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[rgba(255,255,255,0.2)] text-[#F5D5E0] text-xs font-bold hover:bg-[rgba(255,255,255,0.1)] transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5" /> Detalle
+                        </button>
+                        {s.Estado === 'En Curso' && (
+                          <>
+                            <button
+                              disabled={checkedIn}
+                              onClick={handleCheckIn}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#10B981] text-white text-xs font-bold hover:bg-[#059669] transition-colors disabled:opacity-40"
+                            >
+                              <Play className="w-3.5 h-3.5" /> CHECK-IN
+                            </button>
+                            <button
+                              disabled={!checkedIn}
+                              onClick={handleCheckOut}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#D14242] text-white text-xs font-bold hover:bg-[#b03838] transition-colors disabled:opacity-40"
+                            >
+                              <Square className="w-3.5 h-3.5" /> CHECK-OUT
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                     {checkedIn && s.Id === activeService?.Id && (
                       <div className="mt-4 pt-3 border-t border-[rgba(255,255,255,0.06)]">
@@ -779,6 +800,179 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
           </motion.div>
         )}
       </div>
+      {/* ════════════════════ DETALLE DEL SERVICIO MODAL ════════════════════ */}
+      <AnimatePresence>
+        {detalleServicio && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => { setDetalleServicio(null); setDetalleData(null); }}
+          >
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.12)] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="p-6">
+                <button onClick={() => { setDetalleServicio(null); setDetalleData(null); }}
+                  className="float-right p-1.5 hover:bg-[rgba(255,255,255,0.1)] rounded-lg transition-colors"
+                ><X className="w-4 h-4 text-[#6667AB]" /></button>
+
+                <h3 className="text-lg font-bold text-white mb-2">Detalle del Servicio</h3>
+                <p className="text-sm text-[#6667AB] mb-6">
+                  {detalleServicio.FamiliaNombres} {detalleServicio.FamiliaApellidos} · {detalleServicio.FechaServicio}
+                </p>
+
+                {cargandoDetalle ? (
+                  <div className="text-center py-8">
+                    <RefreshCw className="w-8 h-8 text-[#6667AB] mx-auto mb-2 animate-spin" />
+                    <p className="text-sm text-[#6667AB]">Cargando detalle...</p>
+                  </div>
+                ) : detalleData ? (
+                  <div className="space-y-6">
+
+                    {/* Info general */}
+                    <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                      <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3">Información del Servicio</h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div><span className="text-[#6667AB]">Estado:</span> <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${badgeStyle(detalleData.Estado)}`}>{detalleData.Estado}</span></div>
+                        <div><span className="text-[#6667AB]">Fecha:</span> <span className="text-white ml-1">{detalleData.FechaServicio}</span></div>
+                        <div><span className="text-[#6667AB]">Horario:</span> <span className="text-white ml-1">{detalleData.HoraInicio} - {detalleData.HoraFin}</span></div>
+                        <div><span className="text-[#6667AB]">Horas:</span> <span className="text-white ml-1">{detalleData.TotalHoras}h</span></div>
+                        <div><span className="text-[#6667AB]">Tarifa:</span> <span className="text-white ml-1">S/ {detalleData.TarifaHora}/h</span></div>
+                        <div><span className="text-[#6667AB]">Total:</span> <span className="text-white ml-1 font-bold">S/ {detalleData.Total?.toFixed(2)}</span></div>
+                        {detalleData.MenorNombre && (
+                          <div className="col-span-2"><span className="text-[#6667AB]">Menor:</span> <span className="text-white ml-1">{detalleData.MenorNombre}{detalleData.MenorDiagnostico ? ` (${detalleData.MenorDiagnostico})` : ''}</span></div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Motivo de cancelación */}
+                    {(detalleData.Estado === 'Cancelado' || detalleData.Estado === 'Cancelada') && detalleData.motivoCancelacion && (
+                      <div className="bg-[rgba(239,68,68,0.1)] border border-red-500/30 rounded-xl p-4">
+                        <div className="flex items-start gap-2">
+                          <Ban className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                          <div>
+                            <h4 className="text-sm font-bold text-red-300 mb-1">Motivo de Cancelación</h4>
+                            <p className="text-xs text-red-200/80">{detalleData.motivoCancelacion}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tareas del contrato */}
+                    {detalleData.tareas?.length > 0 && (
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                        <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                          <ListTodo className="w-4 h-4" /> Tareas del Contrato
+                        </h4>
+                        <div className="space-y-2">
+                          {detalleData.tareas.map((t: any) => (
+                            <div key={t.Id} className="flex items-center justify-between bg-[rgba(33,6,53,0.3)] rounded-lg px-3 py-2">
+                              <div className="flex items-center gap-2">
+                                {t.Decision === 'Aceptar' && <ThumbsUp className="w-3.5 h-3.5 text-[#6EE7B7]" />}
+                                {t.Decision === 'Rechazar' && <ThumbsDown className="w-3.5 h-3.5 text-red-400" />}
+                                {(t.Decision === 'Negociar' || t.Decision === 'Pendiente' || !t.Decision) && <Clock className="w-3.5 h-3.5 text-[#F6A5C0]" />}
+                                <span className="text-xs text-[#F5D5E0]">{t.Descripcion}</span>
+                                {t.EsPersonalizada && (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#7B337E]/30 text-[#CC8DB3]">Personalizada</span>
+                                )}
+                              </div>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                t.Decision === 'Aceptar' ? 'bg-emerald-500/20 text-emerald-200' :
+                                t.Decision === 'Rechazar' ? 'bg-red-500/20 text-red-200' :
+                                'bg-amber-500/20 text-amber-200'
+                              }`}>{t.Decision || 'Pendiente'}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Contrato */}
+                    {detalleData.contrato && (
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                        <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                          <FileText className="w-4 h-4" /> Contrato #{detalleData.contrato.Id}
+                        </h4>
+                        <div className="flex items-center gap-3 text-sm">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${detalleData.contrato.AceptadoFamilia ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-200'}`}>
+                            {detalleData.contrato.AceptadoFamilia ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                            Familia: {detalleData.contrato.AceptadoFamilia ? 'Aceptó' : 'Pendiente'}
+                          </span>
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${detalleData.contrato.AceptadoCuidadora ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-200'}`}>
+                            {detalleData.contrato.AceptadoCuidadora ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                            Tú: {detalleData.contrato.AceptadoCuidadora ? 'Aceptaste' : 'Pendiente'}
+                          </span>
+                        </div>
+                        {detalleData.contrato.Terminos && (
+                          <pre className="mt-3 text-[10px] text-[#6667AB] whitespace-pre-wrap max-h-40 overflow-y-auto bg-[rgba(33,6,53,0.3)] rounded-lg p-3">{detalleData.contrato.Terminos}</pre>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Reseñas y calificaciones */}
+                    {detalleData.resenas?.length > 0 && (
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                        <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                          <MessageCircle className="w-4 h-4" /> Reseñas de la Familia
+                        </h4>
+                        <div className="space-y-3">
+                          {detalleData.resenas.map((r: any, i: number) => (
+                            <div key={i} className="bg-[rgba(33,6,53,0.3)] rounded-xl p-3">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-sm font-semibold text-white">{r.Nombres} {r.Apellidos?.charAt(0)}.</span>
+                                <div className="flex items-center">
+                                  {[1, 2, 3, 4, 5].map(j => (
+                                    <Star key={j} className={`w-3 h-3 ${j <= r.Calificacion ? 'text-[#CC8DB3] fill-[#CC8DB3]' : 'text-[#6667AB]'}`} />
+                                  ))}
+                                </div>
+                                <span className="text-xs text-[#6667AB]">({r.Calificacion}/5)</span>
+                              </div>
+                              {r.Comentario && <p className="text-xs text-[#6667AB] leading-relaxed">"{r.Comentario}"</p>}
+                              <p className="text-[10px] text-[#6667AB]/60 mt-1">{r.FechaCreacion ? new Date(r.FechaCreacion).toLocaleDateString('es-PE') : ''}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Negociaciones */}
+                    {detalleData.negociaciones?.length > 0 && (
+                      <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                        <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                          <MessageCircle className="w-4 h-4" /> Historial de Negociación
+                        </h4>
+                        <div className="space-y-2">
+                          {detalleData.negociaciones.map((n: any, i: number) => (
+                            <div key={i} className="bg-[rgba(33,6,53,0.3)] rounded-lg p-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-semibold text-white">{n.PropuestoPorNombres} {n.PropuestoPorApellidos}</span>
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                                  n.Estado === 'activa' ? 'bg-amber-500/20 text-amber-200' :
+                                  n.Estado === 'aceptada' ? 'bg-emerald-500/20 text-emerald-200' :
+                                  n.Estado === 'rechazada' ? 'bg-red-500/20 text-red-200' :
+                                  'bg-[rgba(33,6,53,0.5)] text-[#6667AB]'
+                                }`}>{n.Estado}</span>
+                              </div>
+                              {n.Mensaje && <p className="text-xs text-[#6667AB] mt-1">{n.Mensaje}</p>}
+                              {n.TarifaHora && <p className="text-xs text-[#F5D5E0] mt-1">S/ {n.TarifaHora}/h · {n.TotalHoras}h</p>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-[#6667AB]">
+                    <AlertCircle className="w-8 h-8 mx-auto mb-2" />
+                    <p className="text-sm">No se pudo cargar el detalle</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

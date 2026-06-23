@@ -15,6 +15,10 @@ router.get('/search/cuidadoras', (req, res) => {
     INNER JOIN Usuarios u ON u.Id = c.IdUsuario
     WHERE c.Disponible = 1 AND u.Activo = 1 AND u.Suspendido = 0
   `;
+  // Solo mostrar verificadas por defecto (o si 'verificada' está activo)
+  if (req.query.verificada !== '0') {
+    sql += ` AND (SELECT Estado FROM Postulaciones WHERE IdUsuario = u.Id) = 'Aprobada'`;
+  }
   const params = [];
 
   if (especialidad) {

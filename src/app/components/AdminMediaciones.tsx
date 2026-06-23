@@ -20,6 +20,20 @@ type Mediacion = {
   AuditLog: { accion: string; fecha: string; adminNombre: string }[];
 };
 
+type DetalleMediacion = Mediacion & {
+  FechaServicio?: string;
+  TotalHoras?: number;
+  TarifaHora?: number;
+  Total?: number;
+  FamiliaEmail?: string;
+  FamiliaTelefono?: string;
+  CuidadoraEmail?: string;
+  CuidadoraTelefono?: string;
+  auditoria: any[];
+  incidencias: any[];
+  mensajes: any[];
+};
+
 export function AdminMediaciones() {
   const { user } = useAuth();
   const headers = { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) };
@@ -27,6 +41,8 @@ export function AdminMediaciones() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'warning' | 'danger'; text: string } | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [detalleMediacion, setDetalleMediacion] = useState<DetalleMediacion | null>(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -112,29 +128,102 @@ export function AdminMediaciones() {
         </div>
       </div>
 
-      {selectedId && selected ? (
+      {selectedId && (selected || detalleMediacion) ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
         >
-          <button onClick={() => setSelectedId(null)}
+          <button onClick={() => { setSelectedId(null); setDetalleMediacion(null); }}
             className="text-sm text-[#6667AB] hover:text-white transition-colors mb-4 flex items-center gap-1">
             <span>&larr;</span> Volver
           </button>
 
           <div className="flex items-center gap-3 mb-6">
-            <span className="font-bold text-white text-lg">{selected.FamiliaNombres} {selected.FamiliaApellidos}</span>
+            <span className="font-bold text-white text-lg">{detalleMediacion?.FamiliaNombres || selected?.FamiliaNombres} {detalleMediacion?.FamiliaApellidos || selected?.FamiliaApellidos}</span>
             <span className="text-[#6667AB]">↔</span>
-            <span className="font-bold text-white text-lg">{selected.CuidadoraNombres} {selected.CuidadoraApellidos}</span>
-            <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${badgeEstado(selected.Estado)}`}>
-              {selected.Estado}
+            <span className="font-bold text-white text-lg">{detalleMediacion?.CuidadoraNombres || selected?.CuidadoraNombres} {detalleMediacion?.CuidadoraApellidos || selected?.CuidadoraApellidos}</span>
+            <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${badgeEstado(detalleMediacion?.Estado || selected?.Estado || '')}`}>
+              {detalleMediacion?.Estado || selected?.Estado}
             </span>
           </div>
 
+          {/* Información de la orden */}
+          {detalleMediacion?.FechaServicio && (
+            <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4 mb-4">
+              <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3">Información de la Orden #{detalleMediacion.OrdenId}</h4>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div><span className="text-[#6667AB]">Fecha:</span> <span className="text-white ml-1">{detalleMediacion.FechaServicio}</span></div>
+                <div><span className="text-[#6667AB]">Horas:</span> <span className="text-white ml-1">{detalleMediacion.TotalHoras}h</span></div>
+                <div><span className="text-[#6667AB]">Tarifa:</span> <span className="text-white ml-1">S/ {detalleMediacion.TarifaHora}/h</span></div>
+                <div><span className="text-[#6667AB]">Total:</span> <span className="text-white ml-1 font-bold">S/ {detalleMediacion.Total?.toFixed(2)}</span></div>
+                <div><span className="text-[#6667AB]">Familia email:</span> <span className="text-white ml-1">{detalleMediacion.FamiliaEmail}</span></div>
+                <div><span className="text-[#6667AB]">Cuidadora email:</span> <span className="text-white ml-1">{detalleMediacion.CuidadoraEmail}</span></div>
+              </div>
+            </div>
+          )}
+
+          {/* Incidencias relacionadas */}
+          {detalleMediacion?.incidencias?.length > 0 && (
+            <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4 mb-4">
+              <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-400" /> Incidencias Relacionadas ({detalleMediacion.incidencias.length})
+              </h4>
+              <div className="space-y-2">
+                {detalleMediacion.incidencias.map((inc: any, i: number) => (
+                  <div key={i} className="bg-[rgba(33,6,53,0.3)] rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-white">#{inc.Id} - {inc.Tipo}</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                        inc.Estado === 'Cerrada' ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-200'
+                      }`}>{inc.Estado}</span>
+                    </div>
+                    <p className="text-xs text-[#6667AB] mt-1">{inc.Descripcion?.slice(0, 200)}</p>
+                    <p className="text-[10px] text-[#6667AB]/60 mt-1">{new Date(inc.FechaCreacion).toLocaleDateString('es-PE')}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Mensajes del chat */}
+          {detalleMediacion?.mensajes?.length > 0 && (
+            <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4 mb-4">
+              <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" /> Conversación ({detalleMediacion.mensajes.length} mensajes)
+              </h4>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {detalleMediacion.mensajes.map((msg: any, i: number) => (
+                  <div key={i} className="bg-[rgba(33,6,53,0.3)] rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-[#F5D5E0]">{msg.RemitenteNombre}</span>
+                      <span className="text-[10px] text-[#6667AB]">{msg.FechaCreacion ? new Date(msg.FechaCreacion).toLocaleDateString('es-PE') : ''}</span>
+                    </div>
+                    <p className="text-xs text-[#6667AB] mt-1">{msg.Contenido}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Auditoría */}
           <div className="mb-4">
             <h3 className="font-bold text-white text-sm mb-3">Auditoría de Sala Virtual</h3>
-            {selected.AuditLog?.length > 0 ? (
+            {(detalleMediacion?.auditoria?.length > 0) ? (
+              <div className="space-y-2">
+                {detalleMediacion.auditoria.map((log, i) => (
+                  <div key={i} className="flex items-start gap-3 bg-[rgba(33,6,53,0.4)] rounded-xl p-3">
+                    <div className="w-6 h-6 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-[10px] text-[#CC8DB3] font-bold flex-shrink-0 mt-0.5">
+                      {log.adminNombre?.charAt(0) || '?'}
+                    </div>
+                    <div>
+                      <p className="text-xs text-[#F5D5E0]">{log.Accion || log.accion}</p>
+                      <p className="text-[10px] text-[#6667AB] mt-0.5">{log.adminNombre} · {formatFecha(log.FechaCreacion || log.fecha)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (selected?.AuditLog?.length > 0 ? (
               <div className="space-y-2">
                 {selected.AuditLog.map((log, i) => (
                   <div key={i} className="flex items-start gap-3 bg-[rgba(33,6,53,0.4)] rounded-xl p-3">
@@ -150,19 +239,19 @@ export function AdminMediaciones() {
               </div>
             ) : (
               <p className="text-sm text-[#6667AB]">Sin registros de auditoría</p>
-            )}
+            ))}
           </div>
 
           <div className="flex items-center gap-3 pt-4 border-t border-[rgba(255,255,255,0.08)]">
-            {!selected.TieneVb && selected.Estado === 'Completada' && (
+            {!detalleMediacion?.TieneVb && !selected?.TieneVb && (detalleMediacion?.Estado === 'Completada' || selected?.Estado === 'Completada') && (
               <button
-                onClick={() => handleOtorgarVb(selected.OrdenId)}
+                onClick={() => handleOtorgarVb(detalleMediacion?.OrdenId || selected?.OrdenId || 0)}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm transition-all shadow-lg shadow-black/20"
               >
                 <ThumbsUp className="w-4 h-4" /> Otorgar Visto Bueno (Vb)
               </button>
             )}
-            {selected.TieneVb && (
+            {(detalleMediacion?.TieneVb || selected?.TieneVb) && (
               <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-200 text-sm font-bold">
                 <CheckCircle className="w-4 h-4" /> Vb Otorgado
               </span>
@@ -211,7 +300,16 @@ export function AdminMediaciones() {
                     </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => setSelectedId(m.Id)}
+                        onClick={async () => {
+                          setSelectedId(m.Id);
+                          setCargandoDetalle(true);
+                          setDetalleMediacion(null);
+                          try {
+                            const r = await fetch(`/api/admin/mediaciones/${m.Id}`, { headers });
+                            if (r.ok) setDetalleMediacion(await r.json());
+                          } catch {}
+                          setCargandoDetalle(false);
+                        }}
                         className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#F5D5E0] text-[#F5D5E0] text-xs font-semibold hover:bg-[rgba(245,213,224,0.1)] transition-colors"
                       >
                         <Eye className="w-3.5 h-3.5" /> Ver detalle

@@ -15,6 +15,7 @@ import { AdminSLAMonitor } from './AdminSLAMonitor';
 import { AdminAlertasRiesgo } from './AdminAlertasRiesgo';
 import { AdminIncidencias } from './AdminIncidencias';
 import { AdminContratos } from './AdminContratos';
+import { UserMenu } from './UserMenu';
 
 type Tab = 'dashboard' | 'postulaciones' | 'negociaciones' | 'pagos' | 'mediaciones' | 'analitica' | 'sla' | 'alertas' | 'incidencias' | 'contratos';
 
@@ -90,24 +91,9 @@ export function AdminLayout() {
           </nav>
 
           <div className="p-4 border-t border-[rgba(255,255,255,0.1)]">
-            {!sidebarCollapsed && (
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-9 h-9 rounded-full bg-[#F6A5C0] flex items-center justify-center text-[#210635] text-sm font-bold">
-                  {user?.nombres?.charAt(0)?.toUpperCase() || 'A'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-semibold truncate">{user?.nombres} {user?.apellidos}</p>
-                  <p className="text-[10px] text-[#6667AB] truncate">Administrador</p>
-                </div>
-              </div>
-            )}
-            <button
-              onClick={logout}
-              className={`flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm font-medium text-[#6667AB] hover:text-red-400 hover:bg-red-500/10 transition-colors ${sidebarCollapsed ? 'justify-center' : ''}`}
-            >
-              <LogOut className="w-4 h-4" />
-              {!sidebarCollapsed && <span>Cerrar sesión</span>}
-            </button>
+            <div className="flex items-center justify-center">
+              <UserMenu onNavigate={(v) => { if (v === 'perfil') setTab('perfil'); }} />
+            </div>
           </div>
         </aside>
 

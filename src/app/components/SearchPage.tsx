@@ -45,6 +45,7 @@ export function SearchPage({ onNavigate, inline }: { onNavigate?: (v: string) =>
   const [exitos, setExitos] = useState<CasoExito[]>([]);
   const [matching, setMatching] = useState<MatchingResult[]>([]);
   const [docPreviewCuidadora, setDocPreviewCuidadora] = useState<CuidadoraCard | null>(null);
+  const [soloVerificadas, setSoloVerificadas] = useState(true);
 
   const buscar = async () => {
     setLoading(true);
@@ -54,6 +55,7 @@ export function SearchPage({ onNavigate, inline }: { onNavigate?: (v: string) =>
       if (zona && zona !== 'Todas') params.set('zona', zona);
       if (experiencia && experiencia !== '0+ años') params.set('experiencia', experiencia.replace('+ años', ''));
       if (tarifaMax) params.set('tarifa_max', tarifaMax);
+      if (soloVerificadas) params.set('verificada', '1');
       const r = await fetch(`/api/search/cuidadoras?${params}`);
       const data = await r.json();
       const matchMap = new Map(matching.map(m => [m.cuidadoraId, m.compatibilidad]));
@@ -124,7 +126,17 @@ export function SearchPage({ onNavigate, inline }: { onNavigate?: (v: string) =>
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6667AB] text-sm">S/ /h</span>
             </div>
           </div>
-          <div className="mt-5">
+          <div className="mt-5 flex items-center gap-4 flex-wrap">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <div onClick={() => setSoloVerificadas(!soloVerificadas)}
+                className={`w-10 h-5 rounded-full transition-colors relative ${soloVerificadas ? 'bg-[#F6A5C0]' : 'bg-[rgba(255,255,255,0.15)]'}`}
+              >
+                <div className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-all ${soloVerificadas ? 'left-5' : 'left-0.5'}`} />
+              </div>
+              <span className="text-xs text-[#F5D5E0] flex items-center gap-1">
+                <CheckCircle className="w-3.5 h-3.5" /> Solo verificadas
+              </span>
+            </label>
             <button onClick={buscar}
               className="inline-flex items-center gap-2 px-8 py-3 bg-[#CC8DB3] hover:bg-[#b07a9a] text-[#210635] font-bold rounded-xl transition-all shadow-md hover:shadow-lg">
               <Search className="w-5 h-5" /> Buscar

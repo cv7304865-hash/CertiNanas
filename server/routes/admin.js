@@ -146,14 +146,52 @@ router.get('/perfiles-validados', isAdmin, (req, res) => {
 router.get('/incidencias', isAdmin, (req, res) => {
   const db = getDb();
   const incidencias = db.prepare(`
-    SELECT i.Id, i.IdOrden, i.Tipo, i.Estado, i.Descripcion, i.FechaCreacion,
-           COALESCE(o.TipoServicio, 'Incidencia general') AS Servicio
+    SELECT i.Id, i.IdOrden, i.IdReporto, i.Tipo, i.Estado, i.Descripcion, i.FechaCreacion,
+           COALESCE(o.TipoServicio, 'Incidencia general') AS Servicio,
+           ur.Nombres AS ReportoNombres, ur.Apellidos AS ReportoApellidos,
+           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos
     FROM Incidencias i
     LEFT JOIN Ordenes o ON o.Id = i.IdOrden
+    LEFT JOIN Usuarios ur ON ur.Id = i.IdReporto
+    LEFT JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
     ORDER BY i.FechaCreacion DESC
-    LIMIT 20
+    LIMIT 50
   `).all();
   res.json(incidencias);
+});
+
+// GET /api/admin/incidencias/:id — detalle con orden, mediacion, auditoria
+router.get('/incidencias/:id', isAdmin, (req, res) => {
+  const db = getDb();
+  const incidencia = db.prepare(`
+    SELECT i.*, ur.Nombres AS ReportoNombres, ur.Apellidos AS ReportoApellidos, ur.IdRol AS ReportoRol,
+           o.TipoServicio, o.Estado AS OrdenEstado, o.FechaServicio, o.TotalHoras, o.TarifaHora, o.Total,
+           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos,
+           uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
+           m.Nombre AS MenorNombre
+    FROM Incidencias i
+    LEFT JOIN Usuarios ur ON ur.Id = i.IdReporto
+    LEFT JOIN Ordenes o ON o.Id = i.IdOrden
+    LEFT JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
+    LEFT JOIN Cuidadoras cu ON cu.Id = o.IdCuidadora
+    LEFT JOIN Usuarios uc ON uc.Id = cu.IdUsuario
+    LEFT JOIN Menores m ON m.Id = o.IdMenor
+    WHERE i.Id = ?
+  `).get(Number(req.params.id));
+  if (!incidencia) return res.status(404).json({ error: 'Incidencia no encontrada' });
+
+  const mediaciones = db.prepare(`
+    SELECT c.* FROM Casos c WHERE c.IdOrden = ? ORDER BY c.FechaCreacion DESC
+  `).all(incidencia.IdOrden);
+
+  const auditoria = db.prepare(`
+    SELECT a.*, u.Nombres || ' ' || u.Apellidos AS UserNombre
+    FROM Auditoria a LEFT JOIN Usuarios u ON u.Id = a.IdUsuario
+    WHERE a.Entidad = 'Incidencias' AND a.IdEntidad = ?
+    ORDER BY a.FechaCreacion DESC
+  `).all(incidencia.Id);
+
+  res.json({ ...incidencia, mediaciones, auditoria });
 });
 
 router.put('/incidencias/:id/cerrar', isAdmin, (req, res) => {
@@ -224,6 +262,44 @@ router.get('/contratos', isAdmin, (req, res) => {
     ORDER BY o.Id ASC
   `).all();
   res.json(contratos);
+});
+
+// GET /api/admin/contratos/:id — detalle con tareas, escrow, pagos
+router.get('/contratos/:id', isAdmin, (req, res) => {
+  const db = getDb();
+  const orden = db.prepare(`
+    SELECT o.*, u.Nombres AS FamiliaNombres, u.Apellidos AS FamiliaApellidos,
+           uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
+           m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico
+    FROM Ordenes o
+    INNER JOIN Usuarios u ON u.Id = o.IdUsuarioFamilia
+    INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+    INNER JOIN Usuarios uc ON uc.Id = c.IdUsuario
+    LEFT JOIN Menores m ON m.Id = o.IdMenor
+    WHERE o.Id = ?
+  `).get(Number(req.params.id));
+  if (!orden) return res.status(404).json({ error: 'Contrato no encontrado' });
+
+  const tareas = db.prepare(`
+    SELECT ot.Id, t.Descripcion, t.Categoria, ot.Decision FROM OrdenTareas ot
+    INNER JOIN Tareas t ON t.Id = ot.IdTarea WHERE ot.IdOrden = ?
+  `).all(orden.Id);
+  const tareasPersonalizadas = db.prepare(`
+    SELECT Id, Descripcion, Decision FROM OrdenTareasPersonalizadas WHERE IdOrden = ?
+  `).all(orden.Id);
+
+  const escrow = db.prepare('SELECT * FROM Escrow WHERE IdOrden = ?').get(orden.Id);
+  const pago = db.prepare("SELECT * FROM Pagos WHERE IdOrden = ? ORDER BY FechaPago DESC LIMIT 1").get(orden.Id);
+
+  res.json({
+    ...orden,
+    tareas: [
+      ...tareas.map(t => ({ ...t, EsPersonalizada: false })),
+      ...tareasPersonalizadas.map(t => ({ ...t, EsPersonalizada: true })),
+    ],
+    escrow,
+    pago,
+  });
 });
 
 router.put('/contratos/:id/aprobar', isAdmin, (req, res) => {
@@ -366,6 +442,41 @@ router.post('/postulaciones/:id/documentos/:docId/rechazar', isAdmin, (req, res)
   res.json({ success: true });
 });
 
+// GET /api/admin/escrows/:id — detalle de un pago protegido
+router.get('/escrows/:id', isAdmin, (req, res) => {
+  const db = getDb();
+  const escrow = db.prepare(`
+    SELECT e.*, o.Estado AS OrdenEstado, o.FechaServicio, o.HoraInicio, o.HoraFin, o.TotalHoras, o.TarifaHora, o.Total, o.Subtotal, o.TarifaPlataforma,
+           o.ConfirmadaFamilia, o.ConfirmadaCuidadora, o.FinalizadaFamilia, o.FinalizadaCuidadora, o.FechaFinalizacion,
+           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos,
+           uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
+           m.Nombre AS MenorNombre,
+           p.MetodoPago, p.Estado AS PagoEstado, p.FechaPago
+    FROM Escrow e
+    INNER JOIN Ordenes o ON o.Id = e.IdOrden
+    INNER JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
+    INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+    INNER JOIN Usuarios uc ON uc.Id = c.IdUsuario
+    LEFT JOIN Menores m ON m.Id = o.IdMenor
+    LEFT JOIN Pagos p ON p.IdOrden = o.Id
+    WHERE e.Id = ?
+  `).get(Number(req.params.id));
+  if (!escrow) return res.status(404).json({ error: 'Pago protegido no encontrado' });
+
+  const auditoria = db.prepare(`
+    SELECT a.*, u.Nombres || ' ' || u.Apellidos AS adminNombre
+    FROM Auditoria a LEFT JOIN Usuarios u ON u.Id = a.IdUsuario
+    WHERE a.Entidad = 'Escrow' AND a.IdEntidad = ?
+    ORDER BY a.FechaCreacion DESC
+  `).all(escrow.Id);
+
+  const incidencias = db.prepare(`
+    SELECT Id, Tipo, Estado, Descripcion, FechaCreacion FROM Incidencias WHERE IdOrden = ?
+  `).all(escrow.IdOrden);
+
+  res.json({ ...escrow, auditoria, incidencias });
+});
+
 // ── ADMIN: lista de transacciones (pagos protegidos / escrow) ──
 router.get('/transacciones', isAdmin, (req, res) => {
   const db = getDb();
@@ -384,6 +495,46 @@ router.get('/transacciones', isAdmin, (req, res) => {
     ORDER BY e.FechaCreacion DESC
   `).all();
   res.json(rows);
+});
+
+// ── ADMIN: detalle de una mediacion ──
+router.get('/mediaciones/:id', isAdmin, (req, res) => {
+  const db = getDb();
+  const caso = db.prepare(`
+    SELECT c.*, o.Id AS OrdenId, o.FechaServicio, o.TotalHoras, o.TarifaHora, o.Total, o.Estado AS OrdenEstado,
+           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos, uf.Email AS FamiliaEmail, uf.Telefono AS FamiliaTelefono,
+           uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos, uc.Email AS CuidadoraEmail, uc.Telefono AS CuidadoraTelefono
+    FROM Casos c
+    INNER JOIN Ordenes o ON o.Id = c.IdOrden
+    INNER JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
+    INNER JOIN Cuidadoras cu ON cu.Id = o.IdCuidadora
+    INNER JOIN Usuarios uc ON uc.Id = cu.IdUsuario
+    WHERE c.Id = ?
+  `).get(Number(req.params.id));
+  if (!caso) return res.status(404).json({ error: 'Mediación no encontrada' });
+
+  const auditoria = db.prepare(`
+    SELECT a.*, u.Nombres || ' ' || u.Apellidos AS adminNombre
+    FROM Auditoria a LEFT JOIN Usuarios u ON u.Id = a.IdUsuario
+    WHERE a.Entidad = 'Casos' AND a.IdEntidad = ?
+    ORDER BY a.FechaCreacion DESC
+  `).all(caso.Id);
+
+  const incidencias = db.prepare(`
+    SELECT Id, Tipo, Estado, Descripcion, FechaCreacion FROM Incidencias WHERE IdOrden = ?
+  `).all(caso.OrdenId);
+
+  const mensajes = db.prepare(`
+    SELECT m.Contenido, m.FechaCreacion, u.Nombres || ' ' || u.Apellidos AS RemitenteNombre
+    FROM Mensajes m
+    INNER JOIN Conversaciones cv ON cv.Id = m.IdConversacion
+    LEFT JOIN Usuarios u ON u.Id = m.IdRemitente
+    WHERE cv.IdCuidadora = (SELECT Id FROM Cuidadoras WHERE IdUsuario = (SELECT IdUsuario FROM Cuidadoras WHERE Id = (SELECT IdCuidadora FROM Ordenes WHERE Id = ?))) 
+      AND cv.IdUsuarioFamilia = (SELECT IdUsuarioFamilia FROM Ordenes WHERE Id = ?)
+    ORDER BY m.FechaCreacion ASC
+  `).all(caso.OrdenId, caso.OrdenId);
+
+  res.json({ ...caso, auditoria, incidencias, mensajes });
 });
 
 // ── ADMIN: lista de mediaciones ──

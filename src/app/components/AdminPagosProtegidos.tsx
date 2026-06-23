@@ -41,6 +41,8 @@ export function AdminPagosProtegidos() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'danger'; text: string } | null>(null);
   const [filterEstado, setFilterEstado] = useState('todos');
+  const [detalleEscrow, setDetalleEscrow] = useState<any>(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -200,11 +202,20 @@ export function AdminPagosProtegidos() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
-                      {t.Estado === 'Retenido' && (
-                        <button className="text-[10px] font-semibold text-[#F6A5C0] hover:text-[#F6A5C0]/80 transition-colors">
-                          Liberar
+                      <div className="flex items-center justify-center gap-1">
+                        <button onClick={async () => {
+                            setCargandoDetalle(true);
+                            try {
+                              const r = await fetch(`/api/admin/escrows/${t.Id}`, { headers });
+                              if (r.ok) setDetalleEscrow(await r.json());
+                            } catch {}
+                            setCargandoDetalle(false);
+                          }}
+                          className="text-[10px] font-semibold text-[#F6A5C0] hover:text-[#F6A5C0]/80 transition-colors"
+                        >
+                          <Eye className="w-3 h-3 inline mr-0.5" /> Detalle
                         </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -264,6 +275,153 @@ export function AdminPagosProtegidos() {
             </motion.div>
           ))}
         </div>
+      )}
+
+      {/* Escrow Detail Modal */}
+      {detalleEscrow && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={() => { setDetalleEscrow(null); setCargandoDetalle(false); }}
+        >
+          <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+            className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] border border-[rgba(255,255,255,0.12)] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-[#F6A5C0]" /> Pago Protegido #{detalleEscrow.Id}
+              </h3>
+              <button onClick={() => { setDetalleEscrow(null); setCargandoDetalle(false); }}
+                className="p-1.5 hover:bg-[rgba(255,255,255,0.1)] rounded-lg transition-colors"
+              ><X className="w-4 h-4 text-[#6667AB]" /></button>
+            </div>
+
+            {cargandoDetalle ? (
+              <div className="text-center py-8">
+                <Clock className="w-8 h-8 text-[#6667AB] mx-auto mb-2 animate-spin" />
+                <p className="text-sm text-[#6667AB]">Cargando detalle...</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+
+                {/* Información del escrow */}
+                <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                  <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3">Información del Escrow</h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="col-span-2">
+                      <span className="text-[#6667AB]">Orden #{detalleEscrow.OrdenId}:</span>
+                      <span className="text-white ml-1">{detalleEscrow.FamiliaNombres} {detalleEscrow.FamiliaApellidos} ↔ {detalleEscrow.CuidadoraNombres} {detalleEscrow.CuidadoraApellidos}</span>
+                    </div>
+                    {detalleEscrow.MenorNombre && <div><span className="text-[#6667AB]">Menor:</span> <span className="text-white ml-1">{detalleEscrow.MenorNombre}</span></div>}
+                    <div><span className="text-[#6667AB]">Fecha:</span> <span className="text-white ml-1">{detalleEscrow.FechaServicio}</span></div>
+                    <div><span className="text-[#6667AB]">Horario:</span> <span className="text-white ml-1">{detalleEscrow.HoraInicio} - {detalleEscrow.HoraFin}</span></div>
+                    <div><span className="text-[#6667AB]">Horas:</span> <span className="text-white ml-1">{detalleEscrow.TotalHoras}h</span></div>
+                    <div><span className="text-[#6667AB]">Tarifa:</span> <span className="text-white ml-1">S/ {detalleEscrow.TarifaHora}/h</span></div>
+                  </div>
+                </div>
+
+                {/* Montos */}
+                <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                  <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3">Desglose de Montos</h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div><span className="text-[#6667AB]">Total:</span> <span className="text-white ml-1 font-bold">S/ {detalleEscrow.MontoTotal?.toFixed(2)}</span></div>
+                    <div><span className="text-[#6667AB]">Subtotal:</span> <span className="text-white ml-1">S/ {detalleEscrow.Subtotal?.toFixed(2)}</span></div>
+                    <div><span className="text-[#6667AB]">Comisión:</span> <span className="text-[#F6A5C0] ml-1">S/ {detalleEscrow.MontoPlataforma?.toFixed(2) || detalleEscrow.TarifaPlataforma?.toFixed(2)}</span></div>
+                    <div><span className="text-[#6667AB]">Monto Cuidadora:</span> <span className="text-emerald-300 ml-1 font-bold">S/ {detalleEscrow.MontoCuidadora?.toFixed(2)}</span></div>
+                    <div>
+                      <span className="text-[#6667AB]">Estado Escrow:</span>
+                      <span className={`ml-1 inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        detalleEscrow.Estado === 'Liberado' ? 'bg-emerald-500/20 text-emerald-200' :
+                        detalleEscrow.Estado === 'Retenido' ? 'bg-amber-500/20 text-amber-200' :
+                        'bg-red-500/20 text-red-200'
+                      }`}>{detalleEscrow.Estado}</span>
+                    </div>
+                    <div>
+                      <span className="text-[#6667AB]">Estado Orden:</span>
+                      <span className={`ml-1 inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        detalleEscrow.OrdenEstado === 'Completada' || detalleEscrow.OrdenEstado === 'Finalizada'
+                          ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-200'
+                      }`}>{detalleEscrow.OrdenEstado}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Estado de confirmaciones */}
+                <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                  <h4 className="text-xs font-bold text-[#6667AB] uppercase mb-3">Estado de Confirmaciones</h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="flex items-center gap-2">
+                      {detalleEscrow.ConfirmadaFamilia ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <XCircle className="w-4 h-4 text-amber-400" />}
+                      <span className="text-[#F5D5E0]">Familia: {detalleEscrow.ConfirmadaFamilia ? 'Confirmó' : 'Pendiente'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {detalleEscrow.ConfirmadaCuidadora ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <XCircle className="w-4 h-4 text-amber-400" />}
+                      <span className="text-[#F5D5E0]">Cuidadora: {detalleEscrow.ConfirmadaCuidadora ? 'Confirmó' : 'Pendiente'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {detalleEscrow.FinalizadaFamilia ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <XCircle className="w-4 h-4 text-amber-400" />}
+                      <span className="text-[#F5D5E0]">Finalizada por familia: {detalleEscrow.FinalizadaFamilia ? 'Sí' : 'No'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {detalleEscrow.FinalizadaCuidadora ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <XCircle className="w-4 h-4 text-amber-400" />}
+                      <span className="text-[#F5D5E0]">Finalizada por cuidadora: {detalleEscrow.FinalizadaCuidadora ? 'Sí' : 'No'}</span>
+                    </div>
+                  </div>
+                  {detalleEscrow.FechaFinalizacion && (
+                    <p className="text-xs text-[#6667AB] mt-2"><Clock className="w-3 h-3 inline mr-1" />Finalizó: {new Date(detalleEscrow.FechaFinalizacion).toLocaleDateString('es-PE')}</p>
+                  )}
+                </div>
+
+                {/* Método de pago */}
+                {detalleEscrow.MetodoPago && (
+                  <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                    <h4 className="text-xs font-bold text-[#6667AB] uppercase mb-3">Método de Pago</h4>
+                    <div className="flex items-center gap-2 text-sm">
+                      {detalleEscrow.MetodoPago === 'Yape' || detalleEscrow.MetodoPago === 'Plin'
+                        ? <Smartphone className="w-5 h-5 text-[#F6A5C0]" />
+                        : <CreditCard className="w-5 h-5 text-[#CC8DB3]" />
+                      }
+                      <span className="text-white">{detalleEscrow.MetodoPago}</span>
+                      <span className={`ml-2 inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        detalleEscrow.PagoEstado === 'Completado' ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-200'
+                      }`}>{detalleEscrow.PagoEstado}</span>
+                      {detalleEscrow.FechaPago && (
+                        <span className="text-[10px] text-[#6667AB] ml-2">{new Date(detalleEscrow.FechaPago).toLocaleDateString('es-PE')}</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Incidencias relacionadas */}
+                {detalleEscrow.incidencias?.length > 0 && (
+                  <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4">
+                    <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-red-400" /> Incidencias ({detalleEscrow.incidencias.length})
+                    </h4>
+                    <div className="space-y-2">
+                      {detalleEscrow.incidencias.map((inc: any, i: number) => (
+                        <div key={i} className="bg-[rgba(33,6,53,0.3)] rounded-lg p-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-white">#{inc.Id} - {inc.Tipo}</span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              inc.Estado === 'Cerrada' ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-200'
+                            }`}>{inc.Estado}</span>
+                          </div>
+                          <p className="text-xs text-[#6667AB] mt-1">{inc.Descripcion?.slice(0, 200)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            )}
+
+            <button onClick={() => { setDetalleEscrow(null); setCargandoDetalle(false); }}
+              className="mt-6 w-full py-2.5 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:opacity-90 transition-opacity"
+            >Cerrar</button>
+          </motion.div>
+        </motion.div>
       )}
     </div>
   );

@@ -2,15 +2,13 @@ import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import {
   Activity, Calendar, DollarSign, Users, Shield, Smartphone, CreditCard,
-  ArrowRight, AlertCircle, CheckCircle, Clock
+  ArrowRight, AlertCircle, CheckCircle, Clock, FileText, BarChart3
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
-type DashboardData = {
-  serviciosActivos: number;
-  serviciosDelMes: number;
-  ingresosDelMes: number;
-  candidatasEnEspera: number;
+type Stats = {
+  totalUsers: number; totalCuidadoras: number; totalFamilias: number;
+  postulacionesPendientes: number; serviciosCompletados: number; incidenciasAbiertas: number;
 };
 
 type EscrowStatus = {
@@ -28,69 +26,52 @@ type Mediacion = {
   FechaCreacion: string;
 };
 
+type Reporte = {
+  totalOrdenes: number; ingresos: number; resenasPromedio: number;
+  ordenesPorEstado: { Estado: string; count: number }[];
+  topCuidadoras: { nombre: string; total: number }[];
+};
+
 export function AdminDashboard() {
   const { user } = useAuth();
   const headers = { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) };
 
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [reporte, setReporte] = useState<Reporte | null>(null);
   const [escrow, setEscrow] = useState<EscrowStatus | null>(null);
   const [mediaciones, setMediaciones] = useState<Mediacion[]>([]);
 
   useEffect(() => {
-    fetch('/api/analytics/dashboard', { headers })
-      .then(r => r.json())
-      .then(d => {
-        if (d) setDashboard({
-          serviciosActivos: d.serviciosActivos ?? 0,
-          serviciosDelMes: d.serviciosFinalizados ?? 0,
-          ingresosDelMes: d.ingresos ?? 0,
-          candidatasEnEspera: d.postulacionesPendientes ?? 0,
+    Promise.all([
+      fetch('/api/admin/stats', { headers }).then(r => r.json()).catch(() => null),
+      fetch('/api/admin/reportes', { headers }).then(r => r.json()).catch(() => null),
+      fetch('/api/admin/transacciones', { headers }).then(r => r.json()).catch(() => []),
+      fetch('/api/admin/mediaciones', { headers }).then(r => r.json()).catch(() => []),
+    ]).then(([s, r, txns, meds]) => {
+      if (s) setStats(s);
+      if (r) setReporte(r);
+      if (Array.isArray(txns)) {
+        const total = txns.reduce((s, t) => s + (t.MontoTotal || 0), 0);
+        setEscrow({
+          electronico: { total, count: txns.length, status: txns.some(t => t.Estado === 'Retenido') ? 'Retenido' : 'Liberado' },
+          yapePlin: { total: 0, count: 0, status: 'Sin datos' },
         });
-      })
-      .catch(() => {});
-
-    fetch('/api/admin/transacciones', { headers })
-      .then(r => r.json())
-      .then((rows: any[]) => {
-        if (Array.isArray(rows)) {
-          const total = rows.reduce((s, r) => s + (r.MontoTotal || 0), 0);
-          setEscrow({
-            electronico: { total, count: rows.length, status: rows.some(r => r.Estado === 'Retenido') ? 'Retenido' : 'Liberado' },
-            yapePlin: { total: 0, count: 0, status: 'Sin datos' },
-          });
-        }
-      })
-      .catch(() => {});
-
-    fetch('/api/admin/mediaciones', { headers })
-      .then(r => r.json())
-      .then(setMediaciones)
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetch('/api/admin/transacciones', { headers })
-        .then(r => r.json())
-        .then((rows: any[]) => {
-          if (Array.isArray(rows)) {
-            const total = rows.reduce((s, r) => s + (r.MontoTotal || 0), 0);
-            setEscrow({
-              electronico: { total, count: rows.length, status: rows.some(r => r.Estado === 'Retenido') ? 'Retenido' : 'Liberado' },
-              yapePlin: { total: 0, count: 0, status: 'Sin datos' },
-            });
-          }
-        })
-        .catch(() => {});
-    }, 30000);
-    return () => clearInterval(interval);
+      }
+      if (Array.isArray(meds)) setMediaciones(meds);
+    });
   }, []);
 
   const kpis = [
-    { label: 'Servicios Activos', value: dashboard?.serviciosActivos ?? 0, icon: Activity, color: 'text-[#F6A5C0]' },
-    { label: 'Servicios del Mes', value: dashboard?.serviciosDelMes ?? 0, icon: Calendar, color: 'text-[#CC8DB3]' },
-    { label: 'Ingresos del Mes', value: `S/ ${(dashboard?.ingresosDelMes ?? 0).toFixed(2)}`, icon: DollarSign, color: 'text-[#F6A5C0]' },
-    { label: 'Candidatas en Espera', value: dashboard?.candidatasEnEspera ?? 0, icon: Users, color: 'text-[#CC8DB3]' },
+    { label: 'Usuarios Totales', value: stats?.totalUsers ?? 0, icon: Users, color: 'text-[#F6A5C0]' },
+    { label: 'Cuidadoras', value: stats?.totalCuidadoras ?? 0, icon: Activity, color: 'text-[#CC8DB3]' },
+    { label: 'Familias', value: stats?.totalFamilias ?? 0, icon: Users, color: 'text-[#F6A5C0]' },
+    { label: 'Postulaciones Pendientes', value: stats?.postulacionesPendientes ?? 0, icon: FileText, color: 'text-amber-300' },
+  ];
+  const kpis2 = [
+    { label: 'Servicios Completados', value: stats?.serviciosCompletados ?? 0, icon: CheckCircle, color: 'text-emerald-300' },
+    { label: 'Incidencias Abiertas', value: stats?.incidenciasAbiertas ?? 0, icon: AlertCircle, color: 'text-red-300' },
+    { label: 'Ordenes Totales', value: reporte?.totalOrdenes ?? 0, icon: BarChart3, color: 'text-[#F6A5C0]' },
+    { label: 'Ingresos', value: `S/ ${(reporte?.ingresos ?? 0).toFixed(2)}`, icon: DollarSign, color: 'text-[#F6A5C0]' },
   ];
 
   const formatFecha = (f: string) => {
@@ -100,23 +81,88 @@ export function AdminDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Fila 1: KPIs principales */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {kpis.map((k, i) => (
-          <motion.div
-            key={k.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
+          <motion.div key={k.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+            className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-5"
           >
-            <div className="flex items-center justify-between mb-4">
-              <k.icon className={`w-8 h-8 ${k.color}`} />
-            </div>
-            <p className={`text-3xl font-extrabold ${k.color}`}>{k.value}</p>
-            <p className="text-sm text-[#6667AB] mt-1 font-medium">{k.label}</p>
+            <k.icon className={`w-6 h-6 ${k.color} mb-2`} />
+            <p className={`text-2xl font-extrabold ${k.color}`}>{k.value}</p>
+            <p className="text-xs text-[#6667AB] mt-1 font-medium">{k.label}</p>
           </motion.div>
         ))}
       </div>
+      {/* Fila 2: KPIs secundarios */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {kpis2.map((k, i) => (
+          <motion.div key={k.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.08 }}
+            className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-5"
+          >
+            <k.icon className={`w-6 h-6 ${k.color} mb-2`} />
+            <p className={`text-2xl font-extrabold ${k.color}`}>{k.value}</p>
+            <p className="text-xs text-[#6667AB] mt-1 font-medium">{k.label}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Ordenes por Estado (bar chart) */}
+      {reporte?.ordenesPorEstado?.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
+          className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="w-5 h-5 text-[#F6A5C0]" />
+            <h2 className="font-bold text-white text-lg">Órdenes por Estado</h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {reporte.ordenesPorEstado.map((o, i) => {
+              const total = reporte.ordenesPorEstado.reduce((s, x) => s + x.count, 0);
+              const pct = total > 0 ? (o.count / total) * 100 : 0;
+              return (
+                <div key={o.Estado} className="bg-[rgba(33,6,53,0.4)] rounded-xl p-3 border border-[rgba(255,255,255,0.06)]">
+                  <p className="text-xs text-[#6667AB]">{o.Estado}</p>
+                  <p className="text-xl font-bold text-white mt-1">{o.count}</p>
+                  <div className="w-full h-1.5 rounded-full bg-[rgba(255,255,255,0.06)] mt-2 overflow-hidden">
+                    <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, delay: 0.8 + i * 0.1 }}
+                      className={`h-full rounded-full ${
+                        o.Estado === 'Finalizada' || o.Estado === 'Completada' ? 'bg-emerald-400' :
+                        o.Estado === 'Cancelada' ? 'bg-red-400' :
+                        o.Estado === 'En curso' ? 'bg-purple-400' :
+                        'bg-[#F6A5C0]'
+                      }`}
+                    />
+                  </div>
+                  <p className="text-[10px] text-[#6667AB] mt-1">{pct.toFixed(0)}%</p>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Top Cuidadoras */}
+      {reporte?.topCuidadoras?.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
+          className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Users className="w-5 h-5 text-[#CC8DB3]" />
+            <h2 className="font-bold text-white text-lg">Top Cuidadoras</h2>
+          </div>
+          <div className="space-y-2">
+            {reporte.topCuidadoras.map((c, i) => (
+              <div key={c.nombre} className="flex items-center justify-between bg-[rgba(33,6,53,0.4)] rounded-xl px-4 py-2.5 border border-[rgba(255,255,255,0.06)]">
+                <div className="flex items-center gap-3">
+                  <span className="w-5 h-5 rounded-full bg-[#F6A5C0]/20 flex items-center justify-center text-[10px] font-bold text-[#F6A5C0]">#{i + 1}</span>
+                  <span className="text-sm text-white">{c.nombre}</span>
+                </div>
+                <span className="text-xs text-[#F5D5E0]">{c.total} servicios</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
@@ -166,7 +212,7 @@ export function AdminDashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {mediaciones.map((m, i) => (
+              {mediaciones.slice(0, 5).map((m, i) => (
                 <div key={m.Id} className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4 border border-[rgba(255,255,255,0.06)]">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -192,9 +238,7 @@ export function AdminDashboard() {
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-[10px] text-[#6667AB]">{formatFecha(m.FechaCreacion)}</span>
-                    <button className="text-[10px] font-semibold text-[#F6A5C0] hover:text-[#F6A5C0]/80 transition-colors">
-                      Ver Detalle <ArrowRight className="w-3 h-3 inline" />
-                    </button>
+                    <span className="text-[10px] text-[#6667AB]">↔ {m.CuidadoraNombres}</span>
                   </div>
                 </div>
               ))}
