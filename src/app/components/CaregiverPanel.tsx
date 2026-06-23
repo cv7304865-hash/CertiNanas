@@ -14,6 +14,7 @@ import { CentroCapacitacion } from './CentroCapacitacion';
 import { HistorialSalud } from './HistorialSalud';
 import { ReporteDiarioForm } from './ReporteDiarioForm';
 import { ReemplazoTracker } from './ReemplazoTracker';
+import { ContractFormat } from './ContractFormat';
 
 type Servicio = {
   Id: number;
@@ -109,6 +110,11 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
   const [detalleServicio, setDetalleServicio] = useState<any>(null);
   const [detalleData, setDetalleData] = useState<any>(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
+
+  // -- Contrato format modal --
+  const [showContractFormat, setShowContractFormat] = useState(false);
+  const [contractViewData, setContractViewData] = useState<any>(null);
+  const [loadingContract, setLoadingContract] = useState(false);
 
   const abrirDetalle = async (servicioId: number) => {
     setCargandoDetalle(true);
@@ -906,6 +912,12 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                         {detalleData.contrato.Terminos && (
                           <pre className="mt-3 text-[10px] text-[#6667AB] whitespace-pre-wrap max-h-40 overflow-y-auto bg-[rgba(33,6,53,0.3)] rounded-lg p-3">{detalleData.contrato.Terminos}</pre>
                         )}
+                        <button onClick={() => {
+                          setContractViewData(detalleData);
+                          setShowContractFormat(true);
+                        }}
+                          className="mt-3 w-full py-2 rounded-lg bg-[#F6A5C0]/10 text-[#F6A5C0] text-xs font-bold hover:bg-[#F6A5C0]/20 transition-colors border border-[#F6A5C0]/30"
+                        >Ver Contrato Completo</button>
                       </div>
                     )}
 
@@ -973,6 +985,49 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {showContractFormat && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          onClick={() => { setShowContractFormat(false); setContractViewData(null); }}
+        >
+          <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            {!contractViewData ? (
+              <div className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] rounded-2xl p-12 text-center">
+                <div className="animate-spin w-8 h-8 border-2 border-[#F6A5C0] border-t-transparent rounded-full mx-auto mb-3" />
+                <p className="text-sm text-[#6667AB]">Cargando contrato...</p>
+              </div>
+            ) : (
+              <>
+                <ContractFormat
+                  codigo={`CTN-2026-${String(contractViewData.orden?.Id || contractViewData.Id || 0).padStart(4, '0')}`}
+                  fechaEmision={new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}
+                  familiaNombre={`${contractViewData.orden?.FamiliaNombres || contractViewData.FamiliaNombres || ''} ${contractViewData.orden?.FamiliaApellidos || contractViewData.FamiliaApellidos || ''}`}
+                  cuidadoraNombre={`${user?.nombres || ''} ${user?.apellidos || ''}`}
+                  menorNombre={contractViewData.orden?.MenorNombre || contractViewData.MenorNombre || 'No especificado'}
+                  menorDiagnostico={contractViewData.orden?.MenorDiagnostico || contractViewData.MenorDiagnostico || 'No especificado'}
+                  fechaServicio={contractViewData.orden?.FechaServicio || contractViewData.FechaServicio || ''}
+                  horaInicio={contractViewData.orden?.HoraInicio || contractViewData.HoraInicio || '--'}
+                  horaFin={contractViewData.orden?.HoraFin || contractViewData.HoraFin || '--'}
+                  duracionHoras={contractViewData.orden?.TotalHoras || contractViewData.TotalHoras || 0}
+                  tarifaHora={contractViewData.orden?.TarifaHora || contractViewData.TarifaHora || 0}
+                  montoTotal={contractViewData.orden?.Total || contractViewData.Total || 0}
+                  subtotal={contractViewData.orden?.Subtotal || contractViewData.Subtotal || 0}
+                  comision={contractViewData.orden?.TarifaPlataforma || contractViewData.TarifaPlataforma || 0}
+                  tareas={contractViewData.tareas || []}
+                  estado={contractViewData.orden?.Estado || contractViewData.Estado || ''}
+                  firmadoFamilia={contractViewData.contrato?.AceptadoFamilia || false}
+                  firmadoCuidadora={contractViewData.contrato?.AceptadoCuidadora || false}
+                />
+                <button onClick={() => { setShowContractFormat(false); setContractViewData(null); }}
+                  className="mt-4 w-full py-3 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:opacity-90 transition-opacity"
+                >Cerrar</button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

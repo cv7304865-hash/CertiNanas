@@ -14,6 +14,7 @@ import { MinorsSection } from './MinorsSection';
 import { CrearSolicitud } from './CrearSolicitud';
 import { DocumentPreviewModal } from './DocumentPreviewModal';
 import { PaymentEscrow } from './PaymentEscrow';
+import { ContractFormat } from './ContractFormat';
 
 type Solicitud = {
   Id: number; FechaServicio: string; TotalHoras: number; TarifaHora: number;
@@ -96,6 +97,9 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
   const [detalleModal, setDetalleModal] = useState<{ open: boolean; item: Solicitud | null }>({ open: false, item: null });
   const [detalleData, setDetalleData] = useState<any>(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
+  const [showContractFormat, setShowContractFormat] = useState(false);
+  const [contractViewData, setContractViewData] = useState<any>(null);
+  const [loadingContract, setLoadingContract] = useState(false);
 
   // Tab - Perfil
   const [perfilForm, setPerfilForm] = useState({
@@ -171,6 +175,17 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
       if (r.ok) setDetalleData(await r.json());
     } catch {}
     setCargandoDetalle(false);
+  };
+
+  const handleViewContract = async (s: Solicitud) => {
+    setLoadingContract(true);
+    setShowContractFormat(true);
+    setContractViewData(null);
+    try {
+      const r = await fetch(`/api/familia/solicitudes/${s.Id}/detalle`, { headers });
+      if (r.ok) setContractViewData(await r.json());
+    } catch {}
+    setLoadingContract(false);
   };
 
   useEffect(() => {
@@ -591,7 +606,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                                 <button onClick={() => { setDetalleModal({ open: true, item: s }); fetchDetalleCompleto(s.Id); }}
                                   className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#F6A5C0] hover:bg-[#F6A5C0]/10 transition-colors"
                                 >Detalle</button>
-                                <button onClick={() => onViewContract?.(s.Id)}
+                                <button onClick={() => handleViewContract(s)}
                                   className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#6667AB] hover:text-white transition-colors"
                                 >Contrato</button>
                               </div>
@@ -914,6 +929,9 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                         {detalleData.contrato.Terminos && (
                           <pre className="mt-3 text-[10px] text-[#6667AB] whitespace-pre-wrap max-h-32 overflow-y-auto bg-[rgba(33,6,53,0.3)] rounded-lg p-3">{detalleData.contrato.Terminos}</pre>
                         )}
+                        <button onClick={() => setShowContractFormat(true)}
+                          className="mt-3 w-full py-2 rounded-lg bg-[#F6A5C0]/10 text-[#F6A5C0] text-xs font-bold hover:bg-[#F6A5C0]/20 transition-colors border border-[#F6A5C0]/30"
+                        >Ver Contrato Completo</button>
                       </div>
                     )}
 
@@ -1046,6 +1064,54 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                   {submittingIncidencia ? 'Enviando...' : 'Enviar Reporte'}
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── CONTRACT FORMAT MODAL ── */}
+      <AnimatePresence>
+        {showContractFormat && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+            onClick={() => { setShowContractFormat(false); setContractViewData(null); }}
+          >
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              {loadingContract || !contractViewData ? (
+                <div className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] rounded-2xl p-12 text-center">
+                  <div className="animate-spin w-8 h-8 border-2 border-[#F6A5C0] border-t-transparent rounded-full mx-auto mb-3" />
+                  <p className="text-sm text-[#6667AB]">Cargando contrato...</p>
+                </div>
+              ) : (
+                <>
+                  <ContractFormat
+                    codigo={`CTN-2026-${String(contractViewData.orden.Id).padStart(4, '0')}`}
+                    fechaEmision={new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    familiaNombre={`${user?.nombres || ''} ${user?.apellidos || ''}`}
+                    cuidadoraNombre={`${contractViewData.orden.CuidadoraNombres || ''} ${contractViewData.orden.CuidadoraApellidos || ''}`}
+                    menorNombre={contractViewData.orden.MenorNombre || 'No especificado'}
+                    menorDiagnostico={contractViewData.orden.MenorDiagnostico || 'No especificado'}
+                    fechaServicio={contractViewData.orden.FechaServicio || ''}
+                    horaInicio={contractViewData.orden.HoraInicio || '--'}
+                    horaFin={contractViewData.orden.HoraFin || '--'}
+                    duracionHoras={contractViewData.orden.TotalHoras || 0}
+                    tarifaHora={contractViewData.orden.TarifaHora || 0}
+                    montoTotal={contractViewData.orden.Total || 0}
+                    subtotal={contractViewData.orden.Subtotal || 0}
+                    comision={contractViewData.orden.TarifaPlataforma || 0}
+                    tareas={contractViewData.tareas || []}
+                    estado={contractViewData.orden.Estado || ''}
+                    firmadoFamilia={contractViewData.contrato?.AceptadoFamilia || false}
+                    firmadoCuidadora={contractViewData.contrato?.AceptadoCuidadora || false}
+                  />
+                  <button onClick={() => { setShowContractFormat(false); setContractViewData(null); }}
+                    className="mt-4 w-full py-3 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:opacity-90 transition-opacity"
+                  >Cerrar</button>
+                </>
+              )}
             </motion.div>
           </motion.div>
         )}
