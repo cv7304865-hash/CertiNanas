@@ -100,6 +100,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
   const [showContractFormat, setShowContractFormat] = useState(false);
   const [contractViewData, setContractViewData] = useState<any>(null);
   const [loadingContract, setLoadingContract] = useState(false);
+  const [showContractPreview, setShowContractPreview] = useState(false);
 
   // Tab - Perfil
   const [perfilForm, setPerfilForm] = useState({
@@ -816,7 +817,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                     </div>
                   </motion.div>
                 )}
-              </AnimatePresence>
+      </AnimatePresence>
             </motion.div>
           </div>
         )}
@@ -929,7 +930,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                         {detalleData.contrato.Terminos && (
                           <pre className="mt-3 text-[10px] text-[#6667AB] whitespace-pre-wrap max-h-32 overflow-y-auto bg-[rgba(33,6,53,0.3)] rounded-lg p-3">{detalleData.contrato.Terminos}</pre>
                         )}
-                        <button onClick={() => { setContractViewData(detalleData); setLoadingContract(false); setShowContractFormat(true); }}
+                        <button onClick={() => setShowContractPreview(true)}
                           className="mt-3 w-full py-2 rounded-lg bg-[#F6A5C0]/10 text-[#F6A5C0] text-xs font-bold hover:bg-[#F6A5C0]/20 transition-colors border border-[#F6A5C0]/30"
                         >Ver Contrato Completo</button>
                       </div>
@@ -1125,6 +1126,45 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
             onClose={() => setDocPreviewCuidadoraId(null)}
             cuidadoraId={docPreviewCuidadoraId}
           />
+        )}
+      </AnimatePresence>
+
+      {/* ── CONTRACT PREVIEW MODAL (independiente, usa detalleData directo) ── */}
+      <AnimatePresence>
+        {showContractPreview && detalleData && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+            onClick={() => setShowContractPreview(false)}
+          >
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              <ContractFormat
+                codigo={`CTN-2026-${String(detalleData.Id || 0).padStart(4, '0')}`}
+                fechaEmision={new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })}
+                familiaNombre={`${user?.nombres || ''} ${user?.apellidos || ''}`}
+                cuidadoraNombre={`${detalleData.CuidadoraNombres || ''} ${detalleData.CuidadoraApellidos || ''}`}
+                menorNombre={detalleData.MenorNombre || 'No especificado'}
+                menorDiagnostico={detalleData.MenorDiagnostico || 'No especificado'}
+                fechaServicio={detalleData.FechaServicio || ''}
+                horaInicio={detalleData.HoraInicio || '--'}
+                horaFin={detalleData.HoraFin || '--'}
+                duracionHoras={detalleData.TotalHoras || 0}
+                tarifaHora={detalleData.TarifaHora || 0}
+                montoTotal={detalleData.Total || 0}
+                subtotal={detalleData.Subtotal || 0}
+                comision={detalleData.TarifaPlataforma || 0}
+                tareas={detalleData.tareas || []}
+                estado={detalleData.Estado || ''}
+                firmadoFamilia={detalleData.contrato?.AceptadoFamilia || false}
+                firmadoCuidadora={detalleData.contrato?.AceptadoCuidadora || false}
+              />
+              <button onClick={() => setShowContractPreview(false)}
+                className="mt-4 w-full py-3 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:opacity-90 transition-opacity"
+              >Cerrar</button>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

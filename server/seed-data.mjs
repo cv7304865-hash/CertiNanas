@@ -1,4 +1,5 @@
 import { getDb, closeDb } from './db.js';
+import { setupDatabase } from './setup.js';
 
 function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function randDec(min, max, d = 2) { return +(min + Math.random() * (max - min)).toFixed(d); }
@@ -31,6 +32,11 @@ const familiasData = [
   { nombres: 'Laura Cristina',apellidos: 'Medina Solis',         email: 'lauramedina90@gmail.com' },
   { nombres: 'Diego Alonso',  apellidos: 'Guerrero Rojas',       email: 'diego.guerrero@hotmail.com' },
   { nombres: 'Pamela Estefania',apellidos: 'Delgado Pizarro',    email: 'pamela.delgado@gmail.com' },
+  // Enriched: casos reales
+  { nombres: 'Maria Teresa',  apellidos: 'Torres Garcia',        email: 'familia.torres@certinanas.pe' },
+  { nombres: 'Carolina',      apellidos: 'Rojas Mendoza',        email: 'familia.rojas@certinanas.pe' },
+  { nombres: 'Fernando',      apellidos: 'Ruiz Flores',          email: 'familia.ruiz@certinanas.pe' },
+  { nombres: 'Patricia',      apellidos: 'Sanchez Morales',      email: 'familia.sanchez@certinanas.pe' },
 ];
 
 const cuidadorasData = [
@@ -45,6 +51,26 @@ const cuidadorasData = [
   { nombres: 'Natalia Belen',    apellidos: 'Sanchez Guerrero',     email: 'nataliasanchez@outlook.com' },
   { nombres: 'Monica Patricia',  apellidos: 'Castro Campos',        email: 'monica.castro@yahoo.com' },
   { nombres: 'Rosa Alejandra',   apellidos: 'Flores Rojas',         email: 'rosa.flores.cuidadora@gmail.com' },
+  // Enriched: casos reales
+  { nombres: 'Ana',             apellidos: 'Perez Lopez',           email: 'ana.perez.cuidadora@certinanas.pe' },
+  { nombres: 'Maria del Rosario',apellidos: 'Cardenas Vega',        email: 'maria.cardenas@certinanas.pe' },
+  { nombres: 'Elena Beatriz',   apellidos: 'Salazar Rios',         email: 'elena.salazar@certinanas.pe' },
+  { nombres: 'Paola Andrea',    apellidos: 'Mendoza Torres',       email: 'paola.mendoza@certinanas.pe' },
+  { nombres: 'Ruth Noemi',      apellidos: 'Paredes Lozano',       email: 'ruth.paredes@certinanas.pe' },
+  { nombres: 'Cinthya',         apellidos: 'Villegas Nuñez',       email: 'cinthya.villegas@certinanas.pe' },
+  { nombres: 'Gloria Marlene',  apellidos: 'Soto Huaman',          email: 'gloria.soto@certinanas.pe' },
+  { nombres: 'Jessica Paola',   apellidos: 'Quispe Condori',       email: 'jessica.quispe@certinanas.pe' },
+  { nombres: 'Liliana',         apellidos: 'Maldonado Rivas',      email: 'liliana.maldonado@certinanas.pe' },
+  { nombres: 'Sandra',          apellidos: 'Guerrero Luna',        email: 'sandra.guerrero@certinanas.pe' },
+  { nombres: 'Tatiana',         apellidos: 'Cruzado Medina',       email: 'tatiana.cruzado@certinanas.pe' },
+  { nombres: 'Vanessa',         apellidos: 'Vega Paredes',         email: 'vanessa.vega@certinanas.pe' },
+  { nombres: 'Rossana',         apellidos: 'Diaz Saldivar',        email: 'rossana.diaz@certinanas.pe' },
+  { nombres: 'Fiorella',        apellidos: 'Rivas Guerrero',       email: 'fiorella.rivas@certinanas.pe' },
+  { nombres: 'Daniela',         apellidos: 'Torres Gomez',         email: 'daniela.torres@certinanas.pe' },
+  { nombres: 'Brenda',          apellidos: 'Carrasco Zevallos',    email: 'brenda.carrasco@certinanas.pe' },
+  { nombres: 'Karla',           apellidos: 'Sanchez Prada',        email: 'karla.sanchez@certinanas.pe' },
+  { nombres: 'Ingrid',          apellidos: 'Nuñez Bellido',        email: 'ingrid.nunez@certinanas.pe' },
+  { nombres: 'Margarita',       apellidos: 'Espinoza Rojas',       email: 'margarita.espinoza@certinanas.pe' },
 ];
 
 const zonas = ['Trujillo Centro', 'Victor Larco', 'La Esperanza', 'Moche', 'Buenos Aires'];
@@ -152,18 +178,38 @@ export function seed(db) {
   }
   const cuidadorasUsers = db.prepare('SELECT Id, Nombres, Apellidos FROM Usuarios WHERE IdRol = 3').all();
 
-  const perfiles = [
-    { exp: 12, tarifa: 42, zona: 'Victor Larco',    descCorta: 'Especialista en TEA con 12 anos de experiencia.', descLarga: 'Trabajo con ninos dentro del espectro autista usando tecnicas ABA y de integracion sensorial. Formacion continua en terapias modernas.' },
-    { exp: 8,  tarifa: 35, zona: 'Trujillo Centro',  descCorta: 'Profesional en Estimulacion Temprana.',         descLarga: 'Apasionada por el desarrollo infantil temprano. Certificada en primeros auxilios y terapia de lenguaje basica.' },
-    { exp: 15, tarifa: 50, zona: 'La Esperanza',     descCorta: 'Psicologa infantil con amplia trayectoria.',     descLarga: 'Mas de 15 anos trabajando con ninos con necesidades especiales. Experta en TDAH y trastornos de conducta.' },
-    { exp: 5,  tarifa: 30, zona: 'Moche',            descCorta: 'Cuidadora paciente y creativa.',                 descLarga: 'Joven profesional con energia y dedicacion. Especializada en terapia ocupacional y juegos didacticos.' },
-    { exp: 10, tarifa: 40, zona: 'Buenos Aires',     descCorta: 'Especialista en Sindrome de Down.',            descLarga: 'Amplia experiencia en inclusion y estimulacion de ninos con Sindrome de Down. Talleres de integracion social.' },
-    { exp: 7,  tarifa: 38, zona: 'Trujillo Centro',  descCorta: 'Terapeuta de lenguaje y aprendizaje.',          descLarga: 'Licenciada en Educacion Especial con enfoque en comunicacion aumentativa y alternativa.' },
-    { exp: 20, tarifa: 55, zona: 'Victor Larco',     descCorta: 'Maestra de educacion especial jubilada.',       descLarga: 'Una vida dedicada a la ensenanza. Experta en diseno de planes de intervencion individualizados.' },
-    { exp: 3,  tarifa: 28, zona: 'La Esperanza',     descCorta: 'Cuidadora con vocacion y calidez.',             descLarga: 'Iniciando mi carrera pero con enorme compromiso. Certificada en RCP y primeros auxilios infantiles.' },
-    { exp: 6,  tarifa: 35, zona: 'Moche',            descCorta: 'Especialista en discapacidad motriz.',          descLarga: 'Experiencia en fisioterapia infantil y estimulacion sensorial. Trabajo con ninos con paralisis cerebral.' },
-    { exp: 9,  tarifa: 45, zona: 'Buenos Aires',     descCorta: 'Profesional integral en cuidado infantil.',      descLarga: 'Combinacion de formacion en psicologia y educacion especial. Terapias personalizadas segun cada nino.' },
-  ];
+const perfiles = [
+  { exp: 12, tarifa: 42, zona: 'Victor Larco',    descCorta: 'Especialista en TEA con 12 anos de experiencia.', descLarga: 'Trabajo con ninos dentro del espectro autista usando tecnicas ABA y de integracion sensorial. Formacion continua en terapias modernas.' },
+  { exp: 8,  tarifa: 35, zona: 'Trujillo Centro',  descCorta: 'Profesional en Estimulacion Temprana.',         descLarga: 'Apasionada por el desarrollo infantil temprano. Certificada en primeros auxilios y terapia de lenguaje basica.' },
+  { exp: 15, tarifa: 50, zona: 'La Esperanza',     descCorta: 'Psicologa infantil con amplia trayectoria.',     descLarga: 'Mas de 15 anos trabajando con ninos con necesidades especiales. Experta en TDAH y trastornos de conducta.' },
+  { exp: 5,  tarifa: 30, zona: 'Moche',            descCorta: 'Cuidadora paciente y creativa.',                 descLarga: 'Joven profesional con energia y dedicacion. Especializada en terapia ocupacional y juegos didacticos.' },
+  { exp: 10, tarifa: 40, zona: 'Buenos Aires',     descCorta: 'Especialista en Sindrome de Down.',            descLarga: 'Amplia experiencia en inclusion y estimulacion de ninos con Sindrome de Down. Talleres de integracion social.' },
+  { exp: 7,  tarifa: 38, zona: 'Trujillo Centro',  descCorta: 'Terapeuta de lenguaje y aprendizaje.',          descLarga: 'Licenciada en Educacion Especial con enfoque en comunicacion aumentativa y alternativa.' },
+  { exp: 20, tarifa: 55, zona: 'Victor Larco',     descCorta: 'Maestra de educacion especial jubilada.',       descLarga: 'Una vida dedicada a la ensenanza. Experta en diseno de planes de intervencion individualizados.' },
+  { exp: 3,  tarifa: 28, zona: 'La Esperanza',     descCorta: 'Cuidadora con vocacion y calidez.',             descLarga: 'Iniciando mi carrera pero con enorme compromiso. Certificada en RCP y primeros auxilios infantiles.' },
+  { exp: 6,  tarifa: 35, zona: 'Moche',            descCorta: 'Especialista en discapacidad motriz.',          descLarga: 'Experiencia en fisioterapia infantil y estimulacion sensorial. Trabajo con ninos con paralisis cerebral.' },
+  { exp: 9,  tarifa: 45, zona: 'Buenos Aires',     descCorta: 'Profesional integral en cuidado infantil.',      descLarga: 'Combinacion de formacion en psicologia y educacion especial. Terapias personalizadas segun cada nino.' },
+  // Enriched perfiles for real cases
+  { exp: 7,  tarifa: 23, zona: 'Trujillo Centro',  descCorta: 'Especialista en TEA con enfoque ABA.',          descLarga: 'Certificada en analisis conductual aplicado para ninos con TEA. Experiencia en terapia de lenguaje y habilidades sociales.' },
+  { exp: 5,  tarifa: 25, zona: 'La Esperanza',     descCorta: 'Terapeuta ocupacional con experiencia en TDAH.',descLarga: 'Formacion en integracion sensorial y manejo conductual para ninos con deficit de atencion. Tecnicas de refuerzo positivo.' },
+  { exp: 9,  tarifa: 30, zona: 'Victor Larco',     descCorta: 'Profesional en estimulacion temprana.',          descLarga: 'Experta en desarrollo de autonomia para ninos con Sindrome de Down. Talleres de habilidades sociales e inclusion.' },
+  { exp: 11, tarifa: 35, zona: 'Moche',            descCorta: 'Fisioterapeuta infantil especializada.',         descLarga: 'Amplia experiencia en rehabilitacion motriz y acompanamiento a ninos con paralisis cerebral y discapacidad motriz.' },
+  { exp: 4,  tarifa: 22, zona: 'Buenos Aires',     descCorta: 'Cuidadora carinosa con enfoque ludico.',         descLarga: 'Joven profesional con vocacion de servicio. Capacitada en primeros auxilios y manejo de conductas desafiantes.' },
+  { exp: 14, tarifa: 40, zona: 'Trujillo Centro',  descCorta: 'Psicopedagoga con amplia trayectoria.',          descLarga: 'Mas de 14 anos apoyando a ninos con necesidades educativas especiales. Evaluaciones funcionales y planes individualizados.' },
+  { exp: 6,  tarifa: 28, zona: 'La Esperanza',     descCorta: 'Especialista en lenguaje y comunicacion.',       descLarga: 'Licenciada en terapia de lenguaje con enfoque en comunicacion aumentativa. Trabajo con ninos no verbales y sus familias.' },
+  { exp: 18, tarifa: 50, zona: 'Victor Larco',     descCorta: 'Educadora especial con amplia experiencia.',     descLarga: 'Toda una vida dedicada a la educacion inclusiva. Experta en diseno de materiales adaptados y curriculos flexibles.' },
+  { exp: 3,  tarifa: 20, zona: 'Moche',            descCorta: 'Cuidadora entusiasta y creativa.',              descLarga: 'Iniciando carrera con gran entusiasmo. Talleres de arte-terapia y musicoterapia para ninos con necesidades especiales.' },
+  { exp: 8,  tarifa: 32, zona: 'Buenos Aires',     descCorta: 'Terapeuta integral en neurodesarrollo.',        descLarga: 'Combinacion de terapia ocupacional y psicologia. Programas de estimulacion temprana personalizados por nino.' },
+  { exp: 10, tarifa: 38, zona: 'Trujillo Centro',  descCorta: 'Especialista en conducta y aprendizaje.',        descLarga: 'Enfoque en terapia cognitivo-conductual para ninos con TDAH y trastornos del neurodesarrollo. Trabajo colaborativo con escuelas.' },
+  { exp: 5,  tarifa: 25, zona: 'La Esperanza',     descCorta: 'Profesional en inclusion educativa.',            descLarga: 'Experiencia en acompanamiento escolar inclusivo y adaptacion curricular. Manejo de grupos heterogeneos.' },
+  { exp: 16, tarifa: 48, zona: 'Victor Larco',     descCorta: 'Maestra de educacion especial jubilada activa.',descLarga: 'Jubilada activa con 16 anos de experiencia. Apasionada por la ensenanza multisensorial y el aprendizaje a traves del juego.' },
+  { exp: 7,  tarifa: 33, zona: 'Moche',            descCorta: 'Terapeuta de lenguaje y aprendizaje.',          descLarga: 'Especialista en trastornos de la comunicacion. Trabajo con sistemas PECS y dispositivos de comunicacion aumentativa.' },
+  { exp: 4,  tarifa: 24, zona: 'Buenos Aires',     descCorta: 'Cuidadora paciente y dedicada.',                descLarga: 'Con experiencia en cuidado de ninos con TEA y TDAH. Certificada en RCP pediatrico y manejo de crisis.' },
+  { exp: 12, tarifa: 38, zona: 'Trujillo Centro',  descCorta: 'Coordinadora de centros de estimulacion.',      descLarga: 'Experiencia liderando equipos de estimulacion temprana. Enfoque en evaluacion del desarrollo y derivacion oportuna.' },
+  { exp: 6,  tarifa: 28, zona: 'La Esperanza',     descCorta: 'Cuidadora con experiencia en discapacidad.',    descLarga: 'Trabajo con ninos con paralisis cerebral y otras discapacidades motoras. Tecnicas de posicionamiento y movilizacion.' },
+  { exp: 9,  tarifa: 30, zona: 'Victor Larco',     descCorta: 'Especialista en ninos con Sindrome de Down.',  descLarga: 'Amplia experiencia en programas de autonomia y vida diaria para ninos con Sindrome de Down. Terapia ocupacional.' },
+  { exp: 5,  tarifa: 26, zona: 'Moche',            descCorta: 'Cuidadora con vocacion educativa.',              descLarga: 'Formacion en educacion inicial con especializacion en inclusion. Actividades ludico-educativas personalizadas.' },
+];
 
   for (let idx = 0; idx < cuidadorasUsers.length; idx++) {
     const u = cuidadorasUsers[idx];
@@ -333,9 +379,9 @@ export function seed(db) {
     const paresInc = [
       { ordenIdx: 9,  tipo: 'Grave',    estado: 'Abierta' },
       { ordenIdx: 0,  tipo: 'Moderada', estado: 'Abierta' },
-      { ordenIdx: 38, tipo: 'Leve',     estado: 'En revision' },
-      { ordenIdx: 10, tipo: 'Leve',     estado: 'En revision' },
-      { ordenIdx: 17, tipo: 'Leve',     estado: 'En revision' },
+      { ordenIdx: 38, tipo: 'Leve',     estado: 'En revisión' },
+      { ordenIdx: 10, tipo: 'Leve',     estado: 'En revisión' },
+      { ordenIdx: 17, tipo: 'Leve',     estado: 'En revisión' },
       { ordenIdx: 33, tipo: 'Leve',     estado: 'Cerrada' },
     ];
     for (const p of paresInc) {
@@ -355,7 +401,7 @@ export function seed(db) {
       ['Titulo profesional', '180 KB'],
       ['Carta de presentacion', '95 KB'],
     ];
-    const estadosPos = ['Pendiente', 'Pendiente', 'Rechazada', 'Rechazada', 'Aprobada', 'Aprobada', 'Pendiente', 'Aprobada', 'Aprobada', 'Rechazada', 'Pendiente'];
+    const estadosPos = ['Pendiente', 'Pendiente', 'Rechazada', 'Rechazada', 'Aprobada', 'Aprobada', 'Pendiente', 'Aprobada', 'Aprobada', 'Rechazada', 'Pendiente', 'Pendiente', 'Aprobada', 'Rechazada', 'Aprobada', 'Pendiente', 'Rechazada', 'Pendiente', 'Aprobada', 'Aprobada', 'Pendiente', 'Rechazada', 'Pendiente', 'Aprobada', 'Aprobada', 'Pendiente', 'Pendiente', 'Rechazada', 'Rechazada', 'Aprobada'];
     const motivosRechazo = [
       'Documentos incompletos: falta certificado de antecedentes penales vigente.',
       'No cumple con el minimo de 3 anos de experiencia requerido.',
@@ -495,10 +541,10 @@ export function seed(db) {
         if (Math.random() > 0.3) {
           const puntaje = rand(65, 100);
           const aprobado = puntaje >= 70 ? 1 : 0;
-          db.prepare("INSERT OR IGNORE INTO ProgresoCapacitacion (IdCuidadora, IdCapacitacion, PuntajeObtenido, Aprobado, CertificadoGenerado, CertificadoUrl, FechaCompletado) VALUES (?, ?, ?, ?, ?, ?, datetime('now', '-? days'))").run(
+          const diasCap = rand(10, 60);
+          db.prepare(`INSERT OR IGNORE INTO ProgresoCapacitacion (IdCuidadora, IdCapacitacion, PuntajeObtenido, Aprobado, CertificadoGenerado, CertificadoUrl, FechaCompletado) VALUES (?, ?, ?, ?, ?, ?, datetime('now', '-${diasCap} days'))`).run(
             c.Id, cap.Id, puntaje, aprobado, aprobado,
-            aprobado ? `/certificados/${c.Nombres.toLowerCase()}_${cap.Id}.pdf` : null,
-            rand(10, 60)
+            aprobado ? `/certificados/${c.Nombres.toLowerCase()}_${cap.Id}.pdf` : null
           );
         }
       }
@@ -512,13 +558,13 @@ export function seed(db) {
       const familias = db.prepare('SELECT Id FROM Usuarios WHERE IdRol = 2').all();
       for (const o of ordenesPendientes) {
         const propPor = Math.random() > 0.5 ? o.IdUsuarioFamilia : (familias[0]?.Id || o.IdUsuarioFamilia);
-        db.prepare("INSERT INTO Negociaciones (IdOrden, IdPropuestoPor, TarifaHora, TotalHoras, Mensaje, Estado, FechaCreacion, Propuestas) VALUES (?, ?, ?, ?, ?, ?, datetime('now', '-? days'), ?)").run(
+        const diasNeg = Math.floor(Math.random() * 15) + 1;
+        db.prepare(`INSERT INTO Negociaciones (IdOrden, IdPropuestoPor, TarifaHora, TotalHoras, Mensaje, Estado, FechaCreacion, Propuestas) VALUES (?, ?, ?, ?, ?, ?, datetime('now', '-${diasNeg} days'), ?)`).run(
           o.Id, propPor,
           o.TarifaHora + (Math.random() - 0.5) * 10,
           o.TotalHoras + (Math.random() - 0.5) * 2,
           Math.random() > 0.5 ? 'Solicito ajustar la tarifa por el tipo de cuidado requerido.' : 'Acepto las condiciones propuestas.',
           Math.random() > 0.3 ? 'activa' : 'aceptada',
-          Math.floor(Math.random() * 15) + 1,
           JSON.stringify([{ propuesta: 'Tarifa: S/ ' + (o.TarifaHora + (Math.random() - 0.5) * 10).toFixed(2), estado: 'pendiente' }])
         );
       }
@@ -532,10 +578,10 @@ export function seed(db) {
         const montoTotal = o.Total;
         const montoCuidadora = +(montoTotal * 0.85).toFixed(2);
         const montoPlataforma = +(montoTotal * 0.15).toFixed(2);
-        db.prepare("INSERT INTO Escrow (IdOrden, MontoTotal, MontoCuidadora, MontoPlataforma, Estado, FechaCreacion) VALUES (?, ?, ?, ?, ?, datetime('now', '-? days'))").run(
+        const diasEsc = Math.floor(Math.random() * 60) + 1;
+        db.prepare(`INSERT INTO Escrow (IdOrden, MontoTotal, MontoCuidadora, MontoPlataforma, Estado, FechaCreacion) VALUES (?, ?, ?, ?, ?, datetime('now', '-${diasEsc} days'))`).run(
           o.Id, montoTotal, montoCuidadora, montoPlataforma,
-          Math.random() > 0.6 ? 'Liberado' : 'Retenido',
-          Math.floor(Math.random() * 60) + 1
+          Math.random() > 0.6 ? 'Liberado' : 'Retenido'
         );
       }
     }
@@ -545,10 +591,10 @@ export function seed(db) {
     if (db.prepare('SELECT COUNT(*) AS c FROM Contratos').get().c === 0) {
       const ordenes = db.prepare("SELECT Id FROM Ordenes WHERE Estado NOT IN ('Cancelada') LIMIT 10").all();
       for (const o of ordenes) {
-        db.prepare("INSERT INTO Contratos (IdOrden, Terminos, AceptadoFamilia, AceptadoCuidadora, FechaCreacion) VALUES (?, ?, ?, ?, datetime('now', '-? days'))").run(
+        const diasCont = Math.floor(Math.random() * 30) + 1;
+        db.prepare(`INSERT INTO Contratos (IdOrden, Terminos, AceptadoFamilia, AceptadoCuidadora, FechaCreacion) VALUES (?, ?, ?, ?, datetime('now', '-${diasCont} days'))`).run(
           o.Id, 'Terminos y condiciones estandar de servicio de cuidado infantil.',
-          Math.random() > 0.2 ? 1 : 0, Math.random() > 0.2 ? 1 : 0,
-          Math.floor(Math.random() * 30) + 1
+          Math.random() > 0.2 ? 1 : 0, Math.random() > 0.2 ? 1 : 0
         );
       }
     }
@@ -584,9 +630,9 @@ export function seed(db) {
           { variable: 'Tiempo desde ultima resena', peso: Math.floor(Math.random() * 20) },
           { variable: 'Consistencia de horarios', peso: Math.floor(Math.random() * 15) },
         ]);
-        db.prepare("INSERT INTO PrediccionRiesgos (IdOrden, NivelRiesgo, PuntajeRiesgo, VariablesAnalizadas, AlertaGenerada, FechaCreacion) VALUES (?, ?, ?, ?, ?, datetime('now', '-? days'))").run(
-          o.Id, score >= 50 ? 'Alto' : score >= 25 ? 'Medio' : 'Bajo', score, variables, score >= 25 ? 1 : 0,
-          Math.floor(Math.random() * 45) + 1
+        const diasPred = Math.floor(Math.random() * 45) + 1;
+        db.prepare(`INSERT INTO PrediccionRiesgos (IdOrden, NivelRiesgo, PuntajeRiesgo, VariablesAnalizadas, AlertaGenerada, FechaCreacion) VALUES (?, ?, ?, ?, ?, datetime('now', '-${diasPred} days'))`).run(
+          o.Id, score >= 50 ? 'Alto' : score >= 25 ? 'Medio' : 'Bajo', score, variables, score >= 25 ? 1 : 0
         );
       }
     }
@@ -610,13 +656,13 @@ export function seed(db) {
     if (db.prepare('SELECT COUNT(*) AS c FROM Incidentes').get().c === 0) {
       const ordenes = db.prepare("SELECT Id, IdCuidadora FROM Ordenes WHERE Estado IN ('En curso', 'Finalizada') LIMIT 5").all();
       for (const o of ordenes) {
-        db.prepare("INSERT INTO Incidentes (IdOrden, IdUsuarioReporta, Latitud, Longitud, Tipo, Estado, Descripcion, FechaActivacion) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now', '-? days'))").run(
+        const diasInc = Math.floor(Math.random() * 30) + 1;
+        db.prepare(`INSERT INTO Incidentes (IdOrden, IdUsuarioReporta, Latitud, Longitud, Tipo, Estado, Descripcion, FechaActivacion) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now', '-${diasInc} days'))`).run(
           o.Id, Math.floor(Math.random() * 10) + 2,
           -8.1 + Math.random() * 0.05, -79.0 + Math.random() * 0.05,
           Math.random() > 0.7 ? 'Emergencia' : 'Panico',
           Math.random() > 0.5 ? 'Resuelto' : 'Activo',
-          'Incidente reportado durante la sesion de cuidado.',
-          Math.floor(Math.random() * 30) + 1
+          'Incidente reportado durante la sesion de cuidado.'
         );
       }
     }
@@ -627,10 +673,10 @@ export function seed(db) {
       const ordenes = db.prepare("SELECT Id FROM Ordenes WHERE Estado NOT IN ('Cancelada') LIMIT 5").all();
       for (const o of ordenes) {
         const codigo = 'CT-' + String(o.Id).padStart(4, '0') + '-' + String(Math.floor(Math.random() * 9000) + 1000);
-        db.prepare("INSERT INTO ContratosDigitales (IdOrden, CodigoContrato, FechaEmision, Estado, FechaCreacion) VALUES (?, ?, datetime('now', '-? days'), ?, datetime('now', '-? days'))").run(
-          o.Id, codigo, Math.floor(Math.random() * 15) + 1,
-          Math.random() > 0.5 ? 'Completado' : 'Pendiente',
-          Math.floor(Math.random() * 15) + 1
+        const diasCd = Math.floor(Math.random() * 15) + 1;
+        db.prepare(`INSERT INTO ContratosDigitales (IdOrden, CodigoContrato, FechaEmision, Estado, FechaCreacion) VALUES (?, ?, datetime('now', '-${diasCd} days'), ?, datetime('now', '-${diasCd} days'))`).run(
+          o.Id, codigo,
+          Math.random() > 0.5 ? 'Completado' : 'Pendiente'
         );
       }
     }
@@ -640,17 +686,345 @@ export function seed(db) {
     if (db.prepare('SELECT COUNT(*) AS c FROM ReemplazoEmergencia').get().c === 0) {
       const ordenes = db.prepare("SELECT Id, IdCuidadora FROM Ordenes LIMIT 3").all();
       for (const o of ordenes) {
-        db.prepare("INSERT INTO ReemplazoEmergencia (IdOrden, IdCuidadoraOriginal, Motivo, Estado, TiempoBusquedaSegundos, FechaCreacion) VALUES (?, ?, ?, ?, ?, datetime('now', '-? days'))").run(
+        const diasReemp = Math.floor(Math.random() * 20) + 1;
+        db.prepare(`INSERT INTO ReemplazoEmergencia (IdOrden, IdCuidadoraOriginal, Motivo, Estado, TiempoBusquedaSegundos, FechaCreacion) VALUES (?, ?, ?, ?, ?, datetime('now', '-${diasReemp} days'))`).run(
           o.Id, o.IdCuidadora,
           Math.random() > 0.5 ? 'Emergencia familiar de la cuidadora' : 'Cuidadora reporta malestar repentino',
-          Math.random() > 0.7 ? 'Encontrado' : 'Buscando', Math.floor(Math.random() * 3600) + 120,
-          Math.floor(Math.random() * 20) + 1
+          Math.random() > 0.7 ? 'Encontrado' : 'Buscando', Math.floor(Math.random() * 3600) + 120
         );
       }
     }
   } catch(e) { console.log('Seed 25 (ReemplazoEmergencia) omitido:', e.message); }
 
-  // ========== 26. REPORTE ==========
+  // ========== 26. ENRIQUECIDO: CASOS ESTRUCTURADOS ==========
+  try {
+    const getEmailId = (email) => db.prepare('SELECT Id FROM Usuarios WHERE Email = ?').get(email)?.Id;
+    const getCuiId = (email) => db.prepare('SELECT c.Id FROM Cuidadoras c INNER JOIN Usuarios u ON u.Id = c.IdUsuario WHERE u.Email = ?').get(email)?.Id;
+    const getFamId = db.prepare('SELECT Id FROM Usuarios WHERE Email = ?');
+    const getCui = db.prepare('SELECT c.Id, c.IdUsuario FROM Cuidadoras c INNER JOIN Usuarios u ON u.Id = c.IdUsuario WHERE u.Email = ?');
+
+    const torresFam = getFamId.get('familia.torres@certinanas.pe')?.Id;
+    const rojasFam  = getFamId.get('familia.rojas@certinanas.pe')?.Id;
+    const ruizFam   = getFamId.get('familia.ruiz@certinanas.pe')?.Id;
+    const sanchezFam= getFamId.get('familia.sanchez@certinanas.pe')?.Id;
+
+    // --- Menores especificos ---
+    const menoresIns = db.prepare('INSERT OR IGNORE INTO Menores (IdUsuarioFamilia, Nombre, Diagnostico, FechaNacimiento) VALUES (?, ?, ?, ?)');
+    const getMenor = db.prepare('SELECT Id FROM Menores WHERE IdUsuarioFamilia = ? AND Nombre = ?');
+    if (torresFam) {
+      menoresIns.run(torresFam, 'Mateo Torres Garcia', 'Trastorno del Espectro Autista (TEA) Nivel 1', '2019-03-15');
+    }
+    if (rojasFam) {
+      menoresIns.run(rojasFam, 'Valentina Rojas Mendoza', 'Trastorno por Deficit de Atencion e Hiperactividad (TDAH)', '2020-07-22');
+    }
+    if (ruizFam) {
+      menoresIns.run(ruizFam, 'Sebastian Ruiz Flores', 'Sindrome de Down', '2018-11-08');
+    }
+    if (sanchezFam) {
+      menoresIns.run(sanchezFam, 'Diego Sanchez Morales', 'Paralisis Cerebral Leve', '2019-05-30');
+    }
+
+    const mateoId   = getMenor.get(torresFam, 'Mateo Torres Garcia')?.Id;
+    const valentinaId = getMenor.get(rojasFam, 'Valentina Rojas Mendoza')?.Id;
+    const sebastianId = getMenor.get(ruizFam, 'Sebastian Ruiz Flores')?.Id;
+    const diegoId   = getMenor.get(sanchezFam, 'Diego Sanchez Morales')?.Id;
+
+    // --- Cuidadoras especificas por email ---
+    const ana = getCui.get('ana.perez.cuidadora@certinanas.pe');
+    const mariaCardenas = getCui.get('maria.cardenas@certinanas.pe');
+    const elena = getCui.get('elena.salazar@certinanas.pe');
+    const paola = getCui.get('paola.mendoza@certinanas.pe');
+    const ruth = getCui.get('ruth.paredes@certinanas.pe');
+    const cinthya = getCui.get('cinthya.villegas@certinanas.pe');
+    const gloria = getCui.get('gloria.soto@certinanas.pe');
+
+    // CASO 1: Mateo Torres (TEA) – Orden Pendiente, negociacion activa
+    if (mateoId && ana && torresFam) {
+      const exO1 = db.prepare('SELECT Id FROM Ordenes WHERE IdMenor = ? AND IdUsuarioFamilia = ?').get(mateoId, torresFam);
+      if (!exO1) {
+        const r = db.prepare(`INSERT INTO Ordenes (IdCuidadora, IdUsuarioFamilia, TipoServicio, FechaServicio, TotalHoras, TarifaHora, Subtotal, TarifaPlataforma, Total, Estado, FechaCreacion, IdMenor, HoraInicio, HoraFin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+          ana.Id, torresFam, 'Cuidado en casa', '2026-07-06', 6, 23.00, 138.00, 20.70, 158.70, 'Pendiente', '2026-06-28 10:30:00', mateoId, '08:00', '14:00');
+        const o1Id = r.lastInsertRowid;
+        const tareas = [
+          [1, 'Alimentacion supervisada del menor', '08:00', '09:00'],
+          [3, 'Apoyo con tareas escolares y material adaptado', '09:00', '10:30'],
+          [4, 'Asistencia en cambio de ropa y aseo personal', '10:30', '11:00'],
+          [6, 'Ejercicios de terapia de lenguaje', '11:00', '12:00'],
+          [9, 'Juego dirigido estructurado con material sensorial', '12:00', '13:00'],
+          [11, 'Supervision durante la siesta del menor', '13:00', '13:30'],
+          [13, 'Coordinacion con terapeutas externos', '13:30', '14:00'],
+        ];
+        for (const [, desc, hi, hf] of tareas)
+          db.prepare('INSERT INTO OrdenTareasPersonalizadas (IdOrden, Descripcion) VALUES (?, ?)').run(o1Id, `${hi}-${hf}: ${desc}`);
+        // Contrato con terminos completos
+        db.prepare(`INSERT OR IGNORE INTO Contratos (IdOrden, Terminos, AceptadoFamilia, AceptadoCuidadora, FechaCreacion) VALUES (?, ?, ?, ?, ?)`).run(o1Id,
+          JSON.stringify({ duracion: '3 meses', renovacion: 'automatica', periodoPrueba: 15, clausulaSalida: '7 dias de aviso' }),
+          0, 0, '2026-06-28 11:00:00');
+        // Negociacion activa (S/20 -> S/25 -> S/23)
+        const negMsg = 'Propongo ajustar la tarifa a S/25 por hora debido al nivel de especializacion que requiere el menor con TEA.';
+        const aceptMsg = 'Entendemos, pero nuestro presupuesto maximo es S/23 por hora. Podemos aceptar ese monto.';
+        db.prepare(`INSERT OR IGNORE INTO Negociaciones (IdOrden, IdPropuestoPor, TarifaHora, TotalHoras, Mensaje, Estado, FechaCreacion, Propuestas) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).run(
+          o1Id, ana.IdUsuario, 25.00, 6, negMsg, 'activa', '2026-06-29 09:15:00',
+          JSON.stringify([
+            { propuesta: 'Tarifa inicial: S/ 20.00/hora', autor: 'familia', estado: 'rechazada' },
+            { propuesta: 'Contrapropuesta: S/ 25.00/hora', autor: 'cuidadora', estado: 'pendiente' },
+            { propuesta: 'Contrapropuesta: S/ 23.00/hora', autor: 'familia', estado: 'pendiente' },
+          ]));
+        // Conversacion y mensajes
+        const conv = db.prepare('INSERT OR IGNORE INTO Conversaciones (IdCuidadora, IdUsuarioFamilia, FechaCreacion, FechaUltimoMensaje) VALUES (?, ?, ?, ?)').run(ana.Id, torresFam, '2026-06-29 09:00:00', '2026-07-02 18:30:00');
+        const convId = conv.lastInsertRowid || db.prepare('SELECT Id FROM Conversaciones WHERE IdCuidadora = ? AND IdUsuarioFamilia = ?').get(ana.Id, torresFam)?.Id;
+        if (convId) {
+          const msgs = [
+            [torresFam, 'Hola Ana, gracias por postularte al cuidado de Mateo.', '2026-06-29 09:00:00'],
+            [ana.IdUsuario, 'Hola Maria Teresa! Muchas gracias a ustedes. Me encantaria conocer a Mateo.', '2026-06-29 09:15:00'],
+            [torresFam, 'El diagnostico de Mateo es TEA nivel 1. Es muy importante mantener una rutina constante.', '2026-06-30 10:00:00'],
+            [ana.IdUsuario, 'Entiendo perfectamente. Tengo experiencia con ninos TEA y uso tecnicas ABA. Podriamos coordinar una visita.', '2026-06-30 10:30:00'],
+            [torresFam, 'Suena excelente. Te esperamos el miercoles a las 10am para que conozcas a Mateo.', '2026-07-01 11:00:00'],
+            [ana.IdUsuario, 'Perfecto! Llegare con material sensorial para romper el hielo con el.', '2026-07-01 11:30:00'],
+            [torresFam, 'Que bien! Por cierto, respecto a la tarifa, podemos negociarlo cuando nos veamos.', '2026-07-02 18:00:00'],
+            [ana.IdUsuario, 'Si, hablamos. Estoy segura de que llegaremos a un acuerdo.', '2026-07-02 18:30:00'],
+          ];
+          for (const [rem, txt, fecha] of msgs)
+            db.prepare('INSERT OR IGNORE INTO Mensajes (IdConversacion, IdRemitente, Contenido, Leido, FechaEnvio) VALUES (?, ?, ?, ?, ?)').run(convId, rem, txt, 1, fecha);
+        }
+        // Resena de ejemplo sobre Ana (positiva)
+        db.prepare(`INSERT OR IGNORE INTO Resenas (IdCuidadora, IdUsuarioFamilia, Calificacion, Comentario, FechaResena, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?)`).run(
+          ana.Id, torresFam, 5, 'Ana es una cuidadora excepcional. Muy paciente y profesional con Mateo. Lo recomiendo ampliamente.', '2026-07-03 14:00:00', '2026-07-03 14:00:00');
+      }
+    }
+
+    // CASO 2: Valentina Rojas (TDAH) – Orden Pagada, iniciando
+    if (valentinaId && mariaCardenas && rojasFam) {
+      const exO2 = db.prepare('SELECT Id FROM Ordenes WHERE IdMenor = ? AND IdUsuarioFamilia = ?').get(valentinaId, rojasFam);
+      if (!exO2) {
+        const r = db.prepare(`INSERT INTO Ordenes (IdCuidadora, IdUsuarioFamilia, TipoServicio, FechaServicio, TotalHoras, TarifaHora, Subtotal, TarifaPlataforma, Total, Estado, FechaCreacion, IdMenor, HoraInicio, HoraFin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+          mariaCardenas.Id, rojasFam, 'Cuidado en casa', '2026-07-10', 5, 25.00, 125.00, 18.75, 143.75, 'Pagada', '2026-07-01 08:00:00', valentinaId, '09:00', '14:00');
+        const o2Id = r.lastInsertRowid;
+        for (const desc of [
+          '09:00-09:30: Preparacion y supervision del desayuno',
+          '09:30-11:00: Apoyo con tareas escolares con tecnicas de enfoque',
+          '11:00-11:45: Supervision de tareas cortas con descansos programados',
+          '11:45-12:45: Actividad fisica al aire libre para canalizar energia',
+          '12:45-13:45: Juego dirigido con reglas claras y refuerzo positivo',
+        ])
+          db.prepare('INSERT INTO OrdenTareasPersonalizadas (IdOrden, Descripcion) VALUES (?, ?)').run(o2Id, desc);
+        db.prepare(`INSERT OR IGNORE INTO Contratos (IdOrden, Terminos, AceptadoFamilia, AceptadoCuidadora, FechaCreacion) VALUES (?, ?, ?, ?, ?)`).run(o2Id,
+          JSON.stringify({ duracion: '2 meses', renovacion: 'manual', periodoPrueba: 7, clausulaSalida: '3 dias de aviso' }),
+          1, 1, '2026-07-02 10:00:00');
+        db.prepare('INSERT OR IGNORE INTO Pagos (IdOrden, Monto, MetodoPago, Estado, FechaPago) VALUES (?, ?, ?, ?, ?)').run(o2Id, 143.75, 'Tarjeta', 'Completado', '2026-07-03 12:00:00');
+        db.prepare(`INSERT OR IGNORE INTO Escrow (IdOrden, MontoTotal, MontoCuidadora, MontoPlataforma, Estado, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?)`).run(
+          o2Id, 143.75, 122.19, 21.56, 'Retenido', '2026-07-03 12:00:00');
+        const conv = db.prepare('INSERT OR IGNORE INTO Conversaciones (IdCuidadora, IdUsuarioFamilia, FechaCreacion, FechaUltimoMensaje) VALUES (?, ?, ?, ?)').run(mariaCardenas.Id, rojasFam, '2026-06-28 14:00:00', '2026-07-02 16:00:00');
+        const convId = conv.lastInsertRowid || db.prepare('SELECT Id FROM Conversaciones WHERE IdCuidadora = ? AND IdUsuarioFamilia = ?').get(mariaCardenas.Id, rojasFam)?.Id;
+        if (convId) {
+          for (const [rem, txt, fecha] of [
+            [rojasFam, 'Hola Maria, Valentina esta muy emocionada por conocerte.', '2026-06-28 14:00:00'],
+            [mariaCardenas.IdUsuario, 'Hola Carolina! Yo tambien tengo muchas ganas. Tengo experiencia trabajando con ninos con TDAH.', '2026-06-28 14:30:00'],
+            [rojasFam, 'Que alivio! Ella necesita mucha paciencia y rutinas claras.', '2026-06-29 09:00:00'],
+            [mariaCardenas.IdUsuario, 'Claro, usaremos tecnicas de enfoque con descansos entre actividades. Funciona muy bien.', '2026-06-29 09:30:00'],
+            [rojasFam, 'Perfecto, hemos coordinado y aprobamos la tarifa de S/25. Ya realizamos el pago.', '2026-07-02 16:00:00'],
+          ])
+            db.prepare('INSERT OR IGNORE INTO Mensajes (IdConversacion, IdRemitente, Contenido, Leido, FechaEnvio) VALUES (?, ?, ?, ?, ?)').run(convId, rem, txt, 1, fecha);
+        }
+      }
+    }
+
+    // CASO 3: Sebastian Ruiz (Down) – Orden En curso
+    if (sebastianId && elena && ruizFam) {
+      const exO3 = db.prepare('SELECT Id FROM Ordenes WHERE IdMenor = ? AND IdUsuarioFamilia = ?').get(sebastianId, ruizFam);
+      if (!exO3) {
+        const r = db.prepare(`INSERT INTO Ordenes (IdCuidadora, IdUsuarioFamilia, TipoServicio, FechaServicio, TotalHoras, TarifaHora, Subtotal, TarifaPlataforma, Total, Estado, FechaCreacion, IdMenor, HoraInicio, HoraFin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+          elena.Id, ruizFam, 'Cuidado en casa', '2026-07-12', 5, 28.00, 140.00, 21.00, 161.00, 'En curso', '2026-07-05 09:00:00', sebastianId, '08:00', '13:00');
+        const o3Id = r.lastInsertRowid;
+        for (const desc of [
+          '08:00-08:45: Desayuno adaptado con supervision',
+          '08:45-09:15: Apoyo en higiene y vestimenta',
+          '09:15-10:15: Actividades educativas con material concreto',
+          '10:15-11:00: Ejercicios de estimulacion del lenguaje',
+          '11:00-12:00: Psicomotricidad y coordinacion gruesa/fina',
+          '12:00-13:00: Juego dirigido para desarrollar habilidades sociales',
+        ])
+          db.prepare('INSERT INTO OrdenTareasPersonalizadas (IdOrden, Descripcion) VALUES (?, ?)').run(o3Id, desc);
+        db.prepare(`INSERT OR IGNORE INTO Contratos (IdOrden, Terminos, AceptadoFamilia, AceptadoCuidadora, FechaCreacion) VALUES (?, ?, ?, ?, ?)`).run(o3Id,
+          JSON.stringify({ duracion: '4 meses', renovacion: 'automatica', periodoPrueba: 20, clausulaSalida: '15 dias de aviso' }),
+          1, 1, '2026-07-06 14:00:00');
+        db.prepare('INSERT OR IGNORE INTO Pagos (IdOrden, Monto, MetodoPago, Estado, FechaPago) VALUES (?, ?, ?, ?, ?)').run(o3Id, 161.00, 'Yape', 'Completado', '2026-07-07 11:00:00');
+        db.prepare(`INSERT OR IGNORE INTO Escrow (IdOrden, MontoTotal, MontoCuidadora, MontoPlataforma, Estado, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?)`).run(
+          o3Id, 161.00, 136.85, 24.15, 'Liberado', '2026-07-09 10:00:00');
+        // Reporte diario de ejemplo
+        db.prepare(`INSERT OR IGNORE INTO ReportesDiarios (IdOrden, IdCuidadora, IdMenor, EstadoGeneral, Alimentacion, Medicamentos, ActividadesRealizadas, Observaciones, FechaReporte) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+          o3Id, elena.Id, sebastianId, 'Bueno', 'Desayuno: comio pan con mantequilla y fruta picada con ayuda', 'Ninguno', 'Ejercicios de lenguaje con tarjetas, motricidad fina con plastilina, juego de roles', 'Sebastian estuvo colaborador. Logro armar un rompecabezas de 6 piezas con ayuda minima.', '2026-07-12');
+        db.prepare(`INSERT OR IGNORE INTO ReportesDiarios (IdOrden, IdCuidadora, IdMenor, EstadoGeneral, Alimentacion, Medicamentos, ActividadesRealizadas, Observaciones, FechaReporte) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+          o3Id, elena.Id, sebastianId, 'Excelente', 'Comio solo la fruta picada con supervision minima', 'Ninguno', 'Paseo al parque, tiempo de juego libre en columpios, canciones y gestos', 'Muy buen dia. Sebastian estuvo mas comunicativo que de costumbre.', '2026-07-13');
+      }
+    }
+
+    // CASO 4: Diego Sanchez (Paralisis Cerebral) – Orden Completada (finalizada)
+    if (diegoId && gloria && sanchezFam) {
+      const exO4 = db.prepare('SELECT Id FROM Ordenes WHERE IdMenor = ? AND IdUsuarioFamilia = ?').get(diegoId, sanchezFam);
+      if (!exO4) {
+        const r = db.prepare(`INSERT INTO Ordenes (IdCuidadora, IdUsuarioFamilia, TipoServicio, FechaServicio, TotalHoras, TarifaHora, Subtotal, TarifaPlataforma, Total, Estado, FechaCreacion, IdMenor, HoraInicio, HoraFin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+          gloria.Id, sanchezFam, 'Cuidado en casa', '2026-06-25', 6, 35.00, 210.00, 31.50, 241.50, 'Finalizada', '2026-06-18 10:00:00', diegoId, '09:00', '15:00');
+        const o4Id = r.lastInsertRowid;
+        for (const desc of [
+          '09:00-09:45: Preparacion de alimentos adaptados (textura blanda)',
+          '09:45-10:30: Asistencia total para higiene personal y cambio de posicion',
+          '10:30-11:30: Terapia fisica: ejercicios de estiramiento y fortalecimiento',
+          '11:30-12:15: Ejercicios de movilidad asistida con bipedestador',
+          '12:15-12:45: Monitoreo de signos vitales y administracion de medicamentos',
+          '12:45-14:30: Juego adaptado en tapete sensorial y cuentos',
+        ])
+          db.prepare('INSERT INTO OrdenTareasPersonalizadas (IdOrden, Descripcion) VALUES (?, ?)').run(o4Id, desc);
+        db.prepare(`INSERT OR IGNORE INTO Contratos (IdOrden, Terminos, AceptadoFamilia, AceptadoCuidadora, FechaCreacion) VALUES (?, ?, ?, ?, ?)`).run(o4Id,
+          JSON.stringify({ duracion: '1 mes', renovacion: 'no', periodoPrueba: 5, clausulaSalida: 'inmediata' }),
+          1, 1, '2026-06-19 11:00:00');
+        db.prepare('INSERT OR IGNORE INTO Pagos (IdOrden, Monto, MetodoPago, Estado, FechaPago) VALUES (?, ?, ?, ?, ?)').run(o4Id, 241.50, 'Transferencia', 'Completado', '2026-06-26 15:00:00');
+        db.prepare(`INSERT OR IGNORE INTO Escrow (IdOrden, MontoTotal, MontoCuidadora, MontoPlataforma, Estado, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?)`).run(
+          o4Id, 241.50, 205.28, 36.22, 'Liberado', '2026-06-26 16:00:00');
+        // Resena
+        db.prepare(`INSERT OR IGNORE INTO Resenas (IdCuidadora, IdUsuarioFamilia, Calificacion, Comentario, FechaResena, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?)`).run(
+          gloria.Id, sanchezFam, 5, 'Gloria fue increible con Diego. Muy profesional, paciente y dedicada. Diego la extrana mucho.', '2026-06-28 10:00:00', '2026-06-28 10:00:00');
+        // Reportes diarios (3)
+        for (const [fecha, estGen, ali, meds, acts, obs] of [
+          ['2026-06-25', 'Excelente', 'Comio papilla de verduras y pollo desmenuzado', 'Administro Baclofeno segun indicacion', 'Terapia fisica en bipedestador, juego con sonidos', 'Diego respondio muy bien a la terapia. Logro mantener bipedestacion 5 minutos.'],
+          ['2026-06-24', 'Bueno', 'Tomo leche fortificada con cereales', 'Ninguno', 'Masajes de relajacion muscular, lectura de cuento', 'Un poco de rigidez muscular por la manana. Mejoro con el masaje.'],
+          ['2026-06-23', 'Regular', 'Comio la mitad de la porcion de papilla', 'Administro Baclofeno', 'Ejercicios de estiramiento pasivo, musicoterapia', 'Diego estuvo algo irritado. Dificultad para conciliar el sueno.'],
+        ])
+          db.prepare(`INSERT OR IGNORE INTO ReportesDiarios (IdOrden, IdCuidadora, IdMenor, EstadoGeneral, Alimentacion, Medicamentos, ActividadesRealizadas, Observaciones, FechaReporte) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+            o4Id, gloria.Id, diegoId, estGen, ali, meds, acts, obs, fecha);
+      }
+    }
+
+    // --- INCIDENCIA: Retraso en orden de Mateo (por existir, apuntamos a orden random del demo o creamos una extra) ---
+    const ordenesAll = db.prepare('SELECT Id, IdCuidadora, IdUsuarioFamilia FROM Ordenes').all();
+    if (ordenesAll.length >= 15 && db.prepare('SELECT COUNT(*) AS c FROM Incidencias WHERE Id = (SELECT MAX(Id) FROM Incidencias)').get().c === 0) {
+      // Solo si hay pocas incidencias, agregamos una especifica de retraso
+      const ordInc = ordenesAll[Math.min(ordenesAll.length - 1, 14)];
+      if (ordInc) {
+        db.prepare(`INSERT OR IGNORE INTO Incidencias (IdOrden, Tipo, Estado, Descripcion, FechaCreacion) VALUES (?, ?, ?, ?, ?)`).run(
+          ordInc.Id, 'Leve', 'En revisión',
+          'La cuidadora reporto un retraso de 20 minutos por trafico en la Av. America. El menor espero acompanado de la madre.',
+          '2026-07-02 08:30:00');
+      }
+    }
+
+    // --- EMERGENCIA MEDICA: Incidente en orden simulada ---
+    const ordMed = ordenesAll[Math.min(ordenesAll.length - 1, 20)];
+    if (ordMed && db.prepare('SELECT COUNT(*) AS c FROM Incidentes').get().c < 8) {
+      db.prepare(`INSERT OR IGNORE INTO Incidentes (IdOrden, IdUsuarioReporta, Latitud, Longitud, Tipo, Estado, Descripcion, FechaActivacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).run(
+        ordMed.Id, ordMed.IdUsuarioFamilia, -8.1083, -79.0359, 'Emergencia', 'Resuelto',
+        'El menor presento una crisis convulsiva leve. La cuidadora siguio el protocolo de emergencia y se contacto a los padres inmediatamente. Menor estable.',
+        '2026-07-05 14:30:00');
+    }
+
+    // --- REEMPLAZO DE EMERGENCIA ---
+    const ordReemp = ordenesAll[Math.min(ordenesAll.length - 1, 30)];
+    if (ordReemp && db.prepare('SELECT COUNT(*) AS c FROM ReemplazoEmergencia').get().c < 5) {
+      db.prepare(`INSERT OR IGNORE INTO ReemplazoEmergencia (IdOrden, IdCuidadoraOriginal, IdCuidadoraReemplazo, Motivo, Estado, TiempoBusquedaSegundos, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?, ?)`).run(
+        ordReemp.Id, ordReemp.IdCuidadora, null,
+        'Emergencia familiar: la cuidadora original sufrio un accidente domestico y no puede asistir.',
+        'Buscando', 1850, '2026-07-01 07:00:00');
+    }
+
+    // --- RELLENAR MENORES restantes para llegar a ~total 50 ---
+    const curMenores = db.prepare('SELECT COUNT(*) AS c FROM Menores').get().c;
+    if (curMenores < 50) {
+      const extraNames = ['Luciana', 'Thiago', 'Emilia', 'Benjamin', 'Camila', 'Matias', 'Isabella', 'Santiago', 'Valeria', 'Gabriel', 'Renata', 'Liam', 'Aitana', 'Mateo', 'Abigail', 'Sebastian', 'Rafaela', 'Maximiliano'];
+      const extraDiag = ['Retraso del desarrollo', 'Trastorno del lenguaje', 'Discapacidad intelectual leve', 'Trastorno del aprendizaje', 'Trastorno del procesamiento sensorial', 'Sindrome de Asperger', 'Trastorno oposicionista desafiante', 'Ansiedad infantil', 'Ninguno', 'Ninguno', 'Hipoacusia leve'];
+      const extraFams = db.prepare('SELECT Id FROM Usuarios WHERE IdRol = 2 ORDER BY RANDOM()').all();
+      for (let i = curMenores; i < 50 && extraFams.length > 0; i++) {
+        const fam = extraFams[i % extraFams.length];
+        const name = extraNames[(i - curMenores) % extraNames.length];
+        const diag = pick(extraDiag);
+        const anio = rand(2017, 2023);
+        const mes = String(rand(1, 12)).padStart(2, '0');
+        const dia = String(rand(1, 28)).padStart(2, '0');
+        try { db.prepare('INSERT OR IGNORE INTO Menores (IdUsuarioFamilia, Nombre, Diagnostico, FechaNacimiento) VALUES (?, ?, ?, ?)').run(fam.Id, name + ' ' + fam.Apellidos.split(' ')[0], diag, `${anio}-${mes}-${dia}`); } catch(e) {}
+      }
+    }
+
+    // --- RELLENAR ORDENES restantes para llegar a ~100 ---
+    const curOrdenes = db.prepare('SELECT COUNT(*) AS c FROM Ordenes').get().c;
+    if (curOrdenes < 100) {
+      const rellenoCuis = db.prepare('SELECT c.Id, c.IdUsuario, c.TarifaHora FROM Cuidadoras c ORDER BY RANDOM()').all();
+      const rellenoFams = db.prepare('SELECT Id FROM Usuarios WHERE IdRol = 2 ORDER BY RANDOM()').all();
+      const rellenoMen = db.prepare('SELECT Id, IdUsuarioFamilia FROM Menores').all();
+      const estadosRelleno = ['Pendiente', 'Confirmada', 'Cancelada', 'Finalizada', 'En curso'];
+      for (let i = curOrdenes; i < 100; i++) {
+        const c = pick(rellenoCuis);
+        const f = pick(rellenoFams);
+        const m = pick(rellenoMen.filter(mm => mm.IdUsuarioFamilia === f.Id) || rellenoMen);
+        const diasAgo = rand(1, 180);
+        const fechaOrd = dateStr(diasAgo);
+        const horas = randDec(2, 8, 1);
+        const tarifa = c.TarifaHora + randDec(-3, 3);
+        const subtotal = +(tarifa * horas).toFixed(2);
+        const plataforma = +(subtotal * 0.15).toFixed(2);
+        const total = +(subtotal + plataforma).toFixed(2);
+        let estado = estadosRelleno[rand(0, 4)];
+        if (diasAgo > 120) estado = 'Finalizada';
+        else if (diasAgo > 40 && Math.random() > 0.5) estado = 'Finalizada';
+        try {
+          const r = db.prepare(`INSERT INTO Ordenes (IdCuidadora, IdUsuarioFamilia, TipoServicio, FechaServicio, TotalHoras, TarifaHora, Subtotal, TarifaPlataforma, Total, Estado, FechaCreacion, IdMenor, HoraInicio, HoraFin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+            c.Id, f.Id, pick(tiposServicio), fechaOrd, horas, +tarifa.toFixed(2), subtotal, plataforma, total, estado, dateTimeStr(diasAgo + rand(0, 5)), m?.Id || null, `${String(rand(7, 12)).padStart(2, '0')}:00`, `${String(rand(13, 18)).padStart(2, '0')}:00`);
+          // Add 2-4 random tareas for each
+          const tIds = [...new Set(Array(rand(2, 4)).fill(0).map(() => rand(1, 13)))];
+          for (const tareasIdx of tIds) {
+            const descTarea = db.prepare('SELECT Descripcion FROM Tareas WHERE Id = ?').get(tareasIdx)?.Descripcion || 'Tarea general';
+            db.prepare('INSERT OR IGNORE INTO OrdenTareasPersonalizadas (IdOrden, Descripcion) VALUES (?, ?)').run(
+              r.lastInsertRowid, descTarea);
+          }
+          if (estado !== 'Cancelada' && estado !== 'Pendiente') {
+            db.prepare('INSERT OR IGNORE INTO Pagos (IdOrden, Monto, MetodoPago, Estado, FechaPago) VALUES (?, ?, ?, ?, ?)').run(
+              r.lastInsertRowid, total, pick(['Tarjeta', 'Yape', 'Transferencia']), 'Completado', dateTimeStr(diasAgo + rand(1, 3)));
+          }
+        } catch(e) {}
+      }
+    }
+
+    // --- RELLENAR CONTRATOS ---
+    const curContratos = db.prepare('SELECT COUNT(*) AS c FROM Contratos').get().c;
+    if (curContratos < 100) {
+      const ordSinContrato = db.prepare("SELECT Id FROM Ordenes WHERE Id NOT IN (SELECT IdOrden FROM Contratos) AND Estado NOT IN ('Cancelada')").all();
+      for (const o of ordSinContrato.slice(0, 100 - curContratos)) {
+        try {
+          db.prepare(`INSERT OR IGNORE INTO Contratos (IdOrden, Terminos, AceptadoFamilia, AceptadoCuidadora, FechaCreacion) VALUES (?, ?, ?, ?, ?)`).run(
+            o.Id, 'Terminos y condiciones estandar de servicio de cuidado infantil.', Math.random() > 0.2 ? 1 : 0, Math.random() > 0.2 ? 1 : 0, dateTimeStr(rand(1, 60)));
+        } catch(e) {}
+      }
+    }
+
+    // --- RELLENAR CONTRATOS DIGITALES ---
+    const curContratosDig = db.prepare('SELECT COUNT(*) AS c FROM ContratosDigitales').get().c;
+    if (curContratosDig < 100) {
+      const ordSinCd = db.prepare("SELECT Id FROM Ordenes WHERE Id NOT IN (SELECT IdOrden FROM ContratosDigitales) AND Estado NOT IN ('Cancelada') LIMIT ?").all(100 - curContratosDig);
+      for (const o of ordSinCd) {
+        try {
+          const codigo = 'CT-' + String(o.Id).padStart(4, '0') + '-' + String(rand(1000, 9999));
+          db.prepare(`INSERT OR IGNORE INTO ContratosDigitales (IdOrden, CodigoContrato, FechaEmision, Estado, FechaCreacion) VALUES (?, ?, ?, ?, ?)`).run(
+            o.Id, codigo, dateStr(rand(1, 60)), Math.random() > 0.4 ? 'Completado' : 'Pendiente', dateTimeStr(rand(1, 60)));
+        } catch(e) {}
+      }
+    }
+
+    // --- RELLENAR ESCROW ---
+    const curEscrow = db.prepare('SELECT COUNT(*) AS c FROM Escrow').get().c;
+    if (curEscrow < 100) {
+      const ordSinEscrow = db.prepare("SELECT Id, Total FROM Ordenes WHERE Id NOT IN (SELECT IdOrden FROM Escrow) AND Estado NOT IN ('Cancelada', 'Pendiente')").all();
+      for (const o of ordSinEscrow.slice(0, 100 - curEscrow)) {
+        try {
+          const montoCui = +(o.Total * 0.85).toFixed(2);
+          const montoPlat = +(o.Total * 0.15).toFixed(2);
+          db.prepare(`INSERT OR IGNORE INTO Escrow (IdOrden, MontoTotal, MontoCuidadora, MontoPlataforma, Estado, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?)`).run(
+            o.Id, o.Total, montoCui, montoPlat, Math.random() > 0.5 ? 'Liberado' : 'Retenido', dateTimeStr(rand(1, 60)));
+        } catch(e) {}
+      }
+    }
+
+    console.log('Enriquecimiento de datos completo.');
+  } catch(e) { console.log('Seed 26 (Enriquecido) omitido:', e.message); console.error(e); }
+
+  // ========== 27. REPORTE ==========
   const stats = {
     usuarios: db.prepare('SELECT COUNT(*) AS c FROM Usuarios').get().c,
     cuidadoras: db.prepare('SELECT COUNT(*) AS c FROM Cuidadoras').get().c,
@@ -667,6 +1041,7 @@ export function seed(db) {
 
 if (process.argv[1] && (process.argv[1].endsWith('seed-data.mjs') || process.argv[1].endsWith('seed-data'))) {
   const db = getDb();
+  setupDatabase(db);
   seed(db);
   closeDb();
 }
