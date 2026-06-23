@@ -174,8 +174,16 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
     setDetalleData(null);
     try {
       const r = await fetch(`/api/familia/solicitudes/${ordenId}/detalle`, { headers });
-      if (r.ok) setDetalleData(await r.json());
-    } catch {}
+      if (r.ok) {
+        setDetalleData(await r.json());
+      } else {
+        let msg = `Error ${r.status}`;
+        try { const e = await r.json(); msg = e.error || msg; } catch {}
+        setDetalleData({ error: msg });
+      }
+    } catch {
+      setDetalleData({ error: 'No se pudo conectar con el servidor' });
+    }
     setCargandoDetalle(false);
   };
 
@@ -188,8 +196,9 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
       if (r.ok) {
         setContractViewData(await r.json());
       } else {
-        const err = await r.json().catch(() => ({ error: 'Error al cargar' }));
-        setContractViewData({ error: err.error || 'Error del servidor' });
+        let msg = `Error ${r.status}`;
+        try { const e = await r.json(); msg = e.error || msg; } catch {}
+        setContractViewData({ error: msg });
       }
     } catch {
       setContractViewData({ error: 'No se pudo conectar con el servidor' });
