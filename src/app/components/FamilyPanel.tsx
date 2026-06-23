@@ -185,8 +185,15 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
     setContractViewData(null);
     try {
       const r = await fetch(`/api/familia/solicitudes/${s.Id}/detalle`, { headers });
-      if (r.ok) setContractViewData(await r.json());
-    } catch {}
+      if (r.ok) {
+        setContractViewData(await r.json());
+      } else {
+        const err = await r.json().catch(() => ({ error: 'Error al cargar' }));
+        setContractViewData({ error: err.error || 'Error del servidor' });
+      }
+    } catch {
+      setContractViewData({ error: 'No se pudo conectar con el servidor' });
+    }
     setLoadingContract(false);
   };
 
@@ -1084,10 +1091,17 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
               className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
-              {loadingContract || !contractViewData ? (
+              {loadingContract && !contractViewData ? (
                 <div className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] rounded-2xl p-12 text-center">
                   <div className="animate-spin w-8 h-8 border-2 border-[#F6A5C0] border-t-transparent rounded-full mx-auto mb-3" />
                   <p className="text-sm text-[#6667AB]">Cargando contrato...</p>
+                </div>
+              ) : contractViewData?.error ? (
+                <div className="bg-[rgba(33,6,53,0.95)] backdrop-blur-[25px] rounded-2xl p-12 text-center">
+                  <p className="text-sm text-red-300 mb-4">{contractViewData.error}</p>
+                  <button onClick={() => { setShowContractFormat(false); setContractViewData(null); }}
+                    className="mt-2 px-6 py-2 rounded-xl bg-[#F6A5C0] text-[#210635] text-sm font-bold hover:opacity-90 transition-opacity"
+                  >Cerrar</button>
                 </div>
               ) : (
                 <>
