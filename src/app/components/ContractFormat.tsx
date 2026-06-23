@@ -117,8 +117,17 @@ export function ContractFormat(props: ContractFormatProps) {
               ) : <p className="text-gray-400 italic ml-4">Ninguna</p>}
             </div>
             {pendientes.length > 0 && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-amber-800">
-                {pendientes.length} tarea(s) pendiente(s) de decisión
+              <div>
+                <p className="font-bold text-gray-700 mb-1">D. TAREAS PENDIENTES DE DECISIÓN:</p>
+                <ul className="space-y-1 ml-4">
+                  {pendientes.map(t => (
+                    <li key={t.Id} className="flex items-start gap-2 text-gray-600">
+                      <Clock className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
+                      {t.Descripcion}
+                      {t.EsPersonalizada && <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 ml-1">Personalizada</span>}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>
