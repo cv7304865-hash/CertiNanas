@@ -1054,25 +1054,40 @@ const perfiles = [
         for (const m of diagMap) { if (d.includes(m.kw)) return m.tasks; }
         return defaultTasks;
       }
-      function decision(estado, i, total) {
-        if (['Finalizada','Completada','En curso','Pagada'].includes(estado)) return 'Aceptar';
-        if (estado === 'Cancelada') return i % 2 === 0 ? 'Rechazar' : 'Aceptar';
+      function pickN(arr, n) {
+        const shuffled = [...arr].sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, Math.min(n, arr.length));
+      }
+      function variedDecision(estado) {
+        const r = Math.random();
+        if (['Finalizada','Completada','En curso','Pagada'].includes(estado)) {
+          if (r < 0.7) return 'Aceptar';
+          if (r < 0.9) return 'Negociar';
+          return 'Rechazar';
+        }
+        if (estado === 'Cancelada') {
+          if (r < 0.45) return 'Rechazar';
+          if (r < 0.75) return 'Aceptar';
+          return 'Pendiente';
+        }
         if (estado === 'En revisión') {
-          if (i < Math.floor(total/2)) return 'Aceptar';
-          if (i < Math.floor(total*0.75)) return 'Negociar';
+          if (r < 0.35) return 'Aceptar';
+          if (r < 0.65) return 'Negociar';
           return 'Pendiente';
         }
         return 'Pendiente';
       }
       let n = 0;
       for (const o of ordenesSinTareas) {
-        const tasks = matchTasks(o.Diagnostico);
-        if (tasks.length > 0) {
+        const allTasks = matchTasks(o.Diagnostico);
+        if (allTasks.length > 0) {
+          // Pick 4-9 random tasks for variety
+          const selected = pickN(allTasks, 4 + Math.floor(Math.random() * 6));
           const stmt = db.prepare('INSERT OR IGNORE INTO OrdenTareas (IdOrden, IdTarea, Decision) VALUES (?, ?, ?)');
-          for (let i = 0; i < tasks.length; i++) { stmt.run(o.Id, tasks[i], decision(o.Estado, i, tasks.length)); n++; }
+          for (const t of selected) { stmt.run(o.Id, t, variedDecision(o.Estado)); n++; }
         }
       }
-      if (n) console.log(`OrdenTareas insertadas: ${n}`);
+      if (n) console.log(`OrdenTareas insertadas: ${n} registros variados`);
     } catch(e) { console.log('Seed 27 (OrdenTareas) omitido:', e.message); }
 
     console.log('Enriquecimiento de datos completo.');
