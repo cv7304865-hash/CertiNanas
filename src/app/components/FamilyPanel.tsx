@@ -343,13 +343,23 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
 
   const contratarDeNuevo = async (s: Solicitud) => {
     localStorage.setItem('preselectCuidadoraId', String(s.CuidadoraId));
-    localStorage.setItem('showCreateSolicitud', 'true');
-    onNavigate?.('search');
+    setActiveTab('servicios');
+    setShowCrearSolicitud(true);
   };
 
   const liberarPago = async (id: number) => {
-    await fetch(`/api/familia/orden/${id}/liberar-pago`, { method: 'POST', headers });
-    fetchAll();
+    try {
+      const r = await fetch(`/api/familia/orden/${id}/liberar-pago`, { method: 'POST', headers });
+      if (r.ok) {
+        alert('Pago liberado correctamente.');
+        fetchAll();
+      } else {
+        const err = await r.json().catch(() => ({ error: 'Error al liberar pago' }));
+        alert(err.error || 'Error al liberar pago');
+      }
+    } catch {
+      alert('No se pudo conectar con el servidor');
+    }
   };
 
   const finalizarConIncidencia = async (id: number) => {
