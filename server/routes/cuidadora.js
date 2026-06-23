@@ -118,8 +118,8 @@ router.get('/servicios/:id/detalle', isCaregiver, (req, res) => {
 
   // Motivo de cancelación (de notificaciones o auditoría)
   const cancelReason = db.prepare(`
-    SELECT Descripcion FROM Auditoria WHERE IdEntidad = ? AND TipoEntidad = 'Ordenes' AND Accion LIKE '%cancel%' OR Accion LIKE '%rechaz%'
-    ORDER BY Fecha DESC LIMIT 1
+    SELECT Detalle FROM Auditoria WHERE IdEntidad = ? AND Entidad = 'Ordenes' AND (Accion LIKE '%cancel%' OR Accion LIKE '%rechaz%')
+    ORDER BY FechaCreacion DESC LIMIT 1
   `).get(orden.Id);
   // También buscar en notificaciones
   const notifCancel = db.prepare(`
@@ -144,7 +144,7 @@ router.get('/servicios/:id/detalle', isCaregiver, (req, res) => {
     ],
     contrato,
     resenas,
-    motivoCancelacion: cancelReason?.Descripcion || notifCancel?.Descripcion || null,
+    motivoCancelacion: cancelReason?.Detalle || notifCancel?.Descripcion || null,
     negociaciones,
   });
 });

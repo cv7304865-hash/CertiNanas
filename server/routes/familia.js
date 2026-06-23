@@ -411,9 +411,9 @@ router.get('/solicitudes/:id/detalle', (req, res) => {
 
     // Motivo cancelación
     const cancelReason = db.prepare(`
-      SELECT Descripcion FROM Auditoria
+      SELECT Detalle FROM Auditoria
       WHERE IdEntidad = ? AND (Accion LIKE '%cancel%' OR Accion LIKE '%rechaz%')
-      ORDER BY Fecha DESC LIMIT 1
+      ORDER BY FechaCreacion DESC LIMIT 1
     `).get(orden.Id);
 
     // Reseñas
@@ -429,7 +429,7 @@ router.get('/solicitudes/:id/detalle', (req, res) => {
       ],
       contrato,
       negociaciones,
-      motivoCancelacion: cancelReason?.Descripcion || null,
+      motivoCancelacion: cancelReason?.Detalle || null,
       resenas,
     });
   } catch (e) {
