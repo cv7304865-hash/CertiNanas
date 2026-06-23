@@ -929,7 +929,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                         {detalleData.contrato.Terminos && (
                           <pre className="mt-3 text-[10px] text-[#6667AB] whitespace-pre-wrap max-h-32 overflow-y-auto bg-[rgba(33,6,53,0.3)] rounded-lg p-3">{detalleData.contrato.Terminos}</pre>
                         )}
-                        <button onClick={() => setShowContractFormat(true)}
+                        <button onClick={() => { setContractViewData(detalleData); setShowContractFormat(true); }}
                           className="mt-3 w-full py-2 rounded-lg bg-[#F6A5C0]/10 text-[#F6A5C0] text-xs font-bold hover:bg-[#F6A5C0]/20 transition-colors border border-[#F6A5C0]/30"
                         >Ver Contrato Completo</button>
                       </div>
