@@ -1090,6 +1090,75 @@ const perfiles = [
       if (n) console.log(`OrdenTareas insertadas: ${n} registros variados`);
     } catch(e) { console.log('Seed 27 (OrdenTareas) omitido:', e.message); }
 
+    // ========== 28. NEGOCIACIONES PARA TODAS LAS ÓRDENES ==========
+    try {
+      const ordenesSinNeg = db.prepare(`
+        SELECT o.Id, o.Estado, o.TarifaHora, o.TotalHoras, o.HoraInicio, o.HoraFin,
+               o.IdCuidadora, o.IdUsuarioFamilia,
+               c.IdUsuario AS CuidadoraUserId
+        FROM Ordenes o
+        INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+        WHERE o.Id NOT IN (SELECT DISTINCT IdOrden FROM Negociaciones)
+        LIMIT 80
+      `).all();
+      const msgs = {
+        cuidadora: [
+          'Propongo ajustar la tarifa a S/ %s por hora debido al nivel de especialización requerido.',
+          'Necesitaría extender el horario de atención hasta las %s para cubrir adecuadamente las necesidades del menor.',
+          'Considero que la carga horaria debería ser de %s horas para garantizar una atención de calidad.',
+          'Podría ajustar mi tarifa si consideramos un acuerdo por paquete de horas semanales.',
+        ],
+        familia: [
+          'Nuestro presupuesto máximo es S/ %s por hora, podemos negociar los horarios.',
+          'Preferimos mantener el horario de %s a %s, pero podemos ajustar la tarifa.',
+          'Aceptamos su propuesta de %s horas, pero la tarifa debe mantenerse en S/ %s.',
+          'Podemos ofrecer S/ %s por hora si el servicio incluye todas las tareas de cuidado personal.',
+        ],
+      };
+      function pickMsg(arr, ...vals) {
+        const m = arr[Math.floor(Math.random() * arr.length)];
+        let idx = 0;
+        return m.replace(/%s/g, () => String(vals[idx++] ?? ''));
+      }
+      let n = 0;
+      for (const o of ordenesSinNeg) {
+        const stmt = db.prepare(`INSERT OR IGNORE INTO Negociaciones (IdOrden, IdPropuestoPor, TarifaHora, TotalHoras, HoraInicio, HoraFin, Mensaje, Estado, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+        const tarifaBase = o.TarifaHora;
+        const horasBase = o.TotalHoras || 4;
+        const inicioBase = o.HoraInicio || '08:00';
+        const finBase = o.HoraFin || '12:00';
+        const estado = o.Estado;
+        // Crea 1-3 negociaciones según el estado
+        const count = estado === 'Finalizada' || estado === 'Completada' ? rand(2, 3) :
+                      estado === 'Cancelada' ? rand(1, 2) : 1;
+        for (let i = 0; i < count; i++) {
+          const isCuidadora = i % 2 === 0;
+          const proponente = isCuidadora ? o.CuidadoraUserId : o.IdUsuarioFamilia;
+          const tarifaOff = +(tarifaBase + (isCuidadora ? randDec(2, 5) : randDec(-3, -1))).toFixed(2);
+          const horasOff = Math.max(2, horasBase + (isCuidadora ? randDec(0, 2) : randDec(-1, 0)));
+          const mensaje = pickMsg(
+            isCuidadora ? msgs.cuidadora : msgs.familia,
+            tarifaOff, String(Number(inicioBase.split(':')[0]) + rand(0, 1)).padStart(2, '0') + ':00',
+            String(Number(finBase.split(':')[0]) + rand(0, 1)).padStart(2, '0') + ':00',
+            Math.round(horasOff)
+          );
+          let estadoNeg = 'activa';
+          if (estado === 'Finalizada' || estado === 'Completada' || estado === 'En curso') {
+            estadoNeg = i === count - 1 ? 'aceptada' : (i === 0 ? 'rechazada' : 'aceptada');
+          } else if (estado === 'Cancelada') {
+            estadoNeg = i === 0 ? 'rechazada' : 'rechazada';
+          } else if (estado === 'Pagada') {
+            estadoNeg = 'aceptada';
+          }
+          const diasAtras = rand(5, 60);
+          stmt.run(o.Id, proponente, tarifaOff, Math.round(horasOff * 10) / 10,
+            inicioBase, finBase, mensaje, estadoNeg, dateTimeStr(diasAtras));
+          n++;
+        }
+      }
+      if (n) console.log(`Negociaciones insertadas: ${n}`);
+    } catch(e) { console.log('Seed 28 (Negociaciones) omitido:', e.message); }
+
     console.log('Enriquecimiento de datos completo.');
   } catch(e) { console.log('Seed 26 (Enriquecido) omitido:', e.message); console.error(e); }
 
