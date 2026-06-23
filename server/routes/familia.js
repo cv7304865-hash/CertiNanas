@@ -416,9 +416,11 @@ router.get('/solicitudes/:id/detalle', (req, res) => {
       ORDER BY FechaCreacion DESC LIMIT 1
     `).get(orden.Id);
 
-    // Reseñas
+    // Reseñas (match por cuidadora + familia de la orden)
     const resenas = db.prepare(`
-      SELECT Calificacion, Comentario, FechaCreacion FROM Resenas WHERE IdOrden = ?
+      SELECT r.Calificacion, r.Comentario, r.FechaCreacion FROM Resenas r
+      INNER JOIN Ordenes o ON o.IdCuidadora = r.IdCuidadora AND o.IdUsuarioFamilia = r.IdUsuarioFamilia
+      WHERE o.Id = ?
     `).all(orden.Id);
 
     res.json({

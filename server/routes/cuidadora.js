@@ -106,15 +106,16 @@ router.get('/servicios/:id/detalle', isCaregiver, (req, res) => {
     FROM Contratos WHERE IdOrden = ?
   `).get(orden.Id);
 
-  // Reseñas
+  // Reseñas (match por cuidadora + familia de la orden)
   const resenas = db.prepare(`
     SELECT r.Calificacion, r.Comentario, r.FechaCreacion,
            u.Nombres, u.Apellidos
     FROM Resenas r
     INNER JOIN Usuarios u ON u.Id = r.IdUsuarioFamilia
-    WHERE r.IdCuidadora = ? AND r.IdOrden = ?
+    INNER JOIN Ordenes o ON o.IdCuidadora = r.IdCuidadora AND o.IdUsuarioFamilia = r.IdUsuarioFamilia
+    WHERE o.Id = ?
     ORDER BY r.FechaCreacion DESC
-  `).all(cuidadora.Id, orden.Id);
+  `).all(orden.Id);
 
   // Motivo de cancelación (de notificaciones o auditoría)
   const cancelReason = db.prepare(`
