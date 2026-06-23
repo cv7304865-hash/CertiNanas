@@ -343,6 +343,55 @@ CREATE TABLE Sesiones (
 ) ENGINE=InnoDB;
 
 -- ============================================================
+-- TAREAS, CATEGORIAS, ORDEN TAREAS, NEGOCIACIONES
+-- ============================================================
+
+CREATE TABLE TareasCategoria (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL UNIQUE,
+    Orden INT DEFAULT 0
+) ENGINE=InnoDB;
+
+CREATE TABLE Tareas (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdCategoria INT NOT NULL,
+    Descripcion VARCHAR(500) NOT NULL,
+    Orden INT DEFAULT 0,
+    FOREIGN KEY (IdCategoria) REFERENCES TareasCategoria(Id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE OrdenTareas (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdOrden INT NOT NULL,
+    IdTarea INT NOT NULL,
+    Decision VARCHAR(20) DEFAULT 'Pendiente',
+    FOREIGN KEY (IdOrden) REFERENCES Ordenes(Id) ON DELETE CASCADE,
+    FOREIGN KEY (IdTarea) REFERENCES Tareas(Id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE OrdenTareasPersonalizadas (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdOrden INT NOT NULL,
+    Descripcion VARCHAR(500) NOT NULL,
+    Decision VARCHAR(20) DEFAULT 'Pendiente',
+    FOREIGN KEY (IdOrden) REFERENCES Ordenes(Id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE Negociaciones (
+    Id INT AUTO_INCREMENT PRIMARY KEY,
+    IdOrden INT NOT NULL,
+    IdPropuestoPor INT NOT NULL,
+    MontoPropuesto DECIMAL(10,2),
+    Detalles TEXT,
+    Estado VARCHAR(20) DEFAULT 'Pendiente',
+    FechaResolucion DATETIME,
+    ComentarioAdmin TEXT,
+    FechaCreacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (IdOrden) REFERENCES Ordenes(Id) ON DELETE CASCADE,
+    FOREIGN KEY (IdPropuestoPor) REFERENCES Usuarios(Id)
+) ENGINE=InnoDB;
+
+-- ============================================================
 -- DATOS INICIALES
 -- ============================================================
 
@@ -651,6 +700,7 @@ CREATE TABLE HistorialReputacion (
 -- ============================================================
 -- MIGRACIONES DE COLUMNAS
 -- ============================================================
+ALTER TABLE Ordenes ADD COLUMN EstadoNegociacion VARCHAR(20) DEFAULT 'Pendiente' AFTER Estado;
 ALTER TABLE Ordenes ADD COLUMN CheckInLatitud DECIMAL(10,7) AFTER FechaFinalizacion;
 ALTER TABLE Ordenes ADD COLUMN CheckInLongitud DECIMAL(10,7) AFTER CheckInLatitud;
 ALTER TABLE Ordenes ADD COLUMN CheckOutLatitud DECIMAL(10,7) AFTER CheckInLongitud;

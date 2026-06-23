@@ -21,6 +21,7 @@ require_once __DIR__ . '/controllers/CuidadoraController.php';
 require_once __DIR__ . '/controllers/SearchController.php';
 require_once __DIR__ . '/controllers/MensajesController.php';
 require_once __DIR__ . '/controllers/EntrevistaControlador.php';
+require_once __DIR__ . '/controllers/TareasNegociacionController.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $uri    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -39,6 +40,7 @@ $cuidadoraCtrl  = new CuidadoraController();
 $searchCtrl     = new SearchController();
 $mensajesCtrl   = new MensajesController();
 $entrevistaCtrl = new EntrevistaControlador();
+$tareasCtrl     = new TareasNegociacionController();
 
 try {
     // ============================================================
@@ -85,6 +87,15 @@ try {
     if ($uri === '/api/familia/agendar-entrevista' && $method === 'POST') {
         $familiaCtrl->agendarEntrevista($body);
     }
+    if (preg_match('#^/api/familia/solicitudes/(\d+)/detalle$#', $uri, $m) && $method === 'GET') {
+        $familiaCtrl->getDetalleSolicitud((int)$m[1]);
+    }
+    if (preg_match('#^/api/familia/orden/(\d+)/liberar-pago$#', $uri, $m) && $method === 'POST') {
+        $familiaCtrl->liberarPago((int)$m[1]);
+    }
+    if ($uri === '/api/familia/reportar-incidencia' && $method === 'POST') {
+        $familiaCtrl->reportarIncidencia($body);
+    }
 
     // ============================================================
     // CUIDADORA
@@ -100,6 +111,46 @@ try {
     }
     if ($uri === '/api/cuidadora/documentos' && $method === 'POST') {
         $cuidadoraCtrl->subirDocumento();
+    }
+
+    // ============================================================
+    // TAREAS Y NEGOCIACION
+    // ============================================================
+    if ($uri === '/api/categorias' && $method === 'GET') {
+        $tareasCtrl->getCategorias();
+    }
+    if ($uri === '/api/tareas' && $method === 'GET') {
+        $tareasCtrl->getTareasAll();
+    }
+    if (preg_match('#^/api/tareas/categoria/(\d+)$#', $uri, $m) && $method === 'GET') {
+        $tareasCtrl->getTareasByCategoria((int)$m[1]);
+    }
+    if (preg_match('#^/api/orden/(\d+)/tareas$#', $uri, $m) && $method === 'GET') {
+        $tareasCtrl->getOrdenTareas((int)$m[1]);
+    }
+    if (preg_match('#^/api/orden/(\d+)/tareas$#', $uri, $m) && $method === 'POST') {
+        $tareasCtrl->saveOrdenTareas((int)$m[1], $body);
+    }
+    if ($uri === '/api/cuidadora/solicitudes-pendientes' && $method === 'GET') {
+        $tareasCtrl->solicitudesPendientesCuidadora();
+    }
+    if (preg_match('#^/api/negociacion/(\d+)/responder$#', $uri, $m) && $method === 'POST') {
+        $tareasCtrl->enviarRespuestaNegociacion((int)$m[1], $body);
+    }
+    if (preg_match('#^/api/orden/(\d+)/aceptar$#', $uri, $m) && $method === 'POST') {
+        $tareasCtrl->aceptarOrden((int)$m[1]);
+    }
+    if (preg_match('#^/api/orden/(\d+)/rechazar$#', $uri, $m) && $method === 'POST') {
+        $tareasCtrl->rechazarOrden((int)$m[1], $body);
+    }
+    if ($uri === '/api/familia/negociaciones' && $method === 'GET') {
+        $tareasCtrl->getNegociacionesFamilia();
+    }
+    if ($uri === '/api/admin/negociaciones' && $method === 'GET') {
+        $tareasCtrl->getNegociacionesAdmin();
+    }
+    if (preg_match('#^/api/negociacion/(\d+)/mediar$#', $uri, $m) && $method === 'POST') {
+        $tareasCtrl->mediarNegociacion((int)$m[1], $body);
     }
 
     // ============================================================
@@ -190,6 +241,45 @@ try {
     }
     if ($uri === '/api/admin/conversaciones' && $method === 'GET') {
         $adminCtrl->getConversaciones();
+    }
+    if (preg_match('#^/api/admin/contratos/(\d+)$#', $uri, $m) && $method === 'GET') {
+        $adminCtrl->getContratoDetalle((int)$m[1]);
+    }
+    if (preg_match('#^/api/admin/incidencias/(\d+)$#', $uri, $m) && $method === 'GET') {
+        $adminCtrl->getIncidenciaDetalle((int)$m[1]);
+    }
+    if ($uri === '/api/admin/mediaciones' && $method === 'GET') {
+        $adminCtrl->getMediaciones();
+    }
+    if (preg_match('#^/api/admin/mediaciones/(\d+)$#', $uri, $m) && $method === 'GET') {
+        $adminCtrl->getMediacionDetalle((int)$m[1]);
+    }
+    if ($uri === '/api/admin/mediaciones/agendar' && $method === 'POST') {
+        $adminCtrl->agendarMediacion($body);
+    }
+    if ($uri === '/api/admin/escrows' && $method === 'GET') {
+        $adminCtrl->getEscrows();
+    }
+    if (preg_match('#^/api/admin/escrows/(\d+)$#', $uri, $m) && $method === 'GET') {
+        $adminCtrl->getEscrowDetalle((int)$m[1]);
+    }
+    if ($uri === '/api/admin/transacciones' && $method === 'GET') {
+        $adminCtrl->getTransacciones();
+    }
+    if (preg_match('#^/api/admin/usuarios/(\d+)/suspender$#', $uri, $m) && $method === 'POST') {
+        $adminCtrl->suspenderUsuario((int)$m[1]);
+    }
+    if (preg_match('#^/api/admin/usuarios/(\d+)/quejas$#', $uri, $m) && $method === 'GET') {
+        $adminCtrl->getQuejasUsuario((int)$m[1]);
+    }
+    if (preg_match('#^/api/admin/postulaciones/(\d+)/documentos/(\d+)/aprobar$#', $uri, $m) && $method === 'POST') {
+        $adminCtrl->aprobarDocumentoPostulacion((int)$m[1], (int)$m[2]);
+    }
+    if (preg_match('#^/api/admin/postulaciones/(\d+)/documentos/(\d+)/rechazar$#', $uri, $m) && $method === 'POST') {
+        $adminCtrl->rechazarDocumentoPostulacion((int)$m[1], (int)$m[2], $body);
+    }
+    if ($uri === '/api/admin/reportes/full' && $method === 'GET') {
+        $adminCtrl->getReportesFull();
     }
 
     // ============================================================

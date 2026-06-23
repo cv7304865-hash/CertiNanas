@@ -111,6 +111,146 @@ class FamiliaController
         ], 'Pago exitoso. El monto está retenido en Escrow hasta completar el servicio.');
     }
 
+    public function getDetalleSolicitud(int $id): void
+    {
+        $user = AuthMiddleware::authenticate();
+        $orden = Database::fetchOne('
+            SELECT o.*, u.Nombres as CuidadoraNombres, u.Apellidos as CuidadoraApellidos,
+                   m.Nombre as MenorNombre, m.Diagnostico as MenorDiagnostico
+            FROM Ordenes o
+            INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+            INNER JOIN Usuarios u ON u.Id = c.IdUsuario
+            LEFT JOIN Menores m ON m.Id = o.IdMenor
+            WHERE o.Id = ? AND o.IdUsuarioFamilia = ?
+        ', [$id, $user->Id]);
+        if (!$orden) Response::notFound('Orden no encontrada');
+
+        $tareas = Database::fetchAll('
+            SELECT ot.Id, t.Descripcion, ot.Decision, 0 as EsPersonalizada
+            FROM OrdenTareas ot INNER JOIN Tareas t ON t.Id = ot.IdTarea WHERE ot.IdOrden = ?
+        ', [$id]);
+        $personalizadas = Database::fetchAll('
+            SELECT Id, Descripcion, Decision, 1 as EsPersonalizada FROM OrdenTareasPersonalizadas WHERE IdOrden = ?
+        ', [$id]);
+
+        $contrato = Database::fetchOne('SELECT * FROM Contratos WHERE IdOrden = ?', [$id]);
+
+        $negociaciones = Database::fetchAll('
+            SELECT n.*, u.Nombres as PropuestoPorNombres, u.Apellidos as PropuestoPorApellidos
+            FROM Negociaciones n INNER JOIN Usuarios u ON u.Id = n.IdPropuestoPor
+            WHERE n.IdOrden = ? ORDER BY n.FechaCreacion DESC
+        ', [$id]);
+
+        $cancelReason = Database::fetchOne("
+            SELECT Descripcion FROM Auditoria
+            WHERE IdEntidad = ? AND (Accion LIKE '%cancel%' OR Accion LIKE '%rechaz%')
+            ORDER BY FechaCreacion DESC LIMIT 1
+        ", [$id]);
+
+        $resenas = Database::fetchAll('SELECT Calificacion, Comentario, FechaCreacion FROM Resenas WHERE IdOrden = ?', [$id]);
+
+        Response::success([
+            'orden' => $orden,
+            'tareas' => array_merge($tareas, $personalizadas),
+            'contrato' => $contrato,
+            'negociaciones' => $negociaciones,
+            'motivoCancelacion' => $cancelReason->Descripcion ?? null,
+            'resenas' => $resenas,
+        ]);
+    }
+
+    public function liberarPago(int $ordenId): void
+    {
+        $user = AuthMiddleware::authenticate();
+        $orden = Database::fetchOne('SELECT * FROM Ordenes WHERE Id = ? AND IdUsuarioFamilia = ?', [$ordenId, $user->Id]);
+        if (!$orden) Response::notFound('Orden no encontrada');
+        if (!in_array($orden->Estado, ['Completada', 'Finalizada'])) {
+            Response::error('El servicio debe estar completado');
+        }
+
+        Database::getConnection()->beginTransaction();
+        try {
+            Database::update('Escrow', [
+                'Estado' => 'Liberado',
+                'FechaLiberacion' => date('Y-m-d H:i:s'),
+            ], 'IdOrden = ?', [$ordenId]);
+            Database::update('Ordenes', ['Estado' => 'Finalizada'], 'Id = ?', [$ordenId]);
+
+            $cuidadora = Database::fetchOne('SELECT IdUsuario FROM Cuidadoras WHERE Id = ?', [$orden->IdCuidadora]);
+            if ($cuidadora) {
+                Database::insert('Notificaciones', [
+                    'IdUsuarioDestino' => $cuidadora->IdUsuario,
+                    'Titulo' => 'Pago liberado',
+                    'Descripcion' => "El pago del servicio #{$ordenId} ha sido liberado.",
+                    'Tipo' => 'pago',
+                ]);
+            }
+            $admins = Database::fetchAll('SELECT Id FROM Usuarios u INNER JOIN Roles r ON r.Id = u.IdRol WHERE r.Nombre = ?', ['admin']);
+            foreach ($admins as $a) {
+                Database::insert('Notificaciones', [
+                    'IdUsuarioDestino' => $a->Id,
+                    'Titulo' => 'Pago liberado sin incidencias',
+                    'Descripcion' => "Pago de orden #{$ordenId} liberado sin incidencias.",
+                    'Tipo' => 'pago',
+                ]);
+            }
+            Database::insert('Auditoria', [
+                'IdUsuario' => $user->Id,
+                'Accion' => 'LIBERAR_PAGO',
+                'Entidad' => 'Ordenes',
+                'IdEntidad' => $ordenId,
+                'Detalle' => 'Pago liberado sin incidencias',
+            ]);
+            Database::commit();
+        } catch (Exception $e) {
+            Database::getConnection()->rollBack();
+            Response::error('Error al liberar pago: ' . $e->getMessage(), 500);
+        }
+        Response::success(null, 'Pago liberado exitosamente');
+    }
+
+    public function reportarIncidencia(array $body): void
+    {
+        $user = AuthMiddleware::authenticate();
+        $ordenId = $body['ordenId'] ?? null;
+        $categoria = $body['categoria'] ?? 'General';
+        $descripcion = $body['descripcion'] ?? '';
+        $finalizar = $body['finalizar'] ?? false;
+
+        if (!$descripcion) Response::error('Descripción requerida');
+
+        Database::getConnection()->beginTransaction();
+        try {
+            $incId = Database::insert('Incidencias', [
+                'IdReporto' => $user->Id,
+                'IdOrden' => $ordenId ? (int)$ordenId : null,
+                'Tipo' => $categoria,
+                'Descripcion' => $descripcion,
+                'Estado' => 'Abierta',
+                'FechaCreacion' => date('Y-m-d H:i:s'),
+            ]);
+            if ($finalizar && $ordenId) {
+                Database::update('Ordenes', [
+                    'FinalizadaFamilia' => 1,
+                    'FechaFinalizacion' => date('Y-m-d H:i:s'),
+                    'Estado' => 'Finalizada',
+                ], 'Id = ?', [(int)$ordenId]);
+            }
+            Database::insert('Auditoria', [
+                'IdUsuario' => $user->Id,
+                'Accion' => 'REPORTAR_INCIDENCIA',
+                'Entidad' => 'Incidencias',
+                'IdEntidad' => $incId,
+                'Detalle' => mb_substr($descripcion, 0, 200),
+            ]);
+            Database::commit();
+        } catch (Exception $e) {
+            Database::getConnection()->rollBack();
+            Response::error('Error al reportar incidencia: ' . $e->getMessage(), 500);
+        }
+        Response::success(null, 'Incidencia reportada');
+    }
+
     public function agendarEntrevista(array $body): void
     {
         $user = AuthMiddleware::authenticate();
