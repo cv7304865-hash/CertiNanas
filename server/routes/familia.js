@@ -99,6 +99,9 @@ router.post('/orden/:id/aceptar', (req, res) => {
     }
     db.prepare("UPDATE Contratos SET AceptadoFamilia = 1, FechaAceptacionFamilia = datetime('now') WHERE Id = ?").run(contrato.Id);
     db.prepare('UPDATE Ordenes SET ConfirmadaFamilia = 1 WHERE Id = ?').run(orden.Id);
+    if (db.prepare('SELECT ConfirmadaCuidadora FROM Ordenes WHERE Id = ?').get(orden.Id)?.ConfirmadaCuidadora) {
+      db.prepare("UPDATE Ordenes SET EstadoNegociacion = 'Aceptada' WHERE Id = ?").run(orden.Id);
+    }
     audit(userId, 'aceptar_contrato', 'Contratos', contrato.Id, `Orden #${orden.Id}`);
   })();
 
@@ -118,7 +121,7 @@ router.post('/pagar/:id', (req, res) => {
   if (!orden.ConfirmadaCuidadora) return res.status(400).json({ error: 'La cuidadora aún no ha aceptado el contrato' });
 
   db.transaction(() => {
-    db.prepare("UPDATE Ordenes SET Estado = 'Pagada' WHERE Id = ?").run(orden.Id);
+    db.prepare("UPDATE Ordenes SET Estado = 'Pagada', EstadoNegociacion = 'Aceptada' WHERE Id = ?").run(orden.Id);
     const metodo = (req.body.metodoPago || 'Tarjeta').replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
     db.prepare("INSERT INTO Pagos (IdOrden, Monto, MetodoPago, Estado) VALUES (?, ?, ?, 'Completado')").run(orden.Id, orden.Total, metodo);
     // Crear registro Escrow: el subtotal va a la cuidadora, la tarifa plataforma es retenida

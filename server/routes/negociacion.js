@@ -335,7 +335,7 @@ router.get('/cuidadora/solicitudes-pendientes', (req, res) => {
     FROM Ordenes o
     INNER JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
     LEFT JOIN Menores m ON m.Id = o.IdMenor
-    WHERE o.IdCuidadora = ? AND o.EstadoNegociacion IN ('Pendiente', 'Negociacion', 'Reunion')
+    WHERE o.IdCuidadora = ? AND o.Estado = 'Pendiente' AND o.EstadoNegociacion IN ('Pendiente', 'Negociacion', 'Reunion')
     ORDER BY o.FechaCreacion DESC
   `).all(cuidadora.Id);
 

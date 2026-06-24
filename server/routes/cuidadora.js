@@ -206,6 +206,9 @@ router.post('/orden/:id/aceptar', isCaregiver, (req, res) => {
     }
     db.prepare("UPDATE Contratos SET AceptadoCuidadora = 1, FechaAceptacionCuidadora = datetime('now') WHERE Id = ?").run(contrato.Id);
     db.prepare('UPDATE Ordenes SET ConfirmadaCuidadora = 1 WHERE Id = ?').run(orden.Id);
+    if (db.prepare('SELECT ConfirmadaFamilia FROM Ordenes WHERE Id = ?').get(orden.Id)?.ConfirmadaFamilia) {
+      db.prepare("UPDATE Ordenes SET EstadoNegociacion = 'Aceptada' WHERE Id = ?").run(orden.Id);
+    }
     audit(userId, 'aceptar_contrato_cuidadora', 'Contratos', contrato.Id, `Orden #${orden.Id}`);
   })();
 
