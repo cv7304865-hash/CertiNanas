@@ -10,10 +10,13 @@ router.get('/solicitudes', (req, res) => {
 
   const rows = db.prepare(`
     SELECT o.Id, o.FechaServicio, o.TotalHoras, o.TarifaHora, o.Total, o.Subtotal, o.TarifaPlataforma, o.Estado, o.EstadoNegociacion, o.HoraInicio, o.HoraFin,
+           o.ConfirmadaFamilia, o.ConfirmadaCuidadora,
            c.Id AS CuidadoraId, u.Nombres AS CuidadoraNombres, u.Apellidos AS CuidadoraApellidos,
            m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico,
-            (SELECT COALESCE(json_group_array(IdTarea), '[]') FROM OrdenTareas WHERE IdOrden = o.Id) AS TareaIds,
-            (SELECT COALESCE(json_group_array(json_object('Id', Id, 'Descripcion', Descripcion, 'Decision', Decision)), '[]') FROM OrdenTareasPersonalizadas WHERE IdOrden = o.Id) AS TareasPersonalizadas
+           (SELECT AceptadoAdmin FROM Contratos WHERE IdOrden = o.Id) AS AceptadoAdmin,
+           (SELECT AceptadoCuidadora FROM Contratos WHERE IdOrden = o.Id) AS AceptadoContratoCuidadora,
+           (SELECT COALESCE(json_group_array(IdTarea), '[]') FROM OrdenTareas WHERE IdOrden = o.Id) AS TareaIds,
+           (SELECT COALESCE(json_group_array(json_object('Id', Id, 'Descripcion', Descripcion, 'Decision', Decision)), '[]') FROM OrdenTareasPersonalizadas WHERE IdOrden = o.Id) AS TareasPersonalizadas
      FROM Ordenes o
      INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
      INNER JOIN Usuarios u ON u.Id = c.IdUsuario
@@ -119,6 +122,8 @@ router.post('/pagar/:id', (req, res) => {
   if (orden.Estado === 'Pagada' || orden.Estado === 'Completada') return res.status(400).json({ error: 'Orden ya pagada' });
   if (!orden.ConfirmadaFamilia) return res.status(400).json({ error: 'Debes aceptar el contrato primero' });
   if (!orden.ConfirmadaCuidadora) return res.status(400).json({ error: 'La cuidadora aún no ha aceptado el contrato' });
+  const contrato = db.prepare('SELECT AceptadoAdmin FROM Contratos WHERE IdOrden = ?').get(orden.Id);
+  if (!contrato?.AceptadoAdmin) return res.status(400).json({ error: 'La administración aún no firma el contrato' });
 
   db.transaction(() => {
     db.prepare("UPDATE Ordenes SET Estado = 'Pagada', EstadoNegociacion = 'Aceptada' WHERE Id = ?").run(orden.Id);

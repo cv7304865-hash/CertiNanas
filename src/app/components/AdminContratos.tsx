@@ -16,6 +16,7 @@ type Contrato = {
   requiere_mediacion_manual?: boolean;
   AceptadoFamilia?: number;
   AceptadoCuidadora?: number;
+  AceptadoAdmin?: number;
 };
 
 type DetalleContrato = Contrato & {
@@ -175,6 +176,16 @@ export function AdminContratos() {
                       >
                         <FileSignature className="w-3 h-3 inline mr-1" /> Contrato
                       </button>
+                      {!c.AceptadoAdmin && c.AceptadoFamilia && c.AceptadoCuidadora && (
+                        <button onClick={async () => {
+                          await fetch(`/api/admin/contratos/${c.Id}/firmar`, { method: 'PUT', headers });
+                          setContratos(prev => prev.map(x => x.Id === c.Id ? { ...x, AceptadoAdmin: 1 } : x));
+                        }}
+                          className="px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+                        >
+                          <FileSignature className="w-3 h-3 inline mr-1" /> Firmar
+                        </button>
+                      )}
                       {c.Estado === 'Pendiente' && (
                         <>
                           {c.requiere_mediacion_manual === false && (
@@ -254,6 +265,12 @@ export function AdminContratos() {
                       <span className="text-[#6667AB]">Cuidadora firma:</span>
                       <span className={`ml-1 text-xs font-bold ${detalle.AceptadoCuidadora ? 'text-emerald-300' : 'text-amber-300'}`}>
                         {detalle.AceptadoCuidadora ? 'Sí' : 'Pendiente'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[#6667AB]">Admin firma:</span>
+                      <span className={`ml-1 text-xs font-bold ${detalle.AceptadoAdmin ? 'text-emerald-300' : 'text-amber-300'}`}>
+                        {detalle.AceptadoAdmin ? 'Sí' : 'Pendiente'}
                       </span>
                     </div>
                   </div>

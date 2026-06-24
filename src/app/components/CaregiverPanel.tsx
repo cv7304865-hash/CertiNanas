@@ -977,7 +977,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                         <h4 className="text-xs font-bold text-[#F6A5C0] uppercase mb-3 flex items-center gap-2">
                           <FileText className="w-4 h-4" /> Contrato #{detalleData.contrato.Id}
                         </h4>
-                        <div className="flex items-center gap-3 text-sm">
+                        <div className="flex flex-wrap items-center gap-2 text-sm">
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${detalleData.contrato.AceptadoFamilia ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-200'}`}>
                             {detalleData.contrato.AceptadoFamilia ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                             Familia: {detalleData.contrato.AceptadoFamilia ? 'Aceptó' : 'Pendiente'}
@@ -986,13 +986,29 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                             {detalleData.contrato.AceptadoCuidadora ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                             Tú: {detalleData.contrato.AceptadoCuidadora ? 'Aceptaste' : 'Pendiente'}
                           </span>
+                          {detalleData.contrato.AceptadoAdmin !== undefined && (
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${detalleData.contrato.AceptadoAdmin ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-200'}`}>
+                              {detalleData.contrato.AceptadoAdmin ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                              Admin: {detalleData.contrato.AceptadoAdmin ? 'Firmó' : 'Pendiente'}
+                            </span>
+                          )}
                         </div>
                         {detalleData.contrato.Terminos && (
                           <pre className="mt-3 text-[10px] text-[#6667AB] whitespace-pre-wrap max-h-40 overflow-y-auto bg-[rgba(33,6,53,0.3)] rounded-lg p-3">{detalleData.contrato.Terminos}</pre>
                         )}
-                        <button onClick={() => setShowContractPreview(true)}
-                          className="mt-3 w-full py-2 rounded-lg bg-[#F6A5C0]/10 text-[#F6A5C0] text-xs font-bold hover:bg-[#F6A5C0]/20 transition-colors border border-[#F6A5C0]/30"
-                        >Ver Contrato Completo</button>
+                        <div className="flex gap-2 mt-3">
+                          <button onClick={() => setShowContractPreview(true)}
+                            className="flex-1 py-2 rounded-lg bg-[#F6A5C0]/10 text-[#F6A5C0] text-xs font-bold hover:bg-[#F6A5C0]/20 transition-colors border border-[#F6A5C0]/30"
+                          >Ver Contrato Completo</button>
+                          {detalleData.contrato.AceptadoFamilia && !detalleData.contrato.AceptadoCuidadora && (
+                            <button onClick={async () => {
+                              await fetch(`/api/cuidadora/orden/${detalleData.Id}/aceptar`, { method: 'POST', headers });
+                              abrirDetalle(detalleData.Id);
+                            }}
+                              className="px-4 py-2 rounded-lg bg-emerald-500/20 text-emerald-200 text-xs font-bold hover:bg-emerald-500/30 transition-colors border border-emerald-500/30"
+                            ><CheckCircle className="w-3 h-3 inline mr-1" />Firmar Contrato</button>
+                          )}
+                        </div>
                       </div>
                     )}
 

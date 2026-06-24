@@ -208,8 +208,10 @@ db.exec(`
     Terminos TEXT NOT NULL,
     AceptadoFamilia INTEGER NOT NULL DEFAULT 0,
     AceptadoCuidadora INTEGER NOT NULL DEFAULT 0,
+    AceptadoAdmin INTEGER NOT NULL DEFAULT 0,
     FechaAceptacionFamilia TEXT,
     FechaAceptacionCuidadora TEXT,
+    FechaAceptacionAdmin TEXT,
     FechaCreacion TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -691,6 +693,8 @@ db.exec(`
   try { db.prepare(`ALTER TABLE Ordenes ADD COLUMN CheckOutLongitud REAL`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Contratos ADD COLUMN PdfUrl TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE Contratos ADD COLUMN HashCriptografico TEXT`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Contratos ADD COLUMN AceptadoAdmin INTEGER NOT NULL DEFAULT 0`).run(); } catch(e) {}
+  try { db.prepare(`ALTER TABLE Contratos ADD COLUMN FechaAceptacionAdmin TEXT`).run(); } catch(e) {}
   try { db.prepare(`ALTER TABLE OrdenTareas ADD COLUMN Decision TEXT NOT NULL DEFAULT 'Pendiente'`).run(); } catch(e) {}
   try { db.prepare("UPDATE Postulaciones SET MotivoRechazo = 'No cumple con los requisitos minimos establecidos.' WHERE Estado = 'Rechazada' AND (MotivoRechazo IS NULL OR MotivoRechazo = '')").run(); } catch(e) {}
   try { db.prepare("UPDATE DocumentosPostulacion SET MotivoRechazo = 'Documento no cumple con los requisitos.' WHERE Estado = 'Rechazado' AND (MotivoRechazo IS NULL OR MotivoRechazo = '')").run(); } catch(e) {}

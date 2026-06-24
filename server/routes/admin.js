@@ -246,7 +246,7 @@ router.get('/contratos', isAdmin, (req, res) => {
            uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
            m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico,
            o.TipoServicio, o.TotalHoras, o.TarifaHora, o.Subtotal, o.TarifaPlataforma,
-           ct.AceptadoFamilia, ct.AceptadoCuidadora
+           ct.AceptadoFamilia, ct.AceptadoCuidadora, ct.AceptadoAdmin
     FROM Ordenes o
     INNER JOIN Usuarios u ON u.Id = o.IdUsuarioFamilia
     INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
@@ -265,8 +265,8 @@ router.get('/contratos/:id', isAdmin, (req, res) => {
     SELECT o.*, u.Nombres AS FamiliaNombres, u.Apellidos AS FamiliaApellidos,
            uc.Nombres AS CuidadoraNombres, uc.Apellidos AS CuidadoraApellidos,
            m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico,
-           ct.AceptadoFamilia, ct.AceptadoCuidadora,
-           ct.FechaAceptacionFamilia, ct.FechaAceptacionCuidadora
+           ct.AceptadoFamilia, ct.AceptadoCuidadora, ct.AceptadoAdmin,
+           ct.FechaAceptacionFamilia, ct.FechaAceptacionCuidadora, ct.FechaAceptacionAdmin
     FROM Ordenes o
     INNER JOIN Usuarios u ON u.Id = o.IdUsuarioFamilia
     INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
@@ -309,6 +309,26 @@ router.put('/contratos/:id/rechazar', isAdmin, (req, res) => {
   const db = getDb();
   db.prepare("UPDATE Ordenes SET Estado = 'Cancelada' WHERE Id = ?").run(Number(req.params.id));
   res.json({ success: true });
+});
+
+// Admin firma el contrato como representante legal de la empresa
+router.put('/contratos/:id/firmar', isAdmin, (req, res) => {
+  const db = getDb();
+  const ordenId = Number(req.params.id);
+  const contrato = db.prepare('SELECT * FROM Contratos WHERE IdOrden = ?').get(ordenId);
+  if (!contrato) return res.status(404).json({ error: 'Contrato no encontrado' });
+  if (contrato.AceptadoAdmin) return res.status(400).json({ error: 'Ya firmaste este contrato' });
+
+  db.transaction(() => {
+    db.prepare("UPDATE Contratos SET AceptadoAdmin = 1, FechaAceptacionAdmin = datetime('now') WHERE IdOrden = ?").run(ordenId);
+    const c = db.prepare('SELECT AceptadoFamilia, AceptadoCuidadora FROM Contratos WHERE IdOrden = ?').get(ordenId);
+    if (c.AceptadoFamilia && c.AceptadoCuidadora) {
+      db.prepare("UPDATE Ordenes SET EstadoNegociacion = 'Aceptada' WHERE Id = ?").run(ordenId);
+    }
+    audit(Number(req.headers['x-user-id']), 'firmar_contrato_admin', 'Contratos', contrato.Id, `Admin firmó contrato de orden #${ordenId}`);
+  })();
+
+  res.json({ success: true, message: 'Contrato firmado por administración' });
 });
 
 // Suspender/activar usuario (RN-19)

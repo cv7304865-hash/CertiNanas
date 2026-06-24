@@ -26,6 +26,8 @@ type Solicitud = {
   MenorNombre: string | null; MenorDiagnostico: string | null;
   TareaIds?: number[]; FamiliaNombres?: string; FamiliaApellidos?: string;
   TipoServicio?: string; MenorFechaNac?: string | null; IdEscrow?: number;
+  ConfirmadaFamilia?: number; ConfirmadaCuidadora?: number;
+  AceptadoAdmin?: number; AceptadoContratoCuidadora?: number;
 };
 
 type Miembro = {
@@ -678,9 +680,15 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                             <td className="py-3 text-right">
                               <div className="flex items-center justify-end gap-1">
                                 {s.Estado === 'Pendiente' && (
-                                  <button onClick={() => pagarServicio(s.Id)}
-                                    className="px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-300 hover:bg-emerald-500/10 transition-colors"
-                                  >Pagar</button>
+                                  s.ConfirmadaFamilia ? (
+                                    <button onClick={() => pagarServicio(s.Id)}
+                                      className="px-2 py-1 rounded-lg text-[10px] font-bold text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+                                    >Pagar</button>
+                                  ) : (
+                                    <button onClick={() => onViewContract?.(s.Id)}
+                                      className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#F6A5C0] hover:bg-[#F6A5C0]/10 transition-colors"
+                                    >Firmar Contrato</button>
+                                  )
                                 )}
                                 {s.Estado === 'Confirmada' && (
                                   <button onClick={() => iniciarServicio(s.Id)}
