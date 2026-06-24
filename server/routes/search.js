@@ -9,7 +9,7 @@ router.get('/search/cuidadoras', (req, res) => {
 
   let sql = `
     SELECT DISTINCT c.Id, c.IdUsuario, c.AniosExperiencia, c.TarifaHora, c.CalificacionPromedio, c.TotalResenas,
-           u.Nombres, u.Apellidos, u.Email,
+           u.Nombres, u.Apellidos, u.Email, u.FotoPerfil,
            (SELECT GROUP_CONCAT(e.Nombre, ' · ') FROM CuidadoraEspecialidades ce INNER JOIN Especialidades e ON e.Id = ce.IdEspecialidad WHERE ce.IdCuidadora = c.Id) AS Especialidades
     FROM Cuidadoras c
     INNER JOIN Usuarios u ON u.Id = c.IdUsuario
@@ -96,7 +96,7 @@ router.get('/search/cuidadora/:id/perfil', (req, res) => {
   const cuidadoraId = Number(req.params.id);
 
   const cuidadora = db.prepare(`
-    SELECT c.*, u.Nombres, u.Apellidos, u.Email, u.Telefono
+    SELECT c.*, u.Nombres, u.Apellidos, u.Email, u.Telefono, u.FotoPerfil
     FROM Cuidadoras c
     INNER JOIN Usuarios u ON u.Id = c.IdUsuario
     WHERE c.Id = ?

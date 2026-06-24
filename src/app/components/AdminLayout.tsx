@@ -16,6 +16,7 @@ import { AdminAlertasRiesgo } from './AdminAlertasRiesgo';
 import { AdminIncidencias } from './AdminIncidencias';
 import { AdminContratos } from './AdminContratos';
 import { UserMenu } from './UserMenu';
+import { ProfileAvatar } from './ProfileAvatar';
 
 type Tab = 'dashboard' | 'postulaciones' | 'negociaciones' | 'pagos' | 'mediaciones' | 'analitica' | 'sla' | 'alertas' | 'incidencias' | 'contratos';
 
@@ -105,9 +106,7 @@ export function AdminLayout() {
                 <Bell className="w-5 h-5" />
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#F6A5C0] rounded-full flex items-center justify-center text-white text-[10px] font-bold">3</span>
               </button>
-              <div className="w-8 h-8 rounded-full bg-[#F6A5C0] flex items-center justify-center text-[#210635] text-sm font-bold">
-                {user?.nombres?.charAt(0)?.toUpperCase() || 'A'}
-              </div>
+              <ProfileAvatar size={32} />
             </div>
           </header>
 

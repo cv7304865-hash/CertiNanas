@@ -15,7 +15,7 @@ function isCaregiver(req, res, next) {
 router.get('/perfil', isCaregiver, (req, res) => {
   const db = getDb();
   const userId = Number(req.headers['x-user-id']);
-  const user = db.prepare('SELECT Id, Nombres, Apellidos, Email, Telefono FROM Usuarios WHERE Id = ?').get(userId);
+  const user = db.prepare('SELECT Id, Nombres, Apellidos, Email, Telefono, FotoPerfil FROM Usuarios WHERE Id = ?').get(userId);
   const cuidadora = db.prepare('SELECT * FROM Cuidadoras WHERE IdUsuario = ?').get(userId);
   if (!cuidadora) return res.status(404).json({ error: 'Perfil cuidadora no encontrado' });
   const especialidades = db.prepare(`

@@ -116,7 +116,7 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
     latitud: '',
     longitud: '',
   });
-  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+
   const [savingPerfil, setSavingPerfil] = useState(false);
 
   // Tab - Familia miembros
@@ -265,23 +265,8 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
           longitud: parseFloat(perfilForm.longitud) || null,
         }),
       });
-      if (fotoPreview && fotoPreview.startsWith('data:')) {
-        await fetch('/api/familia/perfil/foto', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) },
-          body: JSON.stringify({ fotoPerfil: fotoPreview }),
-        });
-      }
     } catch {}
     setSavingPerfil(false);
-  };
-
-  const handleFotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setFotoPreview(reader.result as string);
-    reader.readAsDataURL(file);
   };
 
   // Miembros CRUD
@@ -769,22 +754,10 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
 
               {/* Foto */}
               <div className="flex items-center gap-4 mb-6">
-                <div className="relative">
-                  {fotoPreview ? (
-                    <img src={fotoPreview} alt="Preview" className="w-20 h-20 rounded-full object-cover border-2 border-[#F6A5C0]" />
-                  ) : (
-                    <div className="w-20 h-20 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-2xl font-bold text-[#CC8DB3] border-2 border-dashed border-[rgba(255,255,255,0.2)]">
-                      {user?.nombres?.charAt(0) || '?'}
-                    </div>
-                  )}
-                </div>
+                <ProfileAvatar size={80} />
                 <div>
                   <p className="text-white font-semibold text-sm">Foto de perfil</p>
-                  <p className="text-[#6667AB] text-xs mb-2">PNG, JPG. Máx 2MB</p>
-                  <label className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[rgba(246,165,192,0.15)] border border-[#F6A5C0]/30 text-[#F6A5C0] text-xs font-bold cursor-pointer hover:bg-[rgba(246,165,192,0.25)] transition-all">
-                    <Upload className="w-3.5 h-3.5" /> Subir foto
-                    <input type="file" accept="image/*" className="hidden" onChange={handleFotoUpload} />
-                  </label>
+                  <p className="text-[#6667AB] text-xs">Haz clic en la foto para cambiarla</p>
                 </div>
               </div>
 
