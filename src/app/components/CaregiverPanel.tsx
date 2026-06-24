@@ -70,7 +70,7 @@ type CaregiverPanelProps = {
   onNavigate?: (view: string) => void;
 };
 
-type Tab = 'perfil' | 'servicios' | 'solicitudes' | 'panel' | 'mensajes' | 'capacitacion' | 'reportes' | 'reemplazo';
+type Tab = 'perfil' | 'servicios' | 'solicitudes' | 'panel' | 'mensajes' | 'pagos' | 'capacitacion' | 'reportes' | 'reemplazo';
 
 export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
   const { user, logout } = useAuth();
@@ -105,6 +105,10 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
 
   // -- Emergency replacement --
   const [reemplazos, setReemplazos] = useState<any[]>([]);
+
+  // -- Pagos --
+  const [pagos, setPagos] = useState<any[]>([]);
+  const [totalesPagos, setTotalesPagos] = useState({ ganado: 0, pendiente: 0, liberado: 0 });
 
   // -- Detalle modal --
   const [detalleServicio, setDetalleServicio] = useState<any>(null);
@@ -182,6 +186,15 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
     fetch('/api/cuidadora/stats', { headers })
       .then(r => r.json())
       .then(setStats)
+      .catch(() => {});
+  }, [tab]);
+
+  // -- Fetch pagos --
+  useEffect(() => {
+    if (tab !== 'pagos') return;
+    fetch('/api/cuidadora/pagos', { headers })
+      .then(r => r.json())
+      .then(d => { setPagos(d.pagos ?? []); setTotalesPagos(d.totales ?? { ganado: 0, pendiente: 0, liberado: 0 }); })
       .catch(() => {});
   }, [tab]);
 
@@ -319,7 +332,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
               <span className="text-[#6667AB] text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-4 sm:gap-6 overflow-x-auto pb-1 scrollbar-none">
-              {(['perfil', 'servicios', 'solicitudes', 'panel', 'mensajes', 'capacitacion', 'reportes', 'reemplazo'] as Tab[]).map(t => (
+              {(['perfil', 'servicios', 'solicitudes', 'panel', 'mensajes', 'pagos', 'capacitacion', 'reportes', 'reemplazo'] as Tab[]).map(t => (
                 <button
                   key={t}
                   onClick={() => t === 'mensajes' ? onNavigate?.('messages') : setTab(t)}
@@ -334,6 +347,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                   {t === 'solicitudes' && 'Solicitudes'}
                   {t === 'panel' && 'Mi Panel'}
                   {t === 'mensajes' && 'Mensajes'}
+                  {t === 'pagos' && 'Mis Pagos'}
                   {t === 'capacitacion' && 'Capacitación'}
                   {t === 'reportes' && 'Reportes'}
                   {t === 'reemplazo' && 'Reemplazo'}
@@ -782,6 +796,63 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
             <p className="text-[#F5D5E0]/70 mb-6 max-w-md mx-auto">
               Accede a tu bandeja de mensajes desde el botón <strong className="text-white">"Mensajes"</strong> en el encabezado de la página.
             </p>
+          </motion.div>
+        )}
+
+        {/* ════════════════════ TAB: PAGOS ════════════════════ */}
+        {tab === 'pagos' && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-5">
+                <p className="text-xs text-[#6667AB]">Total ganado</p>
+                <p className="text-2xl font-extrabold text-[#F6A5C0]">S/ {totalesPagos.ganado.toFixed(2)}</p>
+              </div>
+              <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-5">
+                <p className="text-xs text-[#6667AB]">Liberado</p>
+                <p className="text-2xl font-extrabold text-emerald-400">S/ {totalesPagos.liberado.toFixed(2)}</p>
+              </div>
+              <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-5">
+                <p className="text-xs text-[#6667AB]">Pendiente (en Escrow)</p>
+                <p className="text-2xl font-extrabold text-amber-400">S/ {totalesPagos.pendiente.toFixed(2)}</p>
+              </div>
+            </div>
+
+            <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
+              <h3 className="font-bold text-white mb-4">Historial de Pagos</h3>
+              {pagos.length === 0 ? (
+                <p className="text-sm text-[#6667AB] text-center py-8">Aún no tienes pagos registrados</p>
+              ) : (
+                <div className="space-y-3">
+                  {pagos.map((p, i) => (
+                    <div key={p.escrowId} className="flex items-center justify-between bg-[rgba(33,6,53,0.4)] rounded-xl px-4 py-3 border border-[rgba(255,255,255,0.06)]">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-9 h-9 rounded-full bg-[#F6A5C0]/20 flex items-center justify-center flex-shrink-0">
+                          <DollarSign className="w-4 h-4 text-[#F6A5C0]" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-white truncate">{p.familiaNombres} {p.familiaApellidos}</p>
+                          <p className="text-xs text-[#6667AB]">{p.menorNombre ? `👶 ${p.menorNombre} · ` : ''}{p.TotalHoras}h × S/ {p.TarifaHora.toFixed(2)}</p>
+                          <p className="text-[10px] text-[#6667AB] mt-0.5">{p.FechaServicio}</p>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-4">
+                        <p className="text-sm font-bold text-white">S/ {p.MontoCuidadora.toFixed(2)}</p>
+                        <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          p.escrowEstado === 'Liberado' ? 'bg-emerald-500/20 text-emerald-200' :
+                          p.escrowEstado === 'Retenido' ? 'bg-amber-500/20 text-amber-200' :
+                          'bg-red-500/20 text-red-200'
+                        }`}>
+                          {p.escrowEstado === 'Liberado' ? 'Pagado' : p.escrowEstado === 'Retenido' ? 'En Escrow' : p.escrowEstado}
+                        </span>
+                        {p.FechaLiberacion && (
+                          <p className="text-[10px] text-[#6667AB] mt-1">Liberado: {new Date(p.FechaLiberacion).toLocaleDateString('es-PE')}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
 

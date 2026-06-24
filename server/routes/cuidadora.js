@@ -257,4 +257,37 @@ router.post('/orden/:id/confirmar-finalizacion', isCaregiver, (req, res) => {
   res.json({ success: true });
 });
 
+// GET /api/cuidadora/pagos — historial de pagos recibidos
+router.get('/pagos', isCaregiver, (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  const cuidadora = db.prepare('SELECT Id FROM Cuidadoras WHERE IdUsuario = ?').get(userId);
+  if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
+
+  const pagos = db.prepare(`
+    SELECT e.Id AS escrowId, o.Id AS ordenId, o.FechaServicio, o.TotalHoras, o.TarifaHora,
+           e.MontoCuidadora, e.MontoPlataforma, e.MontoTotal, e.Estado AS escrowEstado,
+           e.FechaCreacion, e.FechaLiberacion,
+           u.Nombres AS familiaNombres, u.Apellidos AS familiaApellidos,
+           m.Nombre AS menorNombre
+    FROM Escrow e
+    INNER JOIN Ordenes o ON o.Id = e.IdOrden
+    INNER JOIN Usuarios u ON u.Id = o.IdUsuarioFamilia
+    LEFT JOIN Menores m ON m.Id = o.IdMenor
+    WHERE o.IdCuidadora = ?
+    ORDER BY e.FechaLiberacion DESC, e.FechaCreacion DESC
+  `).all(cuidadora.Id);
+
+  const totales = db.prepare(`
+    SELECT COALESCE(SUM(e.MontoCuidadora), 0) AS ganado,
+           COALESCE(SUM(CASE WHEN e.Estado = 'Retenido' THEN e.MontoCuidadora ELSE 0 END), 0) AS pendiente,
+           COALESCE(SUM(CASE WHEN e.Estado = 'Liberado' THEN e.MontoCuidadora ELSE 0 END), 0) AS liberado
+    FROM Escrow e
+    INNER JOIN Ordenes o ON o.Id = e.IdOrden
+    WHERE o.IdCuidadora = ?
+  `).get(cuidadora.Id);
+
+  res.json({ pagos, totales });
+});
+
 export default router;
