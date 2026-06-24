@@ -1,8 +1,9 @@
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Banner } from './ui/Banner';
+import { CertificadoModal } from './CertificadoModal';
 
 type Curso = {
   Id: number; Titulo: string; Descripcion: string; TipoContenido: string;
@@ -31,6 +32,7 @@ export function CentroCapacitacion() {
   const [respuestas, setRespuestas] = useState<Record<number, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'danger'; text: string } | null>(null);
+  const [certificado, setCertificado] = useState<any>(null);
 
   useEffect(() => {
     fetch('/api/capacitacion/cursos', { headers })
@@ -89,6 +91,13 @@ export function CentroCapacitacion() {
 
   const allAnswered = evaluaciones.length > 0 && evaluaciones.every(e => respuestas[e.Orden - 1] !== undefined);
 
+  const verCertificado = async (idProgreso: number) => {
+    try {
+      const r = await fetch(`/api/capacitacion/certificado/${idProgreso}`, { headers });
+      if (r.ok) setCertificado(await r.json());
+    } catch {}
+  };
+
   const iconMap: Record<string, string> = { Video: '🎬', PDF: '📄', Manual: '📘', CasoPractico: '📋' };
 
   return (
@@ -111,7 +120,7 @@ export function CentroCapacitacion() {
                 <span className="text-[#6EE7B7] text-sm">✓</span>
                 <span className="text-white text-sm flex-1">{p.Titulo}</span>
                 <span className="text-[#6EE7B7] text-[10px] font-bold">{p.PuntajeObtenido}%</span>
-                <button onClick={() => alert('Certificado: ' + p.Titulo + '\nCódigo: CCT-' + String(p.Id).padStart(6, '0') + '\nVálido: Descargar en Centro de Capacitación')}
+                <button onClick={() => verCertificado(p.Id)}
                   className="px-3 py-1 rounded-lg bg-[rgba(246,165,192,0.15)] text-[#F6A5C0] text-[10px] font-bold hover:bg-[rgba(246,165,192,0.25)] transition-colors"
                 >Ver Certificado</button>
               </div>
@@ -203,6 +212,10 @@ export function CentroCapacitacion() {
           </motion.div>
         </motion.div>
       )}
+
+      <AnimatePresence>
+        {certificado && <CertificadoModal data={certificado} onClose={() => setCertificado(null)} />}
+      </AnimatePresence>
     </div>
   );
 }

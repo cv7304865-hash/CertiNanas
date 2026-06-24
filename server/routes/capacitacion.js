@@ -113,4 +113,44 @@ router.get('/progreso', (req, res) => {
   }
 });
 
+router.get('/certificado/:idProgreso', (req, res) => {
+  try {
+    const db = getDb();
+    const userId = Number(req.headers['x-user-id']);
+    if (!userId) return res.status(401).json({ error: 'No autenticado' });
+
+    const cuidadora = db.prepare(`
+      SELECT c.Id AS cuidadoraId, u.Nombres, u.Apellidos, u.NumeroDocumento
+      FROM Cuidadoras c INNER JOIN Usuarios u ON u.Id = c.IdUsuario WHERE c.IdUsuario = ?
+    `).get(userId);
+    if (!cuidadora) return res.status(403).json({ error: 'Acceso denegado' });
+
+    const progreso = db.prepare(`
+      SELECT pc.*, c.Titulo, c.Descripcion, c.Categoria, c.DuracionMinutos
+      FROM ProgresoCapacitacion pc
+      INNER JOIN Capacitaciones c ON c.Id = pc.IdCapacitacion
+      WHERE pc.Id = ? AND pc.IdCuidadora = ?
+    `).get(Number(req.params.idProgreso), cuidadora.cuidadoraId);
+
+    if (!progreso) return res.status(404).json({ error: 'Certificado no encontrado' });
+
+    const codigo = 'CCT-' + String(progreso.Id).padStart(6, '0');
+
+    res.json({
+      nombre: `${cuidadora.Nombres} ${cuidadora.Apellidos}`,
+      documento: cuidadora.NumeroDocumento || '--',
+      titulo: progreso.Titulo,
+      descripcion: progreso.Descripcion,
+      categoria: progreso.Categoria,
+      puntaje: progreso.PuntajeObtenido,
+      aprobado: !!progreso.Aprobado,
+      fecha: progreso.FechaCompletado,
+      duracionMinutos: progreso.DuracionMinutos,
+      codigo,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
