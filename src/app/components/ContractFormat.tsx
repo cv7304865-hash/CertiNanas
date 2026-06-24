@@ -157,14 +157,11 @@ export function ContractFormat(props: ContractFormatProps) {
                     </div>
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
                       n.Estado === 'aceptada' ? 'bg-emerald-100 text-emerald-700' :
-                      n.Estado === 'rechazada' ? 'bg-red-100 text-red-700' :
-                      'bg-amber-100 text-amber-700'
+                      'bg-red-100 text-red-700'
                     }`}>
                       {n.Estado === 'aceptada' ? <ThumbsUp className="w-3 h-3" /> :
-                       n.Estado === 'rechazada' ? <ThumbsDown className="w-3 h-3" /> :
-                       <Clock className="w-3 h-3" />}
-                      {n.Estado === 'aceptada' ? 'Aceptada' :
-                       n.Estado === 'rechazada' ? 'Rechazada' : 'Pendiente'}
+                       <ThumbsDown className="w-3 h-3" />}
+                      {n.Estado === 'aceptada' ? 'Aceptada' : 'Rechazada'}
                     </span>
                   </div>
                   {n.Mensaje && (
@@ -179,7 +176,7 @@ export function ContractFormat(props: ContractFormatProps) {
                 </div>
               ))}
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2 text-emerald-800 text-center">
-                <strong>Resolución:</strong> {props.firmadoFamilia && props.firmadoCuidadora ? 'Acuerdo mutuo alcanzado' : props.firmadoFamilia ? 'Aceptado por la familia, pendiente de la cuidadora' : props.firmadoCuidadora ? 'Aceptado por la cuidadora, pendiente de la familia' : 'En proceso de negociación'}
+                <strong>Resolución:</strong> Acuerdo mutuo alcanzado
               </div>
             </div>
           </section>

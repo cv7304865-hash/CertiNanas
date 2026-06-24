@@ -559,4 +559,68 @@ router.get('/mediaciones', isAdmin, (req, res) => {
   res.json(result);
 });
 
+// ── ADMIN: reportes completos ──
+router.get('/reportes-full', isAdmin, (req, res) => {
+  const db = getDb();
+  const totalOrdenes = db.prepare('SELECT COUNT(*) AS c FROM Ordenes').get().c;
+  const totalPagos = db.prepare('SELECT COUNT(*) AS c FROM Pagos').get().c;
+  const totalCompletadas = db.prepare("SELECT COUNT(*) AS c FROM Ordenes WHERE Estado = 'Completada'").get().c;
+  const totalCanceladas = db.prepare("SELECT COUNT(*) AS c FROM Ordenes WHERE Estado = 'Cancelada'").get().c;
+  const ingresos = db.prepare('SELECT COALESCE(SUM(Monto), 0) AS total FROM Pagos WHERE Estado = ?').get('Completado');
+  const citasCompletadas = db.prepare("SELECT COUNT(*) AS c FROM Citas WHERE Estado = 'Completada'").get().c;
+  const resenasPromedio = db.prepare('SELECT COALESCE(AVG(Calificacion), 0) AS prom FROM Resenas').get().prom;
+  const ordenesPorEstado = db.prepare("SELECT Estado, COUNT(*) AS count FROM Ordenes GROUP BY Estado ORDER BY count DESC").all();
+  const ordenesPorMes = db.prepare(`
+    SELECT strftime('%Y-%m', FechaCreacion) AS mes, COUNT(*) AS count
+    FROM Ordenes GROUP BY mes ORDER BY mes ASC
+  `).all();
+  const ingresosPorMes = db.prepare(`
+    SELECT strftime('%Y-%m', p.FechaPago) AS mes, COALESCE(SUM(p.Monto), 0) AS total
+    FROM Pagos p WHERE p.Estado = 'Completado'
+    GROUP BY mes ORDER BY mes ASC
+  `).all();
+  const topCuidadoras = db.prepare(`
+    SELECT u.Nombres || ' ' || u.Apellidos AS nombre, COUNT(o.Id) AS total
+    FROM Ordenes o
+    INNER JOIN Cuidadoras c ON c.Id = o.IdCuidadora
+    INNER JOIN Usuarios u ON u.Id = c.IdUsuario
+    GROUP BY c.Id ORDER BY total DESC LIMIT 5
+  `).all();
+  const pagosPorEstado = db.prepare("SELECT Estado, COUNT(*) AS count FROM Pagos GROUP BY Estado").all();
+  res.json({
+    totalOrdenes, totalPagos, totalCompletadas, totalCanceladas,
+    ingresos: ingresos.total, citasCompletadas,
+    resenasPromedio: +resenasPromedio.toFixed(1),
+    ordenesPorEstado, ordenesPorMes, ingresosPorMes, topCuidadoras, pagosPorEstado,
+  });
+});
+
+// ── ADMIN: visto bueno rapido ──
+router.post('/vb-rapido/:ordenId', isAdmin, (req, res) => {
+  const db = getDb();
+  const orden = db.prepare('SELECT * FROM Ordenes WHERE Id = ?').get(Number(req.params.ordenId));
+  if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+
+  db.transaction(() => {
+    const codigo = 'CTN-2026-' + String(orden.Id).padStart(4, '0');
+    const ctResult = db.prepare('INSERT INTO Contratos (IdOrden, Terminos, AceptadoFamilia, AceptadoCuidadora, FechaAceptacionFamilia, FechaAceptacionCuidadora) VALUES (?, ?, 1, 1, datetime(\'now\'), datetime(\'now\'))').run(orden.Id, 'Contrato aprobado via Visto Bueno Rapido');
+    db.prepare('INSERT INTO ContratosDigitales (IdOrden, CodigoContrato, FechaEmision, Estado) VALUES (?, ?, datetime(\'now\'), \'Completado\')').run(orden.Id, codigo);
+    db.prepare("UPDATE Ordenes SET EstadoNegociacion = 'Acordado', Estado = 'Confirmada', ConfirmadaFamilia = 1, ConfirmadaCuidadora = 1 WHERE Id = ?").run(orden.Id);
+    db.prepare("UPDATE Escrow SET Estado = 'Liberado', FechaLiberacion = datetime('now') WHERE IdOrden = ?").run(orden.Id);
+    audit(getAdminId(req), 'vb_rapido', 'Ordenes', orden.Id, 'Visto Bueno Rapido - aprobacion inmediata');
+  })();
+  res.json({ success: true });
+});
+
+// ── ADMIN: guardar acuerdo de negociacion ──
+router.post('/guardar-acuerdo/:ordenId', isAdmin, (req, res) => {
+  const db = getDb();
+  const { acuerdo } = req.body;
+  if (!acuerdo?.trim()) return res.status(400).json({ error: 'Texto de acuerdo requerido' });
+
+  db.prepare("UPDATE Ordenes SET EstadoNegociacion = 'Acordado', Estado = 'Confirmada' WHERE Id = ?").run(Number(req.params.ordenId));
+  audit(getAdminId(req), 'guardar_acuerdo', 'Ordenes', Number(req.params.ordenId), acuerdo.slice(0, 500));
+  res.json({ success: true });
+});
+
 export default router;

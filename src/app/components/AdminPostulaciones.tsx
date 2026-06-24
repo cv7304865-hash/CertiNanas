@@ -31,21 +31,7 @@ type Postulacion = {
   MotivoRechazo?: string;
 };
 
-const dummyPendientes: Postulacion[] = [
-  { Id: 9991, IdUsuario: 91, Nombres: 'Lucía', Apellidos: 'Fernández', Email: 'lucia.fernandez@email.com', FechaPostulacion: new Date(Date.now() - 2 * 3600000).toISOString(), Estado: 'Pendiente', HorasTranscurridas: 2, TotalDocumentos: 5, Documentos: [{ Id: 1, TipoRequisito: 'DNI', NombreArchivo: 'dni.pdf', Estado: 'Aprobado', Peso: '0.8 MB' }, { Id: 2, TipoRequisito: 'Antecedentes penales', NombreArchivo: 'antecedentes_penales.pdf', Estado: 'Aprobado', Peso: '1.2 MB' }, { Id: 3, TipoRequisito: 'Certificado de salud', NombreArchivo: 'certificado_salud.pdf', Estado: 'Pendiente', Peso: '1.5 MB' }, { Id: 4, TipoRequisito: 'Título profesional', NombreArchivo: 'titulo_profesional.pdf', Estado: 'Pendiente', Peso: '2.1 MB' }, { Id: 5, TipoRequisito: 'Carta de presentación', NombreArchivo: 'carta_presentacion.pdf', Estado: 'Pendiente', Peso: '0.6 MB' }] },
-  { Id: 9992, IdUsuario: 92, Nombres: 'Mariana', Apellidos: 'Gutiérrez', Email: 'mariana.gutierrez@email.com', FechaPostulacion: new Date(Date.now() - 12 * 3600000).toISOString(), Estado: 'Pendiente', HorasTranscurridas: 12, TotalDocumentos: 4, Documentos: [{ Id: 6, TipoRequisito: 'DNI', NombreArchivo: 'dni.pdf', Estado: 'Aprobado', Peso: '0.7 MB' }, { Id: 7, TipoRequisito: 'Antecedentes penales', NombreArchivo: 'antecedentes_penales.pdf', Estado: 'Aprobado', Peso: '1.1 MB' }, { Id: 8, TipoRequisito: 'Certificado de salud', NombreArchivo: 'certificado_salud.pdf', Estado: 'Aprobado', Peso: '1.3 MB' }, { Id: 9, TipoRequisito: 'Título profesional', NombreArchivo: 'titulo_profesional.pdf', Estado: 'Pendiente', Peso: '2.0 MB' }] },
-  { Id: 9993, IdUsuario: 93, Nombres: 'Camila', Apellidos: 'Reyes', Email: 'camila.reyes@email.com', FechaPostulacion: new Date(Date.now() - 28 * 3600000).toISOString(), Estado: 'Pendiente', HorasTranscurridas: 28, TotalDocumentos: 5, Documentos: [{ Id: 10, TipoRequisito: 'DNI', NombreArchivo: 'dni.pdf', Estado: 'Aprobado', Peso: '0.9 MB' }, { Id: 11, TipoRequisito: 'Antecedentes penales', NombreArchivo: 'antecedentes_penales.pdf', Estado: 'Pendiente', Peso: '1.4 MB' }, { Id: 12, TipoRequisito: 'Certificado de salud', NombreArchivo: 'certificado_salud.pdf', Estado: 'Pendiente', Peso: '1.6 MB' }, { Id: 13, TipoRequisito: 'Título profesional', NombreArchivo: 'titulo_profesional.pdf', Estado: 'Rechazado', Peso: '2.2 MB', MotivoRechazo: 'Documento ilegible' }, { Id: 14, TipoRequisito: 'Carta de presentación', NombreArchivo: 'carta_presentacion.pdf', Estado: 'Pendiente', Peso: '0.5 MB' }] },
-];
 
-const dummyValidadas: Postulacion[] = [
-  { Id: 9994, IdUsuario: 94, Nombres: 'Valeria', Apellidos: 'Mendoza', Email: 'valeria.mendoza@email.com', FechaPostulacion: new Date(Date.now() - 5 * 86400000).toISOString(), Estado: 'Aprobada', HorasTranscurridas: 120, TotalDocumentos: 5, Documentos: [{ Id: 15, TipoRequisito: 'DNI', NombreArchivo: 'dni.pdf', Estado: 'Aprobado', Peso: '0.8 MB' }, { Id: 16, TipoRequisito: 'Antecedentes penales', NombreArchivo: 'antecedentes_penales.pdf', Estado: 'Aprobado', Peso: '1.2 MB' }, { Id: 17, TipoRequisito: 'Certificado de salud', NombreArchivo: 'certificado_salud.pdf', Estado: 'Aprobado', Peso: '1.5 MB' }, { Id: 18, TipoRequisito: 'Título profesional', NombreArchivo: 'titulo_profesional.pdf', Estado: 'Aprobado', Peso: '2.1 MB' }, { Id: 19, TipoRequisito: 'Carta de presentación', NombreArchivo: 'carta_presentacion.pdf', Estado: 'Aprobado', Peso: '0.6 MB' }] },
-  { Id: 9995, IdUsuario: 95, Nombres: 'Alejandra', Apellidos: 'Torres', Email: 'alejandra.torres@email.com', FechaPostulacion: new Date(Date.now() - 10 * 86400000).toISOString(), Estado: 'Aprobada', HorasTranscurridas: 240, TotalDocumentos: 4, Documentos: [{ Id: 20, TipoRequisito: 'DNI', NombreArchivo: 'dni.pdf', Estado: 'Aprobado', Peso: '0.7 MB' }, { Id: 21, TipoRequisito: 'Antecedentes penales', NombreArchivo: 'antecedentes_penales.pdf', Estado: 'Aprobado', Peso: '1.1 MB' }, { Id: 22, TipoRequisito: 'Certificado de salud', NombreArchivo: 'certificado_salud.pdf', Estado: 'Aprobado', Peso: '1.3 MB' }, { Id: 23, TipoRequisito: 'Título profesional', NombreArchivo: 'titulo_profesional.pdf', Estado: 'Aprobado', Peso: '2.0 MB' }] },
-];
-
-const dummyRechazadas: Postulacion[] = [
-  { Id: 9996, IdUsuario: 96, Nombres: 'Daniela', Apellidos: 'Paredes', Email: 'daniela.paredes@email.com', FechaPostulacion: new Date(Date.now() - 7 * 86400000).toISOString(), Estado: 'Rechazada', HorasTranscurridas: 168, TotalDocumentos: 5, MotivoRechazo: 'Documentos incompletos: falta certificado de antecedentes penales', Documentos: [{ Id: 24, TipoRequisito: 'DNI', NombreArchivo: 'dni.pdf', Estado: 'Aprobado', Peso: '0.8 MB' }, { Id: 25, TipoRequisito: 'Antecedentes penales', NombreArchivo: 'antecedentes_penales.pdf', Estado: 'Rechazado', Peso: '1.2 MB', MotivoRechazo: 'Documento vencido' }, { Id: 26, TipoRequisito: 'Certificado de salud', NombreArchivo: 'certificado_salud.pdf', Estado: 'Rechazado', Peso: '1.5 MB', MotivoRechazo: 'No es legible' }, { Id: 27, TipoRequisito: 'Título profesional', NombreArchivo: 'titulo_profesional.pdf', Estado: 'Aprobado', Peso: '2.1 MB' }, { Id: 28, TipoRequisito: 'Carta de presentación', NombreArchivo: 'carta_presentacion.pdf', Estado: 'Aprobado', Peso: '0.6 MB' }] },
-  { Id: 9997, IdUsuario: 97, Nombres: 'Gabriela', Apellidos: 'Huamán', Email: 'gabriela.huaman@email.com', FechaPostulacion: new Date(Date.now() - 14 * 86400000).toISOString(), Estado: 'Rechazada', HorasTranscurridas: 336, TotalDocumentos: 4, MotivoRechazo: 'No cumple con los requisitos mínimos de experiencia', Documentos: [{ Id: 29, TipoRequisito: 'DNI', NombreArchivo: 'dni.pdf', Estado: 'Aprobado', Peso: '0.7 MB' }, { Id: 30, TipoRequisito: 'Antecedentes penales', NombreArchivo: 'antecedentes_penales.pdf', Estado: 'Aprobado', Peso: '1.1 MB' }, { Id: 31, TipoRequisito: 'Certificado de salud', NombreArchivo: 'certificado_salud.pdf', Estado: 'Rechazado', Peso: '1.3 MB', MotivoRechazo: 'Fecha de emisión muy antigua' }, { Id: 32, TipoRequisito: 'Título profesional', NombreArchivo: 'titulo_profesional.pdf', Estado: 'Aprobado', Peso: '2.0 MB' }] },
-];
 
 const glassCard = 'bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl';
 
@@ -100,20 +86,14 @@ export function AdminPostulaciones() {
   const validadas = allPostulaciones.filter(p => p.Estado === 'Aprobada');
   const rechazadas = allPostulaciones.filter(p => p.Estado === 'Rechazada');
 
-  const currentList = tab === 'pendientes'
-    ? (pendientes.length > 0 ? pendientes : dummyPendientes)
-    : tab === 'validadas'
-    ? (validadas.length > 0 ? validadas : dummyValidadas)
-    : (rechazadas.length > 0 ? rechazadas : dummyRechazadas);
+  const currentList = tab === 'pendientes' ? pendientes
+    : tab === 'validadas' ? validadas
+    : rechazadas;
 
   const filtered = currentList.filter(p => {
     const q = search.toLowerCase();
     return `${p.Nombres} ${p.Apellidos} ${p.Email}`.toLowerCase().includes(q);
   });
-
-  const isUsingDummyData = (tab === 'pendientes' && pendientes.length === 0) ||
-    (tab === 'validadas' && validadas.length === 0) ||
-    (tab === 'rechazadas' && rechazadas.length === 0);
 
   const handleAprobarDocumento = async (postId: number, docId: number) => {
     const r = await fetch(`/api/admin/postulaciones/${postId}/documentos/${docId}/aprobar`, {
@@ -156,9 +136,9 @@ export function AdminPostulaciones() {
   };
 
   const tabs = [
-    { key: 'pendientes' as const, label: 'Pendientes', icon: Clock, count: pendientes.length || 3, color: 'text-amber-300' },
-    { key: 'validadas' as const, label: 'Validadas', icon: ThumbsUp, count: validadas.length || 2, color: 'text-emerald-300' },
-    { key: 'rechazadas' as const, label: 'Rechazadas', icon: ThumbsDown, count: rechazadas.length || 2, color: 'text-red-300' },
+    { key: 'pendientes' as const, label: 'Pendientes', icon: Clock, count: pendientes.length, color: 'text-amber-300' },
+    { key: 'validadas' as const, label: 'Validadas', icon: ThumbsUp, count: validadas.length, color: 'text-emerald-300' },
+    { key: 'rechazadas' as const, label: 'Rechazadas', icon: ThumbsDown, count: rechazadas.length, color: 'text-red-300' },
   ];
 
   return (
@@ -214,13 +194,6 @@ export function AdminPostulaciones() {
           );
         })}
       </div>
-
-      {isUsingDummyData && (
-        <div className="flex items-center gap-2 px-4 py-2 mb-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs">
-          <AlertTriangle className="w-4 h-4 shrink-0" />
-          Mostrando datos de ejemplo — el servidor no devolvió postulaciones reales
-        </div>
-      )}
 
       {loading ? (
         <div className="text-center py-16">

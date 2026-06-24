@@ -1,5 +1,8 @@
+import bcrypt from 'bcryptjs';
 import { getDb, closeDb } from './db.js';
 import { setupDatabase } from './setup.js';
+
+const HASHED_PASSWORD = bcrypt.hashSync('123456', 10);
 
 function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function randDec(min, max, d = 2) { return +(min + Math.random() * (max - min)).toFixed(d); }
@@ -149,7 +152,7 @@ export function seed(db) {
     for (const f of familiasData) {
       const tel = `9${String(rand(10000000, 99999999))}`;
       const dni = String(rand(10000000, 99999999));
-      db.prepare('INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, NumeroDocumento, Telefono, IdRol, TerminosAceptados, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?, 2, 1, ?)').run(f.email, '123456', f.nombres, f.apellidos, dni, tel, dateTimeStr(rand(300, 365)));
+      db.prepare('INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, NumeroDocumento, Telefono, IdRol, TerminosAceptados, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?, 2, 1, ?)').run(f.email, HASHED_PASSWORD, f.nombres, f.apellidos, dni, tel, dateTimeStr(rand(300, 365)));
     }
   }
   const familias = db.prepare('SELECT Id, Nombres, Apellidos FROM Usuarios WHERE IdRol = 2').all();
@@ -173,7 +176,7 @@ export function seed(db) {
     for (const c of cuidadorasData) {
       const tel = `9${String(rand(10000000, 99999999))}`;
       const dni = String(rand(10000000, 99999999));
-      db.prepare('INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, NumeroDocumento, Telefono, IdRol, TerminosAceptados, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?, 3, 1, ?)').run(c.email, '123456', c.nombres, c.apellidos, dni, tel, dateTimeStr(rand(300, 365)));
+      db.prepare('INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, NumeroDocumento, Telefono, IdRol, TerminosAceptados, FechaCreacion) VALUES (?, ?, ?, ?, ?, ?, 3, 1, ?)').run(c.email, HASHED_PASSWORD, c.nombres, c.apellidos, dni, tel, dateTimeStr(rand(300, 365)));
     }
   }
   const cuidadorasUsers = db.prepare('SELECT Id, Nombres, Apellidos FROM Usuarios WHERE IdRol = 3').all();
@@ -1092,6 +1095,17 @@ const perfiles = [
 
     // ========== 28. NEGOCIACIONES PARA TODAS LAS ÓRDENES ==========
     try {
+      // Fix any 'activa' negotiations from previous seeds — map to resolved state based on order status
+      db.prepare(`
+        UPDATE Negociaciones SET Estado = 'aceptada'
+        WHERE Estado = 'activa' AND IdOrden IN (SELECT Id FROM Ordenes WHERE Estado IN ('Finalizada','Completada','Pagada'))
+      `).run();
+      db.prepare(`
+        UPDATE Negociaciones SET Estado = 'rechazada'
+        WHERE Estado = 'activa' AND IdOrden IN (SELECT Id FROM Ordenes WHERE Estado = 'Cancelada')
+      `).run();
+      // For remaining 'activa' (Pendiente/En revision), mark as rechazada
+      db.prepare(`UPDATE Negociaciones SET Estado = 'rechazada' WHERE Estado = 'activa'`).run();
       const ordenesSinNeg = db.prepare(`
         SELECT o.Id, o.Estado, o.TarifaHora, o.TotalHoras, o.HoraInicio, o.HoraFin,
                o.IdCuidadora, o.IdUsuarioFamilia,
@@ -1142,13 +1156,11 @@ const perfiles = [
             String(Number(finBase.split(':')[0]) + rand(0, 1)).padStart(2, '0') + ':00',
             Math.round(horasOff)
           );
-          let estadoNeg = 'activa';
-          if (estado === 'Finalizada' || estado === 'Completada' || estado === 'En curso') {
+          let estadoNeg;
+          if (estado === 'Cancelada') {
+            estadoNeg = 'rechazada';
+          } else {
             estadoNeg = i === count - 1 ? 'aceptada' : (i === 0 ? 'rechazada' : 'aceptada');
-          } else if (estado === 'Cancelada') {
-            estadoNeg = i === 0 ? 'rechazada' : 'rechazada';
-          } else if (estado === 'Pagada') {
-            estadoNeg = 'aceptada';
           }
           const diasAtras = rand(5, 60);
           stmt.run(o.Id, proponente, tarifaOff, Math.round(horasOff * 10) / 10,

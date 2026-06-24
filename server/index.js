@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
+import bcrypt from 'bcryptjs';
 import { getDb } from './db.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
@@ -26,6 +27,7 @@ import analyticsRoutes from './routes/analytics.js';
 import incidentesRoutes from './routes/incidentes.js';
 import alertasRoutes from './routes/alertas.js';
 import saludRoutes from './routes/salud.js';
+import entrevistasRoutes from './routes/entrevistas.js';
 import { setupDatabase } from './setup.js';
 import { seed } from './seed-data.mjs';
 
@@ -66,6 +68,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/incidentes', incidentesRoutes);
 app.use('/api/alertas', alertasRoutes);
 app.use('/api/salud', saludRoutes);
+app.use('/api/entrevistas', entrevistasRoutes);
 
 app.use('/uploads', express.static(uploadsDir));
 
@@ -145,7 +148,7 @@ try {
   setupDatabase(db);
   const adminCount = db.prepare("SELECT COUNT(*) AS c FROM Usuarios WHERE IdRol = 1").get();
   if (adminCount.c === 0) {
-    db.prepare(`INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, IdRol, TerminosAceptados) VALUES (?, ?, ?, ?, 1, 1)`).run('admin@certinanas.pe', '123456', 'Admin', 'CertiNanas');
+    db.prepare(`INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, IdRol, TerminosAceptados) VALUES (?, ?, ?, ?, 1, 1)`).run('admin@certinanas.pe', bcrypt.hashSync('123456', 10), 'Admin', 'CertiNanas');
     console.log('Usuario admin de seed creado (admin@certinanas.pe / 123456).');
   }
   const usuariosNoAdmin = db.prepare('SELECT COUNT(*) AS c FROM Usuarios WHERE IdRol IN (2, 3)').get().c;
@@ -202,6 +205,15 @@ try {
     `).run();
     console.log(`${docsInconsistentes} documento(s) corregido(s) al estado Aprobado.`);
   }
+
+  // Migrar contraseñas de texto plano a bcrypt
+  const plainUsers = db.prepare("SELECT Id, PasswordHash FROM Usuarios WHERE PasswordHash NOT LIKE '$2a$%' AND PasswordHash NOT LIKE '$2b$%' AND PasswordHash NOT LIKE '$2y$%'").all();
+  for (const u of plainUsers) {
+    if (u.PasswordHash && u.PasswordHash.length < 60) {
+      db.prepare('UPDATE Usuarios SET PasswordHash = ? WHERE Id = ?').run(bcrypt.hashSync(u.PasswordHash, 10), u.Id);
+    }
+  }
+  if (plainUsers.length > 0) console.log(`${plainUsers.length} contraseña(s) migrada(s) a bcrypt.`);
 
   console.log('Esquema de BD verificado.');
 } catch (err) {

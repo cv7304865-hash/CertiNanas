@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { getDb, audit } from '../db.js';
+import bcrypt from 'bcryptjs';
 
 const router = Router();
+
+const SALT_ROUNDS = 10;
 
 router.post('/login', (req, res) => {
   try {
@@ -12,11 +15,20 @@ router.post('/login', (req, res) => {
 
     const db = getDb();
     const user = db.prepare(`
-      SELECT u.Id, u.Email, u.Nombres, u.Apellidos, u.FotoPerfil, r.Nombre AS Rol
+      SELECT u.Id, u.Email, u.Nombres, u.Apellidos, u.FotoPerfil, u.PasswordHash, r.Nombre AS Rol
       FROM Usuarios u
       INNER JOIN Roles r ON r.Id = u.IdRol
-      WHERE u.Email = ? AND u.PasswordHash = ? AND u.Activo = 1
-    `).get(email, password);
+      WHERE u.Email = ? AND u.Activo = 1
+    `).get(email);
+
+    if (!user) {
+      return res.status(401).json({ error: 'Correo o contraseña incorrectos.' });
+    }
+
+    const passwordValida = bcrypt.compareSync(password, user.PasswordHash);
+    if (!passwordValida) {
+      return res.status(401).json({ error: 'Correo o contraseña incorrectos.' });
+    }
 
     if (!user) {
       return res.status(401).json({ error: 'Correo o contraseña incorrectos.' });
@@ -69,10 +81,12 @@ router.post('/register', (req, res) => {
       return res.status(409).json({ error: 'El correo electrónico ya está registrado.' });
     }
 
+    const hashedPassword = bcrypt.hashSync(password, SALT_ROUNDS);
+
     const result = db.prepare(`
       INSERT INTO Usuarios (Email, PasswordHash, Nombres, Apellidos, NumeroDocumento, IdRol, TerminosAceptados)
       VALUES (?, ?, ?, ?, ?, ?, 1)
-    `).run(email, password, nombres, apellidos, numeroDocumento || null, rolId);
+    `).run(email, hashedPassword, nombres, apellidos, numeroDocumento || null, rolId);
 
     const userId = result.lastInsertRowid;
 

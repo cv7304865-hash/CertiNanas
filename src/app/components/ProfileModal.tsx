@@ -32,7 +32,30 @@ interface ProfileModalProps {
 }
 
 export function ProfileModal({ isOpen, onClose, nana, onRequestInterview }: ProfileModalProps) {
-  if (!isOpen || !nana) return null;
+  if (!isOpen) return null;
+
+  if (!nana) {
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-[#210635]/50 backdrop-blur-sm"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] rounded-3xl p-8"
+          >
+            <div className="w-10 h-10 border-2 border-[#CC8DB3] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-[#6667AB] mt-4 text-sm">Cargando perfil...</p>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
 
   return (
     <AnimatePresence>

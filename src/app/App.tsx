@@ -15,7 +15,6 @@ import { ContractPage } from './components/ContractPage';
 import { PaymentPage } from './components/PaymentPage';
 import { MessagesPage } from './components/MessagesPage';
 import { ReviewFormPage } from './components/ReviewFormPage';
-import { Messages } from './components/Messages';
 import { Checkout } from './components/Checkout';
 import { NotificationsBell } from './components/NotificationsBell';
 import { WelcomePage } from './components/WelcomePage';
@@ -71,8 +70,81 @@ function AppContent() {
     isOpen: false,
     nana: null,
   });
+  const [loadingProfile, setLoadingProfile] = useState(false);
+
+  const handleViewProfile = async (nana: NanaProfile) => {
+    setLoadingProfile(true);
+    setProfileModalConfig({ isOpen: true, nana: null });
+    try {
+      const res = await fetch(`/api/search/cuidadora/${nana.id}/perfil`);
+      if (res.ok) {
+        const data = await res.json();
+        const updated: NanaProfile = {
+          ...nana,
+          photo: data.cuidadora?.FotoPerfil
+            ? `/uploads/${data.cuidadora.FotoPerfil}`
+            : `https://ui-avatars.com/api/?name=${encodeURIComponent(nana.name)}&background=cc8db3&color=210635&size=400`,
+          rating: data.cuidadora?.CalificacionPromedio || nana.rating,
+          reviews: data.cuidadora?.TotalResenas || nana.reviews,
+          specialties: data.especialidades?.map((e: any) => e.Nombre) || nana.specialties,
+          areas: data.areas?.map((a: any) => a.Nombre) || [],
+          experienceYears: data.cuidadora?.AniosExperiencia || nana.experienceYears,
+          experienceText: `${data.cuidadora?.AniosExperiencia || nana.experienceYears} años de exp.`,
+          rate: data.cuidadora?.TarifaHora || nana.rate,
+          longDescription: data.cuidadora?.DescripcionLarga || nana.shortDescription,
+          shortDescription: data.cuidadora?.DescripcionCorta || nana.shortDescription,
+          education: data.formacion?.map((f: any) => `${f.Titulo} - ${f.Institucion} (${f.AnioObtencion})`) || [],
+          certifications: data.certificaciones?.map((c: any) => `${c.Nombre} - ${c.EntidadEmisora}`) || [],
+          reviewsList: data.resenas?.map((r: any) => ({
+            author: `${r.Nombres} ${r.Apellidos}`,
+            rating: r.Calificacion,
+            text: r.Comentario || '',
+            date: r.FechaResena || '',
+          })) || [],
+        };
+        setProfileModalConfig({ isOpen: true, nana: updated });
+      } else {
+        setProfileModalConfig({ isOpen: true, nana });
+      }
+    } catch {
+      setProfileModalConfig({ isOpen: true, nana });
+    }
+    setLoadingProfile(false);
+  };
 
   const [activeServiceId, setActiveServiceId] = useState<number | null>(null);
+  const [nanasFromApi, setNanasFromApi] = useState<NanaProfile[]>([]);
+  const [loadingNanas, setLoadingNanas] = useState(true);
+
+  useEffect(() => {
+    setLoadingNanas(true);
+    fetch('/api/search/cuidadoras?verificada=0')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const mapped: NanaProfile[] = data.map((c: any) => ({
+            id: c.Id,
+            name: `${c.Nombres} ${c.Apellidos}`,
+            photo: `https://ui-avatars.com/api/?name=${encodeURIComponent(c.Nombres + '+' + c.Apellidos)}&background=cc8db3&color=210635&size=400`,
+            rating: c.CalificacionPromedio || 0,
+            reviews: c.TotalResenas || 0,
+            specialties: c.Especialidades ? c.Especialidades.split(' · ').map((s: string) => s.trim()).filter(Boolean) : [],
+            areas: [],
+            experienceYears: c.AniosExperiencia || 0,
+            experienceText: `${c.AniosExperiencia || 0} años de exp.`,
+            rate: c.TarifaHora || 0,
+            shortDescription: `Especialista en ${c.Especialidades || 'cuidado especializado'} con ${c.AniosExperiencia || 0} años de experiencia.`,
+            longDescription: '',
+            education: [],
+            certifications: [],
+            reviewsList: [],
+          }));
+          setNanasFromApi(mapped);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingNanas(false));
+  }, []);
 
   useEffect(() => {
     if (user?.rol !== 'cuidadora') {
@@ -96,85 +168,7 @@ function AppContent() {
     setInterviewModal({ isOpen: true, nanaName });
   };
 
-  const allNanas: NanaProfile[] = [
-    {
-      id: 1,
-      name: 'María González',
-      photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
-      rating: 4.9,
-      reviews: 47,
-      specialties: ['TDAH', 'TEA', 'Primeros Auxilios'],
-      areas: ['Cuidado domiciliario', 'Acompañamiento escolar'],
-      experienceYears: 4,
-      experienceText: '4 años de exp.',
-      rate: 25,
-      shortDescription: 'Especialista en rutinas estructuradas y refuerzo positivo para niños con TDAH y TEA.',
-      longDescription: 'Soy licenciada en Educación Especial con 4 años de experiencia en el manejo de crisis y desarrollo de rutinas para niños neurodivergentes. Mi enfoque se basa en el refuerzo positivo y la comunicación empática, creando un entorno seguro y estimulante para el aprendizaje diario de sus pequeños.',
-      education: ['Licenciatura en Educación Especial - UNMSM (2018)', 'Diplomado en Neuropsicología Infantil'],
-      certifications: ['Certificación en RCP y Primeros Auxilios - Cruz Roja (2023)', 'Manejo conductual en TDAH'],
-      reviewsList: [
-        { author: 'Familia Pérez', rating: 5, text: 'María ha sido una bendición. Mi hijo ha mejorado mucho su concentración y sus rabietas han disminuido.', date: 'Marzo 2026' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Carmen Rodríguez',
-      photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400',
-      rating: 5.0,
-      reviews: 82,
-      specialties: ['TEA', 'Discapacidad Motriz'],
-      areas: ['Cuidado domiciliario', 'Terapias de estimulación'],
-      experienceYears: 8,
-      experienceText: '8 años de exp.',
-      rate: 30,
-      shortDescription: 'Terapeuta ocupacional enfocada en autonomía y estimulación sensorial profunda.',
-      longDescription: 'A lo largo de mis 8 años de carrera como terapeuta ocupacional, he desarrollado programas de estimulación sensorial y motriz para niños dentro del espectro autista y con discapacidades motoras. Trabajo de la mano con las familias para asegurar la transferencia de habilidades en casa.',
-      education: ['Tecnología Médica en Terapia Ocupacional - UPCH (2015)', 'Especialización en Integración Sensorial'],
-      certifications: ['Estimulación Temprana Avanzada', 'Soporte Vital Básico Pediátrico'],
-      reviewsList: [
-        { author: 'Mamá de Leo', rating: 5, text: 'Carmen tiene una paciencia infinita. Las terapias en casa son un éxito rotundo.', date: 'Febrero 2026' },
-        { author: 'Familia Torres', rating: 5, text: 'Excelente profesional. Muy recomendada para niños no verbales.', date: 'Enero 2026' }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Sofía Martínez',
-      photo: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=400',
-      rating: 4.8,
-      reviews: 35,
-      specialties: ['Síndrome de Down', 'Primeros Auxilios'],
-      areas: ['Acompañamiento escolar', 'Cuidado domiciliario'],
-      experienceYears: 2,
-      experienceText: '2 años de exp.',
-      rate: 22,
-      shortDescription: 'Joven pedagoga con enfoque lúdico y acompañamiento escolar personalizado.',
-      longDescription: 'Recién graduada en Pedagogía Inclusiva, mi pasión es hacer que el aprendizaje sea divertido. Me especializo en niños con Síndrome de Down, utilizando juegos interactivos y material visual para fortalecer su área cognitiva y social en el día a día.',
-      education: ['Bachiller en Pedagogía Inclusiva - PUCP (2024)'],
-      certifications: ['Primeros Auxilios Pediátricos', 'Lenguaje de Señas Básico'],
-      reviewsList: [
-        { author: 'Familia Castro', rating: 4, text: 'Muy enérgica y alegre. A mi hija le encanta pasar tiempo con ella.', date: 'Marzo 2026' }
-      ]
-    },
-    {
-      id: 4,
-      name: 'Ana Torres',
-      photo: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400',
-      rating: 4.9,
-      reviews: 61,
-      specialties: ['TEA', 'TDAH', 'Primeros Auxilios'],
-      areas: ['Cuidado domiciliario', 'Acompañamiento escolar', 'Terapias de estimulación'],
-      experienceYears: 10,
-      experienceText: '10+ años de exp.',
-      rate: 35,
-      shortDescription: 'Experta Senior en intervención conductual temprana y manejo integral en casa.',
-      longDescription: 'Con más de una década apoyando a familias extraordinarias. Ofrezco un servicio integral que abarca desde el cuidado básico hasta la intervención conductual temprana y la implementación de sistemas de comunicación alternativa (PECS).',
-      education: ['Licenciada en Psicología Clínica - Ulima (2012)', 'Maestría en Intervención en Trastornos del Neurodesarrollo'],
-      certifications: ['Certificación Oficial PECS Nivel 1', 'Instructor RCP AHA'],
-      reviewsList: [
-        { author: 'Papá de Mateo', rating: 5, text: 'Ana es una institución. El progreso de Mateo en su comunicación es evidente.', date: 'Diciembre 2025' }
-      ]
-    },
-  ];
+  const allNanas = nanasFromApi;
 
   const filteredNanas = useMemo(() => {
     return allNanas.filter((nana) => {
@@ -491,7 +485,12 @@ function AppContent() {
                     </motion.p>
                   </div>
 
-                  {filteredNanas.length === 0 ? (
+                  {loadingNanas ? (
+                    <div className="text-center py-20">
+                      <div className="w-10 h-10 border-2 border-[#CC8DB3] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                      <p className="text-[#6667AB]">Cargando cuidadoras...</p>
+                    </div>
+                  ) : filteredNanas.length === 0 ? (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -576,7 +575,7 @@ function AppContent() {
                                 <motion.button
                                   whileHover={{ scale: 1.02 }}
                                   whileTap={{ scale: 0.98 }}
-                                  onClick={() => setProfileModalConfig({ isOpen: true, nana })}
+                                  onClick={() => handleViewProfile(nana)}
                                   className="w-full py-2.5 bg-white text-[#210635] border border-blue-200 rounded-xl hover:bg-[#F6A5C0]/20 transition-colors text-sm font-bold flex items-center justify-center gap-2"
                                 >
                                   <FileText className="w-4 h-4" />
