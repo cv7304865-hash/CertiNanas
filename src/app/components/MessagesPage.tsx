@@ -93,8 +93,12 @@ export function MessagesPage({ onNavigate }: { onNavigate?: (v: string) => void 
               <span className="text-white/60 text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-6">
-              <button onClick={() => onNavigate?.('search')} className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
-              <button onClick={() => onNavigate?.('familia')} className="text-sm text-white/70 hover:text-white transition-colors">Mis Servicios</button>
+              {user?.rol === 'cuidadora' ? (
+                <button onClick={() => onNavigate?.('cuidadora')} className="text-sm text-white/70 hover:text-white transition-colors">Mi Panel</button>
+              ) : (
+                <button onClick={() => onNavigate?.('search')} className="text-sm text-white/70 hover:text-white transition-colors">Inicio</button>
+              )}
+              <button onClick={() => onNavigate?.(user?.rol === 'cuidadora' ? 'cuidadora' : 'familia')} className="text-sm text-white/70 hover:text-white transition-colors">Mis Servicios</button>
               <button className="text-sm font-bold text-[#f6a5c0] border-b-2 border-[#f6a5c0] pb-0.5">Mensajes</button>
               <ProfileAvatar size={36} className="ml-2" />
               <button onClick={logout} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
