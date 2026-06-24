@@ -30,6 +30,42 @@ interface RegistrationFormProps {
   onStartCaptcha: () => void;
 }
 
+function Field({ label, icon: Icon, type = 'text', placeholder, value, onChange, required = true, hint }: {
+  label: string; icon: React.ElementType; type?: string; placeholder: string;
+  value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; required?: boolean;
+  hint?: string;
+}) {
+  return (
+    <div>
+      <label className="block text-[10px] font-semibold text-[#F5D5E0] mb-1">
+        {label} {required && '*'}
+      </label>
+      <div className="relative">
+        <Icon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#6667AB]" />
+        <input type={type} placeholder={placeholder} value={value} onChange={onChange}
+          className="w-full pl-8 pr-3 py-2 text-xs bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
+      </div>
+      {hint && <p className="text-[9px] text-[#6667AB] mt-0.5">{hint}</p>}
+    </div>
+  );
+}
+
+function Section({ color, icon: Icon, step, title, children }: {
+  color: string; icon: React.ElementType; step: string; title: string; children: React.ReactNode;
+}) {
+  return (
+    <div className="border-l-4 bg-[rgba(33,6,53,0.4)] backdrop-blur-sm rounded-r-xl rounded-l-sm p-3" style={{ borderLeftColor: color }}>
+      <div className="flex items-center gap-1.5 mb-2.5">
+        <Icon className="w-3.5 h-3.5 text-[#F5D5E0]" />
+        <span className="text-[9px] font-bold text-[#F5D5E0] tracking-widest uppercase">{step}</span>
+        <div className="h-px flex-1 bg-[rgba(255,255,255,0.08)]" />
+      </div>
+      <h3 className="text-[11px] font-semibold text-white mb-2.5">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
 export function RegistrationForm({
   role, onChangeRole, onClose, onOpenLegal,
   captchaVerified, onStartCaptcha,
@@ -87,42 +123,6 @@ export function RegistrationForm({
     });
     if (err) setError(err); else onClose();
   };
-
-  function Field({ label, icon: Icon, type = 'text', placeholder, value, onChange, required = true, hint }: {
-    label: string; icon: React.ElementType; type?: string; placeholder: string;
-    value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; required?: boolean;
-    hint?: string;
-  }) {
-    return (
-      <div>
-        <label className="block text-[10px] font-semibold text-[#F5D5E0] mb-1">
-          {label} {required && '*'}
-        </label>
-        <div className="relative">
-          <Icon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#6667AB]" />
-          <input type={type} placeholder={placeholder} value={value} onChange={onChange}
-            className="w-full pl-8 pr-3 py-2 text-xs bg-[rgba(33,6,53,0.5)] border border-[rgba(255,255,255,0.3)] text-white placeholder:text-[#6667AB] backdrop-blur-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#7B337E] focus:border-[#7B337E] transition-all" />
-        </div>
-        {hint && <p className="text-[9px] text-[#6667AB] mt-0.5">{hint}</p>}
-      </div>
-    );
-  }
-
-  function Section({ color, icon: Icon, step, title, children }: {
-    color: string; icon: React.ElementType; step: string; title: string; children: React.ReactNode;
-  }) {
-    return (
-      <div className="border-l-4 bg-[rgba(33,6,53,0.4)] backdrop-blur-sm rounded-r-xl rounded-l-sm p-3" style={{ borderLeftColor: color }}>
-        <div className="flex items-center gap-1.5 mb-2.5">
-          <Icon className="w-3.5 h-3.5 text-[#F5D5E0]" />
-          <span className="text-[9px] font-bold text-[#F5D5E0] tracking-widest uppercase">{step}</span>
-          <div className="h-px flex-1 bg-[rgba(255,255,255,0.08)]" />
-        </div>
-        <h3 className="text-[11px] font-semibold text-white mb-2.5">{title}</h3>
-        {children}
-      </div>
-    );
-  }
 
   return (
     <form className="space-y-3" onSubmit={handleSubmit}>
