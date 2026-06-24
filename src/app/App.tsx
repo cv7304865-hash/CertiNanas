@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Star, Shield, Lock, Search, ShieldPlus, ChevronRight, Briefcase, FileText, CheckCircle, SearchX, LayoutDashboard, MessageSquare, LogOut, UserCircle } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { AuthModal } from './components/AuthModal';
+import { photoUrl, initialsDataUri } from './utils';
 import { InterviewModal } from './components/InterviewModal';
 import { FloatingSupport } from './components/FloatingSupport';
 import { LegalModal } from './components/LegalModal';
@@ -125,7 +126,7 @@ function AppContent() {
           const mapped: NanaProfile[] = data.map((c: any) => ({
             id: c.Id,
             name: `${c.Nombres} ${c.Apellidos}`,
-            photo: c.FotoPerfil ? `/uploads/${c.FotoPerfil}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.Nombres + '+' + c.Apellidos)}&background=cc8db3&color=210635&size=400`,
+            photo: photoUrl(c.FotoPerfil, `${c.Nombres} ${c.Apellidos}`),
             rating: c.CalificacionPromedio || 0,
             reviews: c.TotalResenas || 0,
             specialties: c.Especialidades ? c.Especialidades.split(' · ').map((s: string) => s.trim()).filter(Boolean) : [],
@@ -529,6 +530,7 @@ function AppContent() {
                                 src={nana.photo}
                                 alt={nana.name}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                onError={(e) => { const t = e.target as HTMLImageElement; if (!t.dataset.err) { t.dataset.err = '1'; t.src = initialsDataUri(nana.name); } }}
                               />
                               <div className="absolute inset-0 bg-linear-to-t from-[#210635]/80 via-black/20 to-transparent opacity-80"></div>
                               <div className="absolute top-4 right-4 bg-[rgba(33,6,53,0.65)] backdrop-blur-sm rounded-full p-2 shadow-lg flex items-center justify-center border-2 border-[#CC8DB3] group-hover:scale-110 transition-transform" title="Perfil Verificado">

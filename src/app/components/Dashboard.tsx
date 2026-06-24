@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { Calendar, CreditCard, Heart, Star, ChevronRight, Clock, CheckCircle2, AlertCircle, MessageSquare, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { photoUrl } from '../utils';
 
 type Props = {
   onOpenMessages: () => void;
@@ -26,7 +27,7 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
       const top = Array.isArray(cuidadoras) ? cuidadoras.slice(0, 3).map((c: any) => ({
         id: c.Id,
         name: `${c.Nombres} ${c.Apellidos}`,
-        photo: c.FotoPerfil ? `/uploads/${c.FotoPerfil}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.Nombres + '+' + c.Apellidos)}&background=cc8db3&color=210635&size=200`,
+        photo: photoUrl(c.FotoPerfil, `${c.Nombres} ${c.Apellidos}`),
         rating: c.CalificacionPromedio || 0,
         specialty: c.Especialidades || 'Cuidado especializado',
       })) : [];
@@ -162,7 +163,9 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
             <p className="text-[#6667AB] text-sm col-span-3 text-center py-8">No hay cuidadoras disponibles</p>
           ) : favoritas.map((f: any) => (
             <div key={f.id} className="flex items-center gap-4 p-4 rounded-xl border border-[rgba(255,255,255,0.2)] bg-[rgba(33,6,53,0.5)] backdrop-blur-sm hover:shadow-md transition-shadow">
-              <img src={f.photo} alt={f.name} className="w-14 h-14 rounded-full object-cover" />
+              <img src={f.photo} alt={f.name} className="w-14 h-14 rounded-full object-cover"
+                onError={(e) => { const t = e.target as HTMLImageElement; if (!t.dataset.err) { t.dataset.err = '1'; t.src = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#cc8db3"/><text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="42" font-weight="bold" fill="#210635" font-family="sans-serif">${(f.name?.charAt(0) || '?').toUpperCase()}</text></svg>`)}`; } }}
+              />
               <div className="flex-1">
                 <h3 className="font-bold text-white">{f.name}</h3>
                 <p className="text-xs text-[#6667AB]">{f.specialty}</p>

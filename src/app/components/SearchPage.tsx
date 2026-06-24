@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Search, Star, LogOut, X, CheckCircle, Heart, Quote, MapPin, Award, BookOpen, FileText, Briefcase, MessageSquare, ChevronDown, ChevronUp, Video, FileSignature, Eye } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
+import { photoUrl } from '../utils';
 import { ScheduleInterviewModal } from './ScheduleInterviewModal';
 import { DocumentPreviewModal } from './DocumentPreviewModal';
 
@@ -163,9 +164,11 @@ export function SearchPage({ onNavigate, inline }: { onNavigate?: (v: string) =>
               className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-3xl overflow-hidden">
               <div className="h-1.5 bg-[#f6a5c0]"></div>
               <div className="p-6 flex flex-col sm:flex-row items-start gap-5">
-                <div className={`w-16 h-16 rounded-full ${COLORS[i % COLORS.length]} flex items-center justify-center text-white text-xl font-bold flex-shrink-0 overflow-hidden`}>
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0 overflow-hidden ${c.FotoPerfil ? '' : COLORS[i % COLORS.length]}`}>
                   {c.FotoPerfil ? (
-                    <img src={`/uploads/${c.FotoPerfil}`} alt="" className="w-full h-full object-cover" />
+                    <img src={`/uploads/${c.FotoPerfil}`} alt="" className="w-full h-full object-cover"
+                      onError={(e) => { const t = e.target as HTMLImageElement; t.style.display = 'none'; (t.parentElement as HTMLElement).textContent = getIniciales(c.Nombres, c.Apellidos); }}
+                    />
                   ) : (
                     getIniciales(c.Nombres, c.Apellidos)
                   )}
