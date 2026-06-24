@@ -4,6 +4,9 @@ import {
   Activity, Calendar, DollarSign, Users, Shield, Smartphone, CreditCard,
   ArrowRight, AlertCircle, CheckCircle, Clock, FileText, BarChart3
 } from 'lucide-react';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+} from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 
 type Stats = {
@@ -32,10 +35,34 @@ type Reporte = {
   topCuidadoras: { nombre: string; total: number }[];
 };
 
+const STATUS_COLORS: Record<string, string> = {
+  Finalizada: '#10b981',
+  Completada: '#10b981',
+  Cancelada: '#ef4444',
+  'En curso': '#8b5cf6',
+  Pendiente: '#f59e0b',
+  Confirmada: '#F6A5C0',
+  Pagada: '#CC8DB3',
+};
+
+function CustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-[rgba(33,6,53,0.9)] backdrop-blur-md border border-[rgba(255,255,255,0.2)] rounded-xl px-3 py-2 shadow-lg shadow-black/30">
+      {label && <p className="text-xs text-[#F5D5E0] font-semibold mb-1">{label}</p>}
+      {payload.map((p: any, i: number) => (
+        <p key={i} className="text-xs text-white" style={{ color: p.color }}>
+          {p.name}: <span className="font-bold">{p.value}</span>
+        </p>
+      ))}
+    </div>
+  );
+}
+
 export function AdminDashboard() {
   const { user } = useAuth();
   const headers = { 'Content-Type': 'application/json', 'x-user-id': String(user?.id) };
-
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<Stats | null>(null);
   const [reporte, setReporte] = useState<Reporte | null>(null);
   const [escrow, setEscrow] = useState<EscrowStatus | null>(null);
@@ -58,6 +85,7 @@ export function AdminDashboard() {
         });
       }
       if (Array.isArray(meds)) setMediaciones(meds);
+      setLoading(false);
     });
   }, []);
 
@@ -79,9 +107,17 @@ export function AdminDashboard() {
     return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto text-center py-16">
+        <div className="w-8 h-8 border-2 border-[#CC8DB3] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <p className="text-sm text-[#6667AB]">Cargando dashboard...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-8">
-      {/* Fila 1: KPIs principales */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {kpis.map((k, i) => (
           <motion.div key={k.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
@@ -93,7 +129,6 @@ export function AdminDashboard() {
           </motion.div>
         ))}
       </div>
-      {/* Fila 2: KPIs secundarios */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {kpis2.map((k, i) => (
           <motion.div key={k.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.08 }}
@@ -106,7 +141,7 @@ export function AdminDashboard() {
         ))}
       </div>
 
-      {/* Ordenes por Estado (bar chart) */}
+      {/* Ordenes por Estado (bar chart with recharts) */}
       {reporte?.ordenesPorEstado?.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
           className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
@@ -115,33 +150,44 @@ export function AdminDashboard() {
             <BarChart3 className="w-5 h-5 text-[#F6A5C0]" />
             <h2 className="font-bold text-white text-lg">Órdenes por Estado</h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {reporte.ordenesPorEstado.map((o, i) => {
-              const total = reporte.ordenesPorEstado.reduce((s, x) => s + x.count, 0);
-              const pct = total > 0 ? (o.count / total) * 100 : 0;
-              return (
-                <div key={o.Estado} className="bg-[rgba(33,6,53,0.4)] rounded-xl p-3 border border-[rgba(255,255,255,0.06)]">
-                  <p className="text-xs text-[#6667AB]">{o.Estado}</p>
-                  <p className="text-xl font-bold text-white mt-1">{o.count}</p>
-                  <div className="w-full h-1.5 rounded-full bg-[rgba(255,255,255,0.06)] mt-2 overflow-hidden">
-                    <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, delay: 0.8 + i * 0.1 }}
-                      className={`h-full rounded-full ${
-                        o.Estado === 'Finalizada' || o.Estado === 'Completada' ? 'bg-emerald-400' :
-                        o.Estado === 'Cancelada' ? 'bg-red-400' :
-                        o.Estado === 'En curso' ? 'bg-purple-400' :
-                        'bg-[#F6A5C0]'
-                      }`}
-                    />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={reporte.ordenesPorEstado} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis dataKey="Estado" tick={{ fill: '#6667AB', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#6667AB', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={50}>
+                    {reporte.ordenesPorEstado.map((o) => (
+                      <Cell key={o.Estado} fill={STATUS_COLORS[o.Estado] || '#CC8DB3'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-2">
+              {reporte.ordenesPorEstado.map((o) => {
+                const total = reporte.ordenesPorEstado.reduce((s, x) => s + x.count, 0);
+                const pct = total > 0 ? (o.count / total) * 100 : 0;
+                return (
+                  <div key={o.Estado} className="flex items-center justify-between bg-[rgba(33,6,53,0.4)] rounded-xl px-4 py-2.5 border border-[rgba(255,255,255,0.06)]">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: STATUS_COLORS[o.Estado] || '#CC8DB3' }} />
+                      <span className="text-sm text-[#F5D5E0]">{o.Estado}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-sm font-bold text-white">{o.count}</span>
+                      <span className="text-xs text-[#6667AB] ml-1">({pct.toFixed(0)}%)</span>
+                    </div>
                   </div>
-                  <p className="text-[10px] text-[#6667AB] mt-1">{pct.toFixed(0)}%</p>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </motion.div>
       )}
 
-      {/* Top Cuidadoras */}
       {reporte?.topCuidadoras?.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
           className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
@@ -154,10 +200,17 @@ export function AdminDashboard() {
             {reporte.topCuidadoras.map((c, i) => (
               <div key={c.nombre} className="flex items-center justify-between bg-[rgba(33,6,53,0.4)] rounded-xl px-4 py-2.5 border border-[rgba(255,255,255,0.06)]">
                 <div className="flex items-center gap-3">
-                  <span className="w-5 h-5 rounded-full bg-[#F6A5C0]/20 flex items-center justify-center text-[10px] font-bold text-[#F6A5C0]">#{i + 1}</span>
+                  <motion.span
+                    initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.8 + i * 0.1, type: 'spring' }}
+                    className="w-5 h-5 rounded-full bg-[#F6A5C0]/20 flex items-center justify-center text-[10px] font-bold text-[#F6A5C0]"
+                  >#{i + 1}</motion.span>
                   <span className="text-sm text-white">{c.nombre}</span>
                 </div>
-                <span className="text-xs text-[#F5D5E0]">{c.total} servicios</span>
+                <div className="flex items-center gap-2">
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min((c.total / Math.max(...reporte.topCuidadoras.map(x => x.total), 1)) * 80, 80)}px` }} transition={{ duration: 0.8, delay: 1 + i * 0.1 }}
+                    className="h-1.5 rounded-full bg-linear-to-r from-[#7B337E] to-[#F6A5C0]" />
+                  <span className="text-xs text-[#F5D5E0] font-semibold w-8 text-right">{c.total}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -165,7 +218,9 @@ export function AdminDashboard() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
+          className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
+        >
           <div className="flex items-center gap-2 mb-6">
             <Shield className="w-5 h-5 text-[#F6A5C0]" />
             <h2 className="font-bold text-white text-lg">Escrow Monitor</h2>
@@ -176,31 +231,25 @@ export function AdminDashboard() {
                 <CreditCard className="w-4 h-4 text-[#CC8DB3]" />
                 <span className="text-xs font-bold text-[#6667AB] uppercase">Electrónicas</span>
               </div>
-              <p className="text-2xl font-bold text-white">
-                S/ {escrow?.electronico?.total?.toFixed(2) ?? '0.00'}
-              </p>
+              <p className="text-2xl font-bold text-white">S/ {escrow?.electronico?.total?.toFixed(2) ?? '0.00'}</p>
               <p className="text-xs text-[#6667AB] mt-1">{escrow?.electronico?.count ?? 0} transacciones</p>
-              <span className="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-200">
-                {escrow?.electronico?.status ?? 'Activo'}
-              </span>
+              <span className="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-200">{escrow?.electronico?.status ?? 'Activo'}</span>
             </div>
             <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4 border border-[rgba(255,255,255,0.08)]">
               <div className="flex items-center gap-2 mb-3">
                 <Smartphone className="w-4 h-4 text-[#F6A5C0]" />
                 <span className="text-xs font-bold text-[#6667AB] uppercase">Yape/Plin</span>
               </div>
-              <p className="text-2xl font-bold text-white">
-                S/ {escrow?.yapePlin?.total?.toFixed(2) ?? '0.00'}
-              </p>
+              <p className="text-2xl font-bold text-white">S/ {escrow?.yapePlin?.total?.toFixed(2) ?? '0.00'}</p>
               <p className="text-xs text-[#6667AB] mt-1">{escrow?.yapePlin?.count ?? 0} transacciones</p>
-              <span className="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-200">
-                {escrow?.yapePlin?.status ?? 'Pendiente'}
-              </span>
+              <span className="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-200">{escrow?.yapePlin?.status ?? 'Pendiente'}</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
+          className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-6"
+        >
           <div className="flex items-center gap-2 mb-6">
             <Activity className="w-5 h-5 text-[#F6A5C0]" />
             <h2 className="font-bold text-white text-lg">Mediaciones Pendientes</h2>
@@ -213,38 +262,33 @@ export function AdminDashboard() {
           ) : (
             <div className="space-y-3">
               {mediaciones.slice(0, 5).map((m, i) => (
-                <div key={m.Id} className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4 border border-[rgba(255,255,255,0.06)]">
+                <motion.div key={m.Id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1 + i * 0.1 }}
+                  className="bg-[rgba(33,6,53,0.4)] rounded-xl p-4 border border-[rgba(255,255,255,0.06)]"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-[#CC8DB3]/20 flex items-center justify-center text-[#CC8DB3] text-xs font-bold">
                         {m.FamiliaNombres?.charAt(0)}{m.FamiliaApellidos?.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-white">
-                          {m.FamiliaNombres} {m.FamiliaApellidos}
-                        </p>
-                        <p className="text-xs text-[#6667AB]">
-                          ↔ {m.CuidadoraNombres} {m.CuidadoraApellidos}
-                        </p>
+                        <p className="text-sm font-semibold text-white">{m.FamiliaNombres} {m.FamiliaApellidos}</p>
+                        <p className="text-xs text-[#6667AB]">↔ {m.CuidadoraNombres} {m.CuidadoraApellidos}</p>
                       </div>
                     </div>
                     <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
                       m.Estado === 'Pendiente' ? 'bg-amber-500/20 text-amber-200' :
                       m.Estado === 'En Progreso' ? 'bg-purple-500/20 text-purple-200' :
                       'bg-emerald-500/20 text-emerald-200'
-                    }`}>
-                      {m.Estado}
-                    </span>
+                    }`}>{m.Estado}</span>
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <span className="text-[10px] text-[#6667AB]">{formatFecha(m.FechaCreacion)}</span>
-                    <span className="text-[10px] text-[#6667AB]">↔ {m.CuidadoraNombres}</span>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );
