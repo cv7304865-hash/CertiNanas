@@ -4,8 +4,9 @@ import {
   LogOut, Search, MessageSquare, CheckCircle, XCircle, DollarSign, Clock, ListTodo,
   Calendar, Briefcase, Shield, Wallet, Eye, Plus, Edit3, Trash2, AlertTriangle, X,
   Baby, Lock, CreditCard, HelpCircle, ChevronDown, ChevronUp, Star, Send, User,
-  Phone, Mail, MapPin, Upload, FileText, Repeat, AlertCircle, RefreshCw
+  Phone, Mail, MapPin, Upload, FileText, Repeat, AlertCircle, RefreshCw, Activity, BarChart3
 } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 import { UserMenu } from './UserMenu';
@@ -470,6 +471,104 @@ export function FamilyPanel({ onNavigate, onViewContract, onReview }: {
                 </motion.div>
               ))}
             </div>
+
+            {/* Charts Section */}
+            {solicitudes.length > 0 && (() => {
+              const estadoCount = solicitudes.reduce<Record<string, number>>((acc, s) => {
+                acc[s.Estado] = (acc[s.Estado] || 0) + 1;
+                return acc;
+              }, {});
+              const estadoData = Object.entries(estadoCount).map(([name, value]) => ({ name, value }));
+              const estadoColors: Record<string, string> = {
+                Pendiente: '#f59e0b', Confirmada: '#F6A5C0', Pagada: '#CC8DB3',
+                'En curso': '#8b5cf6', Completada: '#10b981', Finalizada: '#059669',
+                Cancelada: '#ef4444',
+              };
+              const completadas = (estadoCount['Completada'] || 0) + (estadoCount['Finalizada'] || 0);
+              const totalServs = solicitudes.length;
+              const pctCompletadas = totalServs > 0 ? Math.round((completadas / totalServs) * 100) : 0;
+              return (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-5"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Activity className="w-5 h-5 text-[#F6A5C0]" />
+                      <h3 className="font-bold text-white text-sm">Distribución de Servicios</h3>
+                    </div>
+                    <p className="text-xs text-[#6667AB] mb-3">{totalServs} servicios · {pctCompletadas}% completados</p>
+                    <div className="flex items-center gap-4">
+                      <div className="w-36 h-36 flex-shrink-0">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie data={estadoData} cx="50%" cy="50%" innerRadius={32} outerRadius={55} paddingAngle={3} dataKey="value">
+                              {estadoData.map((e) => (
+                                <Cell key={e.name} fill={estadoColors[e.name] || '#6667AB'} stroke="rgba(255,255,255,0.1)" />
+                              ))}
+                            </Pie>
+                            <Tooltip
+                              contentStyle={{ background: 'rgba(33,6,53,0.9)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 12, fontSize: 12 }}
+                              formatter={(value: number, name: string) => [`${value} (${totalServs > 0 ? ((value / totalServs) * 100).toFixed(0) : 0}%)`, name]}
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="flex-1 space-y-1.5">
+                        {estadoData.map((e) => (
+                          <div key={e.name} className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: estadoColors[e.name] || '#6667AB' }} />
+                              <span className="text-[#F5D5E0]">{e.name}</span>
+                            </div>
+                            <span className="text-white font-bold">{e.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-2xl p-5"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <BarChart3 className="w-5 h-5 text-[#F6A5C0]" />
+                      <h3 className="font-bold text-white text-sm">Resumen Financiero</h3>
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-[#6667AB]">Retenido en Escrow</span>
+                          <span className="text-white font-bold">S/ {stats.totalEscrow.toFixed(2)}</span>
+                        </div>
+                        <div className="w-full h-2 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min((stats.totalEscrow / Math.max(stats.totalInvertido, 1)) * 100, 100)}%` }} transition={{ duration: 0.8 }}
+                            className="h-full rounded-full bg-linear-to-r from-[#7B337E] to-[#CC8DB3]" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-[#6667AB]">Total invertido</span>
+                          <span className="text-white font-bold">S/ {stats.totalInvertido.toFixed(2)}</span>
+                        </div>
+                        <div className="w-full h-2 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: '100%' }} transition={{ duration: 0.8 }}
+                            className="h-full rounded-full bg-linear-to-r from-[#7B337E] to-[#F6A5C0]" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-2.5 text-center">
+                          <p className="text-lg font-extrabold text-[#F6A5C0]">{stats.totalEntrevistas}</p>
+                          <p className="text-[10px] text-[#6667AB]">Entrevistas</p>
+                        </div>
+                        <div className="bg-[rgba(33,6,53,0.4)] rounded-xl p-2.5 text-center">
+                          <p className="text-lg font-extrabold text-[#CC8DB3]">{totalServs}</p>
+                          <p className="text-[10px] text-[#6667AB]">Servicios</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              );
+            })()}
 
             {/* Interviews Section */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
