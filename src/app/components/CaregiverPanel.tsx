@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { ProfileAvatar } from './ProfileAvatar';
 import { UserMenu } from './UserMenu';
 import { CuidadoraSolicitudes } from './CuidadoraSolicitudes';
+import { CuidadoraContratados } from './CuidadoraContratados';
 import { PanicButton } from './PanicButton';
 import { CentroCapacitacion } from './CentroCapacitacion';
 import { HistorialSalud } from './HistorialSalud';
@@ -70,7 +71,7 @@ type CaregiverPanelProps = {
   onNavigate?: (view: string) => void;
 };
 
-type Tab = 'perfil' | 'servicios' | 'solicitudes' | 'panel' | 'mensajes' | 'pagos' | 'capacitacion' | 'reportes' | 'reemplazo';
+type Tab = 'perfil' | 'servicios' | 'solicitudes' | 'contratados' | 'panel' | 'mensajes' | 'pagos' | 'capacitacion' | 'reportes' | 'reemplazo';
 
 export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
   const { user, logout } = useAuth();
@@ -332,7 +333,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
               <span className="text-[#6667AB] text-sm hidden sm:inline">Cuidado Infantil Especializado</span>
             </div>
             <nav className="flex items-center gap-4 sm:gap-6 overflow-x-auto pb-1 scrollbar-none">
-              {(['perfil', 'servicios', 'solicitudes', 'panel', 'mensajes', 'pagos', 'capacitacion', 'reportes', 'reemplazo'] as Tab[]).map(t => (
+              {(['perfil', 'servicios', 'solicitudes', 'contratados', 'panel', 'mensajes', 'pagos', 'capacitacion', 'reportes', 'reemplazo'] as Tab[]).map(t => (
                 <button
                   key={t}
                   onClick={() => t === 'mensajes' ? onNavigate?.('messages') : setTab(t)}
@@ -345,6 +346,7 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
                   {t === 'perfil' && 'Mi Perfil'}
                   {t === 'servicios' && 'Servicios'}
                   {t === 'solicitudes' && 'Solicitudes'}
+                  {t === 'contratados' && 'Contratados'}
                   {t === 'panel' && 'Mi Panel'}
                   {t === 'mensajes' && 'Mensajes'}
                   {t === 'pagos' && 'Mis Pagos'}
@@ -613,6 +615,11 @@ export function CaregiverPanel({ onNavigate }: CaregiverPanelProps) {
         {/* ════════════════════ TAB: SOLICITUDES ════════════════════ */}
         {tab === 'solicitudes' && (
           <CuidadoraSolicitudes />
+        )}
+
+        {/* ════════════════════ TAB: CONTRATADOS ════════════════════ */}
+        {tab === 'contratados' && (
+          <CuidadoraContratados />
         )}
 
         {/* ════════════════════ TAB: MI PANEL ════════════════════ */}

@@ -37,8 +37,14 @@ router.post('/negociacion', (req, res) => {
         db.prepare('UPDATE OrdenTareasPersonalizadas SET Decision = ? WHERE Id = ? AND IdOrden = ?').run(r.decision, r.tareaId, ordenId);
       }
     }
-    db.prepare("UPDATE Ordenes SET EstadoNegociacion = 'Negociacion' WHERE Id = ?").run(ordenId);
-    audit(userId, 'responder_tareas', 'Ordenes', ordenId, 'Respuestas a tareas enviadas');
+    const todasAceptadas = respuestas.every(r => r.decision === 'Aceptar');
+    if (todasAceptadas) {
+      db.prepare("UPDATE Ordenes SET EstadoNegociacion = 'Aceptada', ConfirmadaCuidadora = 1 WHERE Id = ?").run(ordenId);
+      audit(userId, 'aceptar_todas_tareas', 'Ordenes', ordenId, 'Todas las tareas aceptadas');
+    } else {
+      db.prepare("UPDATE Ordenes SET EstadoNegociacion = 'Negociacion' WHERE Id = ?").run(ordenId);
+      audit(userId, 'responder_tareas', 'Ordenes', ordenId, 'Respuestas a tareas enviadas');
+    }
   })();
 
   res.json({ success: true, message: 'Respuestas registradas' });
@@ -399,6 +405,47 @@ router.get('/familia/orden/:id/propuestas', (req, res) => {
   `).all(orden.Id);
 
   res.json(props);
+});
+
+// ── CAREGIVER: ver contratos aceptados pendientes de pago ──
+router.get('/cuidadora/contratados', (req, res) => {
+  const db = getDb();
+  const userId = Number(req.headers['x-user-id']);
+  if (!userId) return res.status(401).json({ error: 'No autenticado' });
+  if (getUserRole(userId) !== 3) return res.status(403).json({ error: 'Solo cuidadoras' });
+
+  const cuidadora = db.prepare('SELECT Id FROM Cuidadoras WHERE IdUsuario = ?').get(userId);
+  if (!cuidadora) return res.status(404).json({ error: 'Cuidadora no encontrada' });
+
+  const rows = db.prepare(`
+    SELECT o.Id, o.FechaServicio, o.TotalHoras, o.TarifaHora, o.Total, o.Subtotal, o.TarifaPlataforma,
+           o.Estado, o.EstadoNegociacion, o.HoraInicio, o.HoraFin, o.TipoServicio, o.FechaCreacion,
+           o.ConfirmadaFamilia, o.ConfirmadaCuidadora,
+           uf.Nombres AS FamiliaNombres, uf.Apellidos AS FamiliaApellidos,
+           m.Nombre AS MenorNombre, m.Diagnostico AS MenorDiagnostico
+    FROM Ordenes o
+    INNER JOIN Usuarios uf ON uf.Id = o.IdUsuarioFamilia
+    LEFT JOIN Menores m ON m.Id = o.IdMenor
+    WHERE o.IdCuidadora = ? AND o.EstadoNegociacion = 'Aceptada' AND o.Estado = 'Pendiente'
+    ORDER BY o.FechaCreacion DESC
+  `).all(cuidadora.Id);
+
+  for (const r of rows) {
+    const tareas = db.prepare(`
+      SELECT ot.Id, t.Descripcion, ot.Decision FROM OrdenTareas ot
+      INNER JOIN Tareas t ON t.Id = ot.IdTarea
+      WHERE ot.IdOrden = ?
+    `).all(r.Id);
+    const tareasPersonalizadas = db.prepare(`
+      SELECT Id, Descripcion, Decision FROM OrdenTareasPersonalizadas WHERE IdOrden = ?
+    `).all(r.Id);
+    r.tareas = [
+      ...tareas.map(t => ({ Id: t.Id, Descripcion: t.Descripcion, Decision: t.Decision, EsPersonalizada: false })),
+      ...tareasPersonalizadas.map(t => ({ Id: t.Id, Descripcion: t.Descripcion, Decision: t.Decision, EsPersonalizada: true })),
+    ];
+  }
+
+  res.json(rows);
 });
 
 export default router;
