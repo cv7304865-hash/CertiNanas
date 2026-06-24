@@ -26,7 +26,7 @@ export function Dashboard({ onOpenMessages, onOpenCheckout }: Props) {
       const top = Array.isArray(cuidadoras) ? cuidadoras.slice(0, 3).map((c: any) => ({
         id: c.Id,
         name: `${c.Nombres} ${c.Apellidos}`,
-        photo: `https://ui-avatars.com/api/?name=${encodeURIComponent(c.Nombres + '+' + c.Apellidos)}&background=cc8db3&color=210635&size=200`,
+        photo: c.FotoPerfil ? `/uploads/${c.FotoPerfil}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.Nombres + '+' + c.Apellidos)}&background=cc8db3&color=210635&size=200`,
         rating: c.CalificacionPromedio || 0,
         specialty: c.Especialidades || 'Cuidado especializado',
       })) : [];

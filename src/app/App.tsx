@@ -125,7 +125,7 @@ function AppContent() {
           const mapped: NanaProfile[] = data.map((c: any) => ({
             id: c.Id,
             name: `${c.Nombres} ${c.Apellidos}`,
-            photo: `https://ui-avatars.com/api/?name=${encodeURIComponent(c.Nombres + '+' + c.Apellidos)}&background=cc8db3&color=210635&size=400`,
+            photo: c.FotoPerfil ? `/uploads/${c.FotoPerfil}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(c.Nombres + '+' + c.Apellidos)}&background=cc8db3&color=210635&size=400`,
             rating: c.CalificacionPromedio || 0,
             reviews: c.TotalResenas || 0,
             specialties: c.Especialidades ? c.Especialidades.split(' · ').map((s: string) => s.trim()).filter(Boolean) : [],

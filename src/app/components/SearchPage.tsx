@@ -10,7 +10,7 @@ type CuidadoraCard = {
   Id: number; IdUsuario: number; AniosExperiencia: number; TarifaHora: number;
   CalificacionPromedio: number; TotalResenas: number;
   Nombres: string; Apellidos: string; Email: string;
-  Especialidades: string; Compatibilidad?: number;
+  Especialidades: string; Compatibilidad?: number; FotoPerfil?: string;
 };
 
 type MatchingResult = {
@@ -163,8 +163,12 @@ export function SearchPage({ onNavigate, inline }: { onNavigate?: (v: string) =>
               className="bg-[rgba(33,6,53,0.65)] backdrop-blur-[20px] border border-[rgba(255,255,255,0.2)] shadow-lg shadow-black/30 rounded-3xl overflow-hidden">
               <div className="h-1.5 bg-[#f6a5c0]"></div>
               <div className="p-6 flex flex-col sm:flex-row items-start gap-5">
-                <div className={`w-16 h-16 rounded-full ${COLORS[i % COLORS.length]} flex items-center justify-center text-white text-xl font-bold flex-shrink-0`}>
-                  {getIniciales(c.Nombres, c.Apellidos)}
+                <div className={`w-16 h-16 rounded-full ${COLORS[i % COLORS.length]} flex items-center justify-center text-white text-xl font-bold flex-shrink-0 overflow-hidden`}>
+                  {c.FotoPerfil ? (
+                    <img src={`/uploads/${c.FotoPerfil}`} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    getIniciales(c.Nombres, c.Apellidos)
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3">
