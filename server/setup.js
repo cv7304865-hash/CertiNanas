@@ -1,4 +1,8 @@
 import { getDb, closeDb } from './db.js';
+import { writeFileSync, existsSync, mkdirSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname2 = dirname(fileURLToPath(import.meta.url));
 
 export function setupDatabase(db) {
 db.exec(`
@@ -703,7 +707,36 @@ db.exec(`
   try { db.prepare("UPDATE DocumentosPostulacion SET TipoRequisito = 'Titulo profesional' WHERE TipoRequisito = 'Certificado Estudios'").run(); } catch(e) {}
   try { db.prepare("UPDATE DocumentosPostulacion SET TipoRequisito = 'Carta de presentacion' WHERE TipoRequisito = 'Carta Presentacion'").run(); } catch(e) {}
 
-console.log('Tablas creadas y datos de semilla insertados.');
+// Generar avatars SVG para usuarios sin foto
+const uploadsDir = join(__dirname2, 'uploads');
+if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
+const colors = [
+  ['#7B337E', '#F6A5C0'], ['#CC8DB3', '#210635'], ['#F6A5C0', '#210635'],
+  ['#6667AB', '#F5D5E0'], ['#210635', '#CC8DB3'], ['#7B337E', '#F5D5E0'],
+  ['#CC8DB3', '#210635'], ['#F5D5E0', '#210635'], ['#6667AB', '#F5D5E0'],
+  ['#210635', '#F6A5C0'], ['#7B337E', '#FFFFFF'], ['#CC8DB3', '#210635'],
+];
+const sinFoto = db.prepare("SELECT Id, Nombres, Apellidos FROM Usuarios WHERE (FotoPerfil IS NULL OR FotoPerfil = '')").all();
+for (let i = 0; i < sinFoto.length; i++) {
+  const u = sinFoto[i];
+  const initial = (u.Nombres?.trim().charAt(0) || '?').toUpperCase();
+  const color = colors[i % colors.length];
+  const filename = `avatar-${u.Id}.svg`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="${color[0]}"/>
+    <stop offset="100%" stop-color="${color[1]}"/>
+  </linearGradient></defs>
+  <rect width="200" height="200" rx="100" fill="url(#bg)"/>
+  <text x="100" y="108" text-anchor="middle" dominant-baseline="central"
+    font-size="80" font-weight="bold" fill="white" font-family="Inter, sans-serif">${initial}</text>
+</svg>`;
+  writeFileSync(join(uploadsDir, filename), svg, 'utf-8');
+  db.prepare('UPDATE Usuarios SET FotoPerfil = ? WHERE Id = ?').run(filename, u.Id);
+}
+console.log(`${sinFoto.length} avatares generados.`);
+
+console.log('Setup completado.');
 }
 
 if (process.argv[1] && (process.argv[1].endsWith('setup.js') || process.argv[1].endsWith('setup'))) {
