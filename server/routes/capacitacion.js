@@ -81,10 +81,16 @@ router.post('/evaluacion/responder', (req, res) => {
   }
 });
 
-router.get('/progreso/:idCuidadora', (req, res) => {
+router.get('/progreso', (req, res) => {
   try {
     const db = getDb();
-    const idCuidadora = Number(req.params.idCuidadora);
+    const userId = Number(req.headers['x-user-id']);
+    if (!userId) return res.status(401).json({ error: 'No autenticado' });
+
+    const cuidadora = db.prepare('SELECT Id FROM Cuidadoras WHERE IdUsuario = ?').get(userId);
+    if (!cuidadora) return res.status(403).json({ error: 'Acceso denegado' });
+
+    const idCuidadora = cuidadora.Id;
 
     const progreso = db.prepare(`
       SELECT pc.*, c.Titulo, c.Descripcion, c.Categoria

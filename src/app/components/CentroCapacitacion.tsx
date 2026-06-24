@@ -35,7 +35,7 @@ export function CentroCapacitacion() {
   useEffect(() => {
     fetch('/api/capacitacion/cursos', { headers })
       .then(r => r.json()).then(setCursos).catch(() => {});
-    fetch(`/api/capacitacion/progreso/1`, { headers })
+    fetch(`/api/capacitacion/progreso`, { headers })
       .then(r => r.json())
       .then(data => setProgreso(data.progreso || []))
       .catch(() => {});
@@ -76,7 +76,7 @@ export function CentroCapacitacion() {
             : `No aprobado. Puntaje: ${data.puntaje}% (${data.aciertos}/${data.total}). Mínimo requerido: 70%`,
         });
         setSelectedCurso(null);
-        const prog = await fetch(`/api/capacitacion/progreso/1`, { headers }).then(r => r.json());
+        const prog = await fetch(`/api/capacitacion/progreso`, { headers }).then(r => r.json());
         setProgreso(prog.progreso || []);
       } else {
         setMessage({ type: 'danger', text: data.error || 'Error al enviar evaluación' });
