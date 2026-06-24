@@ -162,13 +162,12 @@ router.post('/orden/:id/confirmar-finalizacion', (req, res) => {
   if (orden.FinalizadaFamilia) return res.status(400).json({ error: 'Ya confirmaste la finalización' });
 
   db.transaction(() => {
-    db.prepare("UPDATE Ordenes SET FinalizadaFamilia = 1, FechaFinalizacion = datetime('now') WHERE Id = ?").run(orden.Id);
-    // Si ambas partes confirmaron, liberar Escrow
-    const ordenActualizada = db.prepare('SELECT * FROM Ordenes WHERE Id = ?').get(orden.Id);
+    db.prepare("UPDATE Ordenes SET FinalizadaFamilia = 1, Estado = 'Completada', FechaFinalizacion = datetime('now') WHERE Id = ?").run(orden.Id);
+    // Si ambas partes confirmaron, liberar Escrow automáticamente
+    const cuidadoraCerro = db.prepare('SELECT FinalizadaCuidadora FROM Ordenes WHERE Id = ?').get(orden.Id)?.FinalizadaCuidadora;
     let liberado = false;
-    if (ordenActualizada.FinalizadaFamilia && ordenActualizada.FinalizadaCuidadora) {
+    if (cuidadoraCerro) {
       db.prepare("UPDATE Escrow SET Estado = 'Liberado', FechaLiberacion = datetime('now') WHERE IdOrden = ?").run(orden.Id);
-      db.prepare("UPDATE Ordenes SET Estado = 'Completada' WHERE Id = ?").run(orden.Id);
       liberado = true;
     }
     audit(userId, liberado ? 'confirmar_finalizacion_liberar_escrow' : 'confirmar_finalizacion', 'Ordenes', orden.Id, null);

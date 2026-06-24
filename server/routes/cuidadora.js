@@ -238,14 +238,15 @@ router.post('/orden/:id/confirmar-finalizacion', isCaregiver, (req, res) => {
 
   const orden = db.prepare('SELECT * FROM Ordenes WHERE Id = ? AND IdCuidadora = ?').get(Number(req.params.id), cuidadora.Id);
   if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
-  if (orden.Estado !== 'Pagada') return res.status(400).json({ error: 'El servicio debe estar pagado para finalizarlo' });
+  if (orden.Estado !== 'Pagada' && orden.Estado !== 'En curso' && orden.Estado !== 'Completada') return res.status(400).json({ error: 'El servicio debe estar pagado o en curso' });
   if (orden.FinalizadaCuidadora) return res.status(400).json({ error: 'Ya confirmaste la finalización' });
 
   db.transaction(() => {
     db.prepare("UPDATE Ordenes SET FinalizadaCuidadora = 1 WHERE Id = ?").run(orden.Id);
-    const ordenActualizada = db.prepare('SELECT * FROM Ordenes WHERE Id = ?').get(orden.Id);
+    // Si la familia ya confirmó, liberar Escrow automáticamente
+    const familiaCerro = db.prepare('SELECT FinalizadaFamilia FROM Ordenes WHERE Id = ?').get(orden.Id)?.FinalizadaFamilia;
     let liberado = false;
-    if (ordenActualizada.FinalizadaFamilia && ordenActualizada.FinalizadaCuidadora) {
+    if (familiaCerro) {
       db.prepare("UPDATE Escrow SET Estado = 'Liberado', FechaLiberacion = datetime('now') WHERE IdOrden = ?").run(orden.Id);
       db.prepare("UPDATE Ordenes SET Estado = 'Completada' WHERE Id = ?").run(orden.Id);
       liberado = true;
