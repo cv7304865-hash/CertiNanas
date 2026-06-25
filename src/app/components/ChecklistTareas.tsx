@@ -84,6 +84,7 @@ export function ChecklistTareas({
                   return (
                     <label
                       key={t.Id}
+                      onClick={() => toggle(t.Id)}
                       className={`flex items-center gap-3 px-4 py-2 cursor-pointer transition-colors ${
                         readOnly ? '' : 'hover:bg-[rgba(246,165,192,0.05)]'
                       } ${checked ? 'bg-[rgba(246,165,192,0.08)]' : ''}`}

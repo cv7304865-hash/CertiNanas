@@ -192,11 +192,8 @@ export function ContractPage({ orderId, onBack, onProceedToPayment }: { orderId?
                   <Shield className="w-5 h-5 text-[#F6A5C0]" />
                   <span className="text-sm font-bold text-white">Firma Digital y Verificación</span>
                 </div>
-                <div className="space-y-6">
+                <div>
                   <SignatureCanvas ordenId={data?.Id || 0} tipo="familia" />
-                  <div className="border-t border-[rgba(255,255,255,0.06)] pt-6">
-                    <SignatureCanvas ordenId={data?.Id || 0} tipo="cuidadora" />
-                  </div>
                 </div>
               </div>
 

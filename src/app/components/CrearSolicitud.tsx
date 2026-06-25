@@ -4,7 +4,7 @@ import { Send, ArrowLeft, Star, FileSignature, Shield, Wallet, ListTodo, Calenda
 import { useAuth } from '../../context/AuthContext';
 import { ChecklistTareas } from './ChecklistTareas';
 
-type Cuidadora = { Id: number; Nombres: string; Apellidos: string; TarifaHora: number; CalificacionPromedio: number; TotalResenas: number; Especialidades: string | null };
+type Cuidadora = { Id: number; Nombres: string; Apellidos: string; TarifaHora: number; CalificacionPromedio: number; TotalResenas: number; Especialidades: string | null; fotoPerfil?: string | null };
 type Menor = { Id: number; Nombre: string; Diagnostico: string | null; FechaNacimiento: string | null };
 
 export function CrearSolicitud({ onBack, onSuccess }: { onBack: () => void; onSuccess: () => void }) {
@@ -168,7 +168,18 @@ export function CrearSolicitud({ onBack, onSuccess }: { onBack: () => void; onSu
                     : 'border-[rgba(255,255,255,0.08)] bg-[rgba(33,6,53,0.3)] text-[#F5D5E0]/70 hover:border-[rgba(255,255,255,0.2)]'
                 }`}
               >
-                <span className="font-bold block">{c.Nombres} {c.Apellidos}</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-[rgba(246,165,192,0.15)]">
+                    {c.fotoPerfil ? (
+                      <img src={`/uploads/${c.fotoPerfil}`} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xs font-bold text-[#F6A5C0]">
+                        {c.Nombres.charAt(0)}{c.Apellidos.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="font-bold block truncate">{c.Nombres} {c.Apellidos}</span>
                 <span className="text-[10px] flex items-center gap-2 mt-0.5">
                   <span>S/ {c.TarifaHora}/h</span>
                   {c.CalificacionPromedio > 0 && (
@@ -176,8 +187,10 @@ export function CrearSolicitud({ onBack, onSuccess }: { onBack: () => void; onSu
                       <Star className="w-3 h-3 fill-amber-300" />{c.CalificacionPromedio.toFixed(1)}
                     </span>
                   )}
-                </span>
-                {c.Especialidades && <span className="text-[10px] text-[#6667AB] block mt-0.5 truncate">{c.Especialidades}</span>}
+                  </span>
+                  {c.Especialidades && <span className="text-[10px] text-[#6667AB] block mt-0.5 truncate">{c.Especialidades}</span>}
+                </div>
+              </div>
               </button>
             ))}
           </div>
