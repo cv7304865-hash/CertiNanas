@@ -22,8 +22,9 @@ export const authService = {
       throw new Error('No se pudo conectar con el servidor. ¿Está corriendo el backend?');
     }
     if (!res.ok) {
-      try { const data = await res.json(); throw new Error(data.error || 'Error al iniciar sesión'); }
-      catch { throw new Error('Error al iniciar sesión (sin respuesta del servidor)'); }
+      let errMsg = 'Error al iniciar sesión (sin respuesta del servidor)';
+      try { const data = await res.json(); errMsg = data.error || 'Error al iniciar sesión'; } catch {}
+      throw new Error(errMsg);
     }
     const text = await res.text();
     if (!text) throw new Error('El servidor respondió vacío. Verifica que el backend esté corriendo.');
